@@ -10,10 +10,12 @@ import SwiftUI
 import Combine
 
 // 식사 타입 정의
-enum MealType: String, CaseIterable, Codable {
+enum MealType: String, CaseIterable, Codable, Identifiable {
     case breakfast = "아침"
     case lunch = "점심"
     case dinner = "저녁"
+
+    var id: String { self.rawValue }
 
     var symbolName: String {
         switch self {
@@ -64,13 +66,80 @@ struct MealRecord: Identifiable, Codable {
 // 날짜별 식사 기록을 관리하는 ObservableObject
 @MainActor
 class MealRecordStore: ObservableObject {
-    @Published var records: [MealRecord] = []
+    // 식단과 운동을 완전히 별개로 저장
+    @Published private var dietRecords: [MealRecord] = []
+    @Published private var exerciseRecords: [MealRecord] = []
+
+    // 현재 앨범 타입에 따라 적절한 레코드 반환
+    var records: [MealRecord] {
+        get {
+            switch SettingsManager.shared.albumType {
+            case .diet:
+                return dietRecords
+            case .exercise:
+                return exerciseRecords
+            }
+        }
+        set {
+            switch SettingsManager.shared.albumType {
+            case .diet:
+                dietRecords = newValue
+            case .exercise:
+                exerciseRecords = newValue
+            }
+            saveRecords()
+        }
+    }
 
     private let userDefaults = UserDefaults.standard
-    private let recordsKey = "MealRecords"
+    private let dietRecordsKey = "DietMealRecords"
+    private let exerciseRecordsKey = "ExerciseMealRecords"
+    private var cancellables = Set<AnyCancellable>()
 
     init() {
         loadRecords()
+        migrateOldDataIfNeeded()
+
+        // SettingsManager의 albumType 변경 감지
+        SettingsManager.shared.$albumType
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
+
+    // 기존 데이터를 식단 전용으로 마이그레이션
+    private func migrateOldDataIfNeeded() {
+        let oldKey = "MealRecords"
+
+        // 기존 키에 데이터가 있는지 확인
+        guard userDefaults.data(forKey: oldKey) != nil else {
+            print("📦 [Migration] 마이그레이션 필요 없음 - 기존 데이터 없음")
+            return
+        }
+
+        // 이미 마이그레이션 했는지 확인
+        let migrationKey = "DataMigrated_v1"
+        guard !userDefaults.bool(forKey: migrationKey) else {
+            print("📦 [Migration] 이미 마이그레이션 완료됨")
+            return
+        }
+
+        // 기존 데이터를 식단 데이터로 이동
+        if let oldData = userDefaults.data(forKey: oldKey),
+           let oldRecords = try? JSONDecoder().decode([MealRecord].self, from: oldData) {
+            dietRecords = oldRecords
+            if let encoded = try? JSONEncoder().encode(dietRecords) {
+                userDefaults.set(encoded, forKey: dietRecordsKey)
+                print("📦 [Migration] 기존 \(oldRecords.count)개 기록을 식단으로 마이그레이션 완료")
+            }
+
+            // 기존 데이터 삭제
+            userDefaults.removeObject(forKey: oldKey)
+
+            // 마이그레이션 완료 플래그 설정
+            userDefaults.set(true, forKey: migrationKey)
+        }
     }
 
     // 특정 날짜의 식사 기록들 가져오기
@@ -91,14 +160,17 @@ class MealRecordStore: ObservableObject {
     func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
+        // 현재 앨범 타입에 따라 적절한 배열 사용
+        var currentRecords = records
+
         // 기존 기록 찾기
-        if let existingIndex = records.firstIndex(where: {
+        if let existingIndex = currentRecords.firstIndex(where: {
             $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
         }) {
             // 기존 기록 업데이트
-            let existing = records[existingIndex]
+            let existing = currentRecords[existingIndex]
             if isBefore {
-                records[existingIndex] = MealRecord(
+                currentRecords[existingIndex] = MealRecord(
                     date: targetDate,
                     mealType: mealType,
                     beforeImageData: imageData,
@@ -106,7 +178,7 @@ class MealRecordStore: ObservableObject {
                     memo: existing.memo
                 )
             } else {
-                records[existingIndex] = MealRecord(
+                currentRecords[existingIndex] = MealRecord(
                     date: targetDate,
                     mealType: mealType,
                     beforeImageData: existing.beforeImageData,
@@ -122,59 +194,80 @@ class MealRecordStore: ObservableObject {
                 beforeImageData: isBefore ? imageData : nil,
                 afterImageData: isBefore ? nil : imageData
             )
-            records.append(newRecord)
+            currentRecords.append(newRecord)
         }
 
-        saveRecords()
+        // 다시 할당하여 setter 호출
+        records = currentRecords
     }
 
     // 식사 기록 삭제
     func deleteMeal(date: Date, mealType: MealType) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
-        let beforeCount = records.count
-        records.removeAll { record in
+        var currentRecords = records
+        let beforeCount = currentRecords.count
+        currentRecords.removeAll { record in
             record.mealType == mealType && Calendar.current.isDate(record.date, inSameDayAs: targetDate)
         }
-        let afterCount = records.count
+        let afterCount = currentRecords.count
 
         print("🗑️ [MealRecordStore] 식사 기록 삭제: \(mealType.rawValue), 날짜: \(targetDate)")
         print("🗑️ [MealRecordStore] 삭제 전: \(beforeCount)개, 삭제 후: \(afterCount)개")
 
-        saveRecords()
+        records = currentRecords
     }
 
     // 메모 업데이트
     func updateMemo(date: Date, mealType: MealType, memo: String?) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
-        if let existingIndex = records.firstIndex(where: {
+        var currentRecords = records
+        if let existingIndex = currentRecords.firstIndex(where: {
             $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
         }) {
-            let existing = records[existingIndex]
-            records[existingIndex] = MealRecord(
+            let existing = currentRecords[existingIndex]
+            currentRecords[existingIndex] = MealRecord(
                 date: existing.date,
                 mealType: existing.mealType,
                 beforeImageData: existing.beforeImageData,
                 afterImageData: existing.afterImageData,
                 memo: memo
             )
-            saveRecords()
+            records = currentRecords
         }
     }
 
-    // 기록 저장
+    // 기록 저장 (현재 앨범 타입의 데이터만 저장)
     private func saveRecords() {
-        if let encoded = try? JSONEncoder().encode(records) {
-            userDefaults.set(encoded, forKey: recordsKey)
+        switch SettingsManager.shared.albumType {
+        case .diet:
+            if let encoded = try? JSONEncoder().encode(dietRecords) {
+                userDefaults.set(encoded, forKey: dietRecordsKey)
+                print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
+            }
+        case .exercise:
+            if let encoded = try? JSONEncoder().encode(exerciseRecords) {
+                userDefaults.set(encoded, forKey: exerciseRecordsKey)
+                print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
+            }
         }
     }
 
-    // 기록 불러오기
+    // 기록 불러오기 (식단과 운동 모두 로드)
     private func loadRecords() {
-        if let data = userDefaults.data(forKey: recordsKey),
+        // 식단 기록 로드
+        if let data = userDefaults.data(forKey: dietRecordsKey),
            let decoded = try? JSONDecoder().decode([MealRecord].self, from: data) {
-            records = decoded
+            dietRecords = decoded
+            print("📂 [MealRecordStore] 식단 기록 로드: \(dietRecords.count)개")
+        }
+
+        // 운동 기록 로드
+        if let data = userDefaults.data(forKey: exerciseRecordsKey),
+           let decoded = try? JSONDecoder().decode([MealRecord].self, from: data) {
+            exerciseRecords = decoded
+            print("📂 [MealRecordStore] 운동 기록 로드: \(exerciseRecords.count)개")
         }
     }
 
@@ -257,9 +350,11 @@ class MealRecordStore: ObservableObject {
     // MARK: - 개발용 샘플 데이터 생성
 
     func generateSampleData() {
-        print("🎨 [MealRecordStore] 샘플 데이터 생성 시작")
+        print("🎨 [MealRecordStore] 샘플 데이터 생성 시작 - \(SettingsManager.shared.albumType.rawValue) 모드")
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+
+        var currentRecords = records
 
         // 과거 30일간의 샘플 데이터 생성
         for dayOffset in (1...30).reversed() {
@@ -285,13 +380,13 @@ class MealRecordStore: ObservableObject {
                             afterImageData: afterImage,
                             memo: memo
                         )
-                        records.append(record)
+                        currentRecords.append(record)
                     }
                 }
             }
         }
 
-        saveRecords()
+        records = currentRecords
         print("🎨 [MealRecordStore] 샘플 데이터 생성 완료: \(records.count)개 기록 추가")
     }
 
@@ -338,11 +433,10 @@ class MealRecordStore: ObservableObject {
         return image.jpegData(compressionQuality: 0.8)
     }
 
-    // 모든 데이터 삭제 (개발용)
+    // 모든 데이터 삭제 (개발용 - 현재 앨범 타입의 데이터만)
     func clearAllData() {
-        print("🗑️ [MealRecordStore] 모든 데이터 삭제")
-        records.removeAll()
-        saveRecords()
+        print("🗑️ [MealRecordStore] \(SettingsManager.shared.albumType.rawValue) 모드 데이터 삭제")
+        records = []
     }
 }
 

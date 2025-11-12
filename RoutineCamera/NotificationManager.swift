@@ -88,7 +88,7 @@ class NotificationManager: ObservableObject {
         }
     }
 
-    // 식사 시간 알림 설정
+    // 식사 업로드 리마인드 알림 설정 (식사 시간 2시간 후)
     func scheduleMealNotifications() {
         // 기존 알림 삭제
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
@@ -97,39 +97,48 @@ class NotificationManager: ObservableObject {
 
         let calendar = Calendar.current
 
-        // 아침 알림
+        // 아침 리마인드 알림 (식사 시간 2시간 후)
         let breakfastComponents = calendar.dateComponents([.hour, .minute], from: breakfastTime)
-        scheduleNotification(
-            id: "breakfast",
-            title: "🌅 아침 식사 기록",
-            body: "오늘의 아침 식사 사진을 찍어보세요!",
-            hour: breakfastComponents.hour ?? 7,
-            minute: breakfastComponents.minute ?? 0
-        )
+        if let breakfastHour = breakfastComponents.hour, let breakfastMinute = breakfastComponents.minute {
+            let reminderHour = (breakfastHour + 2) % 24
+            scheduleReminderNotification(
+                id: "breakfast-reminder",
+                title: "🌅 아침 식사 기록 리마인드",
+                body: "아직 아침 식사를 기록하지 않으셨네요. 지금 기록해보세요!",
+                hour: reminderHour,
+                minute: breakfastMinute
+            )
+        }
 
-        // 점심 알림
+        // 점심 리마인드 알림 (식사 시간 2시간 후)
         let lunchComponents = calendar.dateComponents([.hour, .minute], from: lunchTime)
-        scheduleNotification(
-            id: "lunch",
-            title: "☀️ 점심 식사 기록",
-            body: "점심 식사 사진을 찍어보세요!",
-            hour: lunchComponents.hour ?? 12,
-            minute: lunchComponents.minute ?? 0
-        )
+        if let lunchHour = lunchComponents.hour, let lunchMinute = lunchComponents.minute {
+            let reminderHour = (lunchHour + 2) % 24
+            scheduleReminderNotification(
+                id: "lunch-reminder",
+                title: "☀️ 점심 식사 기록 리마인드",
+                body: "아직 점심 식사를 기록하지 않으셨네요. 지금 기록해보세요!",
+                hour: reminderHour,
+                minute: lunchMinute
+            )
+        }
 
-        // 저녁 알림
+        // 저녁 리마인드 알림 (식사 시간 2시간 후)
         let dinnerComponents = calendar.dateComponents([.hour, .minute], from: dinnerTime)
-        scheduleNotification(
-            id: "dinner",
-            title: "🌙 저녁 식사 기록",
-            body: "저녁 식사 사진을 찍어보세요!",
-            hour: dinnerComponents.hour ?? 18,
-            minute: dinnerComponents.minute ?? 0
-        )
+        if let dinnerHour = dinnerComponents.hour, let dinnerMinute = dinnerComponents.minute {
+            let reminderHour = (dinnerHour + 2) % 24
+            scheduleReminderNotification(
+                id: "dinner-reminder",
+                title: "🌙 저녁 식사 기록 리마인드",
+                body: "아직 저녁 식사를 기록하지 않으셨네요. 지금 기록해보세요!",
+                hour: reminderHour,
+                minute: dinnerMinute
+            )
+        }
     }
 
-    // 개별 알림 스케줄링
-    private func scheduleNotification(id: String, title: String, body: String, hour: Int, minute: Int) {
+    // 개별 리마인드 알림 스케줄링
+    private func scheduleReminderNotification(id: String, title: String, body: String, hour: Int, minute: Int) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -144,7 +153,9 @@ class NotificationManager: ObservableObject {
 
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("알림 스케줄링 오류 (\(id)): \(error)")
+                print("리마인드 알림 스케줄링 오류 (\(id)): \(error)")
+            } else {
+                print("✅ 리마인드 알림 설정 완료 (\(id)): \(hour):\(minute)")
             }
         }
     }

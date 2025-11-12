@@ -11,6 +11,10 @@ struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @Environment(\.dismiss) var dismiss
 
+    private var navigationTitle: String {
+        "\(SettingsManager.shared.albumType.rawValue) 통계"
+    }
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -28,7 +32,7 @@ struct StatisticsView: View {
                 .padding(.vertical, 16)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("통계")
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
