@@ -13,6 +13,7 @@ struct ContentView: View {
     @StateObject private var mealStore = MealRecordStore()
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var goalManager = GoalManager.shared
+    @StateObject private var settingsManager = SettingsManager.shared
     @State private var showingSettings = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
@@ -210,7 +211,7 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingSettings) {
-                SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore)
+                SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
             }
             .onChange(of: showingSettings) { oldValue, newValue in
                 // 설정 창이 닫힐 때 dateList 재초기화
@@ -367,6 +368,7 @@ struct SettingsView: View {
     @ObservedObject var notificationManager: NotificationManager
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var mealStore: MealRecordStore
+    @ObservedObject var settingsManager: SettingsManager
     @Environment(\.dismiss) var dismiss
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
@@ -491,6 +493,30 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 4)
                     }
+                }
+
+                // 사진 저장 설정
+                Section(header: Text("사진 저장")) {
+                    Toggle("자동으로 사진앱에 저장", isOn: $settingsManager.autoSaveToPhotoLibrary)
+
+                    Text(settingsManager.autoSaveToPhotoLibrary
+                        ? "사진을 촬영하면 자동으로 사진앱의 'RoutineCamera' 앨범에 저장됩니다."
+                        : "사진을 앱 내부에만 저장합니다. 상세보기에서 다운로드 버튼으로 사진앱에 저장할 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+                }
+
+                // 표시 설정
+                Section(header: Text("표시 설정")) {
+                    Toggle("남은 장수 표시", isOn: $settingsManager.showRemainingPhotoCount)
+
+                    Text("사진이 1장만 입력되었을 때 빨간색 원에 1을 표시하여 알려줍니다. 2장이 모두 입력되면 표시가 사라집니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // 정보
@@ -644,6 +670,14 @@ struct MealPhotoView: View {
         return targetDate > today
     }
 
+    // 과거 날짜이면서 기록하지 않은 경우 (실패)
+    private var isPastDateMissed: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let targetDate = calendar.startOfDay(for: date)
+        return targetDate < today && mealRecord == nil
+    }
+
     // 현재 시간대에 맞는 식사인지 확인
     private var isCurrentMeal: Bool {
         guard isToday, mealRecord == nil else { return false }
@@ -731,13 +765,17 @@ struct MealPhotoView: View {
                                     Spacer()
 
                                     // 식전/식후 개수 뱃지 (오른쪽 하단)
-                                    if record.beforeImageData != nil && record.afterImageData != nil {
-                                        Text("2")
-                                            .font(.system(size: 13, weight: .bold))
-                                            .foregroundColor(.white)
-                                            .frame(width: 26, height: 26)
-                                            .background(Color.green)
-                                            .clipShape(Circle())
+                                    if SettingsManager.shared.showRemainingPhotoCount {
+                                        let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
+                                        if photoCount == 1 {
+                                            Text("1")
+                                                .font(.system(size: 13, weight: .bold))
+                                                .foregroundColor(.white)
+                                                .frame(width: 26, height: 26)
+                                                .background(Color.red)
+                                                .clipShape(Circle())
+                                        }
+                                        // photoCount == 2일 때는 아무것도 표시하지 않음
                                     }
                                 }
                                 .padding(6)
@@ -747,10 +785,15 @@ struct MealPhotoView: View {
                     } else {
                         // 사진이 없을 때
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(isFutureDate ? Color(.systemGray5) : Color(.systemGray6))
+                            .fill(isPastDateMissed ? Color.red.opacity(0.15) : (isFutureDate ? Color(.systemGray5) : Color(.systemGray6)))
                             .overlay {
                                 VStack(spacing: 6) {
-                                    if isCurrentMeal {
+                                    if isPastDateMissed {
+                                        // 과거 날짜인데 기록 안 함 - 실패 표시
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: min(photoSize * 0.4, 36)))
+                                            .foregroundColor(.red)
+                                    } else if isCurrentMeal {
                                         // 현재 시간대 식사 - 애니메이션 적용
                                         PulsingSymbolView(
                                             symbolName: mealType.symbolName,
@@ -953,6 +996,8 @@ struct PhotoDetailView: View {
     @State private var showingDeleteAlert = false
     @State private var showingAddPhotoSheet = false
     @State private var selectedPhotoType: MealPhotoView.PhotoType = .before
+    @State private var showingSaveSuccessAlert = false
+    @State private var showingSaveErrorAlert = false
 
     var body: some View {
         NavigationView {
@@ -1057,6 +1102,12 @@ struct PhotoDetailView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: {
+                            saveCurrentPhotoToAlbum()
+                        }) {
+                            Label("사진앱에 저장", systemImage: "arrow.down.circle")
+                        }
+
+                        Button(action: {
                             selectedPhotoType = currentPage == 0 ? .before : .after
                             showingAddPhotoSheet = true
                         }) {
@@ -1109,6 +1160,16 @@ struct PhotoDetailView: View {
         } message: {
             Text("이 식사의 사진을 삭제하시겠습니까?\n메모도 함께 삭제됩니다.")
         }
+        .alert("저장 완료", isPresented: $showingSaveSuccessAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text("사진이 'RoutineCamera' 앨범에 저장되었습니다.")
+        }
+        .alert("저장 실패", isPresented: $showingSaveErrorAlert) {
+            Button("확인", role: .cancel) { }
+        } message: {
+            Text("사진 저장에 실패했습니다. 사진 접근 권한을 확인해주세요.")
+        }
     }
 
     private var dateFormatter: DateFormatter {
@@ -1116,6 +1177,81 @@ struct PhotoDetailView: View {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M월 d일 (E)"
         return formatter
+    }
+
+    private func saveCurrentPhotoToAlbum() {
+        guard let record = mealRecord else { return }
+
+        // 현재 페이지에 따라 식전/식후 사진 데이터 선택
+        let imageData = currentPage == 0 ? record.beforeImageData : record.afterImageData
+
+        guard let imageData = imageData, let image = UIImage(data: imageData) else {
+            showingSaveErrorAlert = true
+            return
+        }
+
+        // 사진 라이브러리 접근 권한 확인
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            guard status == .authorized || status == .limited else {
+                DispatchQueue.main.async {
+                    showingSaveErrorAlert = true
+                }
+                return
+            }
+
+            // 먼저 앨범이 있는지 확인
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.predicate = NSPredicate(format: "title = %@", "RoutineCamera")
+            let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+
+            if let album = collection.firstObject {
+                // 기존 앨범에 이미지 추가
+                PHPhotoLibrary.shared().performChanges({
+                    let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                    let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
+                    albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
+                }) { success, error in
+                    DispatchQueue.main.async {
+                        if success {
+                            showingSaveSuccessAlert = true
+                        } else {
+                            showingSaveErrorAlert = true
+                        }
+                    }
+                }
+            } else {
+                // 새 앨범 생성
+                var albumPlaceholder: PHObjectPlaceholder?
+                PHPhotoLibrary.shared().performChanges({
+                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "RoutineCamera")
+                    albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
+                }) { success, error in
+                    if success, let placeholder = albumPlaceholder {
+                        // 앨범이 생성되면 이미지 추가
+                        let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [placeholder.localIdentifier], options: nil)
+                        if let album = fetchResult.firstObject {
+                            PHPhotoLibrary.shared().performChanges({
+                                let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                                let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
+                                albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
+                            }) { success, error in
+                                DispatchQueue.main.async {
+                                    if success {
+                                        showingSaveSuccessAlert = true
+                                    } else {
+                                        showingSaveErrorAlert = true
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            showingSaveErrorAlert = true
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1207,8 +1343,10 @@ struct CustomCameraView: View {
                     // 이미 날짜/시간이 추가된 이미지 사용
                     selectedImage = image
 
-                    // 사진을 "RoutineCamera" 앨범에 저장
-                    saveImageToAlbum(image)
+                    // 설정에 따라 사진을 "RoutineCamera" 앨범에 저장
+                    if SettingsManager.shared.autoSaveToPhotoLibrary {
+                        saveImageToAlbum(image)
+                    }
 
                     dismiss()
                 }
