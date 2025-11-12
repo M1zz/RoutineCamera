@@ -763,7 +763,7 @@ struct MealPhotoView: View {
                                             .font(.system(size: min(photoSize * 0.4, 36)))
                                             .foregroundColor(isFutureDate ? .gray : mealType.symbolColor)
                                     }
-                                    if !isFutureDate {
+                                    if isToday && !isFutureDate {
                                         Image(systemName: "plus.circle.fill")
                                             .font(.system(size: min(photoSize * 0.25, 18)))
                                             .foregroundColor(.blue)
