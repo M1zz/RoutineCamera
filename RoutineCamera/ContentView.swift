@@ -18,6 +18,9 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
+    @State private var autoOpenCamera = false // 자동 카메라 열기
+    @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
+    @State private var autoOpenPhotoType: MealPhotoView.PhotoType = .before // 자동으로 열 사진 타입
 
     // 오늘 날짜와 날짜 리스트 초기화
     @State private var todayDate: Date = Calendar.current.startOfDay(for: Date())
@@ -77,6 +80,55 @@ struct ContentView: View {
         // 로딩 완료 후 플래그 해제
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isLoadingPast = false
+        }
+    }
+
+    // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
+    private func checkAndAutoOpenCamera() {
+        let now = Date()
+        let calendar = Calendar.current
+        let currentHour = calendar.component(.hour, from: now)
+        let currentMinute = calendar.component(.minute, from: now)
+        let currentMinutes = currentHour * 60 + currentMinute
+
+        // 오늘 날짜의 식사 기록 확인
+        let todayMeals = mealStore.getMeals(for: todayDate)
+
+        // NotificationManager의 식사 시간 가져오기
+        let breakfastHour = calendar.component(.hour, from: notificationManager.breakfastTime)
+        let breakfastMinute = calendar.component(.minute, from: notificationManager.breakfastTime)
+        let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
+        let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
+        let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
+        let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
+
+        let breakfastMinutes = breakfastHour * 60 + breakfastMinute
+        let lunchMinutes = lunchHour * 60 + lunchMinute
+        let dinnerMinutes = dinnerHour * 60 + dinnerMinute
+
+        // 가장 최근에 지나간 미기록 식사 찾기
+        var targetMealType: MealType? = nil
+
+        // 저녁 시간이 지났고 저녁 미기록
+        if currentMinutes >= dinnerMinutes && todayMeals[.dinner] == nil {
+            targetMealType = .dinner
+        }
+        // 점심 시간이 지났고 점심 미기록
+        else if currentMinutes >= lunchMinutes && todayMeals[.lunch] == nil {
+            targetMealType = .lunch
+        }
+        // 아침 시간이 지났고 아침 미기록
+        else if currentMinutes >= breakfastMinutes && todayMeals[.breakfast] == nil {
+            targetMealType = .breakfast
+        }
+
+        // 미기록 식사가 있으면 카메라 자동 열기
+        if let mealType = targetMealType {
+            print("📸 [AutoCamera] \(mealType) 식사 시간이 지났고 기록 없음 - 자동으로 카메라 열기")
+            autoOpenMealType = mealType
+            autoOpenCamera = true
+        } else {
+            print("✅ [AutoCamera] 모든 식사 기록됨 또는 식사 시간 전")
         }
     }
 
@@ -209,6 +261,11 @@ struct ContentView: View {
                         DispatchQueue.main.async {
                             proxy.scrollTo(todayDate, anchor: .top)
                         }
+
+                        // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            checkAndAutoOpenCamera()
+                        }
                     }
 
                     // 알림 권한 요청
@@ -252,6 +309,16 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
+            }
+            .sheet(isPresented: $autoOpenCamera) {
+                if let mealType = autoOpenMealType {
+                    CameraPickerView(
+                        date: todayDate,
+                        mealType: mealType,
+                        mealStore: mealStore,
+                        selectedPhotoType: $autoOpenPhotoType
+                    )
+                }
             }
         }
     }
@@ -415,7 +482,7 @@ struct DateHeaderView: View {
 
             if isToday {
                 Text("오늘")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -505,7 +572,7 @@ struct SettingsView: View {
 
                 // 알림 설정
                 Section(header: Text("알림 설정")) {
-                    Toggle("식사 시간 알림", isOn: Binding(
+                    Toggle("식사 업로드 리마인드", isOn: Binding(
                         get: { notificationManager.notificationsEnabled },
                         set: { newValue in
                             if newValue {
@@ -520,16 +587,22 @@ struct SettingsView: View {
                         }
                     ))
 
+                    Text("식사 시간이 지났는데도 기록하지 않았을 때 알림을 보내드립니다. (식사 시간 + 2시간 후)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+
                     if notificationManager.notificationsEnabled {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("알림 시간")
+                            Text("식사 시간 설정")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .padding(.top, 8)
 
-                            // 아침 알림 시간
+                            // 아침 식사 시간
                             HStack {
-                                Text("🌅 아침")
+                                Text("🌅 아침 식사 시간")
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Spacer()
@@ -540,9 +613,9 @@ struct SettingsView: View {
 
                             Divider()
 
-                            // 점심 알림 시간
+                            // 점심 식사 시간
                             HStack {
-                                Text("☀️ 점심")
+                                Text("☀️ 점심 식사 시간")
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Spacer()
@@ -553,9 +626,9 @@ struct SettingsView: View {
 
                             Divider()
 
-                            // 저녁 알림 시간
+                            // 저녁 식사 시간
                             HStack {
-                                Text("🌙 저녁")
+                                Text("🌙 저녁 식사 시간")
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                                 Spacer()
@@ -778,21 +851,6 @@ struct DailySectionView: View {
         let cellHeight = photoSize + (cardPadding * 2) + 4 // 사진 + 패딩 + 여유
 
         VStack(spacing: 4) {
-            // "오늘" 뱃지 (오늘 날짜일 때만)
-            if isToday {
-                HStack {
-                    Text("오늘")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.blue)
-                        .cornerRadius(8)
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
-            }
-
             HStack(spacing: spacing) {
                 // 3개 식사 사진 (아침, 점심, 저녁)
                 ForEach(Array(MealType.allCases.enumerated()), id: \.element) { index, mealType in
@@ -1094,7 +1152,16 @@ struct CameraPickerView: View {
         self.mealType = mealType
         self.mealStore = mealStore
         self._selectedPhotoType = selectedPhotoType
-        self._localPhotoType = State(initialValue: selectedPhotoType.wrappedValue)
+
+        // 식전 사진이 이미 있으면 자동으로 식후 선택
+        let meals = mealStore.getMeals(for: date)
+        if let mealRecord = meals[mealType], mealRecord.beforeImageData != nil {
+            self._localPhotoType = State(initialValue: .after)
+            print("📸 [CameraPickerView] 식전 사진 존재 - 자동으로 식후 선택")
+        } else {
+            self._localPhotoType = State(initialValue: selectedPhotoType.wrappedValue)
+            print("📸 [CameraPickerView] 식전 사진 없음 - 기본값(\(selectedPhotoType.wrappedValue)) 사용")
+        }
     }
 
     var body: some View {
