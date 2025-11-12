@@ -8,7 +8,6 @@
 import SwiftUI
 import AVFoundation
 import Photos
-import StoreKit
 
 struct ContentView: View {
     @StateObject private var mealStore = MealRecordStore()
@@ -85,11 +84,24 @@ struct ContentView: View {
 
     // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
     private func checkAndAutoOpenCamera() {
+        // dateList가 비어있으면 실행하지 않음
+        guard !dateList.isEmpty else {
+            print("⚠️ [AutoCamera] dateList가 비어있음 - 카메라 자동 열기 취소")
+            return
+        }
+
         let now = Date()
         let calendar = Calendar.current
         let currentHour = calendar.component(.hour, from: now)
         let currentMinute = calendar.component(.minute, from: now)
         let currentMinutes = currentHour * 60 + currentMinute
+
+        // todayDate가 오늘인지 확인
+        let actualToday = calendar.startOfDay(for: Date())
+        guard calendar.isDate(todayDate, inSameDayAs: actualToday) else {
+            print("⚠️ [AutoCamera] todayDate가 오늘이 아님 - 카메라 자동 열기 취소")
+            return
+        }
 
         // 오늘 날짜의 식사 기록 확인
         let todayMeals = mealStore.getMeals(for: todayDate)
@@ -124,9 +136,12 @@ struct ContentView: View {
 
         // 미기록 식사가 있으면 카메라 자동 열기
         if let mealType = targetMealType {
-            print("📸 [AutoCamera] \(mealType) 식사 시간이 지났고 기록 없음 - 자동으로 카메라 열기")
+            print("📸 [AutoCamera] \(mealType.rawValue) 식사 시간이 지났고 기록 없음 - 자동으로 카메라 열기")
             autoOpenMealType = mealType
-            autoOpenCamera = true
+            // autoOpenMealType이 설정된 것을 확인한 후 sheet 열기
+            DispatchQueue.main.async {
+                self.autoOpenCamera = true
+            }
         } else {
             print("✅ [AutoCamera] 모든 식사 기록됨 또는 식사 시간 전")
         }
@@ -263,8 +278,10 @@ struct ContentView: View {
                         }
 
                         // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            checkAndAutoOpenCamera()
+                        // dateList 초기화와 스크롤이 완료된 후 호출
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            print("🔍 [AutoCamera] 자동 카메라 체크 시작 - dateList.count: \(self.dateList.count)")
+                            self.checkAndAutoOpenCamera()
                         }
                     }
 
@@ -310,7 +327,11 @@ struct ContentView: View {
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
             }
-            .sheet(isPresented: $autoOpenCamera) {
+            .sheet(isPresented: $autoOpenCamera, onDismiss: {
+                // sheet가 닫힐 때 상태 리셋
+                print("📸 [AutoCamera] Sheet 닫힘 - 상태 리셋")
+                autoOpenMealType = nil
+            }) {
                 if let mealType = autoOpenMealType {
                     CameraPickerView(
                         date: todayDate,
@@ -318,6 +339,47 @@ struct ContentView: View {
                         mealStore: mealStore,
                         selectedPhotoType: $autoOpenPhotoType
                     )
+                } else {
+                    // autoOpenMealType이 nil인 경우 오류 메시지 표시
+                    NavigationView {
+                        VStack(spacing: 20) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.orange)
+
+                            Text("카메라를 열 수 없습니다")
+                                .font(.title2)
+                                .fontWeight(.bold)
+
+                            Text("식사 정보를 불러오는 중 문제가 발생했습니다.\n잠시 후 다시 시도해주세요.")
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+
+                            Button("확인") {
+                                autoOpenCamera = false
+                                autoOpenMealType = nil
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 40)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        .padding()
+                        .navigationTitle("알림")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("닫기") {
+                                    autoOpenCamera = false
+                                    autoOpenMealType = nil
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -505,13 +567,9 @@ struct SettingsView: View {
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var settingsManager: SettingsManager
-    @StateObject private var storeKitManager = StoreKitManager.shared
     @Environment(\.dismiss) var dismiss
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
-    @State private var showingPurchaseSuccessAlert = false
-    @State private var showingPurchaseErrorAlert = false
-    @State private var purchaseErrorMessage = ""
 
     var body: some View {
         NavigationView {
@@ -673,70 +731,6 @@ struct SettingsView: View {
                         .minimumScaleFactor(0.8)
                 }
 
-                // 개발자 응원하기
-                Section(header: Text("개발자 응원하기")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("앱이 마음에 드셨나요?")
-                            .font(.system(size: 16, weight: .semibold))
-
-                        Text("커피 한 잔 값으로 개발자를 응원해주세요! 더 나은 앱을 만드는 데 큰 힘이 됩니다.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(3)
-                            .minimumScaleFactor(0.8)
-
-                        if storeKitManager.products.isEmpty {
-                            HStack {
-                                ProgressView()
-                                Text("상품 로딩 중...")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        } else {
-                            ForEach(storeKitManager.products, id: \.id) { product in
-                                Button {
-                                    _Concurrency.Task {
-                                        await purchaseProduct(product)
-                                    }
-                                } label: {
-                                    HStack {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(product.displayName)
-                                                .font(.system(size: 15, weight: .medium))
-                                                .foregroundColor(.primary)
-                                            Text(product.description)
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-
-                                        Spacer()
-
-                                        if storeKitManager.isPurchasing {
-                                            ProgressView()
-                                        } else {
-                                            Text(product.displayPrice)
-                                                .font(.system(size: 16, weight: .bold))
-                                                .foregroundColor(.white)
-                                                .padding(.horizontal, 16)
-                                                .padding(.vertical, 8)
-                                                .background(Color.blue)
-                                                .cornerRadius(8)
-                                        }
-                                    }
-                                    .padding(.vertical, 4)
-                                }
-                                .disabled(storeKitManager.isPurchasing)
-                            }
-                        }
-
-                        Text("❤️ 후원해주셔서 감사합니다!")
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .padding(.top, 4)
-                    }
-                    .padding(.vertical, 8)
-                }
-
                 // 정보
                 Section(header: Text("정보")) {
                     HStack {
@@ -755,33 +749,6 @@ struct SettingsView: View {
                         dismiss()
                     }
                 }
-            }
-            .alert("후원 감사합니다! ❤️", isPresented: $showingPurchaseSuccessAlert) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text("개발자에게 큰 힘이 됩니다. 더 나은 앱을 만들겠습니다!")
-            }
-            .alert("구매 실패", isPresented: $showingPurchaseErrorAlert) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(purchaseErrorMessage)
-            }
-        }
-    }
-
-    // 결제 처리 함수
-    private func purchaseProduct(_ product: Product) async {
-        do {
-            let success = try await storeKitManager.purchase(product)
-            if success {
-                await MainActor.run {
-                    showingPurchaseSuccessAlert = true
-                }
-            }
-        } catch {
-            await MainActor.run {
-                purchaseErrorMessage = error.localizedDescription
-                showingPurchaseErrorAlert = true
             }
         }
     }
