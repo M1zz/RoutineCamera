@@ -17,7 +17,6 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
-    @State private var autoOpenCamera = false // 자동 카메라 열기
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
     @State private var autoOpenPhotoType: MealPhotoView.PhotoType = .before // 자동으로 열 사진 타입
 
@@ -36,24 +35,12 @@ struct ContentView: View {
         let calendar = Calendar.current
         todayDate = calendar.startOfDay(for: Date())
 
-        // 과거에 기록이 있는지 확인
-        let hasPastRecords = mealStore.records.contains { record in
-            record.date < todayDate
-        }
-
-        if hasPastRecords {
-            // 과거 기록이 있으면 -30...0 범위 로드 (과거 30일 ~ 오늘)
-            loadedPastDays = 30
-            dateList = ((-loadedPastDays)...0).compactMap { offset in
-                calendar.date(byAdding: .day, value: offset, to: todayDate)
-            }.reversed() // 최신순 정렬 (오늘 -> 과거)
-            print("📅 [ContentView] 과거 기록 있음 - 날짜 리스트 초기화 완료: \(dateList.count)개 날짜 로드 (최신순)")
-        } else {
-            // 과거 기록이 없으면 오늘만 로드
-            loadedPastDays = 0
-            dateList = [todayDate]
-            print("📅 [ContentView] 과거 기록 없음 - 오늘만 로드")
-        }
+        // 항상 최소 7일의 과거 날짜 표시 (과거 기록 가능하도록)
+        loadedPastDays = 7
+        dateList = ((-loadedPastDays)...0).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: todayDate)
+        }.reversed() // 최신순 정렬 (오늘 -> 과거)
+        print("📅 [ContentView] 날짜 리스트 초기화 완료: \(dateList.count)개 날짜 로드 (최신순)")
     }
 
     private func loadMorePastDates() {
@@ -82,8 +69,14 @@ struct ContentView: View {
         }
     }
 
-    // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
+    // 식사 시간 이후 미기록 확인 후 자동 카메라 열기 (식단 모드에서만)
     private func checkAndAutoOpenCamera() {
+        // 운동 모드에서는 자동 카메라 열기 안 함
+        guard settingsManager.albumType == .diet else {
+            print("⚠️ [AutoCamera] 운동 모드 - 카메라 자동 열기 취소")
+            return
+        }
+
         // dateList가 비어있으면 실행하지 않음
         guard !dateList.isEmpty else {
             print("⚠️ [AutoCamera] dateList가 비어있음 - 카메라 자동 열기 취소")
@@ -137,10 +130,10 @@ struct ContentView: View {
         // 미기록 식사가 있으면 카메라 자동 열기
         if let mealType = targetMealType {
             print("📸 [AutoCamera] \(mealType.rawValue) 식사 시간이 지났고 기록 없음 - 자동으로 카메라 열기")
-            autoOpenMealType = mealType
-            // autoOpenMealType이 설정된 것을 확인한 후 sheet 열기
-            DispatchQueue.main.async {
-                self.autoOpenCamera = true
+            // autoOpenMealType 설정하면 자동으로 sheet가 열림
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.autoOpenMealType = mealType
+                print("📸 [AutoCamera] autoOpenMealType 설정 완료 - sheet 자동 열림")
             }
         } else {
             print("✅ [AutoCamera] 모든 식사 기록됨 또는 식사 시간 전")
@@ -156,6 +149,7 @@ struct ContentView: View {
                     StreakHeaderView(
                         mealStore: mealStore,
                         goalManager: goalManager,
+                        settingsManager: settingsManager,
                         onStatisticsTap: { showingStatistics = true },
                         onSettingsTap: { showingSettings = true },
                         onHeaderTap: {
@@ -174,7 +168,7 @@ struct ContentView: View {
                     }
 
                     // 날짜 헤더 (항상 표시)
-                    DateHeaderView(date: currentVisibleDate)
+                    DateHeaderView(date: currentVisibleDate, settingsManager: settingsManager)
 
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
@@ -316,6 +310,11 @@ struct ContentView: View {
                     }
                 }
             }
+            .onChange(of: settingsManager.albumType) { oldType, newType in
+                print("🔄 [AlbumType] 변경됨: \(oldType.rawValue) → \(newType.rawValue)")
+                // UI 업데이트만 트리거 (날짜 리스트는 유지)
+                // mealStore.records가 자동으로 변경되므로 별도 처리 불필요
+            }
             .onChange(of: dateList.count) { oldCount, newCount in
                 // dateList가 초기화된 직후 스크롤
                 if oldCount == 0 && newCount > 0 {
@@ -327,59 +326,18 @@ struct ContentView: View {
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
             }
-            .sheet(isPresented: $autoOpenCamera, onDismiss: {
+            .sheet(item: $autoOpenMealType, onDismiss: {
                 // sheet가 닫힐 때 상태 리셋
                 print("📸 [AutoCamera] Sheet 닫힘 - 상태 리셋")
-                autoOpenMealType = nil
-            }) {
-                if let mealType = autoOpenMealType {
-                    CameraPickerView(
-                        date: todayDate,
-                        mealType: mealType,
-                        mealStore: mealStore,
-                        selectedPhotoType: $autoOpenPhotoType
-                    )
-                } else {
-                    // autoOpenMealType이 nil인 경우 오류 메시지 표시
-                    NavigationView {
-                        VStack(spacing: 20) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.orange)
-
-                            Text("카메라를 열 수 없습니다")
-                                .font(.title2)
-                                .fontWeight(.bold)
-
-                            Text("식사 정보를 불러오는 중 문제가 발생했습니다.\n잠시 후 다시 시도해주세요.")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
-
-                            Button("확인") {
-                                autoOpenCamera = false
-                                autoOpenMealType = nil
-                            }
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 40)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .cornerRadius(12)
-                        }
-                        .padding()
-                        .navigationTitle("알림")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button("닫기") {
-                                    autoOpenCamera = false
-                                    autoOpenMealType = nil
-                                }
-                            }
-                        }
-                    }
+            }) { mealType in
+                CameraPickerView(
+                    date: todayDate,
+                    mealType: mealType,
+                    mealStore: mealStore,
+                    selectedPhotoType: $autoOpenPhotoType
+                )
+                .onAppear {
+                    print("📸 [AutoCamera] CameraPickerView 표시됨 - mealType: \(mealType.rawValue)")
                 }
             }
         }
@@ -390,6 +348,7 @@ struct ContentView: View {
 struct StreakHeaderView: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var goalManager: GoalManager
+    @ObservedObject var settingsManager: SettingsManager
     let onStatisticsTap: () -> Void
     let onSettingsTap: () -> Void
     let onHeaderTap: () -> Void
@@ -418,6 +377,7 @@ struct StreakHeaderView: View {
                                 .foregroundColor(.orange)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.4)
+                                .frame(minWidth: 40, alignment: .trailing)
                         }
                         Text("연속 기록")
                             .font(.system(size: 13, weight: .medium))
@@ -440,6 +400,7 @@ struct StreakHeaderView: View {
                                 .foregroundColor(.yellow)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.4)
+                                .frame(minWidth: 40, alignment: .trailing)
                         }
                         Text("최고 기록")
                             .font(.system(size: 13, weight: .medium))
@@ -524,6 +485,7 @@ struct StreakHeaderView: View {
 // 날짜 헤더 뷰
 struct DateHeaderView: View {
     let date: Date
+    @ObservedObject var settingsManager: SettingsManager
 
     private var dateString: String {
         let formatter = DateFormatter()
@@ -553,6 +515,27 @@ struct DateHeaderView: View {
             }
 
             Spacer()
+
+            // 앨범 타입 전환 버튼 (설정에서 활성화한 경우에만 표시)
+            if settingsManager.showAlbumSwitcher {
+                Button(action: {
+                    withAnimation {
+                        settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: settingsManager.albumType.symbolName)
+                            .font(.system(size: 13))
+                        Text(settingsManager.albumType.rawValue)
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(settingsManager.albumType == .diet ? Color.orange : Color.blue)
+                    .cornerRadius(15)
+                }
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -574,6 +557,38 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
+                // 앨범 전환 버튼 표시 설정
+                Section(header: Text("헤더 설정")) {
+                    Toggle("운동/식단 전환 버튼 표시", isOn: $settingsManager.showAlbumSwitcher)
+
+                    Text("헤더에 운동/식단 전환 버튼을 표시합니다. 빠르게 앨범 타입을 전환하며 기록할 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                }
+
+                // 앨범 타입 선택
+                Section(header: Text("앨범 타입")) {
+                    Picker("앨범 타입", selection: $settingsManager.albumType) {
+                        ForEach(AlbumType.allCases, id: \.self) { type in
+                            HStack {
+                                Image(systemName: type.symbolName)
+                                Text(type.rawValue)
+                            }
+                            .tag(type)
+                        }
+                    }
+
+                    Text(settingsManager.albumType == .diet
+                        ? "식사 사진을 식전/식후로 나눠서 기록합니다. 식단과 운동은 완전히 별도로 저장되어 언제든지 전환하며 기록할 수 있습니다."
+                        : "운동 사진을 하루에 1장씩 기록합니다. 식단과 운동은 완전히 별도로 저장되어 언제든지 전환하며 기록할 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+                }
+
                 // 개발용 섹션
                 Section(header: Text("개발용")) {
                     Button("샘플 데이터 생성") {
@@ -703,8 +718,9 @@ struct SettingsView: View {
                 Section(header: Text("사진 저장")) {
                     Toggle("자동으로 사진앱에 저장", isOn: $settingsManager.autoSaveToPhotoLibrary)
 
+                    let albumName = settingsManager.albumType == .diet ? "세끼식단" : "세끼운동"
                     Text(settingsManager.autoSaveToPhotoLibrary
-                        ? "사진을 촬영하면 자동으로 사진앱의 'RoutineCamera' 앨범에 저장됩니다."
+                        ? "사진을 촬영하면 자동으로 사진앱의 '\(albumName)' 앨범에 저장됩니다."
                         : "사진을 앱 내부에만 저장합니다. 상세보기에서 다운로드 버튼으로 사진앱에 저장할 수 있습니다.")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -714,13 +730,16 @@ struct SettingsView: View {
 
                 // 표시 설정
                 Section(header: Text("표시 설정")) {
-                    Toggle("남은 장수 표시", isOn: $settingsManager.showRemainingPhotoCount)
+                    // 식단 모드일 때만 남은 장수 표시 옵션
+                    if settingsManager.albumType == .diet {
+                        Toggle("남은 장수 표시", isOn: $settingsManager.showRemainingPhotoCount)
 
-                    Text("사진이 1장만 입력되었을 때 빨간색 원에 1을 표시하여 알려줍니다. 2장이 모두 입력되면 표시가 사라집니다.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(3)
-                        .minimumScaleFactor(0.8)
+                        Text("사진이 1장만 입력되었을 때 빨간색 원에 1을 표시하여 알려줍니다. 2장이 모두 입력되면 표시가 사라집니다.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.8)
+                    }
 
                     Toggle("메모 표시", isOn: $settingsManager.showMemoIcon)
 
@@ -998,8 +1017,8 @@ struct MealPhotoView: View {
 
                                     Spacer()
 
-                                    // 식전/식후 개수 뱃지 (오른쪽 하단)
-                                    if SettingsManager.shared.showRemainingPhotoCount {
+                                    // 식단 모드일 때만 식전/식후 개수 뱃지 표시 (오른쪽 하단)
+                                    if SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount {
                                         let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
                                         if photoCount == 1 {
                                             Text("1")
@@ -1120,14 +1139,20 @@ struct CameraPickerView: View {
         self.mealStore = mealStore
         self._selectedPhotoType = selectedPhotoType
 
-        // 식전 사진이 이미 있으면 자동으로 식후 선택
-        let meals = mealStore.getMeals(for: date)
-        if let mealRecord = meals[mealType], mealRecord.beforeImageData != nil {
-            self._localPhotoType = State(initialValue: .after)
-            print("📸 [CameraPickerView] 식전 사진 존재 - 자동으로 식후 선택")
+        // 운동 모드일 때는 항상 before로 설정 (1장만 저장)
+        if SettingsManager.shared.albumType == .exercise {
+            self._localPhotoType = State(initialValue: .before)
+            print("📸 [CameraPickerView] 운동 모드 - 사진 1장만 저장")
         } else {
-            self._localPhotoType = State(initialValue: selectedPhotoType.wrappedValue)
-            print("📸 [CameraPickerView] 식전 사진 없음 - 기본값(\(selectedPhotoType.wrappedValue)) 사용")
+            // 식단 모드: 식전 사진이 이미 있으면 자동으로 식후 선택
+            let meals = mealStore.getMeals(for: date)
+            if let mealRecord = meals[mealType], mealRecord.beforeImageData != nil {
+                self._localPhotoType = State(initialValue: .after)
+                print("📸 [CameraPickerView] 식전 사진 존재 - 자동으로 식후 선택")
+            } else {
+                self._localPhotoType = State(initialValue: selectedPhotoType.wrappedValue)
+                print("📸 [CameraPickerView] 식전 사진 없음 - 기본값(\(selectedPhotoType.wrappedValue)) 사용")
+            }
         }
     }
 
@@ -1143,13 +1168,15 @@ struct CameraPickerView: View {
 
                 Spacer()
 
-                // 식전/식후 선택 Picker
-                Picker("", selection: $localPhotoType) {
-                    Text("식전").tag(MealPhotoView.PhotoType.before)
-                    Text("식후").tag(MealPhotoView.PhotoType.after)
+                // 식단 모드일 때만 식전/식후 선택 Picker 표시
+                if SettingsManager.shared.albumType == .diet {
+                    Picker("", selection: $localPhotoType) {
+                        Text("식전").tag(MealPhotoView.PhotoType.before)
+                        Text("식후").tag(MealPhotoView.PhotoType.after)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 150)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 150)
 
                 Spacer()
 
@@ -1166,7 +1193,7 @@ struct CameraPickerView: View {
             // 메인 컨텐츠
             TabView(selection: $selectedTab) {
                 // 카메라 탭
-                CustomCameraView(selectedImage: $selectedImage)
+                CustomCameraView(selectedImage: $selectedImage, isActive: selectedTab == 0)
                     .tag(0)
 
                 // 사진앨범 탭
@@ -1247,19 +1274,18 @@ struct PhotoDetailView: View {
             VStack(spacing: 0) {
                 if let record = mealRecord {
                     // 사진 영역
-                    TabView(selection: $currentPage) {
-                        // 식전 사진
+                    if SettingsManager.shared.albumType == .exercise {
+                        // 운동 모드: 사진 1장만 표시
                         if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
-                                .tag(0)
                         } else {
                             VStack(spacing: 12) {
                                 Image(systemName: "photo")
                                     .font(.system(size: 60))
                                     .foregroundColor(.gray)
-                                Text("식전 사진 없음")
+                                Text("사진 없음")
                                     .font(.system(size: 18))
                                     .foregroundColor(.secondary)
                                 Text("탭하여 사진 추가")
@@ -1268,42 +1294,71 @@ struct PhotoDetailView: View {
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color(.systemGray6))
-                            .tag(0)
                             .onTapGesture {
                                 selectedPhotoType = .before
                                 showingAddPhotoSheet = true
                             }
                         }
-
-                        // 식후 사진
-                        if let afterData = record.afterImageData, let afterImage = UIImage(data: afterData) {
-                            Image(uiImage: afterImage)
-                                .resizable()
-                                .scaledToFit()
-                                .tag(1)
-                        } else {
-                            VStack(spacing: 12) {
-                                Image(systemName: "photo")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.gray)
-                                Text("식후 사진 없음")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(.secondary)
-                                Text("탭하여 사진 추가")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.blue)
+                    } else {
+                        // 식단 모드: 식전/식후 TabView
+                        TabView(selection: $currentPage) {
+                            // 식전 사진
+                            if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
+                                Image(uiImage: beforeImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .tag(0)
+                            } else {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "photo")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.gray)
+                                    Text("식전 사진 없음")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                    Text("탭하여 사진 추가")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.blue)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color(.systemGray6))
+                                .tag(0)
+                                .onTapGesture {
+                                    selectedPhotoType = .before
+                                    showingAddPhotoSheet = true
+                                }
                             }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color(.systemGray6))
-                            .tag(1)
-                            .onTapGesture {
-                                selectedPhotoType = .after
-                                showingAddPhotoSheet = true
+
+                            // 식후 사진
+                            if let afterData = record.afterImageData, let afterImage = UIImage(data: afterData) {
+                                Image(uiImage: afterImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .tag(1)
+                            } else {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "photo")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.gray)
+                                    Text("식후 사진 없음")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                    Text("탭하여 사진 추가")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.blue)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color(.systemGray6))
+                                .tag(1)
+                                .onTapGesture {
+                                    selectedPhotoType = .after
+                                    showingAddPhotoSheet = true
+                                }
                             }
                         }
+                        .tabViewStyle(.page)
+                        .indexViewStyle(.page(backgroundDisplayMode: .always))
                     }
-                    .tabViewStyle(.page)
-                    .indexViewStyle(.page(backgroundDisplayMode: .always))
 
                     // 정보 영역
                     VStack(alignment: .leading, spacing: 16) {
@@ -1313,9 +1368,12 @@ struct PhotoDetailView: View {
                                 .font(.system(size: 24))
                             Text(mealType.rawValue)
                                 .font(.system(size: 24, weight: .bold))
-                            Text(currentPage == 0 ? "식전" : "식후")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.secondary)
+                            // 식단 모드일 때만 식전/식후 표시
+                            if SettingsManager.shared.albumType == .diet {
+                                Text(currentPage == 0 ? "식전" : "식후")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
                             Spacer()
                         }
 
@@ -1406,7 +1464,7 @@ struct PhotoDetailView: View {
         .alert("저장 완료", isPresented: $showingSaveSuccessAlert) {
             Button("확인", role: .cancel) { }
         } message: {
-            Text("사진이 'RoutineCamera' 앨범에 저장되었습니다.")
+            Text("사진이 '\(albumName)' 앨범에 저장되었습니다.")
         }
         .alert("저장 실패", isPresented: $showingSaveErrorAlert) {
             Button("확인", role: .cancel) { }
@@ -1422,16 +1480,33 @@ struct PhotoDetailView: View {
         return formatter
     }
 
+    private var albumName: String {
+        switch SettingsManager.shared.albumType {
+        case .diet:
+            return "세끼식단"
+        case .exercise:
+            return "세끼운동"
+        }
+    }
+
     private func saveCurrentPhotoToAlbum() {
         guard let record = mealRecord else { return }
 
-        // 현재 페이지에 따라 식전/식후 사진 데이터 선택
-        let imageData = currentPage == 0 ? record.beforeImageData : record.afterImageData
+        // 운동 모드일 때는 항상 beforeImageData 사용
+        let imageData: Data?
+        if SettingsManager.shared.albumType == .exercise {
+            imageData = record.beforeImageData
+        } else {
+            // 식단 모드: 현재 페이지에 따라 식전/식후 사진 데이터 선택
+            imageData = currentPage == 0 ? record.beforeImageData : record.afterImageData
+        }
 
         guard let imageData = imageData, let image = UIImage(data: imageData) else {
             showingSaveErrorAlert = true
             return
         }
+
+        let currentAlbumName = albumName
 
         // 사진 라이브러리 접근 권한 확인
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -1444,7 +1519,7 @@ struct PhotoDetailView: View {
 
             // 먼저 앨범이 있는지 확인
             let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", "RoutineCamera")
+            fetchOptions.predicate = NSPredicate(format: "title = %@", currentAlbumName)
             let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
 
             if let album = collection.firstObject {
@@ -1466,7 +1541,7 @@ struct PhotoDetailView: View {
                 // 새 앨범 생성
                 var albumPlaceholder: PHObjectPlaceholder?
                 PHPhotoLibrary.shared().performChanges({
-                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "RoutineCamera")
+                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: currentAlbumName)
                     albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
                 }) { success, error in
                     if success, let placeholder = albumPlaceholder {
@@ -1565,10 +1640,11 @@ struct MemoEditorView: View {
 // 커스텀 카메라 뷰
 struct CustomCameraView: View {
     @Binding var selectedImage: UIImage?
+    let isActive: Bool
     @Environment(\.dismiss) var dismiss
     @State private var capturedImage: UIImage?
     @State private var showingPreview = false
-    @State private var cameraManager = CameraManager()
+    @StateObject private var cameraManager = CameraManager()
     @State private var currentDateTime = Date()
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -1586,7 +1662,7 @@ struct CustomCameraView: View {
                     // 이미 날짜/시간이 추가된 이미지 사용
                     selectedImage = image
 
-                    // 설정에 따라 사진을 "RoutineCamera" 앨범에 저장
+                    // 설정에 따라 사진을 "세끼" 앨범에 저장
                     if SettingsManager.shared.autoSaveToPhotoLibrary {
                         saveImageToAlbum(image)
                     }
@@ -1675,7 +1751,25 @@ struct CustomCameraView: View {
             .onReceive(timer) { _ in
                 currentDateTime = Date()
             }
+            .onChange(of: isActive) { oldValue, newValue in
+                if newValue {
+                    // 카메라 탭으로 돌아올 때 세션 시작
+                    print("📸 [CustomCameraView] 카메라 활성화 - 세션 시작")
+                    cameraManager.startSession()
+                } else {
+                    // 다른 탭으로 이동할 때 세션 중지
+                    print("📸 [CustomCameraView] 카메라 비활성화 - 세션 중지")
+                    cameraManager.stopSession()
+                }
+            }
+            .onAppear {
+                if isActive {
+                    print("📸 [CustomCameraView] 초기 로드 - 세션 시작")
+                    cameraManager.startSession()
+                }
+            }
             .onDisappear {
+                print("📸 [CustomCameraView] 뷰 사라짐 - 세션 중지")
                 cameraManager.stopSession()
             }
         }
@@ -1708,18 +1802,27 @@ struct CustomCameraView: View {
         }
     }
     
-    // 이미지를 RoutineCamera 앨범에 저장
+    // 이미지를 앨범에 저장
     private func saveImageToAlbum(_ image: UIImage) {
+        // 현재 앨범 타입에 따른 앨범 이름
+        let albumName: String
+        switch SettingsManager.shared.albumType {
+        case .diet:
+            albumName = "세끼식단"
+        case .exercise:
+            albumName = "세끼운동"
+        }
+
         // 사진 라이브러리 접근 권한 확인
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
                 print("사진 라이브러리 접근 권한이 없습니다.")
                 return
             }
-            
+
             // 먼저 앨범이 있는지 확인
             let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", "RoutineCamera")
+            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
             let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
             
             if let album = collection.firstObject {
@@ -1730,7 +1833,7 @@ struct CustomCameraView: View {
                     albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
                 }) { success, error in
                     if success {
-                        print("이미지가 RoutineCamera 앨범에 저장되었습니다.")
+                        print("이미지가 \(albumName) 앨범에 저장되었습니다.")
                     } else {
                         print("이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
                     }
@@ -1739,7 +1842,7 @@ struct CustomCameraView: View {
                 // 새 앨범 생성
                 var albumPlaceholder: PHObjectPlaceholder?
                 PHPhotoLibrary.shared().performChanges({
-                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "RoutineCamera")
+                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
                     albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
                 }) { success, error in
                     if success, let placeholder = albumPlaceholder {
@@ -1752,7 +1855,7 @@ struct CustomCameraView: View {
                                 albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
                             }) { success, error in
                                 if success {
-                                    print("이미지가 새로 생성된 RoutineCamera 앨범에 저장되었습니다.")
+                                    print("이미지가 새로 생성된 \(albumName) 앨범에 저장되었습니다.")
                                 } else {
                                     print("새 앨범에 이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
                                 }
@@ -1898,13 +2001,11 @@ import Combine
 
 // 카메라 매니저
 class CameraManager: NSObject, ObservableObject {
-    static let shared = CameraManager()
-    
     let captureSession = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
     private var captureCompletion: ((UIImage?) -> Void)?
     private var isSessionRunning = false
-    
+
     override init() {
         super.init()
         setupCamera()
@@ -1938,21 +2039,41 @@ class CameraManager: NSObject, ObservableObject {
     }
     
     func startSession() {
-        guard !isSessionRunning else { return }
-        
-        DispatchQueue.global(qos: .background).async {
-            self.captureSession.startRunning()
+        guard !isSessionRunning else {
+            print("📸 [CameraManager] 세션이 이미 실행 중 - 시작 요청 무시")
+            return
+        }
+
+        print("📸 [CameraManager] 세션 시작 요청")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+
+            if !self.captureSession.isRunning {
+                self.captureSession.startRunning()
+                print("📸 [CameraManager] 세션 시작 완료")
+            }
+
             DispatchQueue.main.async {
                 self.isSessionRunning = true
             }
         }
     }
-    
+
     func stopSession() {
-        guard isSessionRunning else { return }
-        
-        DispatchQueue.global(qos: .background).async {
-            self.captureSession.stopRunning()
+        guard isSessionRunning else {
+            print("📸 [CameraManager] 세션이 이미 중지됨 - 중지 요청 무시")
+            return
+        }
+
+        print("📸 [CameraManager] 세션 중지 요청")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+
+            if self.captureSession.isRunning {
+                self.captureSession.stopRunning()
+                print("📸 [CameraManager] 세션 중지 완료")
+            }
+
             DispatchQueue.main.async {
                 self.isSessionRunning = false
             }
@@ -2022,9 +2143,7 @@ struct CameraPreview: UIViewRepresentable {
 
         view.layer.addSublayer(previewLayer)
 
-        DispatchQueue.main.async {
-            cameraManager.startSession()
-        }
+        // 세션은 CustomCameraView에서 관리하므로 여기서 시작하지 않음
 
         return view
     }
@@ -2050,7 +2169,9 @@ struct ImagePicker: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = sourceType
-        picker.allowsEditing = true
+        picker.allowsEditing = false  // 까만 화면 방지를 위해 비활성화
+        picker.modalPresentationStyle = .fullScreen
+
         return picker
     }
 
@@ -2068,17 +2189,41 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
 
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let editedImage = info[.editedImage] as? UIImage {
-                parent.selectedImage = editedImage
-            } else if let originalImage = info[.originalImage] as? UIImage {
-                parent.selectedImage = originalImage
+            if let originalImage = info[.originalImage] as? UIImage {
+                // 정사각형으로 크롭
+                parent.selectedImage = cropToSquare(image: originalImage)
             }
-            
+
             parent.presentationMode.wrappedValue.dismiss()
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.presentationMode.wrappedValue.dismiss()
+        }
+
+        // 이미지를 정사각형으로 크롭
+        private func cropToSquare(image: UIImage) -> UIImage {
+            guard let cgImage = image.cgImage else { return image }
+
+            let width = CGFloat(cgImage.width)
+            let height = CGFloat(cgImage.height)
+            let minDimension = min(width, height)
+
+            // 중앙에서 정사각형 크롭
+            let cropRect = CGRect(
+                x: (width - minDimension) / 2,
+                y: (height - minDimension) / 2,
+                width: minDimension,
+                height: minDimension
+            )
+
+            // CGImage로 크롭
+            guard let croppedCGImage = cgImage.cropping(to: cropRect) else { return image }
+
+            // 원본 이미지의 orientation을 유지하여 UIImage 생성
+            let croppedImage = UIImage(cgImage: croppedCGImage, scale: image.scale, orientation: image.imageOrientation)
+
+            return croppedImage
         }
     }
 }
