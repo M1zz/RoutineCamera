@@ -23,9 +23,16 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var showMemoIcon: Bool {
+        didSet {
+            UserDefaults.standard.set(showMemoIcon, forKey: "showMemoIcon")
+        }
+    }
+
     private init() {
         // 기본값은 true (기존 동작 유지)
         self.autoSaveToPhotoLibrary = UserDefaults.standard.object(forKey: "autoSaveToPhotoLibrary") as? Bool ?? true
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
+        self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
     }
 }

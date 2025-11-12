@@ -26,6 +26,8 @@ struct ContentView: View {
     @State private var loadedFutureDays = 30 // 로드된 미래 일수
     @State private var isLoadingPast = false // 과거 날짜 로딩 중인지
     @State private var isLoadingFuture = false // 미래 날짜 로딩 중인지
+    @State private var scrollToTodayTrigger = false // 오늘 날짜로 스크롤 트리거
+    @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date()) // 현재 보이는 날짜
 
     private func initializeDateList() {
         print("📅 [ContentView] 날짜 리스트 초기화 시작")
@@ -124,6 +126,9 @@ struct ContentView: View {
                         }
                     )
 
+                    // 날짜 헤더
+                    DateHeaderView(date: currentVisibleDate)
+
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
                             ForEach(dateList, id: \.self) { date in
@@ -154,6 +159,21 @@ struct ContentView: View {
                                         }
                                     }
                             }
+                        }
+                        .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
+                            // 최상단에 가장 가까운 날짜 찾기 (Y 값이 0에 가까운 것)
+                            if let topDate = positions.min(by: { abs($0.value) < abs($1.value) })?.key {
+                                if currentVisibleDate != topDate {
+                                    currentVisibleDate = topDate
+                                }
+                            }
+                        }
+                    }
+                    .coordinateSpace(name: "scroll")
+                    .onChange(of: scrollToTodayTrigger) { _, _ in
+                        // 설정 창에서 돌아올 때 오늘 날짜로 스크롤
+                        withAnimation {
+                            proxy.scrollTo(todayDate, anchor: .top)
                         }
                     }
                 }
@@ -216,9 +236,27 @@ struct ContentView: View {
             .onChange(of: showingSettings) { oldValue, newValue in
                 // 설정 창이 닫힐 때 dateList 재초기화
                 if oldValue == true && newValue == false {
-                    dateList = []
+                    // 상태 초기화
                     isLoadingPast = false
                     isLoadingFuture = false
+                    dateList = []
+
+                    // 다시 초기화
+                    DispatchQueue.main.async {
+                        initializeDateList()
+                        // dateList가 업데이트된 후 스크롤 (약간의 딜레이)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            scrollToTodayTrigger.toggle()
+                        }
+                    }
+                }
+            }
+            .onChange(of: dateList.count) { oldCount, newCount in
+                // dateList가 초기화된 직후 스크롤
+                if oldCount == 0 && newCount > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        scrollToTodayTrigger.toggle()
+                    }
                 }
             }
             .sheet(isPresented: $showingStatistics) {
@@ -360,6 +398,46 @@ struct StreakHeaderView: View {
         .frame(maxWidth: .infinity)
         .background(Color(.systemBackground))
         .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+}
+
+// 날짜 헤더 뷰
+struct DateHeaderView: View {
+    let date: Date
+
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 MM월 dd일 (E)"
+        return formatter.string(from: date)
+    }
+
+    private var isToday: Bool {
+        Calendar.current.isDate(date, inSameDayAs: Date())
+    }
+
+    var body: some View {
+        HStack {
+            Text(dateString)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(isToday ? .blue : .primary)
+
+            if isToday {
+                Text("오늘")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue)
+                    .cornerRadius(6)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(.systemBackground))
+        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
     }
 }
 
@@ -517,6 +595,14 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
+
+                    Toggle("메모 표시", isOn: $settingsManager.showMemoIcon)
+
+                    Text("메모가 있는 식사에 메모 아이콘을 표시합니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // 정보
@@ -539,6 +625,17 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+}
+
+// PreferenceKey for tracking row positions
+struct DatePositionPreferenceKey: PreferenceKey {
+    typealias Value = [Date: CGFloat]
+
+    static var defaultValue: [Date: CGFloat] = [:]
+
+    static func reduce(value: inout [Date: CGFloat], nextValue: () -> [Date: CGFloat]) {
+        value.merge(nextValue()) { (_, new) in new }
     }
 }
 
@@ -600,30 +697,14 @@ struct DailySectionView: View {
             HStack(spacing: spacing) {
                 // 3개 식사 사진 (아침, 점심, 저녁)
                 ForEach(Array(MealType.allCases.enumerated()), id: \.element) { index, mealType in
-                    ZStack(alignment: .topLeading) {
-                        MealPhotoView(
-                            date: date,
-                            mealType: mealType,
-                            mealRecord: meals[mealType],
-                            mealStore: mealStore,
-                            isToday: isToday,
-                            photoSize: photoSize
-                        )
-
-                        // 첫 번째 사진(아침)에만 날짜 오버레이
-                        if index == 0 {
-                            Text(dateString)
-                                .font(.system(size: 15, weight: isToday ? .bold : .semibold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.black.opacity(0.7))
-                                .cornerRadius(8)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                                .padding(8)
-                        }
-                    }
+                    MealPhotoView(
+                        date: date,
+                        mealType: mealType,
+                        mealRecord: meals[mealType],
+                        mealStore: mealStore,
+                        isToday: isToday,
+                        photoSize: photoSize
+                    )
                     .frame(width: photoSize, height: photoSize)
                 }
             }
@@ -640,6 +721,14 @@ struct DailySectionView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 2)
+        .background(
+            GeometryReader { geometry in
+                Color.clear.preference(
+                    key: DatePositionPreferenceKey.self,
+                    value: [date: geometry.frame(in: .named("scroll")).minY]
+                )
+            }
+        )
     }
 }
 
@@ -753,7 +842,7 @@ struct MealPhotoView: View {
                                 Spacer()
                                 HStack(alignment: .bottom) {
                                     // 메모 아이콘 (왼쪽 하단)
-                                    if record.memo != nil && !record.memo!.isEmpty {
+                                    if SettingsManager.shared.showMemoIcon && record.memo != nil && !record.memo!.isEmpty {
                                         Image(systemName: "note.text")
                                             .font(.system(size: 12))
                                             .foregroundColor(.white)
