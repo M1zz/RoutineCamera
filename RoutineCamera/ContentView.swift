@@ -8,6 +8,7 @@
 import SwiftUI
 import AVFoundation
 import Photos
+import StoreKit
 
 struct ContentView: View {
     @StateObject private var mealStore = MealRecordStore()
@@ -21,13 +22,12 @@ struct ContentView: View {
     // 오늘 날짜와 날짜 리스트 초기화
     @State private var todayDate: Date = Calendar.current.startOfDay(for: Date())
     @State private var dateList: [Date] = []
-    @State private var isTodayVisible = true // 오늘 셀이 화면에 보이는지 추적
     @State private var loadedPastDays = 30 // 로드된 과거 일수
-    @State private var loadedFutureDays = 30 // 로드된 미래 일수
     @State private var isLoadingPast = false // 과거 날짜 로딩 중인지
-    @State private var isLoadingFuture = false // 미래 날짜 로딩 중인지
     @State private var scrollToTodayTrigger = false // 오늘 날짜로 스크롤 트리거
     @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date()) // 현재 보이는 날짜
+    @State private var headerOffset: CGFloat = 0 // 헤더 오프셋 (숨기기용)
+    @State private var lastDragValue: CGFloat = 0 // 마지막 드래그 값
 
     private func initializeDateList() {
         print("📅 [ContentView] 날짜 리스트 초기화 시작")
@@ -40,19 +40,17 @@ struct ContentView: View {
         }
 
         if hasPastRecords {
-            // 과거 기록이 있으면 -30...30 범위 로드
+            // 과거 기록이 있으면 -30...0 범위 로드 (과거 30일 ~ 오늘)
             loadedPastDays = 30
-            dateList = (-loadedPastDays...loadedFutureDays).compactMap { offset in
+            dateList = ((-loadedPastDays)...0).compactMap { offset in
                 calendar.date(byAdding: .day, value: offset, to: todayDate)
-            }
-            print("📅 [ContentView] 과거 기록 있음 - 날짜 리스트 초기화 완료: \(dateList.count)개 날짜 로드")
+            }.reversed() // 최신순 정렬 (오늘 -> 과거)
+            print("📅 [ContentView] 과거 기록 있음 - 날짜 리스트 초기화 완료: \(dateList.count)개 날짜 로드 (최신순)")
         } else {
-            // 과거 기록이 없으면 오늘부터만 로드 (0...30)
+            // 과거 기록이 없으면 오늘만 로드
             loadedPastDays = 0
-            dateList = (0...loadedFutureDays).compactMap { offset in
-                calendar.date(byAdding: .day, value: offset, to: todayDate)
-            }
-            print("📅 [ContentView] 과거 기록 없음 - 오늘부터만 로드: \(dateList.count)개 날짜 로드")
+            dateList = [todayDate]
+            print("📅 [ContentView] 과거 기록 없음 - 오늘만 로드")
         }
     }
 
@@ -71,40 +69,14 @@ struct ContentView: View {
         let newPastDays = loadedPastDays + 30
         let additionalDates = ((-newPastDays)...(-loadedPastDays-1)).compactMap { offset in
             calendar.date(byAdding: .day, value: offset, to: todayDate)
-        }
-        dateList = additionalDates + dateList
+        }.reversed() // 최신순 정렬
+        dateList = dateList + additionalDates // 배열 끝에 추가 (과거 방향)
         loadedPastDays = newPastDays
         print("⬆️ [ContentView] 과거 날짜 추가 완료: \(oldCount)개 → \(dateList.count)개")
 
         // 로딩 완료 후 플래그 해제
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isLoadingPast = false
-        }
-    }
-
-    private func loadMoreFutureDates() {
-        guard !isLoadingFuture else {
-            print("⬇️ [ContentView] 이미 미래 날짜 로딩 중 - 스킵")
-            return
-        }
-
-        isLoadingFuture = true
-        print("⬇️ [ContentView] 미래 날짜 추가 로드 시작")
-
-        let calendar = Calendar.current
-        let oldCount = dateList.count
-        // 30일씩 추가로 로드
-        let newFutureDays = loadedFutureDays + 30
-        let additionalDates = ((loadedFutureDays+1)...newFutureDays).compactMap { offset in
-            calendar.date(byAdding: .day, value: offset, to: todayDate)
-        }
-        dateList = dateList + additionalDates
-        loadedFutureDays = newFutureDays
-        print("⬇️ [ContentView] 미래 날짜 추가 완료: \(oldCount)개 → \(dateList.count)개")
-
-        // 로딩 완료 후 플래그 해제
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            isLoadingFuture = false
         }
     }
 
@@ -122,42 +94,58 @@ struct ContentView: View {
                         onHeaderTap: {
                             withAnimation {
                                 proxy.scrollTo(todayDate, anchor: .top)
+                                headerOffset = 0 // 헤더 다시 보이기
                             }
                         }
                     )
+                    .frame(height: headerOffset < 0 ? 0 : nil)
+                    .clipped()
+                    .offset(y: headerOffset)
+                    .animation(.easeInOut(duration: 0.25), value: headerOffset)
+                    .onChange(of: headerOffset) { oldValue, newValue in
+                        print("🎯 [HeaderOffset] 변경됨: \(oldValue) → \(newValue)")
+                    }
 
-                    // 날짜 헤더
+                    // 날짜 헤더 (항상 표시)
                     DateHeaderView(date: currentVisibleDate)
 
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
-                            ForEach(dateList, id: \.self) { date in
-                                DailySectionView(date: date, mealStore: mealStore)
-                                    .id(date)
-                                    .onAppear {
-                                        if Calendar.current.isDate(date, inSameDayAs: todayDate) {
-                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                isTodayVisible = true
-                                            }
-                                        }
-
-                                        // 첫 번째 날짜가 보이면 더 과거 날짜 로드 (과거 기록이 있는 경우에만)
-                                        if date == dateList.first && loadedPastDays > 0 {
-                                            loadMorePastDates()
-                                        }
-
-                                        // 마지막 날짜가 보이면 더 미래 날짜 로드
-                                        if date == dateList.last {
-                                            loadMoreFutureDates()
+                            ForEach(Array(dateList.enumerated()), id: \.element) { index, date in
+                                // 이전 날짜들의 거른 끼니 수 계산
+                                let previousMissedCount: Int = {
+                                    var count = 0
+                                    for i in 0..<index {
+                                        let prevDate = dateList[i]
+                                        let isPastDate = prevDate < Calendar.current.startOfDay(for: Date())
+                                        if isPastDate {
+                                            let meals = mealStore.getMeals(for: prevDate)
+                                            count += MealType.allCases.filter { meals[$0] == nil }.count
                                         }
                                     }
-                                    .onDisappear {
-                                        if Calendar.current.isDate(date, inSameDayAs: todayDate) {
-                                            withAnimation(.easeInOut(duration: 0.3)) {
-                                                isTodayVisible = false
-                                            }
-                                        }
+                                    return count
+                                }()
+
+                                DailySectionView(
+                                    date: date,
+                                    mealStore: mealStore,
+                                    previousMissedMealsCount: previousMissedCount
+                                )
+                                .id(date)
+                                .background(
+                                    GeometryReader { geometry in
+                                        Color.clear.preference(
+                                            key: DatePositionPreferenceKey.self,
+                                            value: [date: geometry.frame(in: .named("scroll")).minY]
+                                        )
                                     }
+                                )
+                                .onAppear {
+                                    // 마지막 날짜(가장 과거)가 보이면 더 과거 날짜 로드
+                                    if date == dateList.last && loadedPastDays > 0 {
+                                        loadMorePastDates()
+                                    }
+                                }
                             }
                         }
                         .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
@@ -170,6 +158,38 @@ struct ContentView: View {
                         }
                     }
                     .coordinateSpace(name: "scroll")
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                let currentY = value.translation.height
+                                let delta = currentY - lastDragValue
+
+                                print("👆 [Drag] translation: \(currentY), lastDrag: \(lastDragValue), delta: \(delta)")
+
+                                // 드래그 방향에 따라 헤더 숨김/표시
+                                if delta < -20 { // 위로 드래그 (아래로 스크롤, 콘텐츠 올라감)
+                                    if headerOffset == 0 {
+                                        print("⬇️ [Drag] 위로 드래그 - 헤더 숨김")
+                                        withAnimation(.easeInOut(duration: 0.25)) {
+                                            headerOffset = -200 // StreakHeaderView 완전히 숨김
+                                        }
+                                    }
+                                } else if delta > 20 { // 아래로 드래그 (위로 스크롤, 콘텐츠 내려김)
+                                    if headerOffset != 0 {
+                                        print("⬆️ [Drag] 아래로 드래그 - 헤더 표시")
+                                        withAnimation(.easeInOut(duration: 0.25)) {
+                                            headerOffset = 0
+                                        }
+                                    }
+                                }
+
+                                lastDragValue = currentY
+                            }
+                            .onEnded { _ in
+                                print("🏁 [Drag] 종료 - lastDrag 리셋")
+                                lastDragValue = 0
+                            }
+                    )
                     .onChange(of: scrollToTodayTrigger) { _, _ in
                         // 설정 창에서 돌아올 때 오늘 날짜로 스크롤
                         withAnimation {
@@ -180,6 +200,7 @@ struct ContentView: View {
                 .background(Color(.systemGroupedBackground))
                 .zIndex(0)
                 .onAppear {
+                    print("✅ [ContentView] onAppear - 초기 headerOffset: \(headerOffset)")
                     // 날짜 리스트 초기화
                     if dateList.isEmpty {
                         initializeDateList()
@@ -200,35 +221,6 @@ struct ContentView: View {
                     }
                 }
 
-                // 플로팅 "오늘" 버튼 (오늘이 화면에 없을 때만 표시)
-                if !isTodayVisible {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                withAnimation {
-                                    proxy.scrollTo(todayDate, anchor: .top)
-                                }
-                            }) {
-                                Text("오늘")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 14)
-                                    .background(Color.blue)
-                                    .clipShape(Capsule())
-                                    .shadow(color: .black.opacity(0.3), radius: 10, y: 5)
-                            }
-                            .contentShape(Rectangle())
-                            .padding(.trailing, 16)
-                            .padding(.bottom, 16)
-                            .transition(.scale.combined(with: .opacity))
-                        }
-                    }
-                    .allowsHitTesting(true)
-                    .zIndex(999)
-                }
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
@@ -238,7 +230,6 @@ struct ContentView: View {
                 if oldValue == true && newValue == false {
                     // 상태 초기화
                     isLoadingPast = false
-                    isLoadingFuture = false
                     dateList = []
 
                     // 다시 초기화
@@ -447,9 +438,13 @@ struct SettingsView: View {
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var settingsManager: SettingsManager
+    @StateObject private var storeKitManager = StoreKitManager.shared
     @Environment(\.dismiss) var dismiss
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
+    @State private var showingPurchaseSuccessAlert = false
+    @State private var showingPurchaseErrorAlert = false
+    @State private var purchaseErrorMessage = ""
 
     var body: some View {
         NavigationView {
@@ -605,6 +600,70 @@ struct SettingsView: View {
                         .minimumScaleFactor(0.8)
                 }
 
+                // 개발자 응원하기
+                Section(header: Text("개발자 응원하기")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("앱이 마음에 드셨나요?")
+                            .font(.system(size: 16, weight: .semibold))
+
+                        Text("커피 한 잔 값으로 개발자를 응원해주세요! 더 나은 앱을 만드는 데 큰 힘이 됩니다.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.8)
+
+                        if storeKitManager.products.isEmpty {
+                            HStack {
+                                ProgressView()
+                                Text("상품 로딩 중...")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            ForEach(storeKitManager.products, id: \.id) { product in
+                                Button {
+                                    _Concurrency.Task {
+                                        await purchaseProduct(product)
+                                    }
+                                } label: {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(product.displayName)
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundColor(.primary)
+                                            Text(product.description)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+
+                                        Spacer()
+
+                                        if storeKitManager.isPurchasing {
+                                            ProgressView()
+                                        } else {
+                                            Text(product.displayPrice)
+                                                .font(.system(size: 16, weight: .bold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 8)
+                                                .background(Color.blue)
+                                                .cornerRadius(8)
+                                        }
+                                    }
+                                    .padding(.vertical, 4)
+                                }
+                                .disabled(storeKitManager.isPurchasing)
+                            }
+                        }
+
+                        Text("❤️ 후원해주셔서 감사합니다!")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .padding(.top, 4)
+                    }
+                    .padding(.vertical, 8)
+                }
+
                 // 정보
                 Section(header: Text("정보")) {
                     HStack {
@@ -624,11 +683,47 @@ struct SettingsView: View {
                     }
                 }
             }
+            .alert("후원 감사합니다! ❤️", isPresented: $showingPurchaseSuccessAlert) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text("개발자에게 큰 힘이 됩니다. 더 나은 앱을 만들겠습니다!")
+            }
+            .alert("구매 실패", isPresented: $showingPurchaseErrorAlert) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text(purchaseErrorMessage)
+            }
+        }
+    }
+
+    // 결제 처리 함수
+    private func purchaseProduct(_ product: Product) async {
+        do {
+            let success = try await storeKitManager.purchase(product)
+            if success {
+                await MainActor.run {
+                    showingPurchaseSuccessAlert = true
+                }
+            }
+        } catch {
+            await MainActor.run {
+                purchaseErrorMessage = error.localizedDescription
+                showingPurchaseErrorAlert = true
+            }
         }
     }
 }
 
 // PreferenceKey for tracking row positions
+// 스크롤 오프셋을 추적하기 위한 PreferenceKey
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    typealias Value = CGFloat
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct DatePositionPreferenceKey: PreferenceKey {
     typealias Value = [Date: CGFloat]
 
@@ -643,6 +738,7 @@ struct DatePositionPreferenceKey: PreferenceKey {
 struct DailySectionView: View {
     let date: Date
     @ObservedObject var mealStore: MealRecordStore
+    let previousMissedMealsCount: Int // 이전 날짜들의 거른 끼니 수
 
     private var isToday: Bool {
         Calendar.current.isDate(date, inSameDayAs: Date())
@@ -669,6 +765,9 @@ struct DailySectionView: View {
     var body: some View {
         // getMeals 호출을 한 번만 하도록 캐싱
         let meals = mealStore.getMeals(for: date)
+
+        // 과거 날짜 확인
+        let isPastDate = date < Calendar.current.startOfDay(for: Date())
 
         let screenWidth = UIScreen.main.bounds.width
         let horizontalPadding: CGFloat = 16 // 좌우 8씩
@@ -697,13 +796,22 @@ struct DailySectionView: View {
             HStack(spacing: spacing) {
                 // 3개 식사 사진 (아침, 점심, 저녁)
                 ForEach(Array(MealType.allCases.enumerated()), id: \.element) { index, mealType in
+                    // 해당 칸까지의 누적 거른 끼니 수 계산 (이전 날짜 + 오늘 누적)
+                    let cumulativeMissedCount: Int = {
+                        if !isPastDate { return 0 }
+                        let mealsUpToHere = Array(MealType.allCases.prefix(index + 1))
+                        let todayMissed = mealsUpToHere.filter { meals[$0] == nil }.count
+                        return previousMissedMealsCount + todayMissed
+                    }()
+
                     MealPhotoView(
                         date: date,
                         mealType: mealType,
                         mealRecord: meals[mealType],
                         mealStore: mealStore,
                         isToday: isToday,
-                        photoSize: photoSize
+                        photoSize: photoSize,
+                        missedMealsCount: cumulativeMissedCount
                     )
                     .frame(width: photoSize, height: photoSize)
                 }
@@ -725,7 +833,7 @@ struct DailySectionView: View {
             GeometryReader { geometry in
                 Color.clear.preference(
                     key: DatePositionPreferenceKey.self,
-                    value: [date: geometry.frame(in: .named("scroll")).minY]
+                    value: [date: geometry.frame(in: .named("scrollView")).minY]
                 )
             }
         )
@@ -740,6 +848,7 @@ struct MealPhotoView: View {
     @ObservedObject var mealStore: MealRecordStore
     let isToday: Bool
     let photoSize: CGFloat
+    let missedMealsCount: Int
 
     @State private var showingCameraPicker = false // 이미지 없을 때
     @State private var showingPhotoDetail = false // 이미지 있을 때
@@ -765,6 +874,17 @@ struct MealPhotoView: View {
         let today = calendar.startOfDay(for: Date())
         let targetDate = calendar.startOfDay(for: date)
         return targetDate < today && mealRecord == nil
+    }
+
+    // 배경 색상 계산 (복잡한 표현식을 분리)
+    private var backgroundColor: Color {
+        if isPastDateMissed {
+            return Color.red.opacity(0.15)
+        } else if isFutureDate {
+            return Color(.systemGray5)
+        } else {
+            return Color(.systemGray6)
+        }
     }
 
     // 현재 시간대에 맞는 식사인지 확인
@@ -874,13 +994,13 @@ struct MealPhotoView: View {
                     } else {
                         // 사진이 없을 때
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(isPastDateMissed ? Color.red.opacity(0.15) : (isFutureDate ? Color(.systemGray5) : Color(.systemGray6)))
+                            .fill(backgroundColor)
                             .overlay {
                                 VStack(spacing: 6) {
-                                    if isPastDateMissed {
-                                        // 과거 날짜인데 기록 안 함 - 실패 표시
-                                        Image(systemName: "xmark.circle.fill")
-                                            .font(.system(size: min(photoSize * 0.4, 36)))
+                                    if isPastDateMissed && missedMealsCount > 0 {
+                                        // 과거 날짜인데 기록 안 함 - 미기록 개수 표시
+                                        Text("\(missedMealsCount)")
+                                            .font(.system(size: min(photoSize * 0.5, 40), weight: .bold))
                                             .foregroundColor(.red)
                                     } else if isCurrentMeal {
                                         // 현재 시간대 식사 - 애니메이션 적용
