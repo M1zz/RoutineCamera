@@ -258,9 +258,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSCameraUsageDescription = "카메라씁니다";
+				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "추가합니다";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "사진앨범씀니다";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -297,9 +297,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
-				INFOPLIST_KEY_NSCameraUsageDescription = "카메라씁니다";
+				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "추가합니다";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "사진앨범씀니다";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
