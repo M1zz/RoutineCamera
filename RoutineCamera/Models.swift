@@ -43,8 +43,9 @@ struct MealRecord: Identifiable, Codable {
     let afterImageData: Data?   // 식후 사진
     var memo: String?
     let recordedWithoutPhoto: Bool  // 사진 없이 기록했는지
+    var hidePhotoCountBadge: Bool  // 이 식사의 사진 개수 알림 숨기기
 
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false) {
+    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false) {
         self.id = UUID()
         self.date = date
         self.mealType = mealType
@@ -52,6 +53,7 @@ struct MealRecord: Identifiable, Codable {
         self.afterImageData = afterImageData
         self.memo = memo
         self.recordedWithoutPhoto = recordedWithoutPhoto
+        self.hidePhotoCountBadge = hidePhotoCountBadge
     }
 
     // 기존 데이터 호환성을 위한 커스텀 디코딩
@@ -65,6 +67,8 @@ struct MealRecord: Identifiable, Codable {
         memo = try container.decodeIfPresent(String.self, forKey: .memo)
         // 기존 데이터에는 recordedWithoutPhoto가 없을 수 있으므로 기본값 false 사용
         recordedWithoutPhoto = try container.decodeIfPresent(Bool.self, forKey: .recordedWithoutPhoto) ?? false
+        // 기존 데이터에는 hidePhotoCountBadge가 없을 수 있으므로 기본값 false 사용
+        hidePhotoCountBadge = try container.decodeIfPresent(Bool.self, forKey: .hidePhotoCountBadge) ?? false
     }
 
     // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
@@ -280,7 +284,31 @@ class MealRecordStore: ObservableObject {
                 mealType: existing.mealType,
                 beforeImageData: existing.beforeImageData,
                 afterImageData: existing.afterImageData,
-                memo: memo
+                memo: memo,
+                recordedWithoutPhoto: existing.recordedWithoutPhoto,
+                hidePhotoCountBadge: existing.hidePhotoCountBadge
+            )
+            records = currentRecords
+        }
+    }
+
+    // 사진 개수 알림 숨기기 업데이트
+    func updateHidePhotoCountBadge(date: Date, mealType: MealType, hide: Bool) {
+        let targetDate = Calendar.current.startOfDay(for: date)
+
+        var currentRecords = records
+        if let existingIndex = currentRecords.firstIndex(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+        }) {
+            let existing = currentRecords[existingIndex]
+            currentRecords[existingIndex] = MealRecord(
+                date: existing.date,
+                mealType: existing.mealType,
+                beforeImageData: existing.beforeImageData,
+                afterImageData: existing.afterImageData,
+                memo: existing.memo,
+                recordedWithoutPhoto: existing.recordedWithoutPhoto,
+                hidePhotoCountBadge: hide
             )
             records = currentRecords
         }

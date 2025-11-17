@@ -691,16 +691,18 @@ struct SettingsView: View {
                 Section(header: Text("표시 설정")) {
                     // 식단 모드일 때만 남은 장수 표시 옵션
                     if settingsManager.albumType == .diet {
-                        Toggle("남은 장수 표시", isOn: $settingsManager.showRemainingPhotoCount)
+                        Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)
 
-                        Text("사진이 1장만 입력되었을 때 빨간색 원에 1을 표시하여 알려줍니다. 2장이 모두 입력되면 표시가 사라집니다.")
+                        Text(settingsManager.showRemainingPhotoCount
+                            ? "사진이 1장만 입력되었을 때 빨간색 원에 1을 표시합니다."
+                            : "식후 사진 알림을 표시하지 않습니다. 2장 중 1장만 입력해도 알림이 나타나지 않습니다.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .lineLimit(3)
                             .minimumScaleFactor(0.8)
                     }
 
-                    Toggle("메모 표시", isOn: $settingsManager.showMemoIcon)
+                    Toggle("메모 아이콘 표시", isOn: $settingsManager.showMemoIcon)
 
                     Text("메모가 있는 식사에 메모 아이콘을 표시합니다.")
                         .font(.caption)
@@ -922,7 +924,6 @@ struct MealPhotoView: View {
     @State private var showingPhotoDetail = false // 이미지 있을 때
     @State private var selectedImage: UIImage?
     @State private var selectedPhotoType: PhotoType = .before // 식전/식후 선택
-    @State private var showingRecordOptions = false // 기록 방법 선택
 
     enum PhotoType {
         case before // 식전
@@ -1056,7 +1057,8 @@ struct MealPhotoView: View {
     @ViewBuilder
     private func photoCountBadge(for record: MealRecord) -> some View {
         // 사진 없이 기록한 경우에는 뱃지를 표시하지 않음
-        if !record.recordedWithoutPhoto && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount {
+        // 개별 식사의 숨기기 설정이나 전역 설정이 꺼져있으면 표시하지 않음
+        if !record.recordedWithoutPhoto && !record.hidePhotoCountBadge && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount {
             let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
             if photoCount == 1 {
                 Text("1")
@@ -1190,9 +1192,6 @@ struct MealPhotoView: View {
             .onTapGesture {
                 handleTap()
             }
-            .confirmationDialog("기록 방법 선택", isPresented: $showingRecordOptions, titleVisibility: .visible) {
-                recordOptionsButtons
-            }
             .sheet(isPresented: $showingCameraPicker) {
                 cameraPickerSheet
             }
@@ -1207,21 +1206,9 @@ struct MealPhotoView: View {
             if mealRecord != nil {
                 showingPhotoDetail = true
             } else {
-                showingRecordOptions = true
+                showingCameraPicker = true
             }
         }
-    }
-
-    // 기록 옵션 버튼들
-    @ViewBuilder
-    private var recordOptionsButtons: some View {
-        Button("사진으로 기록") {
-            showingCameraPicker = true
-        }
-        Button("사진 없이 기록") {
-            mealStore.recordWithoutPhoto(date: date, mealType: mealType)
-        }
-        Button("취소", role: .cancel) { }
     }
 
     // 카메라 피커 시트
@@ -1277,6 +1264,7 @@ struct CameraPickerView: View {
     @State private var selectedTab = 0 // 0: 카메라, 1: 사진앨범
     @State private var selectedImage: UIImage?
     @State private var localPhotoType: MealPhotoView.PhotoType
+    @State private var recordWithoutPhoto = false // 사진 없이 기록 토글
 
     init(date: Date, mealType: MealType, mealStore: MealRecordStore, selectedPhotoType: Binding<MealPhotoView.PhotoType>) {
         self.date = date
@@ -1304,90 +1292,133 @@ struct CameraPickerView: View {
     var body: some View {
         VStack(spacing: 0) {
             // 상단 헤더
-            HStack {
-                Button("취소") {
-                    dismiss()
-                }
-                .font(.system(size: 17))
-                .padding()
-
-                Spacer()
-
-                // 식단 모드일 때만 식전/식후 선택 Picker 표시
-                if SettingsManager.shared.albumType == .diet {
-                    Picker("", selection: $localPhotoType) {
-                        Text("식전").tag(MealPhotoView.PhotoType.before)
-                        Text("식후").tag(MealPhotoView.PhotoType.after)
+            VStack(spacing: 0) {
+                HStack {
+                    Button("취소") {
+                        dismiss()
                     }
-                    .pickerStyle(.segmented)
-                    .frame(width: 150)
+                    .font(.system(size: 17))
+                    .padding()
+
+                    Spacer()
+
+                    // 식단 모드일 때만 식전/식후 선택 Picker 표시
+                    if SettingsManager.shared.albumType == .diet && !recordWithoutPhoto {
+                        Picker("", selection: $localPhotoType) {
+                            Text("식전").tag(MealPhotoView.PhotoType.before)
+                            Text("식후").tag(MealPhotoView.PhotoType.after)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 150)
+                    }
+
+                    Spacer()
+
+                    // 완료 버튼 (사진 없이 기록일 때만 표시)
+                    if recordWithoutPhoto {
+                        Button("완료") {
+                            mealStore.recordWithoutPhoto(date: date, mealType: mealType)
+                            dismiss()
+                        }
+                        .font(.system(size: 17, weight: .semibold))
+                        .padding()
+                    } else {
+                        // 균형을 위한 투명 버튼
+                        Button("취소") {
+                            dismiss()
+                        }
+                        .font(.system(size: 17))
+                        .padding()
+                        .opacity(0)
+                    }
                 }
 
-                Spacer()
-
-                // 균형을 위한 투명 버튼
-                Button("취소") {
-                    dismiss()
+                // 사진 없이 기록 토글
+                HStack {
+                    Toggle("사진 없이 기록", isOn: $recordWithoutPhoto)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
                 }
-                .font(.system(size: 17))
-                .padding()
-                .opacity(0)
+                .background(Color(.systemGroupedBackground))
             }
             .background(Color(.systemBackground))
 
             // 메인 컨텐츠
-            TabView(selection: $selectedTab) {
-                // 카메라 탭
-                CustomCameraView(selectedImage: $selectedImage, isActive: selectedTab == 0)
-                    .tag(0)
-
-                // 사진앨범 탭
-                ImagePicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
-                    .tag(1)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-
-            // 하단 탭바
-            HStack(spacing: 0) {
-                Button(action: {
-                    selectedTab = 0
-                }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "camera.fill")
-                            .font(.system(size: 24))
-                        Text("카메라")
-                            .font(.system(size: 12))
+            if recordWithoutPhoto {
+                // 사진 없이 기록 모드
+                VStack {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 80))
+                            .foregroundColor(.green)
+                        Text("사진 없이 기록")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                        Text("상단 완료 버튼을 눌러 기록하세요")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .foregroundColor(selectedTab == 0 ? .blue : .gray)
+                    Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGroupedBackground))
+            } else {
+                // 사진 촬영/선택 모드
+                TabView(selection: $selectedTab) {
+                    // 카메라 탭
+                    CustomCameraView(selectedImage: $selectedImage, isActive: selectedTab == 0)
+                        .tag(0)
 
-                Button(action: {
-                    selectedTab = 1
-                }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.system(size: 24))
-                        Text("사진앨범")
-                            .font(.system(size: 12))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .foregroundColor(selectedTab == 1 ? .blue : .gray)
+                    // 사진앨범 탭
+                    ImagePicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+                        .tag(1)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // 하단 탭바
+                HStack(spacing: 0) {
+                    Button(action: {
+                        selectedTab = 0
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 24))
+                            Text("카메라")
+                                .font(.system(size: 12))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundColor(selectedTab == 0 ? .blue : .gray)
+                    }
+
+                    Button(action: {
+                        selectedTab = 1
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.system(size: 24))
+                            Text("사진앨범")
+                                .font(.system(size: 12))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundColor(selectedTab == 1 ? .blue : .gray)
+                    }
+                }
+                .background(Color(.systemBackground))
+                .overlay(
+                    Rectangle()
+                        .frame(height: 0.5)
+                        .foregroundColor(Color(.separator)),
+                    alignment: .top
+                )
             }
-            .background(Color(.systemBackground))
-            .overlay(
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundColor(Color(.separator)),
-                alignment: .top
-            )
         }
         .ignoresSafeArea(edges: .bottom)
         .onChange(of: selectedImage) { oldValue, newValue in
-            if let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
+            // 사진 없이 기록 모드가 아닐 때만 사진 저장
+            if !recordWithoutPhoto, let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
                 mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData, isBefore: localPhotoType == .before)
                 dismiss()
             }
@@ -1529,6 +1560,27 @@ struct PhotoDetailView: View {
                                     .foregroundColor(.secondary)
                                 Text(memo)
                                     .font(.system(size: 16))
+                            }
+                        }
+
+                        // 식단 모드이고 사진이 1장만 있을 때 토글 표시
+                        if SettingsManager.shared.albumType == .diet {
+                            let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
+                            if photoCount == 1 {
+                                Divider()
+                                    .padding(.vertical, 8)
+
+                                Toggle("식전/식후 사진 알림 가리기", isOn: Binding(
+                                    get: { record.hidePhotoCountBadge },
+                                    set: { newValue in
+                                        mealStore.updateHidePhotoCountBadge(date: date, mealType: mealType, hide: newValue)
+                                    }
+                                ))
+                                .font(.system(size: 16))
+
+                                Text("이 식사의 빨간색 1 알림을 표시하지 않습니다.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
