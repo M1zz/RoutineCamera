@@ -69,6 +69,35 @@ struct ContentView: View {
         }
     }
 
+    // 이전 날짜들의 놓친 끼니 수 계산 (컴파일러 타임아웃 방지)
+    private func calculatePreviousMissedCount(upToIndex index: Int) -> Int {
+        var count = 0
+        let isExerciseMode = settingsManager.albumType == .exercise
+        let today = Calendar.current.startOfDay(for: Date())
+
+        for i in 0..<index {
+            let prevDate = dateList[i]
+            let isPastDate = prevDate < today
+
+            if isPastDate {
+                let meals = mealStore.getMeals(for: prevDate)
+
+                if isExerciseMode {
+                    // 운동 모드: 하루에 1개만 카운트
+                    if meals[.breakfast] == nil {
+                        count += 1
+                    }
+                } else {
+                    // 식단 모드: 3끼 모두 카운트
+                    let missedMeals = MealType.allCases.filter { meals[$0] == nil }
+                    count += missedMeals.count
+                }
+            }
+        }
+
+        return count
+    }
+
     // 식사 시간 이후 미기록 확인 후 자동 카메라 열기 (식단 모드에서만)
     private func checkAndAutoOpenCamera() {
         // 운동 모드에서는 자동 카메라 열기 안 함
@@ -173,28 +202,8 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
                             ForEach(Array(dateList.enumerated()), id: \.element) { index, date in
-                                // 이전 날짜들의 거른 끼니 수 계산
-                                let previousMissedCount: Int = {
-                                    var count = 0
-                                    let isExerciseMode = SettingsManager.shared.albumType == .exercise
-                                    for i in 0..<index {
-                                        let prevDate = dateList[i]
-                                        let isPastDate = prevDate < Calendar.current.startOfDay(for: Date())
-                                        if isPastDate {
-                                            let meals = mealStore.getMeals(for: prevDate)
-                                            if isExerciseMode {
-                                                // 운동 모드: 하루에 1개만 카운트 (breakfast 사용)
-                                                if meals[.breakfast] == nil {
-                                                    count += 1
-                                                }
-                                            } else {
-                                                // 식단 모드: 3끼 모두 카운트
-                                                count += MealType.allCases.filter { meals[$0] == nil }.count
-                                            }
-                                        }
-                                    }
-                                    return count
-                                }()
+                                // 이전 날짜들의 놓친 끼니 수 계산
+                                let previousMissedCount = calculatePreviousMissedCount(upToIndex: index)
 
                                 DailySectionView(
                                     date: date,
@@ -295,6 +304,15 @@ struct ContentView: View {
                                 notificationManager.scheduleMealNotifications()
                             }
                         }
+                    }
+
+                    // 다이나믹 아일랜드 위 캐릭터 시작
+                    if #available(iOS 16.1, *) {
+                        DynamicIslandOverlayManager.shared.start(
+                            mealStore: mealStore,
+                            settingsManager: settingsManager
+                        )
+                        print("✅ [DynamicIslandOverlay] 오버레이 시작 요청")
                     }
                 }
 
