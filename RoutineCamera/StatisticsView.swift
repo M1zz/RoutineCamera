@@ -10,6 +10,7 @@ import SwiftUI
 struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @Environment(\.dismiss) var dismiss
+    @State private var showingBeforeAfterComparison = false
 
     private var navigationTitle: String {
         "\(SettingsManager.shared.albumType.rawValue) 통계"
@@ -19,14 +20,27 @@ struct StatisticsView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
+                    // 연속 기록 및 목표
+                    StreakAndGoalView(mealStore: mealStore)
+
+                    // 업적 섹션
+                    AchievementsSectionView()
+
+                    // Before/After 비교 버튼 (식단 모드에서만)
+                    if SettingsManager.shared.albumType == .diet {
+                        BeforeAfterComparisonButton(showingComparison: $showingBeforeAfterComparison)
+                    }
+
                     // 주간 통계
                     WeeklyStatsView(mealStore: mealStore)
 
                     // 월간 통계
                     MonthlyStatsView(mealStore: mealStore)
 
-                    // 식사별 통계
-                    MealTypeStatsView(mealStore: mealStore)
+                    // 식사별 통계 (식단 모드에서만)
+                    if SettingsManager.shared.albumType == .diet {
+                        MealTypeStatsView(mealStore: mealStore)
+                    }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 16)
@@ -40,6 +54,9 @@ struct StatisticsView: View {
                         dismiss()
                     }
                 }
+            }
+            .sheet(isPresented: $showingBeforeAfterComparison) {
+                BeforeAfterComparisonView(mealStore: mealStore)
             }
         }
     }
@@ -57,11 +74,22 @@ struct WeeklyStatsView: View {
         var recorded = 0
         var total = 0
 
+        let isExerciseMode = SettingsManager.shared.albumType == .exercise
+
         for day in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: day, to: startOfWeek) {
                 let meals = mealStore.getMeals(for: date)
-                recorded += meals.values.filter { $0.isComplete }.count
-                total += 3
+                if isExerciseMode {
+                    // 운동 모드: 하루 1회
+                    if meals[.breakfast]?.isComplete ?? false {
+                        recorded += 1
+                    }
+                    total += 1
+                } else {
+                    // 식단 모드: 하루 3끼
+                    recorded += meals.values.filter { $0.isComplete }.count
+                    total += 3
+                }
             }
         }
 
@@ -86,7 +114,7 @@ struct WeeklyStatsView: View {
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
-                        Text("식사 기록")
+                        Text(SettingsManager.shared.albumType == .exercise ? "운동 기록" : "식사 기록")
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -135,11 +163,22 @@ struct MonthlyStatsView: View {
         var recorded = 0
         var total = 0
 
+        let isExerciseMode = SettingsManager.shared.albumType == .exercise
+
         for day in 0..<range.count {
             if let date = calendar.date(byAdding: .day, value: day, to: startOfMonth) {
                 let meals = mealStore.getMeals(for: date)
-                recorded += meals.values.filter { $0.isComplete }.count
-                total += 3
+                if isExerciseMode {
+                    // 운동 모드: 하루 1회
+                    if meals[.breakfast]?.isComplete ?? false {
+                        recorded += 1
+                    }
+                    total += 1
+                } else {
+                    // 식단 모드: 하루 3끼
+                    recorded += meals.values.filter { $0.isComplete }.count
+                    total += 3
+                }
             }
         }
 
@@ -163,7 +202,7 @@ struct MonthlyStatsView: View {
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
-                        Text("식사 기록")
+                        Text(SettingsManager.shared.albumType == .exercise ? "운동 기록" : "식사 기록")
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -275,5 +314,465 @@ struct MealTypeStatsView: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+}
+
+// 연속 기록 및 목표 뷰
+struct StreakAndGoalView: View {
+    @ObservedObject var mealStore: MealRecordStore
+
+    var body: some View {
+        VStack(spacing: 16) {
+            // 연속 기록
+            HStack(spacing: 20) {
+                VStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Text("🔥")
+                            .font(.title)
+                        Text("\(mealStore.getCurrentStreak())")
+                            .font(.system(size: 36, weight: .bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Text("현재 연속")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Divider()
+                    .frame(height: 60)
+
+                VStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Text("🏆")
+                            .font(.title)
+                        Text("\(mealStore.getMaxStreak())")
+                            .font(.system(size: 36, weight: .bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    Text("최고 연속")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+}
+
+// 업적 섹션 뷰
+struct AchievementsSectionView: View {
+    @StateObject private var achievementManager = AchievementManager.shared
+    @State private var showingAllAchievements = false
+
+    private var unlockedCount: Int {
+        achievementManager.achievements.filter { $0.isUnlocked }.count
+    }
+
+    private var recentAchievements: [Achievement] {
+        achievementManager.achievements
+            .filter { $0.isUnlocked }
+            .sorted { ($0.unlockedDate ?? Date.distantPast) > ($1.unlockedDate ?? Date.distantPast) }
+            .prefix(3)
+            .map { $0 }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("업적")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                Spacer()
+                Text("\(unlockedCount)/\(achievementManager.achievements.count)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            // 진행도 바
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.systemGray5))
+                        .frame(height: 12)
+
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.orange)
+                        .frame(width: geometry.size.width * CGFloat(unlockedCount) / CGFloat(achievementManager.achievements.count), height: 12)
+                }
+            }
+            .frame(height: 12)
+
+            // 최근 달성 업적
+            if !recentAchievements.isEmpty {
+                VStack(spacing: 8) {
+                    ForEach(recentAchievements) { achievement in
+                        HStack {
+                            Text(achievement.icon)
+                                .font(.title2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(achievement.title)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text(achievement.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                }
+            }
+
+            Button(action: {
+                showingAllAchievements = true
+            }) {
+                Text("모든 업적 보기")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        .sheet(isPresented: $showingAllAchievements) {
+            AllAchievementsView()
+        }
+    }
+}
+
+// 모든 업적 뷰
+struct AllAchievementsView: View {
+    @StateObject private var achievementManager = AchievementManager.shared
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(achievementManager.achievements) { achievement in
+                        HStack(spacing: 12) {
+                            Text(achievement.icon)
+                                .font(.system(size: 40))
+                                .opacity(achievement.isUnlocked ? 1.0 : 0.3)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(achievement.title)
+                                    .font(.headline)
+                                    .foregroundColor(achievement.isUnlocked ? .primary : .secondary)
+
+                                Text(achievement.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                if let date = achievement.unlockedDate {
+                                    Text(date, style: .date)
+                                        .font(.caption2)
+                                        .foregroundColor(.green)
+                                }
+                            }
+
+                            Spacer()
+
+                            if achievement.isUnlocked {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                    .font(.title3)
+                            } else {
+                                Image(systemName: "lock.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.title3)
+                            }
+                        }
+                        .padding(16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 3, y: 1)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 16)
+            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("모든 업적")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("완료") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Before/After 비교 버튼
+struct BeforeAfterComparisonButton: View {
+    @Binding var showingComparison: Bool
+
+    var body: some View {
+        Button(action: {
+            showingComparison = true
+        }) {
+            HStack {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.title3)
+                Text("Before/After 비교")
+                    .font(.headline)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+            }
+            .padding(16)
+            .background(Color(.systemBackground))
+            .foregroundColor(.primary)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        }
+    }
+}
+
+// Before/After 비교 뷰
+struct BeforeAfterComparisonView: View {
+    @ObservedObject var mealStore: MealRecordStore
+    @Environment(\.dismiss) var dismiss
+    @State private var selectedPeriod: ComparisonPeriod = .oneWeek
+
+    enum ComparisonPeriod: String, CaseIterable {
+        case oneWeek = "1주 전"
+        case twoWeeks = "2주 전"
+        case oneMonth = "1개월 전"
+
+        var daysAgo: Int {
+            switch self {
+            case .oneWeek: return 7
+            case .twoWeeks: return 14
+            case .oneMonth: return 30
+            }
+        }
+    }
+
+    private func getMealsForDate(_ date: Date) -> [MealType: MealRecord] {
+        mealStore.getMeals(for: date)
+    }
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // 기간 선택
+                    Picker("기간", selection: $selectedPeriod) {
+                        ForEach(ComparisonPeriod.allCases, id: \.self) { period in
+                            Text(period.rawValue).tag(period)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+
+                    let beforeDate = Calendar.current.date(byAdding: .day, value: -selectedPeriod.daysAgo, to: Date())!
+                    let todayDate = Date()
+
+                    // Before
+                    ComparisonDayView(
+                        title: "Before (\(selectedPeriod.rawValue))",
+                        date: beforeDate,
+                        meals: getMealsForDate(beforeDate)
+                    )
+
+                    // After (오늘)
+                    ComparisonDayView(
+                        title: "After (오늘)",
+                        date: todayDate,
+                        meals: getMealsForDate(todayDate)
+                    )
+
+                    // 통계 비교
+                    ComparisonStatsView(
+                        mealStore: mealStore,
+                        beforeDate: beforeDate,
+                        afterDate: todayDate
+                    )
+                }
+                .padding(.vertical)
+            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Before/After 비교")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("완료") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 비교 날짜 뷰
+struct ComparisonDayView: View {
+    let title: String
+    let date: Date
+    let meals: [MealType: MealRecord]
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M월 d일 (E)"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(dateFormatter.string(from: date))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            HStack(spacing: 12) {
+                ForEach(MealType.allCases, id: \.self) { mealType in
+                    VStack(spacing: 8) {
+                        if let meal = meals[mealType], meal.isComplete {
+                            if let photoData = meal.thumbnailImageData, let uiImage = UIImage(data: photoData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            } else {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(.systemGray6))
+                                        .frame(width: 100, height: 100)
+                                    Text("📷")
+                                        .font(.system(size: 40))
+                                }
+                            }
+                        } else {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemGray6))
+                                    .frame(width: 100, height: 100)
+                                Text("기록 없음")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        Text(mealType.rawValue)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        .padding(.horizontal)
+    }
+}
+
+// 통계 비교 뷰
+struct ComparisonStatsView: View {
+    @ObservedObject var mealStore: MealRecordStore
+    let beforeDate: Date
+    let afterDate: Date
+
+    private func getWeeklyRecordCount(from date: Date) -> Int {
+        let calendar = Calendar.current
+        var count = 0
+
+        for i in 0..<7 {
+            if let checkDate = calendar.date(byAdding: .day, value: -i, to: date) {
+                let meals = mealStore.getMeals(for: checkDate)
+                count += meals.values.filter { $0.isComplete }.count
+            }
+        }
+
+        return count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("주간 기록 비교")
+                .font(.headline)
+
+            HStack {
+                VStack(spacing: 8) {
+                    Text("Before")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text("\(getWeeklyRecordCount(from: beforeDate))")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    Text("기록")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Image(systemName: "arrow.right")
+                    .foregroundColor(.blue)
+                    .font(.title2)
+
+                VStack(spacing: 8) {
+                    Text("After")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text("\(getWeeklyRecordCount(from: afterDate))")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.blue)
+                    Text("기록")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            let difference = getWeeklyRecordCount(from: afterDate) - getWeeklyRecordCount(from: beforeDate)
+            if difference > 0 {
+                Text("✨ \(difference)회 더 기록했어요!")
+                    .font(.subheadline)
+                    .foregroundColor(.green)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+            } else if difference < 0 {
+                Text("💪 조금만 더 힘내세요!")
+                    .font(.subheadline)
+                    .foregroundColor(.orange)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+            } else {
+                Text("동일한 기록을 유지하고 있어요")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        .padding(.horizontal)
     }
 }

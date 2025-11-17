@@ -42,14 +42,29 @@ struct MealRecord: Identifiable, Codable {
     let beforeImageData: Data?  // 식전 사진
     let afterImageData: Data?   // 식후 사진
     var memo: String?
+    let recordedWithoutPhoto: Bool  // 사진 없이 기록했는지
 
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil) {
+    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false) {
         self.id = UUID()
         self.date = date
         self.mealType = mealType
         self.beforeImageData = beforeImageData
         self.afterImageData = afterImageData
         self.memo = memo
+        self.recordedWithoutPhoto = recordedWithoutPhoto
+    }
+
+    // 기존 데이터 호환성을 위한 커스텀 디코딩
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        date = try container.decode(Date.self, forKey: .date)
+        mealType = try container.decode(MealType.self, forKey: .mealType)
+        beforeImageData = try container.decodeIfPresent(Data.self, forKey: .beforeImageData)
+        afterImageData = try container.decodeIfPresent(Data.self, forKey: .afterImageData)
+        memo = try container.decodeIfPresent(String.self, forKey: .memo)
+        // 기존 데이터에는 recordedWithoutPhoto가 없을 수 있으므로 기본값 false 사용
+        recordedWithoutPhoto = try container.decodeIfPresent(Bool.self, forKey: .recordedWithoutPhoto) ?? false
     }
 
     // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
@@ -57,9 +72,9 @@ struct MealRecord: Identifiable, Codable {
         return afterImageData ?? beforeImageData
     }
 
-    // 기록이 완료되었는지 (최소 1개 사진 있으면 완료)
+    // 기록이 완료되었는지 (최소 1개 사진 있거나 사진 없이 기록했으면 완료)
     var isComplete: Bool {
-        return beforeImageData != nil || afterImageData != nil
+        return beforeImageData != nil || afterImageData != nil || recordedWithoutPhoto
     }
 }
 
@@ -199,6 +214,39 @@ class MealRecordStore: ObservableObject {
 
         // 다시 할당하여 setter 호출
         records = currentRecords
+
+        // 업적 체크
+        AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
+    }
+
+    // 사진 없이 기록
+    func recordWithoutPhoto(date: Date, mealType: MealType) {
+        let targetDate = Calendar.current.startOfDay(for: date)
+
+        var currentRecords = records
+
+        // 이미 기록이 있는지 확인
+        if currentRecords.contains(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+        }) {
+            print("⚠️ [MealRecordStore] 이미 기록이 있습니다")
+            return
+        }
+
+        // 새 기록 추가 (사진 없이)
+        let newRecord = MealRecord(
+            date: targetDate,
+            mealType: mealType,
+            beforeImageData: nil,
+            afterImageData: nil,
+            recordedWithoutPhoto: true
+        )
+        currentRecords.append(newRecord)
+
+        records = currentRecords
+
+        // 업적 체크
+        AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
     // 식사 기록 삭제
@@ -278,9 +326,16 @@ class MealRecordStore: ObservableObject {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
+        let isExerciseMode = SettingsManager.shared.albumType == .exercise
+
         // 오늘 기록이 완료되었는지 확인
         let todayMeals = getMeals(for: today)
-        let todayComplete = todayMeals.count == 3 && todayMeals.values.allSatisfy { $0.isComplete }
+        let todayComplete: Bool
+        if isExerciseMode {
+            todayComplete = todayMeals[.breakfast]?.isComplete ?? false
+        } else {
+            todayComplete = todayMeals.count == 3 && todayMeals.values.allSatisfy { $0.isComplete }
+        }
 
         var streak = 0
         var currentDate = today
@@ -288,7 +343,12 @@ class MealRecordStore: ObservableObject {
         // 오늘부터 과거로 거슬러 올라가며 연속 기록 확인
         while true {
             let meals = getMeals(for: currentDate)
-            let isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+            let isComplete: Bool
+            if isExerciseMode {
+                isComplete = meals[.breakfast]?.isComplete ?? false
+            } else {
+                isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+            }
 
             if isComplete {
                 streak += 1
@@ -318,6 +378,8 @@ class MealRecordStore: ObservableObject {
         var maxStreak = 0
         var currentStreak = 0
 
+        let isExerciseMode = SettingsManager.shared.albumType == .exercise
+
         // 모든 날짜별로 정렬
         let sortedDates = Set(records.map { calendar.startOfDay(for: $0.date) }).sorted()
 
@@ -325,7 +387,12 @@ class MealRecordStore: ObservableObject {
 
         for (index, date) in sortedDates.enumerated() {
             let meals = getMeals(for: date)
-            let isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+            let isComplete: Bool
+            if isExerciseMode {
+                isComplete = meals[.breakfast]?.isComplete ?? false
+            } else {
+                isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+            }
 
             if isComplete {
                 // 이전 날짜와 연속인지 확인
@@ -437,6 +504,30 @@ class MealRecordStore: ObservableObject {
     func clearAllData() {
         print("🗑️ [MealRecordStore] \(SettingsManager.shared.albumType.rawValue) 모드 데이터 삭제")
         records = []
+    }
+
+    // 총 기록 개수 (완료된 식사 개수)
+    func getTotalRecordCount() -> Int {
+        return records.filter { $0.isComplete }.count
+    }
+
+    // 총 사진 개수
+    func getTotalPhotoCount() -> Int {
+        var count = 0
+        for record in records {
+            if record.beforeImageData != nil {
+                count += 1
+            }
+            if record.afterImageData != nil {
+                count += 1
+            }
+        }
+        return count
+    }
+
+    // 총 메모 개수
+    func getTotalMemoCount() -> Int {
+        return records.filter { $0.memo != nil && !$0.memo!.isEmpty }.count
     }
 }
 
