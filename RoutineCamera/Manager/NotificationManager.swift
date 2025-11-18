@@ -165,4 +165,52 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         notificationsEnabled = false
     }
+
+    // 오늘 식사 기록 확인 후 알림 업데이트 (기록한 식사는 알림 취소)
+    func updateNotificationsBasedOnRecords(meals: [MealType: MealRecord]) {
+        guard notificationsEnabled else { return }
+
+        var identifiersToRemove: [String] = []
+
+        // 아침 기록했으면 아침 알림 취소
+        if meals[.breakfast]?.isComplete ?? false {
+            identifiersToRemove.append("breakfast-reminder")
+        }
+
+        // 점심 기록했으면 점심 알림 취소
+        if meals[.lunch]?.isComplete ?? false {
+            identifiersToRemove.append("lunch-reminder")
+        }
+
+        // 저녁 기록했으면 저녁 알림 취소
+        if meals[.dinner]?.isComplete ?? false {
+            identifiersToRemove.append("dinner-reminder")
+        }
+
+        if !identifiersToRemove.isEmpty {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
+            print("✅ 기록된 식사 알림 취소: \(identifiersToRemove.joined(separator: ", "))")
+        }
+    }
+
+    // 날짜가 바뀌었는지 확인하고 알림 재설정 (매일 자정 이후 첫 실행 시)
+    func checkAndRescheduleIfNeeded() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        // 마지막으로 확인한 날짜 불러오기
+        if let lastCheckDate = UserDefaults.standard.object(forKey: "lastNotificationCheckDate") as? Date {
+            let lastCheck = calendar.startOfDay(for: lastCheckDate)
+
+            // 날짜가 바뀌었으면 알림 재설정
+            if today > lastCheck {
+                print("📅 날짜 변경 감지: \(lastCheck) → \(today)")
+                scheduleMealNotifications()
+                UserDefaults.standard.set(today, forKey: "lastNotificationCheckDate")
+            }
+        } else {
+            // 처음 실행 시
+            UserDefaults.standard.set(today, forKey: "lastNotificationCheckDate")
+        }
+    }
 }

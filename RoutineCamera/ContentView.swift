@@ -288,6 +288,13 @@ struct ContentView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                             print("🔍 [AutoCamera] 자동 카메라 체크 시작 - dateList.count: \(self.dateList.count)")
                             self.checkAndAutoOpenCamera()
+
+                            // 날짜 변경 확인 및 알림 재설정
+                            self.notificationManager.checkAndRescheduleIfNeeded()
+
+                            // 오늘 식사 기록 확인 후 알림 업데이트
+                            let todayMeals = self.mealStore.getMeals(for: self.todayDate)
+                            self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
                         }
                     }
 
