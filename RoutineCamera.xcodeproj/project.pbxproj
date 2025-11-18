@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58AA3D592ECCBEA7007D4BBD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 58AA3D582ECCBEA7007D4BBD /* GoogleService-Info.plist */; };
 		9C1568A62ECC61DE004A4BB4 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568A52ECC61DE004A4BB4 /* FirebaseAI */; };
 		9C1568A82ECC61DE004A4BB4 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568A72ECC61DE004A4BB4 /* FirebaseAILogic */; };
 		9C1568AA2ECC61DE004A4BB4 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568A92ECC61DE004A4BB4 /* FirebaseAnalytics */; };
@@ -35,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		58AA3D582ECCBEA7007D4BBD /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -85,6 +87,7 @@
 			children = (
 				5857FA102EC244BF00A539D8 /* RoutineCamera */,
 				5857FA0F2EC244BF00A539D8 /* Products */,
+				58AA3D582ECCBEA7007D4BBD /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -187,6 +190,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58AA3D592ECCBEA7007D4BBD /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,6 +333,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
@@ -368,6 +373,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;

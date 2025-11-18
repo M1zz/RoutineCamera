@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:261453972830:ios:7d71f27daf66642bf13bcf</string>
+	<key>DATABASE_URL</key>
+	<string>https://sekki-24285-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

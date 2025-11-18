@@ -75,7 +75,10 @@ class SettingsManager: ObservableObject {
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
 
-        // Firebase 공유 기본값은 false (사용자가 명시적으로 활성화)
-        self.shareMealsToFirebase = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? false
+        // Firebase 공유 기본값은 true (자동 싱크 활성화)
+        self.shareMealsToFirebase = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true
+
+        print("⚙️ [SettingsManager] 초기화 완료")
+        print("   - Firebase 공유: \(self.shareMealsToFirebase)")
     }
 }

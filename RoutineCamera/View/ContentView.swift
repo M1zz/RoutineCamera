@@ -10,7 +10,7 @@ import AVFoundation
 import Photos
 
 struct ContentView: View {
-    @StateObject private var mealStore = MealRecordStore()
+    @StateObject private var mealStore = MealRecordStore.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
@@ -299,7 +299,7 @@ struct ContentView: View {
                             let todayMeals = self.mealStore.getMeals(for: self.todayDate)
                             self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
                         }
-                    }
+                    } 
 
                     // 알림 권한 요청
                     if !notificationManager.notificationsEnabled {
