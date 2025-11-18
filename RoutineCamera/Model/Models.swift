@@ -12,30 +12,41 @@ import Combine
 // 식사 타입 정의
 enum MealType: String, CaseIterable, Codable, Identifiable {
     case breakfast = "아침"
-    case morningSnack = "오전간식"
     case lunch = "점심"
-    case afternoonSnack = "오후간식"
     case dinner = "저녁"
+    case snack1 = "간식1"
+    case snack2 = "간식2"
+    case snack3 = "간식3"
 
     var id: String { self.rawValue }
 
     var symbolName: String {
         switch self {
         case .breakfast: return "sunrise.fill"
-        case .morningSnack: return "cup.and.saucer.fill"
         case .lunch: return "sun.max.fill"
-        case .afternoonSnack: return "birthday.cake.fill"
         case .dinner: return "moon.stars.fill"
+        case .snack1, .snack2, .snack3: return "cup.and.saucer.fill"
         }
     }
 
     var symbolColor: Color {
         switch self {
         case .breakfast: return .orange
-        case .morningSnack: return .green
         case .lunch: return .yellow
-        case .afternoonSnack: return .pink
         case .dinner: return .blue
+        case .snack1: return .green
+        case .snack2: return .pink
+        case .snack3: return .purple
+        }
+    }
+
+    // 간식 타입인지 확인
+    var isSnack: Bool {
+        switch self {
+        case .snack1, .snack2, .snack3:
+            return true
+        default:
+            return false
         }
     }
 }
@@ -502,14 +513,16 @@ class MealRecordStore: ObservableObject {
             switch mealType {
             case .breakfast:
                 backgroundColor = isBefore ? UIColor.orange.withAlphaComponent(0.3) : UIColor.orange.withAlphaComponent(0.6)
-            case .morningSnack:
-                backgroundColor = isBefore ? UIColor.green.withAlphaComponent(0.3) : UIColor.green.withAlphaComponent(0.6)
             case .lunch:
                 backgroundColor = isBefore ? UIColor.yellow.withAlphaComponent(0.3) : UIColor.yellow.withAlphaComponent(0.6)
-            case .afternoonSnack:
-                backgroundColor = isBefore ? UIColor.systemPink.withAlphaComponent(0.3) : UIColor.systemPink.withAlphaComponent(0.6)
             case .dinner:
                 backgroundColor = isBefore ? UIColor.blue.withAlphaComponent(0.3) : UIColor.blue.withAlphaComponent(0.6)
+            case .snack1:
+                backgroundColor = isBefore ? UIColor.green.withAlphaComponent(0.3) : UIColor.green.withAlphaComponent(0.6)
+            case .snack2:
+                backgroundColor = isBefore ? UIColor.systemPink.withAlphaComponent(0.3) : UIColor.systemPink.withAlphaComponent(0.6)
+            case .snack3:
+                backgroundColor = isBefore ? UIColor.purple.withAlphaComponent(0.3) : UIColor.purple.withAlphaComponent(0.6)
             }
 
             backgroundColor.setFill()
