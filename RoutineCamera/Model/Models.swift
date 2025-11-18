@@ -12,7 +12,9 @@ import Combine
 // 식사 타입 정의
 enum MealType: String, CaseIterable, Codable, Identifiable {
     case breakfast = "아침"
+    case morningSnack = "오전간식"
     case lunch = "점심"
+    case afternoonSnack = "오후간식"
     case dinner = "저녁"
 
     var id: String { self.rawValue }
@@ -20,7 +22,9 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
     var symbolName: String {
         switch self {
         case .breakfast: return "sunrise.fill"
+        case .morningSnack: return "cup.and.saucer.fill"
         case .lunch: return "sun.max.fill"
+        case .afternoonSnack: return "birthday.cake.fill"
         case .dinner: return "moon.stars.fill"
         }
     }
@@ -28,7 +32,9 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
     var symbolColor: Color {
         switch self {
         case .breakfast: return .orange
+        case .morningSnack: return .green
         case .lunch: return .yellow
+        case .afternoonSnack: return .pink
         case .dinner: return .blue
         }
     }
@@ -496,8 +502,12 @@ class MealRecordStore: ObservableObject {
             switch mealType {
             case .breakfast:
                 backgroundColor = isBefore ? UIColor.orange.withAlphaComponent(0.3) : UIColor.orange.withAlphaComponent(0.6)
+            case .morningSnack:
+                backgroundColor = isBefore ? UIColor.green.withAlphaComponent(0.3) : UIColor.green.withAlphaComponent(0.6)
             case .lunch:
                 backgroundColor = isBefore ? UIColor.yellow.withAlphaComponent(0.3) : UIColor.yellow.withAlphaComponent(0.6)
+            case .afternoonSnack:
+                backgroundColor = isBefore ? UIColor.systemPink.withAlphaComponent(0.3) : UIColor.systemPink.withAlphaComponent(0.6)
             case .dinner:
                 backgroundColor = isBefore ? UIColor.blue.withAlphaComponent(0.3) : UIColor.blue.withAlphaComponent(0.6)
             }
