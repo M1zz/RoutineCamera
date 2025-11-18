@@ -173,10 +173,11 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
                             ForEach(Array(dateList.enumerated()), id: \.element) { index, date in
-                                // 이전 날짜들의 거른 끼니 수 계산
+                                // 위쪽(최근) 날짜들의 거른 끼니 수 계산 (최근부터 1, 2, 3...)
                                 let previousMissedCount: Int = {
                                     var count = 0
                                     let isExerciseMode = SettingsManager.shared.albumType == .exercise
+                                    // 현재 날짜보다 위에 있는 날짜들(최근)을 세기
                                     for i in 0..<index {
                                         let prevDate = dateList[i]
                                         let isPastDate = prevDate < Calendar.current.startOfDay(for: Date())
@@ -188,8 +189,10 @@ struct ContentView: View {
                                                     count += 1
                                                 }
                                             } else {
-                                                // 식단 모드: 3끼 모두 카운트
-                                                count += MealType.allCases.filter { meals[$0] == nil }.count
+                                                // 식단 모드: 간식 제외하고 3끼만 카운트
+                                                count += MealType.allCases.filter { mealType in
+                                                    !mealType.isSnack && meals[mealType] == nil
+                                                }.count
                                             }
                                         }
                                     }
@@ -811,6 +814,90 @@ struct DailySectionView: View {
         )
     }
 
+    // 간식이 입력되어 있는지 확인
+    private func hasSnacks(meals: [MealType: MealRecord]) -> Bool {
+        return (meals[.snack1]?.isComplete ?? false) ||
+               (meals[.snack2]?.isComplete ?? false) ||
+               (meals[.snack3]?.isComplete ?? false)
+    }
+
+    // 현재 시간대에 맞는 식사 타입 3개 반환 (오늘 날짜용)
+    // 순서: 아침 - 간식1 - 점심 - 저녁 - 간식2
+    private func getMealsForCurrentTimeSlot() -> [MealType] {
+        let now = Date()
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: now)
+        let minute = calendar.component(.minute, from: now)
+        let currentMinutes = hour * 60 + minute
+
+        let notificationManager = NotificationManager.shared
+        let breakfastHour = calendar.component(.hour, from: notificationManager.breakfastTime)
+        let breakfastMinute = calendar.component(.minute, from: notificationManager.breakfastTime)
+        let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
+        let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
+        let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
+        let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
+
+        let breakfastMinutes = breakfastHour * 60 + breakfastMinute
+        let lunchMinutes = lunchHour * 60 + lunchMinute
+        let dinnerMinutes = dinnerHour * 60 + dinnerMinute
+
+        // 현재 시간이 어느 시간대인지 판별
+        if currentMinutes < lunchMinutes {
+            // 아침 시간대: [아침, 간식1, 점심]
+            return [.breakfast, .snack1, .lunch]
+        } else if currentMinutes < dinnerMinutes {
+            // 점심 시간대: [간식1, 점심, 간식2]
+            return [.snack1, .lunch, .snack2]
+        } else {
+            // 저녁 시간대: [간식2, 저녁, 간식3]
+            return [.snack2, .dinner, .snack3]
+        }
+    }
+
+    // 동적 간식 칸 계산 (기록된 간식 + 1개 빈 칸)
+    private func getSnacksToShow(meals: [MealType: MealRecord]) -> [MealType] {
+        var snacks: [MealType] = []
+
+        // snack1이 있으면 추가
+        if meals[.snack1]?.isComplete ?? false {
+            snacks.append(.snack1)
+
+            // snack2가 있으면 추가
+            if meals[.snack2]?.isComplete ?? false {
+                snacks.append(.snack2)
+
+                // snack3이 있으면 추가
+                if meals[.snack3]?.isComplete ?? false {
+                    snacks.append(.snack3)
+                    // 모두 채워짐 - 더 이상 추가 불가
+                } else {
+                    // snack3 빈 칸 추가
+                    snacks.append(.snack3)
+                }
+            } else {
+                // snack2 빈 칸 추가
+                snacks.append(.snack2)
+            }
+        } else {
+            // snack1 빈 칸 추가
+            snacks.append(.snack1)
+        }
+
+        return snacks
+    }
+
+    // 표시할 식사 타입 배열 반환
+    private func getMealsToShow(meals: [MealType: MealRecord]) -> [MealType] {
+        if isToday {
+            // 오늘: 시간대별 3개 표시 (고정)
+            return getMealsForCurrentTimeSlot()
+        } else {
+            // 과거/미래: 아침 점심 저녁 + 동적 간식
+            return [.breakfast, .lunch, .dinner] + getSnacksToShow(meals: meals)
+        }
+    }
+
     private func calculateLayout(isExerciseMode: Bool) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
         let screenWidth = UIScreen.main.bounds.width
         let horizontalPadding: CGFloat = 16
@@ -835,14 +922,31 @@ struct DailySectionView: View {
         cardPadding: CGFloat,
         cellHeight: CGFloat
     ) -> some View {
-        HStack(spacing: spacing) {
-            if isExerciseMode {
-                exerciseModePhoto(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
+        // 표시할 칸이 3개보다 많으면 ScrollView 사용 (과거 날짜 포함)
+        let mealsToShow = getMealsToShow(meals: meals)
+        let shouldUseScrollView = !isExerciseMode && mealsToShow.count > 3
+
+        Group {
+            if shouldUseScrollView {
+                // 칸이 3개보다 많으면 ScrollView 사용 (과거 날짜 포함)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: spacing) {
+                        dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                    }
+                    .padding(.horizontal, cardPadding)
+                }
             } else {
-                dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
+                // 오늘이고 간식 없을 때 (3칸 고정)
+                HStack(spacing: spacing) {
+                    if isExerciseMode {
+                        exerciseModePhoto(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
+                    } else {
+                        dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                    }
+                }
+                .padding(cardPadding)
             }
         }
-        .padding(cardPadding)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(isToday ? Color.blue.opacity(0.05) : Color(.systemBackground))
@@ -871,12 +975,15 @@ struct DailySectionView: View {
     }
 
     @ViewBuilder
-    private func dietModePhotos(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat) -> some View {
-        ForEach(Array(MealType.allCases.enumerated()), id: \.element) { index, mealType in
+    private func dietModePhotos(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat, spacing: CGFloat) -> some View {
+        let mealsToShow = getMealsToShow(meals: meals)
+
+        ForEach(Array(mealsToShow.enumerated()), id: \.element) { index, mealType in
             let cumulativeMissedCount = calculateMissedCount(
                 index: index,
                 meals: meals,
-                isPastDate: isPastDate
+                isPastDate: isPastDate,
+                mealsToShow: mealsToShow
             )
 
             MealPhotoView(
@@ -892,7 +999,7 @@ struct DailySectionView: View {
         }
     }
 
-    private func calculateMissedCount(index: Int, meals: [MealType: MealRecord], isPastDate: Bool) -> Int {
+    private func calculateMissedCount(index: Int, meals: [MealType: MealRecord], isPastDate: Bool, mealsToShow: [MealType]) -> Int {
         if !isPastDate { return 0 }
 
         let isExerciseMode = SettingsManager.shared.albumType == .exercise
@@ -902,9 +1009,13 @@ struct DailySectionView: View {
             let todayMissed = meals[.breakfast] == nil ? 1 : 0
             return previousMissedMealsCount + todayMissed
         } else {
-            // 식단 모드: 현재 인덱스까지의 끼니 중 빠진 것 카운트
-            let mealsUpToHere = Array(MealType.allCases.prefix(index + 1))
-            let todayMissed = mealsUpToHere.filter { meals[$0] == nil }.count
+            // 식단 모드: 현재 인덱스까지의 끼니 중 빠진 것 카운트 (간식 제외)
+            // 위쪽(최근)부터 누적하여 1, 2, 3... 순서로 세기
+            let mealsUpToHere = Array(mealsToShow.prefix(index + 1))
+            // 간식은 건너뛴 끼니로 세지 않음
+            let todayMissed = mealsUpToHere.filter { mealType in
+                !mealType.isSnack && meals[mealType] == nil
+            }.count
             return previousMissedMealsCount + todayMissed
         }
     }
@@ -939,7 +1050,13 @@ struct MealPhotoView: View {
     }
 
     // 과거 날짜이면서 기록하지 않은 경우 (실패)
+    // 간식은 선택사항이므로 제외
     private var isPastDateMissed: Bool {
+        // 간식은 안 먹어도 괜찮음
+        if mealType.isSnack {
+            return false
+        }
+
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let targetDate = calendar.startOfDay(for: date)
