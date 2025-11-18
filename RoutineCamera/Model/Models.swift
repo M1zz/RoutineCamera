@@ -102,6 +102,9 @@ struct MealRecord: Identifiable, Codable {
 // 날짜별 식사 기록을 관리하는 ObservableObject
 @MainActor
 class MealRecordStore: ObservableObject {
+    // 싱글톤 인스턴스
+    static let shared = MealRecordStore()
+
     // 식단과 운동을 완전히 별개로 저장
     @Published private var dietRecords: [MealRecord] = []
     @Published private var exerciseRecords: [MealRecord] = []
@@ -132,6 +135,12 @@ class MealRecordStore: ObservableObject {
     private let exerciseRecordsKey = "ExerciseMealRecords"
     private var cancellables = Set<AnyCancellable>()
 
+    // Firebase 업로드 추적
+    private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
+    private var lastUploadTime: Date?
+    private var uploadTimer: Timer?
+    private let uploadDelaySeconds: TimeInterval = 5  // 5초 후 업로드
+
     init() {
         loadRecords()
         migrateOldDataIfNeeded()
@@ -142,6 +151,24 @@ class MealRecordStore: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        // 앱 백그라운드 진입 시 대기 중인 업로드 즉시 실행
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.uploadTimer?.invalidate()
+            self?.uploadDirtyDates()
+        }
+    }
+
+    deinit {
+        uploadTimer?.invalidate()
+        // 앱 종료 시 대기 중인 업로드 실행
+        if !dirtyDates.isEmpty {
+            print("⚠️ [Firebase] 앱 종료 - 남은 업로드 실행")
+        }
     }
 
     // 기존 데이터를 식단 전용으로 마이그레이션
@@ -333,17 +360,233 @@ class MealRecordStore: ObservableObject {
 
     // 기록 저장 (현재 앨범 타입의 데이터만 저장)
     private func saveRecords() {
+        print("🔔 [MealRecordStore] saveRecords() 호출됨")
+        print("   - 현재 앨범 타입: \(SettingsManager.shared.albumType)")
+
         switch SettingsManager.shared.albumType {
         case .diet:
+            print("   - 식단 모드로 저장 시작")
             if let encoded = try? JSONEncoder().encode(dietRecords) {
                 userDefaults.set(encoded, forKey: dietRecordsKey)
                 print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
+
+                // Firebase 동기화 (식단 공유가 활성화된 경우)
+                print("🔍 [Firebase] shareMealsToFirebase 설정: \(SettingsManager.shared.shareMealsToFirebase)")
+                print("🔍 [Firebase] 현재 로그인 상태: \(FriendManager.shared.isSignedIn)")
+                print("🔍 [Firebase] 사용자 ID: \(FriendManager.shared.myUserId)")
+
+                if !FriendManager.shared.isSignedIn {
+                    print("⚠️ [Firebase] Apple 로그인하지 않아 업로드 건너뜀")
+                } else if SettingsManager.shared.shareMealsToFirebase {
+                    // 변경된 날짜들을 dirty로 표시하고 지연 업로드 스케줄
+                    markDirtyDatesFromRecords()
+                    scheduleDelayedUpload()
+                } else {
+                    print("⚠️ [Firebase] Firebase 업로드 비활성화됨 - 설정에서 활성화 필요")
+                }
             }
         case .exercise:
             if let encoded = try? JSONEncoder().encode(exerciseRecords) {
                 userDefaults.set(encoded, forKey: exerciseRecordsKey)
                 print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
             }
+        }
+    }
+
+    // MARK: - 스마트 Firebase 업로드
+
+    /// 현재 식단 기록에서 변경된 날짜를 dirty로 표시
+    private func markDirtyDatesFromRecords() {
+        let calendar = Calendar.current
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        // 최근 3일간의 날짜를 dirty로 표시
+        for dayOffset in 0..<3 {
+            if let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) {
+                let dateString = dateFormatter.string(from: date)
+                if !getMeals(for: date).isEmpty {
+                    dirtyDates.insert(dateString)
+                }
+            }
+        }
+
+        if !dirtyDates.isEmpty {
+            print("📝 [Firebase] 업로드 대기 날짜: \(dirtyDates.sorted())")
+        }
+    }
+
+    /// 지연된 업로드 스케줄 (여러 저장이 연속으로 일어날 때 배치 처리)
+    private func scheduleDelayedUpload() {
+        // 기존 타이머 취소
+        uploadTimer?.invalidate()
+
+        // 새 타이머 설정 (5초 후 업로드)
+        uploadTimer = Timer.scheduledTimer(withTimeInterval: uploadDelaySeconds, repeats: false) { [weak self] _ in
+            self?.uploadDirtyDates()
+        }
+
+        print("⏰ [Firebase] \(Int(uploadDelaySeconds))초 후 업로드 예정")
+    }
+
+    /// dirty로 표시된 날짜만 업로드
+    private func uploadDirtyDates() {
+        guard !dirtyDates.isEmpty else {
+            print("ℹ️ [Firebase] 업로드할 날짜 없음")
+            return
+        }
+
+        print("🚀 [Firebase] 스마트 업로드 시작 - \(dirtyDates.count)개 날짜")
+
+        let datesToUpload = dirtyDates
+        dirtyDates.removeAll()  // 먼저 클리어 (중복 방지)
+
+        _Concurrency.Task {
+            let calendar = Calendar.current
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+
+            for dateString in datesToUpload.sorted() {
+                // 날짜 문자열을 Date로 변환
+                guard let date = dateFormatter.date(from: dateString) else { continue }
+
+                let meals = getMeals(for: date)
+                print("   📅 \(dateString) - 식단 개수: \(meals.count)")
+
+                if meals.isEmpty {
+                    print("   ⏭️ 식단 없음, 건너뜀")
+                    continue
+                }
+
+                // Firebase에 이미 있는지 확인
+                do {
+                    let existingMeals = try await FriendManager.shared.loadFriendMeals(
+                        friendId: FriendManager.shared.myUserId,
+                        date: date
+                    )
+
+                    print("   🔍 Firebase에 이미 있는 식단: \(existingMeals.count)개")
+
+                    // 로컬에는 있지만 Firebase에 없거나 사진이 추가된 식단만 필터링
+                    var mealsToUpload: [MealType: MealRecord] = [:]
+
+                    for (mealType, localMeal) in meals {
+                        if existingMeals[mealType] == nil {
+                            mealsToUpload[mealType] = localMeal
+                            print("      ➕ \(mealType.rawValue) - Firebase에 없음")
+                        } else {
+                            // 사진이 있는데 Firebase에는 사진이 없는 경우도 업로드
+                            let hasLocalPhoto = localMeal.beforeImageData != nil || localMeal.afterImageData != nil
+                            let hasFirebasePhoto = existingMeals[mealType]?.beforeImageData != nil ||
+                                                   existingMeals[mealType]?.afterImageData != nil
+
+                            if hasLocalPhoto && !hasFirebasePhoto {
+                                mealsToUpload[mealType] = localMeal
+                                print("      📸 \(mealType.rawValue) - 사진 추가됨")
+                            } else {
+                                print("      ✓ \(mealType.rawValue) - 동기화됨")
+                            }
+                        }
+                    }
+
+                    // 업로드할 식단이 있으면 업로드
+                    if !mealsToUpload.isEmpty {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: mealsToUpload)
+                        print("   ✅ \(dateString) 업로드 완료 (\(mealsToUpload.count)개)")
+                    } else {
+                        print("   ✓ \(dateString) 모두 동기화됨")
+                    }
+                } catch {
+                    print("   ⚠️ [Firebase] 확인 실패, 전체 업로드: \(error)")
+                    // 확인 실패 시 전체 업로드
+                    do {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
+                        print("   ✅ \(dateString) 전체 업로드 완료")
+                    } catch {
+                        print("   ❌ \(dateString) 업로드 실패: \(error)")
+                    }
+                }
+            }
+
+            await MainActor.run {
+                self.lastUploadTime = Date()
+                print("🏁 [Firebase] 스마트 업로드 완료")
+            }
+        }
+    }
+
+    // MARK: - Legacy Upload (사용 안 함)
+
+    /// 최근 3일간의 식단 업로드 (레거시 - 사용 안 함)
+    @available(*, deprecated, message: "Use uploadDirtyDates() instead")
+    private func uploadRecentMealsToFirebase() {
+        print("🚀 [Firebase] uploadRecentMealsToFirebase() 시작")
+        _Concurrency.Task {
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+
+            // 최근 3일간의 날짜 생성
+            for dayOffset in 0..<3 {
+                guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+
+                let meals = getMeals(for: date)
+                print("   📅 \(dayOffset)일 전 (\(date)) - 로컬 식단 개수: \(meals.count)")
+
+                if meals.isEmpty {
+                    print("   ⏭️ \(dayOffset)일 전 - 식단 없음, 건너뜀")
+                    continue
+                }
+
+                // Firebase에 이미 있는지 확인
+                do {
+                    let existingMeals = try await FriendManager.shared.loadFriendMeals(
+                        friendId: FriendManager.shared.myUserId,
+                        date: date
+                    )
+
+                    print("   🔍 Firebase에 이미 있는 식단: \(existingMeals.count)개")
+
+                    // 로컬에는 있지만 Firebase에 없는 식단만 필터링
+                    var mealsToUpload: [MealType: MealRecord] = [:]
+
+                    for (mealType, localMeal) in meals {
+                        if existingMeals[mealType] == nil {
+                            mealsToUpload[mealType] = localMeal
+                            print("      ➕ \(mealType.rawValue) - Firebase에 없음, 업로드 예정")
+                        } else {
+                            // 사진이 있는데 Firebase에는 사진이 없는 경우도 업로드
+                            let hasLocalPhoto = localMeal.beforeImageData != nil || localMeal.afterImageData != nil
+                            let hasFirebasePhoto = existingMeals[mealType]?.beforeImageData != nil ||
+                                                   existingMeals[mealType]?.afterImageData != nil
+
+                            if hasLocalPhoto && !hasFirebasePhoto {
+                                mealsToUpload[mealType] = localMeal
+                                print("      📸 \(mealType.rawValue) - 사진 추가됨, 업로드 예정")
+                            } else {
+                                print("      ✓ \(mealType.rawValue) - 이미 Firebase에 있음, 건너뜀")
+                            }
+                        }
+                    }
+
+                    // 업로드할 식단이 있으면 업로드
+                    if !mealsToUpload.isEmpty {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: mealsToUpload)
+                        print("   📤 [Firebase] \(dayOffset)일 전 식단 업로드 완료 (\(mealsToUpload.count)개)")
+                    } else {
+                        print("   ✅ \(dayOffset)일 전 - 모두 동기화됨, 업로드 불필요")
+                    }
+                } catch {
+                    print("   ⚠️ [Firebase] 확인 실패, 전체 업로드 시도: \(error)")
+                    // 확인 실패 시 전체 업로드
+                    do {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
+                        print("   📤 [Firebase] \(dayOffset)일 전 식단 업로드 완료")
+                    } catch {
+                        print("   ❌ [Firebase] 식단 업로드 실패: \(error)")
+                    }
+                }
+            }
+            print("🏁 [Firebase] uploadRecentMealsToFirebase() 완료")
         }
     }
 

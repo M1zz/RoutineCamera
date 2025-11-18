@@ -10,11 +10,13 @@ import AVFoundation
 import Photos
 
 struct ContentView: View {
-    @StateObject private var mealStore = MealRecordStore()
+    @StateObject private var mealStore = MealRecordStore.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
+    @StateObject private var friendManager = FriendManager.shared
     @State private var showingSettings = false
+    @State private var showingFriends = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
@@ -151,6 +153,7 @@ struct ContentView: View {
                         goalManager: goalManager,
                         settingsManager: settingsManager,
                         onStatisticsTap: { showingStatistics = true },
+                        onFriendsTap: { showingFriends = true },
                         onSettingsTap: { showingSettings = true },
                         onHeaderTap: {
                             withAnimation {
@@ -296,7 +299,7 @@ struct ContentView: View {
                             let todayMeals = self.mealStore.getMeals(for: self.todayDate)
                             self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
                         }
-                    }
+                    } 
 
                     // 알림 권한 요청
                     if !notificationManager.notificationsEnabled {
@@ -311,6 +314,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
+            }
+            .sheet(isPresented: $showingFriends) {
+                FriendsView()
             }
             .onChange(of: showingSettings) { oldValue, newValue in
                 // 설정 창이 닫힐 때 dateList 재초기화
@@ -369,6 +375,7 @@ struct StreakHeaderView: View {
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var settingsManager: SettingsManager
     let onStatisticsTap: () -> Void
+    let onFriendsTap: () -> Void
     let onSettingsTap: () -> Void
     let onHeaderTap: () -> Void
 
@@ -384,6 +391,14 @@ struct StreakHeaderView: View {
                 .padding(.leading, 16)
 
                 Spacer()
+
+                // 친구 버튼
+                Button(action: onFriendsTap) {
+                    Image(systemName: "person.2.fill")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing, 8)
 
                 // 설정 버튼
                 Button(action: onSettingsTap) {
@@ -556,6 +571,23 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
+                }
+
+                // 친구 공유 설정
+                Section(header: Text("친구 공유")) {
+                    Toggle("내 식단 공유 가능", isOn: $settingsManager.shareMealsToFirebase)
+
+                    Text("이 기능을 켜면 내 식단 데이터가 Firebase에 자동으로 업로드되어 친구가 내 식단을 볼 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+
+                    if settingsManager.shareMealsToFirebase {
+                        Text("✓ 식단 공유가 활성화되었습니다")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
                 }
 
                 // 개발용 섹션

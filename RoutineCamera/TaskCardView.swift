@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskCardView: View {
-    let task: Task
+    let task: KanbanTask
     let onDelete: () -> Void
     
     var body: some View {
