@@ -54,6 +54,12 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var shareMealsToFirebase: Bool {
+        didSet {
+            UserDefaults.standard.set(shareMealsToFirebase, forKey: "shareMealsToFirebase")
+        }
+    }
+
     private init() {
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
@@ -68,5 +74,8 @@ class SettingsManager: ObservableObject {
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
+
+        // Firebase 공유 기본값은 false (사용자가 명시적으로 활성화)
+        self.shareMealsToFirebase = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? false
     }
 }

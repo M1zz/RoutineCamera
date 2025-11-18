@@ -338,11 +338,39 @@ class MealRecordStore: ObservableObject {
             if let encoded = try? JSONEncoder().encode(dietRecords) {
                 userDefaults.set(encoded, forKey: dietRecordsKey)
                 print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
+
+                // Firebase 동기화 (식단 공유가 활성화된 경우)
+                if SettingsManager.shared.shareMealsToFirebase {
+                    uploadRecentMealsToFirebase()
+                }
             }
         case .exercise:
             if let encoded = try? JSONEncoder().encode(exerciseRecords) {
                 userDefaults.set(encoded, forKey: exerciseRecordsKey)
                 print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
+            }
+        }
+    }
+
+    // Firebase에 최근 7일간의 식단 업로드
+    private func uploadRecentMealsToFirebase() {
+        _Concurrency.Task {
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+
+            // 최근 7일간의 날짜 생성
+            for dayOffset in 0..<7 {
+                guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+
+                let meals = getMeals(for: date)
+                if !meals.isEmpty {
+                    do {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
+                        print("📤 [Firebase] \(dayOffset)일 전 식단 업로드 완료")
+                    } catch {
+                        print("❌ [Firebase] 식단 업로드 실패: \(error)")
+                    }
+                }
             }
         }
     }
