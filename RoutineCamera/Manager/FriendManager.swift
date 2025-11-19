@@ -465,17 +465,33 @@ class FriendManager: ObservableObject {
             return
         }
 
+        print("🔍 [FriendManager] 친구 목록 로드 시작: \(myUserId)")
+        let friendsPath = "users/\(myUserId)/friends"
+        print("   📍 Firebase 경로: \(friendsPath)")
+
         ref.child("users").child(myUserId).child("friends").observe(.value) { [weak self] snapshot in
+            print("📥 [FriendManager] Firebase 응답 받음")
+            print("   - snapshot.exists: \(snapshot.exists())")
+            print("   - snapshot.value type: \(type(of: snapshot.value))")
+
             guard let friendsData = snapshot.value as? [String: [String: Any]] else {
+                print("⚠️ [FriendManager] friendsData 파싱 실패 또는 친구 없음")
+                print("   - snapshot.value: \(String(describing: snapshot.value))")
                 _Concurrency.Task { @MainActor in
                     self?.friends = []
                 }
                 return
             }
 
+            print("✅ [FriendManager] friendsData 파싱 성공: \(friendsData.keys.count)개 친구")
             var loadedFriends: [Friend] = []
 
             for (friendId, data) in friendsData {
+                print("   🔍 처리 중: friendId=\(friendId)")
+                print("      - code: \(data["code"] ?? "없음")")
+                print("      - name: \(data["name"] ?? "없음")")
+                print("      - addedDate: \(data["addedDate"] ?? "없음")")
+
                 if let code = data["code"] as? String,
                    let name = data["name"] as? String,
                    let timestamp = data["addedDate"] as? TimeInterval {
@@ -486,12 +502,18 @@ class FriendManager: ObservableObject {
                         addedDate: Date(timeIntervalSince1970: timestamp)
                     )
                     loadedFriends.append(friend)
+                    print("      ✅ 친구 추가 성공: \(name)")
+                } else {
+                    print("      ❌ 필수 필드 누락")
                 }
             }
 
             _Concurrency.Task { @MainActor in
                 self?.friends = loadedFriends.sorted { $0.addedDate > $1.addedDate }
-                print("✅ 친구 목록 로드: \(loadedFriends.count)명")
+                print("✅ [FriendManager] 친구 목록 로드 완료: \(loadedFriends.count)명")
+                if loadedFriends.isEmpty {
+                    print("⚠️ [FriendManager] 친구 목록이 비어있습니다!")
+                }
             }
         }
     }
@@ -963,6 +985,293 @@ class FriendManager: ObservableObject {
             }
 
             throw TimeoutError()
+        }
+    }
+
+    // MARK: - 닉네임 관리
+
+    /// 내 닉네임을 Firebase에 저장
+    func saveMyNickname(_ nickname: String) async throws {
+        guard !myUserId.isEmpty else {
+            let error = NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 ID 없음"])
+            print("❌ [FriendManager] 닉네임 저장 실패: 사용자 ID 없음")
+            throw error
+        }
+
+        guard !nickname.isEmpty else {
+            let error = NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: "닉네임이 비어있습니다"])
+            print("❌ [FriendManager] 닉네임 저장 실패: 빈 닉네임")
+            throw error
+        }
+
+        do {
+            let nicknameData: [String: Any] = [
+                "nickname": nickname,
+                "updatedAt": ServerValue.timestamp()
+            ]
+
+            try await ref.child("users").child(myUserId).child("profile").setValue(nicknameData)
+            print("✅ [FriendManager] 닉네임 저장 완료: \(nickname)")
+        } catch {
+            print("❌ [FriendManager] 닉네임 저장 Firebase 에러: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    /// 특정 사용자의 닉네임 가져오기
+    func getUserNickname(_ userId: String) async throws -> String {
+        guard !userId.isEmpty else {
+            print("❌ [FriendManager] 닉네임 조회 실패: 빈 사용자 ID")
+            return "사용자"
+        }
+
+        do {
+            let snapshot = try await ref.child("users").child(userId).child("profile").child("nickname").getData()
+
+            guard let nickname = snapshot.value as? String, !nickname.isEmpty else {
+                print("⚠️ [FriendManager] 닉네임 없음, 기본값 반환: \(userId)")
+                return "사용자"
+            }
+
+            return nickname
+        } catch {
+            print("❌ [FriendManager] 닉네임 조회 Firebase 에러: \(error.localizedDescription)")
+            return "사용자"  // 에러 발생 시 기본값 반환
+        }
+    }
+
+    // MARK: - 피드백 관리
+
+    /// 친구의 식단에 피드백 작성
+    func addFeedback(to friendId: String, date: Date, mealType: MealType, content: String) async throws {
+        guard !myUserId.isEmpty else {
+            let error = NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 ID 없음"])
+            print("❌ [FriendManager] 피드백 작성 실패: 사용자 ID 없음")
+            throw error
+        }
+
+        guard !friendId.isEmpty else {
+            let error = NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: "친구 ID 없음"])
+            print("❌ [FriendManager] 피드백 작성 실패: 친구 ID 없음")
+            throw error
+        }
+
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            let error = NSError(domain: "FriendManager", code: -3, userInfo: [NSLocalizedDescriptionKey: "피드백 내용이 비어있습니다"])
+            print("❌ [FriendManager] 피드백 작성 실패: 빈 내용")
+            throw error
+        }
+
+        do {
+            // 내 닉네임 가져오기
+            let myNickname = SettingsManager.shared.nickname
+
+            let dateString = dateFormatter.string(from: date)
+            let feedbackId = UUID().uuidString
+
+            let feedback = MealFeedback(
+                id: feedbackId,
+                authorId: myUserId,
+                authorNickname: myNickname,
+                content: content,
+                createdAt: Date(),
+                isRead: false
+            )
+
+            // Firebase에 저장
+            let feedbackPath = "feedbacks/\(friendId)/\(dateString)/\(mealType.rawValue)/\(feedbackId)"
+
+            let feedbackData: [String: Any] = [
+                "id": feedback.id,
+                "authorId": feedback.authorId,
+                "authorNickname": feedback.authorNickname,
+                "content": feedback.content,
+                "createdAt": feedback.createdAt.timeIntervalSince1970,
+                "isRead": feedback.isRead
+            ]
+
+            try await ref.child(feedbackPath).setValue(feedbackData)
+
+            // 내가 보낸 피드백도 저장 (나중에 확인할 수 있도록)
+            let sentFeedbackPath = "sentFeedbacks/\(myUserId)/\(dateString)/\(mealType.rawValue)/\(feedbackId)"
+            let sentFeedbackData: [String: Any] = [
+                "id": feedback.id,
+                "recipientId": friendId,
+                "content": feedback.content,
+                "createdAt": feedback.createdAt.timeIntervalSince1970
+            ]
+            try await ref.child(sentFeedbackPath).setValue(sentFeedbackData)
+
+            print("✅ [FriendManager] 피드백 작성 완료: \(friendId) / \(dateString) / \(mealType.rawValue)")
+        } catch {
+            print("❌ [FriendManager] 피드백 작성 Firebase 에러: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    /// 내 식단의 피드백 목록 가져오기
+    func getMyFeedbacks(date: Date, mealType: MealType) async throws -> [MealFeedback] {
+        guard !myUserId.isEmpty else {
+            print("❌ [FriendManager] 피드백 목록 조회 실패: 사용자 ID 없음")
+            return []  // 에러를 throw하지 않고 빈 배열 반환
+        }
+
+        do {
+            let dateString = dateFormatter.string(from: date)
+            let feedbackPath = "feedbacks/\(myUserId)/\(dateString)/\(mealType.rawValue)"
+
+            let snapshot = try await ref.child(feedbackPath).getData()
+
+            // 데이터가 없으면 빈 배열 반환
+            guard snapshot.exists(), let feedbacksDict = snapshot.value as? [String: [String: Any]] else {
+                print("ℹ️ [FriendManager] 피드백 없음: \(dateString) / \(mealType.rawValue)")
+                return []
+            }
+
+            var feedbacks: [MealFeedback] = []
+
+            for (_, feedbackData) in feedbacksDict {
+                // 필수 필드 검증
+                guard let id = feedbackData["id"] as? String,
+                      let authorId = feedbackData["authorId"] as? String,
+                      let authorNickname = feedbackData["authorNickname"] as? String,
+                      let content = feedbackData["content"] as? String,
+                      let createdAtTimestamp = feedbackData["createdAt"] as? TimeInterval else {
+                    print("⚠️ [FriendManager] 피드백 파싱 실패: 필수 필드 누락")
+                    continue  // 잘못된 데이터는 건너뛰기
+                }
+
+                let isRead = feedbackData["isRead"] as? Bool ?? false
+                let createdAt = Date(timeIntervalSince1970: createdAtTimestamp)
+
+                let feedback = MealFeedback(
+                    id: id,
+                    authorId: authorId,
+                    authorNickname: authorNickname,
+                    content: content,
+                    createdAt: createdAt,
+                    isRead: isRead
+                )
+
+                feedbacks.append(feedback)
+            }
+
+            print("✅ [FriendManager] 피드백 목록 조회 완료: \(feedbacks.count)개")
+            // 최신순 정렬
+            return feedbacks.sorted { $0.createdAt > $1.createdAt }
+        } catch {
+            print("❌ [FriendManager] 피드백 목록 조회 Firebase 에러: \(error.localizedDescription)")
+            return []  // 에러 발생 시 빈 배열 반환
+        }
+    }
+
+    /// 내 식단의 안읽은 피드백 개수 가져오기
+    func getUnreadFeedbackCount(date: Date, mealType: MealType) async throws -> Int {
+        do {
+            let feedbacks = try await getMyFeedbacks(date: date, mealType: mealType)
+            let unreadCount = feedbacks.filter { !$0.isRead }.count
+            print("ℹ️ [FriendManager] 안읽은 피드백: \(unreadCount)개 / 전체: \(feedbacks.count)개")
+            return unreadCount
+        } catch {
+            print("❌ [FriendManager] 안읽은 피드백 개수 조회 에러: \(error.localizedDescription)")
+            return 0  // 에러 발생 시 0 반환
+        }
+    }
+
+    /// 피드백을 읽음으로 표시
+    func markFeedbackAsRead(feedbackId: String, date: Date, mealType: MealType) async throws {
+        guard !myUserId.isEmpty else {
+            print("❌ [FriendManager] 피드백 읽음 처리 실패: 사용자 ID 없음")
+            return  // 에러를 throw하지 않고 조용히 반환
+        }
+
+        guard !feedbackId.isEmpty else {
+            print("❌ [FriendManager] 피드백 읽음 처리 실패: 피드백 ID 없음")
+            return
+        }
+
+        do {
+            let dateString = dateFormatter.string(from: date)
+            let feedbackPath = "feedbacks/\(myUserId)/\(dateString)/\(mealType.rawValue)/\(feedbackId)"
+
+            try await ref.child(feedbackPath).child("isRead").setValue(true)
+            print("✅ [FriendManager] 피드백 읽음 처리: \(feedbackId)")
+        } catch {
+            print("❌ [FriendManager] 피드백 읽음 처리 Firebase 에러: \(error.localizedDescription)")
+            // 읽음 처리 실패는 치명적이지 않으므로 에러를 던지지 않음
+        }
+    }
+
+    /// 모든 피드백을 읽음으로 표시
+    func markAllFeedbacksAsRead(date: Date, mealType: MealType) async throws {
+        do {
+            let feedbacks = try await getMyFeedbacks(date: date, mealType: mealType)
+
+            let unreadFeedbacks = feedbacks.filter { !$0.isRead }
+            guard !unreadFeedbacks.isEmpty else {
+                print("ℹ️ [FriendManager] 읽지 않은 피드백 없음")
+                return
+            }
+
+            print("ℹ️ [FriendManager] \(unreadFeedbacks.count)개 피드백 읽음 처리 시작")
+
+            for feedback in unreadFeedbacks {
+                try await markFeedbackAsRead(feedbackId: feedback.id, date: date, mealType: mealType)
+            }
+
+            print("✅ [FriendManager] 모든 피드백 읽음 처리 완료")
+        } catch {
+            print("❌ [FriendManager] 모든 피드백 읽음 처리 에러: \(error.localizedDescription)")
+            // 에러를 던지지 않고 조용히 실패 처리
+        }
+    }
+
+    /// 내가 보낸 피드백 목록 가져오기
+    func getMySentFeedbacks(date: Date, mealType: MealType) async throws -> [SentFeedback] {
+        guard !myUserId.isEmpty else {
+            print("❌ [FriendManager] 보낸 피드백 조회 실패: 사용자 ID 없음")
+            return []
+        }
+
+        do {
+            let dateString = dateFormatter.string(from: date)
+            let sentFeedbackPath = "sentFeedbacks/\(myUserId)/\(dateString)/\(mealType.rawValue)"
+
+            let snapshot = try await ref.child(sentFeedbackPath).getData()
+
+            guard snapshot.exists(), let feedbacksDict = snapshot.value as? [String: [String: Any]] else {
+                print("ℹ️ [FriendManager] 보낸 피드백 없음: \(dateString) / \(mealType.rawValue)")
+                return []
+            }
+
+            var sentFeedbacks: [SentFeedback] = []
+
+            for (_, feedbackData) in feedbacksDict {
+                guard let id = feedbackData["id"] as? String,
+                      let recipientId = feedbackData["recipientId"] as? String,
+                      let content = feedbackData["content"] as? String,
+                      let createdAtTimestamp = feedbackData["createdAt"] as? TimeInterval else {
+                    print("⚠️ [FriendManager] 보낸 피드백 파싱 실패: 필수 필드 누락")
+                    continue
+                }
+
+                let createdAt = Date(timeIntervalSince1970: createdAtTimestamp)
+
+                let feedback = SentFeedback(
+                    id: id,
+                    recipientId: recipientId,
+                    content: content,
+                    createdAt: createdAt
+                )
+
+                sentFeedbacks.append(feedback)
+            }
+
+            print("✅ [FriendManager] 보낸 피드백 조회 완료: \(sentFeedbacks.count)개")
+            return sentFeedbacks.sorted { $0.createdAt > $1.createdAt }
+        } catch {
+            print("❌ [FriendManager] 보낸 피드백 조회 Firebase 에러: \(error.localizedDescription)")
+            return []
         }
     }
 }

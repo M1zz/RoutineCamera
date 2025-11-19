@@ -99,6 +99,75 @@ struct VisionAnalysisData: Codable {
     }
 }
 
+// 피드백 모델 (받은 피드백)
+struct MealFeedback: Identifiable, Codable {
+    let id: String // Firebase에서 생성하는 고유 ID
+    let authorId: String // 작성자 UID
+    let authorNickname: String // 작성자 닉네임
+    let content: String // 피드백 내용
+    let createdAt: Date // 작성 시간
+    var isRead: Bool // 읽음 여부 (수신자가 읽었는지)
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case authorId
+        case authorNickname
+        case content
+        case createdAt
+        case isRead
+    }
+
+    init(id: String = UUID().uuidString, authorId: String, authorNickname: String, content: String, createdAt: Date = Date(), isRead: Bool = false) {
+        self.id = id
+        self.authorId = authorId
+        self.authorNickname = authorNickname
+        self.content = content
+        self.createdAt = createdAt
+        self.isRead = isRead
+    }
+
+    // 기존 데이터 호환성을 위한 커스텀 디코딩
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        authorId = try container.decode(String.self, forKey: .authorId)
+        authorNickname = try container.decode(String.self, forKey: .authorNickname)
+        content = try container.decode(String.self, forKey: .content)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        isRead = try container.decodeIfPresent(Bool.self, forKey: .isRead) ?? false
+    }
+}
+
+// 보낸 피드백 모델
+struct SentFeedback: Identifiable, Codable {
+    let id: String
+    let recipientId: String // 받는 사람 UID
+    let content: String
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case recipientId
+        case content
+        case createdAt
+    }
+
+    init(id: String = UUID().uuidString, recipientId: String, content: String, createdAt: Date = Date()) {
+        self.id = id
+        self.recipientId = recipientId
+        self.content = content
+        self.createdAt = createdAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        recipientId = try container.decode(String.self, forKey: .recipientId)
+        content = try container.decode(String.self, forKey: .content)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+    }
+}
+
 // 식사 기록 모델
 struct MealRecord: Identifiable, Codable {
     let id: UUID
@@ -664,7 +733,9 @@ class MealRecordStore: ObservableObject {
         if isExerciseMode {
             todayComplete = todayMeals[.breakfast]?.isComplete ?? false
         } else {
-            todayComplete = todayMeals.count == 3 && todayMeals.values.allSatisfy { $0.isComplete }
+            // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
+            let mainMeals = todayMeals.filter { !$0.key.isSnack }
+            todayComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
         }
 
         var streak = 0
@@ -677,7 +748,9 @@ class MealRecordStore: ObservableObject {
             if isExerciseMode {
                 isComplete = meals[.breakfast]?.isComplete ?? false
             } else {
-                isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+                // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
+                let mainMeals = meals.filter { !$0.key.isSnack }
+                isComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
             }
 
             if isComplete {
@@ -721,7 +794,9 @@ class MealRecordStore: ObservableObject {
             if isExerciseMode {
                 isComplete = meals[.breakfast]?.isComplete ?? false
             } else {
-                isComplete = meals.count == 3 && meals.values.allSatisfy { $0.isComplete }
+                // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
+                let mainMeals = meals.filter { !$0.key.isSnack }
+                isComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
             }
 
             if isComplete {

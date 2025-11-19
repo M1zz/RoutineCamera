@@ -79,6 +79,14 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var nickname: String = "사용자" {
+        didSet {
+            UserDefaults.standard.set(nickname, forKey: "userNickname")
+            // Firebase에도 저장
+            saveNicknameToFirebase()
+        }
+    }
+
     private init() {
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
@@ -106,10 +114,27 @@ class SettingsManager: ObservableObject {
         // 무료 식단 분석 횟수 로드 (기본값: 5회)
         self.freeAnalysisCount = UserDefaults.standard.object(forKey: "freeAnalysisCount") as? Int ?? 5
 
+        // 닉네임 로드 (기본값: "사용자")
+        self.nickname = UserDefaults.standard.string(forKey: "userNickname") ?? "사용자"
+
         print("⚙️ [SettingsManager] 초기화 완료")
         print("   - Firebase 공유: \(self.shareMealsToFirebase)")
         print("   - 자동 카메라: \(self.autoOpenCamera)")
         print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
         print("   - 무료 분석 잔여: \(self.freeAnalysisCount)회")
+        print("   - 닉네임: \(self.nickname)")
+    }
+
+    // Firebase에 닉네임 저장
+    private func saveNicknameToFirebase() {
+        // FriendManager를 통해 Firebase에 저장
+        Task {
+            do {
+                try await FriendManager.shared.saveMyNickname(nickname)
+                print("✅ [SettingsManager] 닉네임 Firebase 저장 완료: \(nickname)")
+            } catch {
+                print("❌ [SettingsManager] 닉네임 Firebase 저장 실패: \(error)")
+            }
+        }
     }
 }

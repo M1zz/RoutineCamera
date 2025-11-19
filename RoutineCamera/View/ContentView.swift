@@ -996,6 +996,21 @@ struct SettingsView: View {
                     """)
                 }
 
+                // 닉네임 설정
+                Section(header: Text("프로필")) {
+                    HStack {
+                        Text("닉네임")
+                        Spacer()
+                        TextField("닉네임 입력", text: $settingsManager.nickname)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Text("친구에게 피드백을 남길 때 표시되는 이름입니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
                 // 정보
                 Section(header: Text("정보")) {
                     HStack {
@@ -1359,6 +1374,7 @@ struct MealPhotoView: View {
     @State private var showingPhotoDetail = false // 이미지 있을 때
     @State private var selectedImage: UIImage?
     @State private var selectedPhotoType: PhotoType = .before // 식전/식후 선택
+    @State private var unreadFeedbackCount: Int = 0 // 안읽은 피드백 개수
 
     enum PhotoType {
         case before // 식전
@@ -1463,6 +1479,7 @@ struct MealPhotoView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
             badgeOverlayView(for: record)
+            feedbackBadgeOverlay()
         }
     }
 
@@ -1509,6 +1526,27 @@ struct MealPhotoView: View {
                     .background(Color.red)
                     .clipShape(Circle())
             }
+        }
+    }
+
+    // 피드백 뱃지 (오른쪽 위)
+    @ViewBuilder
+    private func feedbackBadgeOverlay() -> some View {
+        if unreadFeedbackCount > 0 {
+            VStack {
+                HStack {
+                    Spacer()
+                    Text("\(unreadFeedbackCount)")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 22, height: 22)
+                        .background(Color.orange)
+                        .clipShape(Circle())
+                        .padding(6)
+                }
+                Spacer()
+            }
+            .frame(width: photoSize, height: photoSize)
         }
     }
 
@@ -1584,6 +1622,20 @@ struct MealPhotoView: View {
         return foodSymbols[seed]
     }
 
+    // 안읽은 피드백 개수 로드
+    private func loadUnreadFeedbackCount() {
+        Task {
+            do {
+                let count = try await FriendManager.shared.getUnreadFeedbackCount(date: date, mealType: mealType)
+                await MainActor.run {
+                    self.unreadFeedbackCount = count
+                }
+            } catch {
+                print("❌ [MealPhotoView] 안읽은 피드백 개수 로드 실패: \(error)")
+            }
+        }
+    }
+
     // 사진 없이 기록했을 때 표시할 뷰
     @ViewBuilder
     private func recordedWithoutPhotoView() -> some View {
@@ -1637,7 +1689,12 @@ struct MealPhotoView: View {
                 cameraPickerSheet
             }
             .sheet(isPresented: $showingPhotoDetail) {
+                loadUnreadFeedbackCount()
+            } content: {
                 photoDetailSheet
+            }
+            .onAppear {
+                loadUnreadFeedbackCount()
             }
     }
 
@@ -1979,6 +2036,9 @@ struct PhotoDetailView: View {
     @State private var analysisResult: FoodAnalysisResult? = nil // 분석 결과
     @State private var showingAnalysisResult = false // 결과 표시
     @State private var showFullAnalysis = false // 전체 분석 보기
+    @State private var feedbacks: [MealFeedback] = [] // 받은 피드백 목록
+    @State private var sentFeedbacks: [SentFeedback] = [] // 보낸 피드백 목록
+    @State private var isLoadingFeedbacks = false // 피드백 로딩 중
 
     var body: some View {
         NavigationView {
@@ -2210,6 +2270,96 @@ struct PhotoDetailView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+
+                        // 피드백 섹션
+                        Divider()
+                            .padding(.vertical, 8)
+
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("피드백")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                if isLoadingFeedbacks {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                }
+                            }
+
+                            // 받은 피드백
+                            if !feedbacks.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("받은 피드백")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.blue)
+
+                                    ForEach(feedbacks) { feedback in
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            HStack {
+                                                Text(feedback.authorNickname)
+                                                    .font(.system(size: 14, weight: .semibold))
+                                                    .foregroundColor(.blue)
+                                                Spacer()
+                                                Text(feedback.createdAt, style: .relative)
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.secondary)
+                                                if !feedback.isRead {
+                                                    Circle()
+                                                        .fill(Color.red)
+                                                        .frame(width: 6, height: 6)
+                                                }
+                                            }
+                                            Text(feedback.content)
+                                                .font(.system(size: 14))
+                                                .padding(12)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .background(Color.blue.opacity(0.1))
+                                                .cornerRadius(8)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                }
+                            }
+
+                            // 보낸 피드백
+                            if !sentFeedbacks.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("내가 보낸 피드백")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.green)
+
+                                    ForEach(sentFeedbacks) { feedback in
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            HStack {
+                                                Text("나")
+                                                    .font(.system(size: 14, weight: .semibold))
+                                                    .foregroundColor(.green)
+                                                Spacer()
+                                                Text(feedback.createdAt, style: .relative)
+                                                    .font(.system(size: 12))
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            Text(feedback.content)
+                                                .font(.system(size: 14))
+                                                .padding(12)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .background(Color.green.opacity(0.1))
+                                                .cornerRadius(8)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                }
+                            }
+
+                            // 피드백이 하나도 없을 때
+                            if feedbacks.isEmpty && sentFeedbacks.isEmpty && !isLoadingFeedbacks {
+                                Text("아직 피드백이 없습니다")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                                    .padding(.vertical, 8)
+                            }
+                        }
                     }
                     .padding()
                     .background(Color(.systemBackground))
@@ -2318,6 +2468,10 @@ struct PhotoDetailView: View {
             } else {
                 Text("분석 결과가 없습니다.")
             }
+        }
+        .onAppear {
+            // 피드백 로드
+            loadFeedbacks()
         }
     }
 
@@ -2446,6 +2600,55 @@ struct PhotoDetailView: View {
                     self.analysisResult = FoodAnalysisResult(foodItems: [], extractedText: [], confidence: 0.0)
                     self.showingAnalysisResult = true
                 }
+            }
+        }
+    }
+
+    // 피드백 로드
+    private func loadFeedbacks() {
+        isLoadingFeedbacks = true
+
+        Task {
+            do {
+                // 받은 피드백과 보낸 피드백 동시에 로드
+                async let receivedFeedbacks = FriendManager.shared.getMyFeedbacks(date: date, mealType: mealType)
+                async let sentFeedbacks = FriendManager.shared.getMySentFeedbacks(date: date, mealType: mealType)
+
+                let (loadedReceived, loadedSent) = try await (receivedFeedbacks, sentFeedbacks)
+
+                await MainActor.run {
+                    self.feedbacks = loadedReceived
+                    self.sentFeedbacks = loadedSent
+                    self.isLoadingFeedbacks = false
+                    print("✅ [PhotoDetailView] 피드백 로드 완료: 받음 \(loadedReceived.count)개, 보냄 \(loadedSent.count)개")
+
+                    // 자동으로 읽음 처리
+                    markAllFeedbacksAsRead()
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoadingFeedbacks = false
+                    print("❌ [PhotoDetailView] 피드백 로드 실패: \(error)")
+                }
+            }
+        }
+    }
+
+    // 모든 피드백을 읽음으로 표시
+    private func markAllFeedbacksAsRead() {
+        Task {
+            do {
+                try await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)
+                print("✅ [PhotoDetailView] 피드백 읽음 처리 완료")
+
+                // 읽음 상태 업데이트
+                await MainActor.run {
+                    for index in feedbacks.indices {
+                        feedbacks[index].isRead = true
+                    }
+                }
+            } catch {
+                print("❌ [PhotoDetailView] 피드백 읽음 처리 실패: \(error)")
             }
         }
     }
