@@ -34,17 +34,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     print("🔐 [Firebase] App Check 디버그 프로바이더 활성화")
     print("   💡 디버그 토큰은 Xcode 콘솔에 출력됩니다")
     #else
-    // 프로덕션: App Attest 사용 (iOS 14+)
-    if #available(iOS 14.0, *) {
-        let providerFactory = AppAttestProviderFactory()
-        AppCheck.setAppCheckProviderFactory(providerFactory)
-        print("🔐 [Firebase] App Check App Attest 프로바이더 활성화 (프로덕션)")
-    } else {
-        // iOS 14 미만: DeviceCheck 사용
-        let providerFactory = DeviceCheckProviderFactory()
-        AppCheck.setAppCheckProviderFactory(providerFactory)
-        print("🔐 [Firebase] App Check DeviceCheck 프로바이더 활성화 (프로덕션)")
-    }
+    // 프로덕션: DeviceCheck 사용 (iOS 11+)
+    let providerFactory = DeviceCheckProviderFactory()
+    AppCheck.setAppCheckProviderFactory(providerFactory)
+    print("🔐 [Firebase] App Check DeviceCheck 프로바이더 활성화 (프로덕션)")
     #endif
 
     // Firebase 초기화

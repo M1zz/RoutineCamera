@@ -541,53 +541,12 @@ class MealRecordStore: ObservableObject {
                     continue
                 }
 
-                // Firebase에 이미 있는지 확인
+                // dirty로 표시된 날짜는 무조건 업로드 (중복 방지는 dirty 클리어로 처리)
                 do {
-                    let existingMeals = try await FriendManager.shared.loadFriendMeals(
-                        friendId: FriendManager.shared.myUserId,
-                        date: date
-                    )
-
-                    print("   🔍 Firebase에 이미 있는 식단: \(existingMeals.count)개")
-
-                    // 로컬에는 있지만 Firebase에 없거나 사진이 추가된 식단만 필터링
-                    var mealsToUpload: [MealType: MealRecord] = [:]
-
-                    for (mealType, localMeal) in meals {
-                        if existingMeals[mealType] == nil {
-                            mealsToUpload[mealType] = localMeal
-                            print("      ➕ \(mealType.rawValue) - Firebase에 없음")
-                        } else {
-                            // 사진이 있는데 Firebase에는 사진이 없는 경우도 업로드
-                            let hasLocalPhoto = localMeal.beforeImageData != nil || localMeal.afterImageData != nil
-                            let hasFirebasePhoto = existingMeals[mealType]?.beforeImageData != nil ||
-                                                   existingMeals[mealType]?.afterImageData != nil
-
-                            if hasLocalPhoto && !hasFirebasePhoto {
-                                mealsToUpload[mealType] = localMeal
-                                print("      📸 \(mealType.rawValue) - 사진 추가됨")
-                            } else {
-                                print("      ✓ \(mealType.rawValue) - 동기화됨")
-                            }
-                        }
-                    }
-
-                    // 업로드할 식단이 있으면 업로드
-                    if !mealsToUpload.isEmpty {
-                        try await FriendManager.shared.uploadMyMeals(date: date, meals: mealsToUpload)
-                        print("   ✅ \(dateString) 업로드 완료 (\(mealsToUpload.count)개)")
-                    } else {
-                        print("   ✓ \(dateString) 모두 동기화됨")
-                    }
+                    try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
+                    print("   ✅ \(dateString) 업로드 완료 (\(meals.count)개 식단)")
                 } catch {
-                    print("   ⚠️ [Firebase] 확인 실패, 전체 업로드: \(error)")
-                    // 확인 실패 시 전체 업로드
-                    do {
-                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
-                        print("   ✅ \(dateString) 전체 업로드 완료")
-                    } catch {
-                        print("   ❌ \(dateString) 업로드 실패: \(error)")
-                    }
+                    print("   ❌ \(dateString) 업로드 실패: \(error)")
                 }
             }
 

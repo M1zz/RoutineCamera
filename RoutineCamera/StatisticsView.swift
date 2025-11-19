@@ -657,7 +657,7 @@ struct ComparisonDayView: View {
                             if let photoData = meal.thumbnailImageData, let uiImage = UIImage(data: photoData) {
                                 Image(uiImage: uiImage)
                                     .resizable()
-                                    .scaledToFill()
+                                    .scaledToFit()
                                     .frame(width: 100, height: 100)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             } else {

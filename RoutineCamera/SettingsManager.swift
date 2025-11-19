@@ -72,6 +72,13 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    // 무료 식단 분석 횟수 (기본 5회)
+    @Published var freeAnalysisCount: Int {
+        didSet {
+            UserDefaults.standard.set(freeAnalysisCount, forKey: "freeAnalysisCount")
+        }
+    }
+
     private init() {
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
@@ -96,9 +103,13 @@ class SettingsManager: ObservableObject {
         // 자동 음식 분석 기본값은 false (API 비용 절약)
         self.autoFoodAnalysis = UserDefaults.standard.object(forKey: "autoFoodAnalysis") as? Bool ?? false
 
+        // 무료 식단 분석 횟수 로드 (기본값: 5회)
+        self.freeAnalysisCount = UserDefaults.standard.object(forKey: "freeAnalysisCount") as? Int ?? 5
+
         print("⚙️ [SettingsManager] 초기화 완료")
         print("   - Firebase 공유: \(self.shareMealsToFirebase)")
         print("   - 자동 카메라: \(self.autoOpenCamera)")
         print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
+        print("   - 무료 분석 잔여: \(self.freeAnalysisCount)회")
     }
 }
