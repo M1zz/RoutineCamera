@@ -51,6 +51,54 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
     }
 }
 
+// Vision 분석 결과 저장용 모델
+struct VisionAnalysisData: Codable {
+    let foodItems: [String]
+    let extractedText: [String]
+    let confidence: Float
+    let analyzedDate: Date
+    let isOpenAI: Bool // OpenAI로 분석했는지 여부
+    let description: String? // OpenAI의 상세 설명
+
+    init(foodItems: [String], extractedText: [String], confidence: Float, analyzedDate: Date, isOpenAI: Bool = false, description: String? = nil) {
+        self.foodItems = foodItems
+        self.extractedText = extractedText
+        self.confidence = confidence
+        self.analyzedDate = analyzedDate
+        self.isOpenAI = isOpenAI
+        self.description = description
+    }
+
+    // 기존 데이터 호환성을 위한 커스텀 디코딩
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        foodItems = try container.decode([String].self, forKey: .foodItems)
+        extractedText = try container.decode([String].self, forKey: .extractedText)
+        confidence = try container.decode(Float.self, forKey: .confidence)
+        analyzedDate = try container.decode(Date.self, forKey: .analyzedDate)
+        isOpenAI = try container.decodeIfPresent(Bool.self, forKey: .isOpenAI) ?? false
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+    }
+
+    var summary: String {
+        var result = ""
+
+        if !foodItems.isEmpty {
+            result += "🍽️ 음식: \(foodItems.joined(separator: ", "))\n"
+        }
+
+        if let desc = description, !desc.isEmpty {
+            result += "💬 \(desc)\n"
+        }
+
+        if !extractedText.isEmpty {
+            result += "📝 텍스트: \(extractedText.joined(separator: " "))"
+        }
+
+        return result.isEmpty ? "분석 결과 없음" : result
+    }
+}
+
 // 식사 기록 모델
 struct MealRecord: Identifiable, Codable {
     let id: UUID
@@ -61,8 +109,9 @@ struct MealRecord: Identifiable, Codable {
     var memo: String?
     let recordedWithoutPhoto: Bool  // 사진 없이 기록했는지
     var hidePhotoCountBadge: Bool  // 이 식사의 사진 개수 알림 숨기기
+    var visionAnalysis: VisionAnalysisData?  // Vision Framework 분석 결과
 
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false) {
+    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil) {
         self.id = UUID()
         self.date = date
         self.mealType = mealType
@@ -71,6 +120,7 @@ struct MealRecord: Identifiable, Codable {
         self.memo = memo
         self.recordedWithoutPhoto = recordedWithoutPhoto
         self.hidePhotoCountBadge = hidePhotoCountBadge
+        self.visionAnalysis = visionAnalysis
     }
 
     // 기존 데이터 호환성을 위한 커스텀 디코딩
@@ -86,6 +136,8 @@ struct MealRecord: Identifiable, Codable {
         recordedWithoutPhoto = try container.decodeIfPresent(Bool.self, forKey: .recordedWithoutPhoto) ?? false
         // 기존 데이터에는 hidePhotoCountBadge가 없을 수 있으므로 기본값 false 사용
         hidePhotoCountBadge = try container.decodeIfPresent(Bool.self, forKey: .hidePhotoCountBadge) ?? false
+        // 기존 데이터에는 visionAnalysis가 없을 수 있으므로 기본값 nil 사용
+        visionAnalysis = try container.decodeIfPresent(VisionAnalysisData.self, forKey: .visionAnalysis)
     }
 
     // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
@@ -238,7 +290,10 @@ class MealRecordStore: ObservableObject {
                     mealType: mealType,
                     beforeImageData: imageData,
                     afterImageData: existing.afterImageData,
-                    memo: existing.memo
+                    memo: existing.memo,
+                    recordedWithoutPhoto: false,
+                    hidePhotoCountBadge: existing.hidePhotoCountBadge,
+                    visionAnalysis: existing.visionAnalysis
                 )
             } else {
                 currentRecords[existingIndex] = MealRecord(
@@ -246,7 +301,10 @@ class MealRecordStore: ObservableObject {
                     mealType: mealType,
                     beforeImageData: existing.beforeImageData,
                     afterImageData: imageData,
-                    memo: existing.memo
+                    memo: existing.memo,
+                    recordedWithoutPhoto: false,
+                    hidePhotoCountBadge: existing.hidePhotoCountBadge,
+                    visionAnalysis: existing.visionAnalysis
                 )
             }
         } else {
@@ -330,7 +388,8 @@ class MealRecordStore: ObservableObject {
                 afterImageData: existing.afterImageData,
                 memo: memo,
                 recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: existing.hidePhotoCountBadge
+                hidePhotoCountBadge: existing.hidePhotoCountBadge,
+                visionAnalysis: existing.visionAnalysis
             )
             records = currentRecords
         }
@@ -352,7 +411,31 @@ class MealRecordStore: ObservableObject {
                 afterImageData: existing.afterImageData,
                 memo: existing.memo,
                 recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: hide
+                hidePhotoCountBadge: hide,
+                visionAnalysis: existing.visionAnalysis
+            )
+            records = currentRecords
+        }
+    }
+
+    // Vision 분석 결과 업데이트
+    func updateVisionAnalysis(date: Date, mealType: MealType, analysis: VisionAnalysisData?) {
+        let targetDate = Calendar.current.startOfDay(for: date)
+
+        var currentRecords = records
+        if let existingIndex = currentRecords.firstIndex(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+        }) {
+            let existing = currentRecords[existingIndex]
+            currentRecords[existingIndex] = MealRecord(
+                date: existing.date,
+                mealType: existing.mealType,
+                beforeImageData: existing.beforeImageData,
+                afterImageData: existing.afterImageData,
+                memo: existing.memo,
+                recordedWithoutPhoto: existing.recordedWithoutPhoto,
+                hidePhotoCountBadge: existing.hidePhotoCountBadge,
+                visionAnalysis: analysis
             )
             records = currentRecords
         }

@@ -41,6 +41,11 @@ struct StatisticsView: View {
                     if SettingsManager.shared.albumType == .diet {
                         MealTypeStatsView(mealStore: mealStore)
                     }
+
+                    // 음식 소비 통계 (식단 모드에서만)
+                    if SettingsManager.shared.albumType == .diet {
+                        FoodConsumptionStatsView(mealStore: mealStore)
+                    }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 16)
@@ -774,5 +779,186 @@ struct ComparisonStatsView: View {
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
         .padding(.horizontal)
+    }
+}
+
+// 음식 소비 통계 뷰
+struct FoodConsumptionStatsView: View {
+    @ObservedObject var mealStore: MealRecordStore
+    @State private var selectedPeriod: ConsumptionPeriod = .week
+
+    enum ConsumptionPeriod: String, CaseIterable {
+        case week = "이번 주"
+        case month = "이번 달"
+    }
+
+    // 기간별 음식 데이터 가져오기 (음식별 식사 횟수)
+    private func getFoodConsumption(period: ConsumptionPeriod) -> [(food: String, mealCount: Int)] {
+        let calendar = Calendar.current
+        let today = Date()
+        let startDate: Date
+
+        switch period {
+        case .week:
+            startDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
+        case .month:
+            startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
+        }
+
+        // 각 음식이 어떤 식사들에서 나왔는지 추적
+        var foodToMeals: [String: Set<String>] = [:] // "음식명": Set(["2025-11-19-breakfast", "2025-11-19-lunch", ...])
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        for record in mealStore.records {
+            // 기간 내의 기록만 처리
+            guard record.date >= startDate, record.date <= today else { continue }
+
+            // Vision 분석이 있고 음식 항목이 있는 경우만 처리
+            if let analysis = record.visionAnalysis, !analysis.foodItems.isEmpty {
+                // 고유 식사 ID 생성 (날짜-식사타입)
+                let mealId = "\(dateFormatter.string(from: record.date))-\(record.mealType.rawValue)"
+
+                // 이 식사의 모든 음식 태그에 대해
+                for food in analysis.foodItems {
+                    if foodToMeals[food] == nil {
+                        foodToMeals[food] = []
+                    }
+                    // 이 음식이 이 식사에 포함되어 있음을 기록
+                    foodToMeals[food]?.insert(mealId)
+                }
+            }
+        }
+
+        // 음식별 식사 횟수로 변환 및 정렬 (많이 먹은 순서대로)
+        let result = foodToMeals.map { (food: $0.key, mealCount: $0.value.count) }
+            .sorted { $0.mealCount > $1.mealCount }
+
+        return result
+    }
+
+    private var foodConsumption: [(food: String, mealCount: Int)] {
+        getFoodConsumption(period: selectedPeriod)
+    }
+
+    private var totalMealsWithAnalysis: Int {
+        let calendar = Calendar.current
+        let today = Date()
+        let startDate: Date
+
+        switch selectedPeriod {
+        case .week:
+            startDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
+        case .month:
+            startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
+        }
+
+        return mealStore.records.filter { record in
+            record.date >= startDate &&
+            record.date <= today &&
+            record.visionAnalysis != nil &&
+            !record.visionAnalysis!.foodItems.isEmpty
+        }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("음식 소비 통계")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                Spacer()
+                Picker("기간", selection: $selectedPeriod) {
+                    ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
+                        Text(period.rawValue).tag(period)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .frame(width: 180)
+            }
+
+            if foodConsumption.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "fork.knife.circle")
+                        .font(.system(size: 48))
+                        .foregroundColor(.secondary)
+                    Text("분석된 음식 데이터가 없습니다")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text("식사 사진을 촬영하고 분석하면\n먹은 음식들을 여기서 확인할 수 있어요")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+            } else {
+                VStack(spacing: 4) {
+                    Text("총 \(totalMealsWithAnalysis)개 식사 분석됨")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(foodConsumption.count)가지 음식 섭취")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 8)
+
+                Divider()
+
+                // 음식 목록 (상위 10개만 표시)
+                VStack(spacing: 10) {
+                    ForEach(Array(foodConsumption.prefix(10).enumerated()), id: \.element.food) { index, item in
+                        HStack {
+                            // 순위
+                            Text("#\(index + 1)")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .frame(width: 28, height: 28)
+                                .background(
+                                    Circle()
+                                        .fill(index < 3 ?
+                                            (index == 0 ? Color.yellow : index == 1 ? Color.gray : Color.orange) :
+                                            Color.blue.opacity(0.6)
+                                        )
+                                )
+
+                            // 음식명
+                            Text(item.food)
+                                .font(.subheadline)
+                                .lineLimit(1)
+
+                            Spacer()
+
+                            // 식사 횟수
+                            HStack(spacing: 4) {
+                                Text("\(item.mealCount)")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.blue)
+                                Text("끼")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                if foodConsumption.count > 10 {
+                    Text("외 \(foodConsumption.count - 10)가지 더 있음")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, 8)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
     }
 }
