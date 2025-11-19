@@ -67,12 +67,37 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     #if DEBUG
     _Concurrency.Task {
       do {
-        let token = try await AppCheck.appCheck().token(forcingRefresh: false)
+        // 디버그 토큰 강제 새로고침으로 콘솔에 출력
+        let token = try await AppCheck.appCheck().token(forcingRefresh: true)
         print("✅ [App Check] 토큰 획득 성공")
         print("   📝 토큰: \(token.token.prefix(20))...")
         print("   ⏰ 만료 시간: \(token.expirationDate)")
+        print("")
+        print("⚠️ ================================================================")
+        print("⚠️ 디버그 토큰을 Firebase Console에 등록하세요!")
+        print("⚠️ 1. Firebase Console → App Check → Debug tokens")
+        print("⚠️ 2. 위의 'Debug token:' 메시지에서 토큰 복사")
+        print("⚠️ 3. Firebase Console에 등록")
+        print("⚠️ ================================================================")
+        print("")
       } catch {
         print("❌ [App Check] 토큰 획득 실패: \(error.localizedDescription)")
+        print("")
+        print("🔥 ================================================================")
+        print("🔥 Firebase App Check 403 에러 해결 방법:")
+        print("🔥 ")
+        print("🔥 1. Firebase Console (console.firebase.google.com)")
+        print("🔥 2. 프로젝트: sekki-24285")
+        print("🔥 3. Build → App Check")
+        print("🔥 4. Realtime Database의 'Enforcement'를 OFF로 변경")
+        print("🔥    또는 'Monitor' 모드로 변경")
+        print("🔥 ")
+        print("🔥 또는 디버그 토큰을 등록하세요:")
+        print("🔥 - Xcode 콘솔에서 'Debug token:' 검색")
+        print("🔥 - Firebase Console → App Check → Debug tokens에 등록")
+        print("🔥 ================================================================")
+        print("")
+
         if let nsError = error as NSError? {
           print("   🔍 에러 코드: \(nsError.code)")
           print("   🔍 에러 도메인: \(nsError.domain)")
