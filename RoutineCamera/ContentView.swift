@@ -734,12 +734,60 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
 
-                    SecureField("API 키 입력", text: $openAIAPIKey)
-                        .textContentType(.password)
-                        .autocapitalization(.none)
-                        .onChange(of: openAIAPIKey) { oldValue, newValue in
-                            OpenAIFoodAnalyzer.shared.setAPIKey(newValue)
+                    VStack(spacing: 8) {
+                        SecureField("API 키 입력", text: $openAIAPIKey)
+                            .textContentType(.password)
+                            .autocapitalization(.none)
+
+                        HStack(spacing: 12) {
+                            // 저장 버튼
+                            Button(action: {
+                                OpenAIFoodAnalyzer.shared.setAPIKey(openAIAPIKey)
+                            }) {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                    Text("저장")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                            }
+                            .disabled(openAIAPIKey.isEmpty)
+
+                            // 삭제 버튼
+                            if OpenAIFoodAnalyzer.shared.isConfigured {
+                                Button(action: {
+                                    openAIAPIKey = ""
+                                    OpenAIFoodAnalyzer.shared.setAPIKey("")
+                                }) {
+                                    HStack {
+                                        Image(systemName: "trash.fill")
+                                        Text("삭제")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                                }
+                            }
                         }
+                    }
+
+                    // 자동 분석 토글 (API 키 설정 시에만)
+                    if OpenAIFoodAnalyzer.shared.isConfigured {
+                        Toggle("사진 촬영 시 자동 분석", isOn: $settingsManager.autoFoodAnalysis)
+
+                        Text(settingsManager.autoFoodAnalysis
+                            ? "⚠️ 켜짐: 사진 촬영 시 자동으로 분석 (API 비용 발생)\n💰 월 약 $2.7~8.1 예상"
+                            : "✅ 꺼짐: 필요할 때만 수동으로 분석 (API 비용 절약)")
+                            .font(.caption)
+                            .foregroundColor(settingsManager.autoFoodAnalysis ? .orange : .green)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.8)
+                    }
 
                     Button(action: {
                         showingAPIKeyInfo = true
@@ -765,7 +813,19 @@ struct SettingsView: View {
                     3. "Create new secret key" 클릭
                     4. 생성된 키를 복사해서 붙여넣기
 
-                    비용: 이미지 분석 1회당 약 $0.01~0.03
+                    ⚠️ 주의사항:
+                    - 결제 수단 등록 필수
+                    - 최소 $5 이상 빌링 충전 필요
+                    - 충전하지 않으면 API 키 비활성화됨
+
+                    💰 비용:
+                    - 이미지 분석 1회당 약 $0.01~0.03
+                    - 하루 3회 분석 시 월 $2.7~8.1
+
+                    💡 효율적 활용법:
+                    - 자동 분석 OFF (필요할 때만 수동)
+                    - 중요한 식사만 선택적으로 분석
+                    - 반복되는 음식은 메모 복사 활용
                     """)
                 }
 
@@ -1593,8 +1653,8 @@ struct CameraPickerView: View {
             if !recordWithoutPhoto, let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
                 mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData, isBefore: localPhotoType == .before)
 
-                // 식단 모드일 때 자동으로 Vision 분석 실행
-                if SettingsManager.shared.albumType == .diet {
+                // 식단 모드일 때 식전 사진만 자동으로 Vision 분석 실행
+                if SettingsManager.shared.albumType == .diet && localPhotoType == .before {
                     autoAnalyzeFood(image: image, date: date, mealType: mealType)
                 }
 
@@ -1608,6 +1668,12 @@ struct CameraPickerView: View {
 
     // 자동 음식 분석 (OpenAI 우선, 백그라운드에서 실행)
     private func autoAnalyzeFood(image: UIImage, date: Date, mealType: MealType) {
+        // 자동 분석이 꺼져있으면 실행하지 않음
+        guard SettingsManager.shared.autoFoodAnalysis else {
+            print("ℹ️ [AutoAnalysis] 자동 분석 설정 꺼짐 - 건너뜀")
+            return
+        }
+
         // OpenAI가 설정되어 있으면 OpenAI 사용
         if OpenAIFoodAnalyzer.shared.isConfigured {
             _Concurrency.Task {
@@ -1680,6 +1746,7 @@ struct PhotoDetailView: View {
     @State private var analyzingFood = false // 식단 분석 중
     @State private var analysisResult: FoodAnalysisResult? = nil // 분석 결과
     @State private var showingAnalysisResult = false // 결과 표시
+    @State private var showFullAnalysis = false // 전체 분석 보기
 
     var body: some View {
         NavigationView {
@@ -1808,31 +1875,38 @@ struct PhotoDetailView: View {
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(.secondary)
                                         Spacer()
-                                        // 다시 분석하기 버튼
-                                        Button(action: {
-                                            analyzeFoodWithVision()
-                                        }) {
-                                            HStack(spacing: 4) {
-                                                if analyzingFood {
-                                                    ProgressView()
-                                                        .scaleEffect(0.7)
-                                                } else {
-                                                    Image(systemName: "arrow.clockwise")
-                                                        .font(.system(size: 12))
+                                        // 다시 분석하기 버튼 (API 키 설정 시에만 표시)
+                                        if OpenAIFoodAnalyzer.shared.isConfigured {
+                                            Button(action: {
+                                                analyzeFoodWithVision()
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    if analyzingFood {
+                                                        ProgressView()
+                                                            .scaleEffect(0.7)
+                                                    } else {
+                                                        Image(systemName: "arrow.clockwise")
+                                                            .font(.system(size: 12))
+                                                    }
+                                                    Text(analyzingFood ? "분석 중" : "다시 분석")
+                                                        .font(.system(size: 13))
                                                 }
-                                                Text(analyzingFood ? "분석 중" : "다시 분석")
-                                                    .font(.system(size: 13))
+                                                .foregroundColor(.blue)
                                             }
-                                            .foregroundColor(.blue)
+                                            .disabled(analyzingFood)
                                         }
-                                        .disabled(analyzingFood)
                                     }
 
-                                    Text(analysis.summary)
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.primary)
+                                    // 음식 태그 표시
+                                    if !analysis.foodItems.isEmpty {
+                                        FoodTagsView(
+                                            foodItems: analysis.foodItems,
+                                            description: analysis.description,
+                                            showFullAnalysis: $showFullAnalysis
+                                        )
+                                    }
                                 }
-                            } else if record.beforeImageData != nil || record.afterImageData != nil {
+                            } else if (record.beforeImageData != nil || record.afterImageData != nil) && OpenAIFoodAnalyzer.shared.isConfigured {
                                 Button(action: {
                                     analyzeFoodWithVision()
                                 }) {
@@ -1889,8 +1963,8 @@ struct PhotoDetailView: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        // 식단 분석 버튼 (식단 모드일 때만)
-                        if SettingsManager.shared.albumType == .diet {
+                        // 식단 분석 버튼 (식단 모드 + API 키 설정 시에만)
+                        if SettingsManager.shared.albumType == .diet && OpenAIFoodAnalyzer.shared.isConfigured {
                             Button(action: {
                                 analyzeFoodWithVision()
                             }) {
@@ -2857,6 +2931,113 @@ struct ImagePicker: UIViewControllerRepresentable {
             let croppedImage = UIImage(cgImage: croppedCGImage, scale: image.scale, orientation: image.imageOrientation)
 
             return croppedImage
+        }
+    }
+}
+
+// 음식 태그 표시 뷰
+struct FoodTagsView: View {
+    let foodItems: [String]
+    let description: String?
+    @Binding var showFullAnalysis: Bool
+
+    private let maxPreviewTags = 5 // 미리보기에 표시할 최대 태그 수
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // 음식 태그 (칩 형태)
+            let tagsToShow = showFullAnalysis ? foodItems : Array(foodItems.prefix(maxPreviewTags))
+
+            FlowLayout(spacing: 6) {
+                ForEach(tagsToShow, id: \.self) { item in
+                    Text(item)
+                        .font(.system(size: 14))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.blue.opacity(0.15))
+                        .foregroundColor(.blue)
+                        .cornerRadius(12)
+                }
+            }
+
+            // 설명 (있을 경우)
+            if let desc = description, !desc.isEmpty {
+                Text(desc)
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .lineLimit(showFullAnalysis ? nil : 2)
+            }
+
+            // 전체보기/접기 버튼
+            if foodItems.count > maxPreviewTags || (description != nil && !description!.isEmpty) {
+                Button(action: {
+                    withAnimation {
+                        showFullAnalysis.toggle()
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Text(showFullAnalysis ? "접기" : "전체보기")
+                            .font(.system(size: 13))
+                        Image(systemName: showFullAnalysis ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 11))
+                    }
+                    .foregroundColor(.blue)
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+}
+
+// Flow Layout (태그를 자동으로 줄바꿈하는 레이아웃)
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = FlowResult(
+            in: proposal.replacingUnspecifiedDimensions().width,
+            subviews: subviews,
+            spacing: spacing
+        )
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = FlowResult(
+            in: bounds.width,
+            subviews: subviews,
+            spacing: spacing
+        )
+        for (index, subview) in subviews.enumerated() {
+            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y), proposal: .unspecified)
+        }
+    }
+
+    struct FlowResult {
+        var size: CGSize = .zero
+        var positions: [CGPoint] = []
+
+        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
+            var x: CGFloat = 0
+            var y: CGFloat = 0
+            var lineHeight: CGFloat = 0
+
+            for subview in subviews {
+                let subviewSize = subview.sizeThatFits(.unspecified)
+
+                if x + subviewSize.width > maxWidth && x > 0 {
+                    // 다음 줄로 넘어감
+                    x = 0
+                    y += lineHeight + spacing
+                    lineHeight = 0
+                }
+
+                positions.append(CGPoint(x: x, y: y))
+                lineHeight = max(lineHeight, subviewSize.height)
+                x += subviewSize.width + spacing
+            }
+
+            size = CGSize(width: maxWidth, height: y + lineHeight)
         }
     }
 }

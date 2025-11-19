@@ -54,6 +54,12 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var autoFoodAnalysis: Bool {
+        didSet {
+            UserDefaults.standard.set(autoFoodAnalysis, forKey: "autoFoodAnalysis")
+        }
+    }
+
     private init() {
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
@@ -68,5 +74,8 @@ class SettingsManager: ObservableObject {
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
+
+        // 자동 음식 분석 기본값은 false (API 비용 절약)
+        self.autoFoodAnalysis = UserDefaults.standard.object(forKey: "autoFoodAnalysis") as? Bool ?? false
     }
 }

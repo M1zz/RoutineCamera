@@ -62,15 +62,27 @@ class OpenAIFoodAnalyzer {
         UserDefaults.standard.set(key, forKey: "OpenAI_API_Key")
     }
 
+    // API 키 마스킹 (보안을 위해 앞 10자만 표시)
+    private func maskedAPIKey() -> String {
+        guard !apiKey.isEmpty else { return "(empty)" }
+        let prefix = String(apiKey.prefix(10))
+        return "\(prefix)***"
+    }
+
     // 음식 이미지 분석
     func analyzeFood(image: UIImage) async throws -> OpenAIFoodResult {
+        let apiKeyMasked = maskedAPIKey()
+        print("🔑 [OpenAI] API 키 사용 중: \(apiKeyMasked)")
+
         guard isConfigured else {
+            print("❌ [OpenAI] API 키 미설정")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: -1,
                          userInfo: [NSLocalizedDescriptionKey: "OpenAI API 키가 설정되지 않았습니다."])
         }
 
         // 1. 이미지를 JPEG로 압축하고 Base64로 인코딩
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("❌ [OpenAI] 이미지 변환 실패 (API 키: \(apiKeyMasked))")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: -2,
                          userInfo: [NSLocalizedDescriptionKey: "이미지 변환 실패"])
         }
@@ -130,13 +142,17 @@ class OpenAIFoodAnalyzer {
 
         // 5. 응답 확인
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ [OpenAI] 잘못된 응답 (API 키: \(apiKeyMasked))")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: -3,
                          userInfo: [NSLocalizedDescriptionKey: "잘못된 응답"])
         }
 
         guard httpResponse.statusCode == 200 else {
             let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-            print("❌ OpenAI API Error: \(errorMessage)")
+            print("❌ [OpenAI] API 오류 발생")
+            print("   상태 코드: \(httpResponse.statusCode)")
+            print("   API 키: \(apiKeyMasked)")
+            print("   에러 메시지: \(errorMessage)")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: httpResponse.statusCode,
                          userInfo: [NSLocalizedDescriptionKey: "API 오류: \(httpResponse.statusCode)"])
         }
@@ -144,11 +160,13 @@ class OpenAIFoodAnalyzer {
         // 6. 응답 파싱
         let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
         guard let content = openAIResponse.choices.first?.message.content else {
+            print("❌ [OpenAI] 응답 파싱 실패 (API 키: \(apiKeyMasked))")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: -4,
                          userInfo: [NSLocalizedDescriptionKey: "응답 파싱 실패"])
         }
 
-        print("✅ OpenAI 응답: \(content)")
+        print("✅ [OpenAI] 응답 수신 성공 (API 키: \(apiKeyMasked))")
+        print("   응답 내용: \(content)")
 
         // 7. JSON 파싱 (코드 블록 제거)
         let jsonString = content
@@ -159,12 +177,19 @@ class OpenAIFoodAnalyzer {
         guard let jsonData = jsonString.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
               let foodName = json["foodName"] as? String else {
+            print("❌ [OpenAI] JSON 파싱 실패 (API 키: \(apiKeyMasked))")
+            print("   원본 응답: \(content)")
             throw NSError(domain: "OpenAIFoodAnalyzer", code: -5,
                          userInfo: [NSLocalizedDescriptionKey: "JSON 파싱 실패"])
         }
 
         let ingredients = json["ingredients"] as? [String] ?? []
         let description = json["description"] as? String ?? ""
+
+        print("✅ [OpenAI] 분석 완료 성공")
+        print("   API 키: \(apiKeyMasked)")
+        print("   음식명: \(foodName)")
+        print("   재료: \(ingredients.joined(separator: ", "))")
 
         return OpenAIFoodResult(
             foodName: foodName,
