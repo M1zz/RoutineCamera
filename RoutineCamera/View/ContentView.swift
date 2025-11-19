@@ -10,11 +10,13 @@ import AVFoundation
 import Photos
 
 struct ContentView: View {
-    @StateObject private var mealStore = MealRecordStore()
+    @StateObject private var mealStore = MealRecordStore.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
+    @StateObject private var friendManager = FriendManager.shared
     @State private var showingSettings = false
+    @State private var showingFriends = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
@@ -71,6 +73,12 @@ struct ContentView: View {
 
     // 식사 시간 이후 미기록 확인 후 자동 카메라 열기 (식단 모드에서만)
     private func checkAndAutoOpenCamera() {
+        // 설정에서 자동 카메라 열기가 꺼져있으면 실행 안 함
+        guard settingsManager.autoOpenCamera else {
+            print("⚠️ [AutoCamera] 자동 카메라 열기 설정 꺼짐 - 취소")
+            return
+        }
+
         // 운동 모드에서는 자동 카메라 열기 안 함
         guard settingsManager.albumType == .diet else {
             print("⚠️ [AutoCamera] 운동 모드 - 카메라 자동 열기 취소")
@@ -143,6 +151,10 @@ struct ContentView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ZStack {
+                // 배경색 (safe area까지 확장)
+                Color(uiColor: .systemBackground)
+                    .ignoresSafeArea()
+
                 // 메인 콘텐츠
                 VStack(spacing: 0) {
                     // 상단 헤더 (Streak 표시)
@@ -151,6 +163,7 @@ struct ContentView: View {
                         goalManager: goalManager,
                         settingsManager: settingsManager,
                         onStatisticsTap: { showingStatistics = true },
+                        onFriendsTap: { showingFriends = true },
                         onSettingsTap: { showingSettings = true },
                         onHeaderTap: {
                             withAnimation {
@@ -270,7 +283,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                .background(Color(.systemGroupedBackground))
                 .zIndex(0)
                 .onAppear {
                     print("✅ [ContentView] onAppear - 초기 headerOffset: \(headerOffset)")
@@ -296,7 +308,7 @@ struct ContentView: View {
                             let todayMeals = self.mealStore.getMeals(for: self.todayDate)
                             self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
                         }
-                    }
+                    } 
 
                     // 알림 권한 요청
                     if !notificationManager.notificationsEnabled {
@@ -311,6 +323,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
+            }
+            .sheet(isPresented: $showingFriends) {
+                FriendsView()
             }
             .onChange(of: showingSettings) { oldValue, newValue in
                 // 설정 창이 닫힐 때 dateList 재초기화
@@ -369,6 +384,7 @@ struct StreakHeaderView: View {
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var settingsManager: SettingsManager
     let onStatisticsTap: () -> Void
+    let onFriendsTap: () -> Void
     let onSettingsTap: () -> Void
     let onHeaderTap: () -> Void
 
@@ -384,6 +400,14 @@ struct StreakHeaderView: View {
                 .padding(.leading, 16)
 
                 Spacer()
+
+                // 친구 버튼
+                Button(action: onFriendsTap) {
+                    Image(systemName: "person.2.fill")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing, 8)
 
                 // 설정 버튼
                 Button(action: onSettingsTap) {
@@ -418,7 +442,7 @@ struct StreakHeaderView: View {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(.systemGray5))
+                                .fill(Color(.systemGray6))
                                 .frame(height: 10)
 
                             RoundedRectangle(cornerRadius: 6)
@@ -558,6 +582,23 @@ struct SettingsView: View {
                         .minimumScaleFactor(0.8)
                 }
 
+                // 친구 공유 설정
+                Section(header: Text("친구 공유")) {
+                    Toggle("내 식단 공유 가능", isOn: $settingsManager.shareMealsToFirebase)
+
+                    Text("이 기능을 켜면 내 식단 데이터가 Firebase에 자동으로 업로드되어 친구가 내 식단을 볼 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+
+                    if settingsManager.shareMealsToFirebase {
+                        Text("✓ 식단 공유가 활성화되었습니다")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                }
+
                 // 개발용 섹션
                 Section(header: Text("개발용")) {
                     Button("샘플 데이터 생성") {
@@ -681,6 +722,17 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 4)
                     }
+
+                    Divider()
+                        .padding(.vertical, 8)
+
+                    Toggle("식사 시간에 자동으로 카메라 열기", isOn: $settingsManager.autoOpenCamera)
+
+                    Text("식사 시간이 지나고 아직 기록하지 않았을 때 자동으로 카메라를 열어드립니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // 사진 저장 설정
@@ -897,11 +949,38 @@ struct DailySectionView: View {
     // 표시할 식사 타입 배열 반환
     private func getMealsToShow(meals: [MealType: MealRecord]) -> [MealType] {
         if isToday {
-            // 오늘: 시간대별 3개 표시 (고정)
-            return getMealsForCurrentTimeSlot()
+            // 오늘: 모든 식사 타입 표시 (스크롤 가능)
+            return [.breakfast, .snack1, .lunch, .snack2, .dinner, .snack3]
         } else {
             // 과거/미래: 아침 점심 저녁 + 동적 간식
             return [.breakfast, .lunch, .dinner] + getSnacksToShow(meals: meals)
+        }
+    }
+
+    // 현재 시간대에 맞는 주요 식사 타입 반환 (스크롤 위치용)
+    private func getCurrentPrimaryMeal() -> MealType {
+        let now = Date()
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: now)
+        let minute = calendar.component(.minute, from: now)
+        let currentMinutes = hour * 60 + minute
+
+        let notificationManager = NotificationManager.shared
+        let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
+        let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
+        let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
+        let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
+
+        let lunchMinutes = lunchHour * 60 + lunchMinute
+        let dinnerMinutes = dinnerHour * 60 + dinnerMinute
+
+        // 현재 시간이 어느 시간대인지 판별
+        if currentMinutes < lunchMinutes {
+            return .breakfast
+        } else if currentMinutes < dinnerMinutes {
+            return .lunch
+        } else {
+            return .dinner
         }
     }
 
@@ -935,15 +1014,29 @@ struct DailySectionView: View {
 
         Group {
             if shouldUseScrollView {
-                // 칸이 3개보다 많으면 ScrollView 사용 (과거 날짜 포함)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: spacing) {
-                        dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                // 칸이 3개보다 많으면 ScrollView 사용 (오늘 날짜 및 과거 날짜 포함)
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: spacing) {
+                            dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                        }
+                        .padding(.horizontal, cardPadding)
                     }
-                    .padding(.horizontal, cardPadding)
+                    .onAppear {
+                        // 오늘 날짜인 경우에만 자동 스크롤
+                        if isToday {
+                            let currentMeal = getCurrentPrimaryMeal()
+                            // 약간의 딜레이를 주어 레이아웃이 완료된 후 스크롤
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                withAnimation {
+                                    proxy.scrollTo(currentMeal, anchor: .center)
+                                }
+                            }
+                        }
+                    }
                 }
             } else {
-                // 오늘이고 간식 없을 때 (3칸 고정)
+                // 운동 모드 또는 3칸 이하 (3칸 고정)
                 HStack(spacing: spacing) {
                     if isExerciseMode {
                         exerciseModePhoto(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
@@ -1003,6 +1096,7 @@ struct DailySectionView: View {
                 missedMealsCount: cumulativeMissedCount
             )
             .frame(width: photoSize, height: photoSize)
+            .id(mealType) // ScrollViewReader가 스크롤할 수 있도록 ID 추가
         }
     }
 

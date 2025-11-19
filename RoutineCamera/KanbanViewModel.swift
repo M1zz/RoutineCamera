@@ -23,7 +23,7 @@ struct Column: Identifiable {
     var color: Color
 }
 
-struct Task: Identifiable {
+struct KanbanTask: Identifiable {
     let id = UUID()
     var title: String
     var description: String
@@ -35,7 +35,7 @@ struct Task: Identifiable {
 // MARK: - ViewModel
 class KanbanViewModel: ObservableObject {
     @Published var board: Board
-    @Published var tasks: [Task] = []
+    @Published var tasks: [KanbanTask] = []
     
     init() {
         // Create 3x10 grid with empty columns
@@ -62,30 +62,30 @@ class KanbanViewModel: ObservableObject {
         self.tasks = []
     }
     
-    func tasks(for columnId: UUID) -> [Task] {
+    func tasks(for columnId: UUID) -> [KanbanTask] {
         return tasks.filter { $0.columnId == columnId }.sorted(by: { $0.order < $1.order })
     }
-    
+
     func addTask(title: String, description: String, to columnId: UUID) {
         let existingTasks = tasks(for: columnId)
         let newOrder = existingTasks.count
-        
-        let newTask = Task(
+
+        let newTask = KanbanTask(
             title: title,
             description: description,
             columnId: columnId,
             createdAt: Date(),
             order: newOrder
         )
-        
+
         tasks.append(newTask)
     }
-    
-    func deleteTask(_ task: Task) {
+
+    func deleteTask(_ task: KanbanTask) {
         tasks.removeAll { $0.id == task.id }
     }
-    
-    func moveTask(_ task: Task, to newColumnId: UUID) {
+
+    func moveTask(_ task: KanbanTask, to newColumnId: UUID) {
         guard let taskIndex = tasks.firstIndex(where: { $0.id == task.id }) else { return }
         
         let existingTasksInNewColumn = tasks(for: newColumnId)

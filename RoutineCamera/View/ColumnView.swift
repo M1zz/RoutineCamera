@@ -9,10 +9,10 @@ import SwiftUI
 
 struct ColumnView: View {
     let column: Column
-    let tasks: [Task]
+    let tasks: [KanbanTask]
     let onAddTask: () -> Void
-    let onDeleteTask: (Task) -> Void
-    let onMoveTask: (Task, UUID) -> Void
+    let onDeleteTask: (KanbanTask) -> Void
+    let onMoveTask: (KanbanTask, UUID) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
