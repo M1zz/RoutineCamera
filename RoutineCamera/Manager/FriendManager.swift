@@ -107,6 +107,38 @@ class FriendManager: ObservableObject {
         checkAuthState()
     }
 
+    // MARK: - 에러 로깅
+
+    /// Firebase 에러 로깅 (App Check 관련 에러 감지)
+    private func logFirebaseError(_ error: Error, context: String) {
+        let nsError = error as NSError
+        print("❌ [\(context)] Firebase 에러 발생")
+        print("   📝 메시지: \(error.localizedDescription)")
+        print("   🔍 도메인: \(nsError.domain)")
+        print("   🔢 코드: \(nsError.code)")
+
+        // App Check 관련 에러 감지
+        let isAppCheckError = nsError.domain.contains("AppCheck") ||
+                             nsError.localizedDescription.contains("App Check") ||
+                             nsError.code == 17999 // Firebase Auth App Check token invalid
+
+        if isAppCheckError {
+            print("   🔐 ⚠️ App Check 관련 에러 감지됨!")
+            print("   💡 해결 방법:")
+            print("      1. Firebase Console에서 App Check 설정 확인")
+            print("      2. 디버그 환경: 디버그 토큰 등록 필요")
+            print("      3. 프로덕션: App Attest/DeviceCheck 설정 확인")
+        }
+
+        // 상세 정보
+        if !nsError.userInfo.isEmpty {
+            print("   📋 상세 정보:")
+            for (key, value) in nsError.userInfo {
+                print("      - \(key): \(value)")
+            }
+        }
+    }
+
     // MARK: - 인증 설정
 
     /// 현재 인증 상태 확인 (자동 로그인 하지 않음)
@@ -189,11 +221,7 @@ class FriendManager: ObservableObject {
             // await createSampleDataIfNeeded()
 
         } catch {
-            print("❌ Firebase 인증 실패: \(error)")
-            print("   - Error: \(error.localizedDescription)")
-            print("   - Domain: \((error as NSError).domain)")
-            print("   - Code: \((error as NSError).code)")
-            print("   - UserInfo: \((error as NSError).userInfo)")
+            logFirebaseError(error, context: "Apple 로그인")
             throw error
         }
     }
@@ -409,6 +437,7 @@ class FriendManager: ObservableObject {
             print("✅ 친구 추가 완료: \(friendName) (\(code))")
 
         } catch {
+            logFirebaseError(error, context: "친구 추가")
             await MainActor.run {
                 isLoading = false
                 errorMessage = error.localizedDescription
@@ -820,9 +849,7 @@ class FriendManager: ObservableObject {
             throw NSError(domain: "FriendManager", code: -100,
                          userInfo: [NSLocalizedDescriptionKey: "Firebase 연결 타임아웃"])
         } catch {
-            print("   ❌ 코드 저장 실패: \(error)")
-            print("      Error domain: \((error as NSError).domain)")
-            print("      Error code: \((error as NSError).code)")
+            logFirebaseError(error, context: "샘플 친구 생성")
             throw error
         }
 

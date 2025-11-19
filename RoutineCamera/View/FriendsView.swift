@@ -166,7 +166,8 @@ struct FriendsView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     HStack(spacing: 16) {
-                        // 샘플 데이터 생성 버튼
+                        #if DEBUG
+                        // 샘플 데이터 생성 버튼 (개발자 모드 전용)
                         Button(action: {
                             // 중복 클릭 방지
                             guard !friendManager.isLoading else { return }
@@ -187,6 +188,7 @@ struct FriendsView: View {
                                 .foregroundColor(friendManager.isLoading ? .gray : .orange)
                         }
                         .disabled(friendManager.isLoading)
+                        #endif
 
                         // 계정 설정 버튼
                         Button(action: {

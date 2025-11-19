@@ -60,6 +60,18 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    @Published var autoOpenCamera: Bool {
+        didSet {
+            UserDefaults.standard.set(autoOpenCamera, forKey: "autoOpenCamera")
+        }
+    }
+
+    @Published var autoFoodAnalysis: Bool {
+        didSet {
+            UserDefaults.standard.set(autoFoodAnalysis, forKey: "autoFoodAnalysis")
+        }
+    }
+
     private init() {
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
@@ -78,7 +90,15 @@ class SettingsManager: ObservableObject {
         // Firebase 공유 기본값은 true (자동 싱크 활성화)
         self.shareMealsToFirebase = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true
 
+        // 자동 카메라 열기 기본값은 true (기존 동작 유지)
+        self.autoOpenCamera = UserDefaults.standard.object(forKey: "autoOpenCamera") as? Bool ?? true
+
+        // 자동 음식 분석 기본값은 false (API 비용 절약)
+        self.autoFoodAnalysis = UserDefaults.standard.object(forKey: "autoFoodAnalysis") as? Bool ?? false
+
         print("⚙️ [SettingsManager] 초기화 완료")
         print("   - Firebase 공유: \(self.shareMealsToFirebase)")
+        print("   - 자동 카메라: \(self.autoOpenCamera)")
+        print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
     }
 }
