@@ -749,7 +749,7 @@ struct SettingsView: View {
                 // 사진 저장 설정
                 Section(header: Text("사진 저장")) {
                     Toggle("자동으로 사진앱에 저장", isOn: $settingsManager.autoSaveToPhotoLibrary)
-
+                    Toggle("간식 보이기", isOn: $settingsManager.writeSnack)
                     let albumName = settingsManager.albumType == .diet ? "세끼식단" : "세끼운동"
                     Text(settingsManager.autoSaveToPhotoLibrary
                         ? "사진을 촬영하면 자동으로 사진앱의 '\(albumName)' 앨범에 저장됩니다."
@@ -1188,7 +1188,11 @@ struct DailySectionView: View {
     private func getMealsToShow(meals: [MealType: MealRecord]) -> [MealType] {
         if isToday {
             // 오늘: 모든 식사 타입 표시 (스크롤 가능)
-            return [.breakfast, .snack1, .lunch, .snack2, .dinner, .snack3]
+            if SettingsManager.shared.writeSnack {
+                return [.breakfast, .snack1, .lunch, .snack2, .dinner, .snack3]
+            } else {
+                return [.breakfast, .lunch, .dinner]
+            }
         } else {
             // 과거/미래: 아침 점심 저녁 + 동적 간식
             return [.breakfast, .lunch, .dinner] + getSnacksToShow(meals: meals)

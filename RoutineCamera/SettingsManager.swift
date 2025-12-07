@@ -35,6 +35,14 @@ class SettingsManager: ObservableObject {
             UserDefaults.standard.set(autoSaveToPhotoLibrary, forKey: "autoSaveToPhotoLibrary")
         }
     }
+    
+    @Published var writeSnack: Bool {
+        didSet {
+            print("writeSnack", writeSnack)
+            UserDefaults.standard.set(writeSnack, forKey: "writeSnack")
+        }
+    }
+    
 
     @Published var showRemainingPhotoCount: Bool {
         didSet {
@@ -98,6 +106,7 @@ class SettingsManager: ObservableObject {
 
         // 기본값은 true (기존 동작 유지)
         self.autoSaveToPhotoLibrary = UserDefaults.standard.object(forKey: "autoSaveToPhotoLibrary") as? Bool ?? true
+        self.writeSnack = UserDefaults.standard.object(forKey: "writeSnack") as? Bool ?? true
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
