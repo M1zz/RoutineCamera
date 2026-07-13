@@ -9,6 +9,8 @@ import SwiftUI
 import FirebaseCore
 import FirebaseDatabase
 import FirebaseAppCheck
+import FirebaseMessaging
+import UserNotifications
 
 @main
 struct RoutineCameraApp: App {
@@ -23,6 +25,13 @@ struct RoutineCameraApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+
+  // 피드백 푸시(FCM) 사용 여부.
+  // 활성화 조건: ① Firebase Console에 APNs 키 등록 ② Blaze 전환 + functions 배포
+  // ③ entitlements에 aps-environment 추가 (FIREBASE_SETUP.md "피드백 푸시 알림 설정" 참고)
+  // 조건이 안 갖춰진 상태에서 켜면 실기기 서명/푸시 등록이 실패하므로 꺼 둠
+  static let feedbackPushEnabled = false
+
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
@@ -52,7 +61,34 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // App Check 토큰 모니터링 (디버그용)
     setupAppCheckMonitoring()
 
+    // FCM(서버 경유) 푸시 — Firebase 콘솔 설정(APNs 키/Blaze) 완료 전까지 비활성화
+    if Self.feedbackPushEnabled {
+      Messaging.messaging().delegate = self
+      print("📬 [FCM] 피드백 푸시 활성화")
+    } else {
+      print("📬 [FCM] 피드백 푸시 비활성화 상태 (feedbackPushEnabled = false)")
+    }
+
+    // CloudKit 피드백 핑 푸시 수신용 원격 알림 등록
+    // (CloudKit 구독 푸시는 APNs 키 업로드 없이 Apple이 배달하므로 항상 등록)
+    application.registerForRemoteNotifications()
+
+    // 포그라운드에서도 알림 배너 표시 (로컬 식사 리마인드에도 적용)
+    UNUserNotificationCenter.current().delegate = self
+
     return true
+  }
+
+  // APNs 토큰 → FCM에 전달
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    print("📬 [FCM] APNs 토큰 등록 완료")
+  }
+
+  func application(_ application: UIApplication,
+                   didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("❌ [FCM] APNs 등록 실패: \(error.localizedDescription)")
   }
 
   private func setupAppCheckMonitoring() {
@@ -109,5 +145,25 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       }
     }
     #endif
+  }
+}
+
+// MARK: - FCM 토큰 수신
+extension AppDelegate: MessagingDelegate {
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    guard let token = fcmToken else { return }
+    print("📬 [FCM] 토큰 수신: \(token.prefix(16))...")
+    // 로그인 전이면 보관해 두었다가 로그인 시 업로드됨
+    _Concurrency.Task { @MainActor in
+      FriendManager.shared.saveFCMToken(token)
+    }
+  }
+}
+
+// MARK: - 포그라운드에서도 푸시 배너 표시
+extension AppDelegate: UNUserNotificationCenterDelegate {
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+    return [.banner, .sound, .badge]
   }
 }

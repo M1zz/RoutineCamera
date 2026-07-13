@@ -1,0 +1,13 @@
+{
+  "name": "routinecamera-functions",
+  "description": "RoutineCamera Cloud Functions - 피드백/콕 찌르기 푸시 알림",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "private": true
+}

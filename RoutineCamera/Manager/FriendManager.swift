@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import FirebaseDatabase
 import FirebaseAuth
 import Combine
@@ -148,6 +149,10 @@ class FriendManager: ObservableObject {
             isSignedIn = true
             generateOrLoadUserCode()
             loadFriends()
+            uploadPendingFCMTokenIfNeeded()
+            // CloudKit 피드백 푸시 구독 + 내가 보낸 오래된 핑 정리
+            FeedbackPingManager.shared.ensureSubscription(for: myUserId)
+            FeedbackPingManager.shared.cleanupOldPings()
             print("✅ 기존 로그인 유지: \(myUserId)")
 
             // 샘플 데이터는 수동 생성 버튼 사용 (자동 생성 제거)
@@ -214,6 +219,9 @@ class FriendManager: ObservableObject {
                 self.isSignedIn = true
                 self.generateOrLoadUserCode()
                 self.loadFriends()
+                self.uploadPendingFCMTokenIfNeeded()
+                FeedbackPingManager.shared.ensureSubscription(for: self.myUserId)
+                FeedbackPingManager.shared.cleanupOldPings()
                 print("✅ Apple 로그인 성공: \(self.myUserId)")
             }
 
@@ -247,6 +255,7 @@ class FriendManager: ObservableObject {
             myUserCode = ""
             friends = []
             isSignedIn = false
+            FeedbackPingManager.shared.resetSubscriptionFlag()
             print("✅ 로그아웃 완료")
         } catch {
             print("❌ 로그아웃 실패: \(error)")
@@ -373,6 +382,31 @@ class FriendManager: ObservableObject {
     private func generateRandomCode() -> String {
         let characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // 혼동되는 문자 제외 (I, O, 0, 1)
         return String((0..<6).map { _ in characters.randomElement()! })
+    }
+
+    // MARK: - FCM 토큰 관리 (피드백 푸시용)
+
+    private static let fcmTokenKey = "pendingFCMToken"
+
+    /// FCM 토큰 저장. 로그인 전이면 로컬에 보관했다가 로그인 시 업로드된다.
+    func saveFCMToken(_ token: String) {
+        UserDefaults.standard.set(token, forKey: Self.fcmTokenKey)
+
+        guard !myUserId.isEmpty else {
+            print("📬 [FCM] 로그인 전 - 토큰 로컬 보관")
+            return
+        }
+
+        ref.child("users").child(myUserId).child("fcmToken").setValue(token)
+        print("📬 [FCM] 토큰 Firebase 업로드 완료")
+    }
+
+    /// 로그인 직후 보관 중인 토큰 업로드
+    private func uploadPendingFCMTokenIfNeeded() {
+        guard !myUserId.isEmpty,
+              let token = UserDefaults.standard.string(forKey: Self.fcmTokenKey) else { return }
+        ref.child("users").child(myUserId).child("fcmToken").setValue(token)
+        print("📬 [FCM] 보관 중이던 토큰 업로드 완료")
     }
 
     // MARK: - 친구 관리
@@ -735,6 +769,31 @@ class FriendManager: ObservableObject {
         print("🗑️ [캐시] 전체 삭제 완료")
     }
 
+    // MARK: - 업로드용 이미지 축소
+
+    /// 업로드 전 이미지 축소 (긴 변 1024px, JPEG 0.6)
+    /// 원본(2~4MB)을 그대로 base64로 올리면 20명 이벤트 기준 하루 수 GB 전송이 되므로 필수
+    nonisolated static func resizeForUpload(_ data: Data, maxDimension: CGFloat = 1024, quality: CGFloat = 0.6) -> Data {
+        guard let image = UIImage(data: data) else { return data }
+
+        let largerSide = max(image.size.width, image.size.height)
+        // 이미 충분히 작으면 재압축만 (그래도 원본보다 커지면 원본 유지)
+        let scale = min(1.0, maxDimension / largerSide)
+        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        let resized = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+
+        guard let resizedData = resized.jpegData(compressionQuality: quality), resizedData.count < data.count else {
+            return data
+        }
+        return resizedData
+    }
+
     // MARK: - 내 식단 업로드 (선택적)
 
     func uploadMyMeals(date: Date, meals: [MealType: MealRecord]) async throws {
@@ -760,14 +819,17 @@ class FriendManager: ObservableObject {
 
             // 이미지는 Firebase Storage에 업로드하고 URL 저장
             // 간단하게 하기 위해 여기서는 base64로 저장 (실제로는 Storage 사용 권장)
+            // 전송량 절감을 위해 업로드 전 축소 (긴 변 1024px, JPEG 0.6)
             if let beforeData = record.beforeImageData {
-                data["beforeImageBase64"] = beforeData.base64EncodedString()
-                print("      - beforeImage: \(beforeData.count) bytes")
+                let resized = Self.resizeForUpload(beforeData)
+                data["beforeImageBase64"] = resized.base64EncodedString()
+                print("      - beforeImage: \(beforeData.count) → \(resized.count) bytes")
             }
 
             if let afterData = record.afterImageData {
-                data["afterImageBase64"] = afterData.base64EncodedString()
-                print("      - afterImage: \(afterData.count) bytes")
+                let resized = Self.resizeForUpload(afterData)
+                data["afterImageBase64"] = resized.base64EncodedString()
+                print("      - afterImage: \(afterData.count) → \(resized.count) bytes")
             }
 
             if let memo = record.memo {
@@ -921,15 +983,17 @@ class FriendManager: ObservableObject {
                     "timestamp": date.timeIntervalSince1970
                 ]
 
-                // 사진 데이터 추가 (base64 인코딩)
+                // 사진 데이터 추가 (base64 인코딩, 업로드 전 축소)
                 if let beforeData = record.beforeImageData {
-                    mealData["beforeImageBase64"] = beforeData.base64EncodedString()
-                    print("         - \(mealType.rawValue): 사진(전) \(beforeData.count) bytes")
+                    let resized = Self.resizeForUpload(beforeData)
+                    mealData["beforeImageBase64"] = resized.base64EncodedString()
+                    print("         - \(mealType.rawValue): 사진(전) \(beforeData.count) → \(resized.count) bytes")
                 }
 
                 if let afterData = record.afterImageData {
-                    mealData["afterImageBase64"] = afterData.base64EncodedString()
-                    print("         - \(mealType.rawValue): 사진(후) \(afterData.count) bytes")
+                    let resized = Self.resizeForUpload(afterData)
+                    mealData["afterImageBase64"] = resized.base64EncodedString()
+                    print("         - \(mealType.rawValue): 사진(후) \(afterData.count) → \(resized.count) bytes")
                 }
 
                 // 메모 추가
@@ -1103,6 +1167,9 @@ class FriendManager: ObservableObject {
             try await ref.child(sentFeedbackPath).setValue(sentFeedbackData)
 
             print("✅ [FriendManager] 피드백 작성 완료: \(friendId) / \(dateString) / \(mealType.rawValue)")
+
+            // CloudKit 핑으로 받는 사람에게 푸시 (실패해도 피드백 저장에는 영향 없음)
+            FeedbackPingManager.shared.sendPing(to: friendId, mealTypeName: mealType.rawValue)
         } catch {
             print("❌ [FriendManager] 피드백 작성 Firebase 에러: \(error.localizedDescription)")
             throw error

@@ -55,6 +55,8 @@ struct FriendsView: View {
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
                                 .foregroundColor(.blue)
                                 .frame(maxWidth: .infinity)
+                                .accessibilityLabel("내 친구 코드")
+                                .accessibilityValue(friendManager.myUserCode.map { String($0) }.joined(separator: " "))
 
                             Button(action: {
                                 UIPasteboard.general.string = friendManager.myUserCode
@@ -63,6 +65,7 @@ struct FriendsView: View {
                                     .font(.system(size: 20))
                                     .foregroundColor(.blue)
                             }
+                            .accessibilityLabel("친구 코드 복사")
                         }
                     }
                     .padding()
@@ -84,6 +87,7 @@ struct FriendsView: View {
                         Image(systemName: "person.2.slash")
                             .font(.system(size: 60))
                             .foregroundColor(.gray)
+                            .accessibilityHidden(true)
 
                         Text("아직 친구가 없어요")
                             .font(.system(size: 18, weight: .semibold))
@@ -144,9 +148,13 @@ struct FriendsView: View {
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
+                                        .accessibilityHidden(true)
                                 }
                                 .padding(.vertical, 8)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(friend.name)")
+                            .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     _Concurrency.Task {
@@ -188,6 +196,7 @@ struct FriendsView: View {
                                 .foregroundColor(friendManager.isLoading ? .gray : .orange)
                         }
                         .disabled(friendManager.isLoading)
+                        .accessibilityLabel("샘플 친구 생성")
                         #endif
 
                         // 계정 설정 버튼
@@ -198,6 +207,7 @@ struct FriendsView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(.blue)
                         }
+                        .accessibilityLabel("계정 설정")
                     }
                 }
 
@@ -208,6 +218,7 @@ struct FriendsView: View {
                         Image(systemName: "person.badge.plus")
                             .font(.system(size: 20))
                     }
+                    .accessibilityLabel("친구 추가")
                 }
             }
             .sheet(isPresented: $showingAddFriend) {
@@ -215,12 +226,25 @@ struct FriendsView: View {
                     friendCode: $friendCode,
                     onAdd: {
                         _Concurrency.Task {
-                            do {
-                                try await friendManager.addFriend(code: friendCode.uppercased())
-                                friendCode = ""
-                                showingAddFriend = false
-                            } catch {
-                                errorMessage = error.localizedDescription
+                            // 쉼표/공백/줄바꿈으로 구분된 여러 코드 일괄 추가 (이벤트용)
+                            let codes = parseFriendCodes(friendCode)
+                            var addedCount = 0
+                            var failures: [String] = []
+
+                            for code in codes {
+                                do {
+                                    try await friendManager.addFriend(code: code)
+                                    addedCount += 1
+                                } catch {
+                                    failures.append("\(code): \(error.localizedDescription)")
+                                }
+                            }
+
+                            friendCode = ""
+                            showingAddFriend = false
+
+                            if !failures.isEmpty {
+                                errorMessage = "\(addedCount)명 추가 성공, \(failures.count)개 실패\n\n" + failures.joined(separator: "\n")
                                 showingError = true
                             }
                         }
@@ -273,11 +297,22 @@ struct FriendsView: View {
         }
     }
 
+// 쉼표/공백/줄바꿈으로 구분된 여러 친구 코드 파싱 (6자리 영숫자, 중복 제거)
+func parseFriendCodes(_ text: String) -> [String] {
+    let tokens = text.uppercased().components(separatedBy: CharacterSet.alphanumerics.inverted)
+    var seen = Set<String>()
+    return tokens.filter { $0.count == 6 && seen.insert($0).inserted }
+}
+
 // 친구 추가 시트
 struct AddFriendSheet: View {
     @Binding var friendCode: String
     let onAdd: () -> Void
     @Environment(\.dismiss) var dismiss
+
+    private var parsedCodes: [String] {
+        parseFriendCodes(friendCode)
+    }
 
     var body: some View {
         NavigationView {
@@ -290,41 +325,36 @@ struct AddFriendSheet: View {
                     Text("친구 코드 입력")
                         .font(.system(size: 24, weight: .bold))
 
-                    Text("친구가 공유한 6자리 코드를 입력하세요")
+                    Text("친구가 공유한 6자리 코드를 입력하세요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 추가할 수 있어요.")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 40)
 
-                // 코드 입력 필드
-                TextField("예: ABC123", text: $friendCode)
-                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                // 코드 입력 필드 (여러 코드 붙여넣기 가능)
+                TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
+                    .font(.system(size: 20, weight: .bold, design: .monospaced))
                     .multilineTextAlignment(.center)
                     .textCase(.uppercase)
                     .autocapitalization(.allCharacters)
                     .disableAutocorrection(true)
+                    .lineLimit(1...5)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                     .padding(.horizontal)
-                    .onChange(of: friendCode) { oldValue, newValue in
-                        // 6자리 제한
-                        if newValue.count > 6 {
-                            friendCode = String(newValue.prefix(6))
-                        }
-                    }
 
                 Button(action: onAdd) {
-                    Text("친구 추가")
+                    Text(parsedCodes.count > 1 ? "\(parsedCodes.count)명 추가" : "친구 추가")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(friendCode.count == 6 ? Color.blue : Color.gray)
+                        .background(parsedCodes.isEmpty ? Color.gray : Color.blue)
                         .cornerRadius(12)
                 }
-                .disabled(friendCode.count != 6)
+                .disabled(parsedCodes.isEmpty)
                 .padding(.horizontal)
 
                 Spacer()
@@ -786,7 +816,7 @@ struct FriendGridDayView: View {
                         FriendMealPhotoCell(meal: meal, mealType: mealType, friend: friend, date: date)
                             .frame(width: photoSize, height: photoSize)
                     } else {
-                        EmptyMealPhotoCell(mealType: mealType)
+                        EmptyMealPhotoCell(mealType: mealType, friend: friend, date: date)
                             .frame(width: photoSize, height: photoSize)
                     }
                 }
@@ -863,12 +893,16 @@ struct FriendMealPhotoCell: View {
                                 .shadow(radius: 2)
                         }
                         .padding(4)
+                        .accessibilityLabel("응원 남기기")
+                        .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
                     }
                 }
             }
             .background(Color(.systemGray6))
             .cornerRadius(8)
         }
+        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue) 기록")
+        .accessibilityHint("두 번 탭하여 상세 보기")
         .sheet(isPresented: $showingDetail) {
             FriendMealDetailView(meal: meal, mealType: mealType, friend: friend, date: date)
         }
@@ -878,34 +912,107 @@ struct FriendMealPhotoCell: View {
     }
 }
 
-// 빈 식단 셀
+// 빈 식단 셀 (탭하면 콕 찌르기 / 댓글 남기기)
 struct EmptyMealPhotoCell: View {
     let mealType: MealType
+    let friend: Friend
+    let date: Date
+
+    @State private var showingActions = false
+    @State private var showingComment = false
+    @State private var isPoking = false
+    @State private var pokeSent = false
 
     var body: some View {
-        ZStack {
-            // 그라데이션 배경
-            LinearGradient(
-                colors: [
-                    mealType.symbolColor.opacity(0.15),
-                    mealType.symbolColor.opacity(0.05)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        Button(action: {
+            showingActions = true
+        }) {
+            ZStack {
+                Color(.systemGray6)
 
-            // 기본 이미지
-            VStack(spacing: 8) {
-                Image(systemName: defaultImageName)
-                    .font(.system(size: 40))
-                    .foregroundColor(mealType.symbolColor.opacity(0.4))
+                // 기본 이미지
+                VStack(spacing: 8) {
+                    Image(systemName: defaultImageName)
+                        .font(.system(size: 36))
+                        .foregroundColor(mealType.symbolColor.opacity(0.35))
 
-                Text(mealType.rawValue)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    Text(mealType.rawValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+
+                // 콕 찌른 후 표시
+                if pokeSent {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text("👉 콕!")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(Color.orange))
+                                .padding(4)
+                        }
+                    }
+                } else if isPoking {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .padding(6)
+                        }
+                    }
+                }
+            }
+            .cornerRadius(8)
+        }
+        .confirmationDialog(
+            "\(friend.name)님이 아직 \(mealType.rawValue)을 기록하지 않았어요",
+            isPresented: $showingActions,
+            titleVisibility: .visible
+        ) {
+            Button("👉 콕 찌르기") {
+                sendPoke()
+            }
+            Button("댓글 남기기") {
+                showingComment = true
+            }
+            Button("취소", role: .cancel) { }
+        }
+        .sheet(isPresented: $showingComment) {
+            QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+        }
+        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue), 아직 기록 없음")
+        .accessibilityHint("두 번 탭하여 콕 찌르기 또는 댓글 남기기")
+    }
+
+    private func sendPoke() {
+        guard !isPoking, !pokeSent else { return }
+        isPoking = true
+
+        Task {
+            do {
+                try await FriendManager.shared.addFeedback(
+                    to: friend.id,
+                    date: date,
+                    mealType: mealType,
+                    content: "👉 콕! \(mealType.rawValue) 기록을 기다리고 있어요"
+                )
+                await MainActor.run {
+                    isPoking = false
+                    pokeSent = true
+                }
+            } catch {
+                await MainActor.run {
+                    isPoking = false
+                }
+                print("❌ [EmptyMealPhotoCell] 콕 찌르기 실패: \(error)")
             }
         }
-        .cornerRadius(8)
     }
 
     private var defaultImageName: String {
