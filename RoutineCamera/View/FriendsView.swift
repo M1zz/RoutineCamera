@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AuthenticationServices
 
 struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
@@ -16,14 +15,13 @@ struct FriendsView: View {
     @State private var errorMessage = ""
     @State private var selectedFriend: Friend?
     @State private var showingAccountSettings = false
-    @State private var showingLogoutConfirm = false
     @State private var showingDeleteConfirm = false
 
     var body: some View {
         NavigationView {
             if !friendManager.isSignedIn {
-                // Apple 로그인 화면
-                AppleSignInView()
+                // iCloud 로그인 안내 화면
+                ICloudRequiredView()
             } else {
                 // 친구 목록 화면
                 friendsContentView
@@ -256,22 +254,10 @@ struct FriendsView: View {
             }
             .sheet(isPresented: $showingAccountSettings) {
                 AccountSettingsSheet(
-                    onLogout: {
-                        showingLogoutConfirm = true
-                    },
                     onDeleteAccount: {
                         showingDeleteConfirm = true
                     }
                 )
-            }
-            .alert("로그아웃", isPresented: $showingLogoutConfirm) {
-                Button("취소", role: .cancel) { }
-                Button("로그아웃", role: .destructive) {
-                    friendManager.signOut()
-                    showingAccountSettings = false
-                }
-            } message: {
-                Text("정말 로그아웃 하시겠습니까?")
             }
             .alert("회원 탈퇴", isPresented: $showingDeleteConfirm) {
                 Button("취소", role: .cancel) { }
@@ -1322,7 +1308,6 @@ struct FriendMealCard: View {
 
 // 계정 설정 시트
 struct AccountSettingsSheet: View {
-    let onLogout: () -> Void
     let onDeleteAccount: () -> Void
     @Environment(\.dismiss) var dismiss
     @ObservedObject var friendManager = FriendManager.shared
@@ -1338,10 +1323,10 @@ struct AccountSettingsSheet: View {
                             .foregroundColor(.blue)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Apple 계정")
+                            Text("iCloud 계정")
                                 .font(.system(size: 18, weight: .semibold))
 
-                            Text(friendManager.myUserId.isEmpty ? "" : "로그인됨")
+                            Text(friendManager.myUserId.isEmpty ? "" : "연결됨")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
                         }
@@ -1370,23 +1355,6 @@ struct AccountSettingsSheet: View {
                         }) {
                             Image(systemName: "doc.on.doc")
                                 .foregroundColor(.blue)
-                        }
-                    }
-                }
-
-                // 로그아웃
-                Section {
-                    Button(action: {
-                        dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            onLogout()
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.blue)
-                            Text("로그아웃")
-                                .foregroundColor(.primary)
                         }
                     }
                 }
@@ -1425,12 +1393,8 @@ struct AccountSettingsSheet: View {
     }
 }
 
-// Apple 로그인 화면
-struct AppleSignInView: View {
-    @ObservedObject var friendManager = FriendManager.shared
-    @State private var showingError = false
-    @State private var errorMessage = ""
-
+// iCloud 로그인 안내 화면 (별도 로그인 없이 기기의 iCloud 계정을 사용)
+struct ICloudRequiredView: View {
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -1453,60 +1417,28 @@ struct AppleSignInView: View {
 
             Spacer()
 
-            // Apple 로그인 버튼
-            SignInWithAppleButton(
-                onRequest: { request in
-                    print("🍎 [Apple Sign In] 로그인 요청 시작")
-                    request.requestedScopes = [.fullName, .email]
-                    let nonce = friendManager.prepareAppleSignIn()
-                    request.nonce = nonce
-                    print("🍎 [Apple Sign In] nonce 설정 완료: \(nonce.prefix(10))...")
-                },
-                onCompletion: { result in
-                    print("🍎 [Apple Sign In] 로그인 응답 수신")
-                    switch result {
-                    case .success(let authorization):
-                        print("✅ [Apple Sign In] 인증 성공")
-                        print("   - Credential type: \(type(of: authorization.credential))")
-                        _Concurrency.Task {
-                            do {
-                                try await friendManager.signInWithApple(authorization: authorization)
-                                print("✅ [Apple Sign In] Firebase 연동 완료")
-                            } catch {
-                                print("❌ [Apple Sign In] Firebase 연동 실패: \(error)")
-                                print("   - Error domain: \((error as NSError).domain)")
-                                print("   - Error code: \((error as NSError).code)")
-                                print("   - Error info: \((error as NSError).userInfo)")
-                                errorMessage = "로그인 실패: \(error.localizedDescription)"
-                                showingError = true
-                            }
-                        }
-                    case .failure(let error):
-                        print("❌ [Apple Sign In] 인증 실패: \(error)")
-                        print("   - Error domain: \((error as NSError).domain)")
-                        print("   - Error code: \((error as NSError).code)")
-                        errorMessage = "로그인 취소: \(error.localizedDescription)"
-                        showingError = true
-                    }
-                }
-            )
-            .signInWithAppleButtonStyle(.black)
-            .frame(height: 50)
-            .padding(.horizontal, 40)
+            VStack(spacing: 12) {
+                Image(systemName: "icloud")
+                    .font(.system(size: 32))
+                    .foregroundColor(.secondary)
 
-            Text("로그인하면 친구 추가 및\n식단 공유 기능을 사용할 수 있습니다")
-                .font(.system(size: 12))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 40)
+                Text("iCloud 로그인이 필요해요")
+                    .font(.system(size: 16, weight: .semibold))
+
+                Text("설정 앱에서 iCloud에 로그인하면\n친구 추가 및 식단 공유 기능을 사용할 수 있습니다")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                Link("설정 열기", destination: url)
+                    .font(.system(size: 16, weight: .semibold))
+                    .padding(.bottom, 40)
+            }
         }
         .navigationTitle("친구")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("오류", isPresented: $showingError) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text(errorMessage)
-        }
     }
 }
 

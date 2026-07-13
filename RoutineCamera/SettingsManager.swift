@@ -62,9 +62,9 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    @Published var shareMealsToFirebase: Bool {
+    @Published var shareMealsToCloud: Bool {
         didSet {
-            UserDefaults.standard.set(shareMealsToFirebase, forKey: "shareMealsToFirebase")
+            UserDefaults.standard.set(shareMealsToCloud, forKey: "shareMealsToFirebase") // 기존 설정값 유지를 위해 키 이름은 그대로 둠
         }
     }
 
@@ -90,8 +90,8 @@ class SettingsManager: ObservableObject {
     @Published var nickname: String = "사용자" {
         didSet {
             UserDefaults.standard.set(nickname, forKey: "userNickname")
-            // Firebase에도 저장
-            saveNicknameToFirebase()
+            // CloudKit에도 저장
+            saveNicknameToCloud()
         }
     }
 
@@ -124,8 +124,8 @@ class SettingsManager: ObservableObject {
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
 
-        // Firebase 공유 기본값은 true (자동 싱크 활성화)
-        self.shareMealsToFirebase = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true
+        // 식단 공유 기본값은 true (자동 싱크 활성화)
+        self.shareMealsToCloud = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true
 
         // 자동 카메라 열기 기본값은 true (기존 동작 유지)
         self.autoOpenCamera = UserDefaults.standard.object(forKey: "autoOpenCamera") as? Bool ?? true
@@ -140,22 +140,21 @@ class SettingsManager: ObservableObject {
         self.nickname = UserDefaults.standard.string(forKey: "userNickname") ?? "사용자"
 
         print("⚙️ [SettingsManager] 초기화 완료")
-        print("   - Firebase 공유: \(self.shareMealsToFirebase)")
+        print("   - 식단 공유: \(self.shareMealsToCloud)")
         print("   - 자동 카메라: \(self.autoOpenCamera)")
         print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
         print("   - 무료 분석 잔여: \(self.freeAnalysisCount)회")
         print("   - 닉네임: \(self.nickname)")
     }
 
-    // Firebase에 닉네임 저장
-    private func saveNicknameToFirebase() {
-        // FriendManager를 통해 Firebase에 저장
-        Task {
+    // CloudKit에 닉네임 저장
+    private func saveNicknameToCloud() {
+        Task { @MainActor in
             do {
                 try await FriendManager.shared.saveMyNickname(nickname)
-                print("✅ [SettingsManager] 닉네임 Firebase 저장 완료: \(nickname)")
+                print("✅ [SettingsManager] 닉네임 CloudKit 저장 완료: \(nickname)")
             } catch {
-                print("❌ [SettingsManager] 닉네임 Firebase 저장 실패: \(error)")
+                print("❌ [SettingsManager] 닉네임 CloudKit 저장 실패: \(error)")
             }
         }
     }

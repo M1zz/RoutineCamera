@@ -77,6 +77,24 @@
 - [ ] 실기기 2대로 콕 → 푸시 수신 검증
 - [ ] 실기기 2대(계정 2개)로 콕 찌르기 → 푸시 수신 → 배지 → 기록 루프 검증
 
+## 완료: Firebase 전면 제거 → CloudKit 대체 (v1.0.4, 빌드 검증 완료 ✅)
+※ 이전 데이터(친구 관계·공유 식단·피드백)는 이관하지 않음 (사용자 확인)
+- [x] 앱 버전 1.0.4 (커밋·푸시 완료)
+- [x] FriendManager 전면 재작성: Firebase RTDB/Auth → CloudKit 공개 DB
+  - 신원: iCloud 계정(userRecordID) — Apple 로그인 화면·nonce 코드 삭제
+  - RCUser 레코드(user_<id>): 친구 코드·닉네임·친구 목록(JSON)
+  - Meal 레코드(meal_<id>_<날짜>_<끼니키>): 사진 base64 → **CKAsset**, ID 직접 조회(인덱스 불필요)
+  - Feedback 레코드 하나로 저장+푸시 통합 (FeedbackPing 핑 채널 삭제), 읽음 상태는 로컬 저장
+  - 회원 탈퇴 = 내가 만든 레코드(RCUser/Meal/Feedback) 전체 삭제 후 새 코드로 재시작
+- [x] AppDelegate: FirebaseApp/App Check/FCM 제거, 원격 알림 등록만 유지
+- [x] FriendsView: Apple 로그인 화면 → iCloud 안내 화면(ICloudRequiredView), 로그아웃 UI 제거
+- [x] SettingsManager: shareMealsToFirebase → shareMealsToCloud (UserDefaults 키는 유지)
+- [x] 프로젝트에서 firebase-ios-sdk 패키지(24개 제품) 제거, GoogleService-Info.plist·functions/·FIREBASE_SETUP.md 삭제
+- [x] entitlements에서 applesignin·appattest 제거 (iCloud/CloudKit·aps-environment 유지)
+- [x] CLOUDKIT_SETUP.md 작성 (스키마·Production 배포 절차·이벤트 점검 목록)
+- [ ] 실기기에서 CloudKit 흐름 검증 (코드 생성 → 친구 추가 → 식단 업로드 → 피드백 푸시)
+- [ ] TestFlight 배포 전 CloudKit Console에서 스키마 Production 배포 + Queryable 인덱스 확인
+
 ## 향후(선택) 개선 아이디어
 - [ ] 로터에 "안 읽은 피드백" 추가 (피드백 개수 비동기 집계 데이터 소스 필요)
 - [ ] Dynamic Type: minimumScaleFactor(0.7) 대신 줄바꿈 허용 검토

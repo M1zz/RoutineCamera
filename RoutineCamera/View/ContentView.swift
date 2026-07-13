@@ -584,15 +584,15 @@ struct SettingsView: View {
 
                 // 친구 공유 설정
                 Section(header: Text("친구 공유")) {
-                    Toggle("내 식단 공유 가능", isOn: $settingsManager.shareMealsToFirebase)
+                    Toggle("내 식단 공유 가능", isOn: $settingsManager.shareMealsToCloud)
 
-                    Text("이 기능을 켜면 내 식단 데이터가 Firebase에 자동으로 업로드되어 친구가 내 식단을 볼 수 있습니다.")
+                    Text("이 기능을 켜면 내 식단 데이터가 iCloud에 자동으로 업로드되어 친구가 내 식단을 볼 수 있습니다.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
 
-                    if settingsManager.shareMealsToFirebase {
+                    if settingsManager.shareMealsToCloud {
                         Text("✓ 식단 공유가 활성화되었습니다")
                             .font(.caption)
                             .foregroundColor(.green)
