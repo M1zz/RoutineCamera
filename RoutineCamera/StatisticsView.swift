@@ -144,6 +144,9 @@ struct WeeklyStatsView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(SettingsManager.shared.albumType == .exercise ? "이번 주 운동 기록" : "이번 주 식사 기록")
+                .accessibilityValue("\(weeklyStats.total)회 중 \(weeklyStats.recorded)회 기록, \(Int(weeklyStats.percentage))퍼센트 달성")
 
                 Spacer()
             }
@@ -232,6 +235,9 @@ struct MonthlyStatsView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(SettingsManager.shared.albumType == .exercise ? "이번 달 운동 기록" : "이번 달 식사 기록")
+                .accessibilityValue("\(monthlyStats.total)회 중 \(monthlyStats.recorded)회 기록, \(Int(monthlyStats.percentage))퍼센트 달성")
 
                 Spacer()
             }
@@ -313,6 +319,9 @@ struct MealTypeStatsView: View {
                     }
                     .frame(height: 8)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(mealType.rawValue)
+                .accessibilityValue("\(stats.total)회 중 \(stats.recorded)회 기록, \(Int(stats.percentage))퍼센트")
             }
         }
         .padding(16)
@@ -344,6 +353,9 @@ struct StreakAndGoalView: View {
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("현재 연속 기록")
+                .accessibilityValue("\(mealStore.getCurrentStreak())일")
 
                 Divider()
                     .frame(height: 60)
@@ -362,6 +374,9 @@ struct StreakAndGoalView: View {
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("최고 연속 기록")
+                .accessibilityValue("\(mealStore.getMaxStreak())일")
             }
         }
         .padding(16)
@@ -495,16 +510,21 @@ struct AllAchievementsView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.green)
                                     .font(.title3)
+                                    .accessibilityHidden(true)
                             } else {
                                 Image(systemName: "lock.fill")
                                     .foregroundColor(.gray)
                                     .font(.title3)
+                                    .accessibilityHidden(true)
                             }
                         }
                         .padding(16)
                         .background(Color(.systemBackground))
                         .cornerRadius(12)
                         .shadow(color: .black.opacity(0.05), radius: 3, y: 1)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(achievement.title), \(achievement.isUnlocked ? "달성함" : "잠김")")
+                        .accessibilityValue(achievement.description)
                     }
                 }
                 .padding(.horizontal, 12)

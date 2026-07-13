@@ -256,6 +256,18 @@ class MealRecordStore: ObservableObject {
     private let exerciseRecordsKey = "ExerciseMealRecords"
     private var cancellables = Set<AnyCancellable>()
 
+    // 실패(거른 끼니) 판정의 기준 시작일
+    // = 첫 실행일과 가장 오래된 기록일 중 이른 쪽
+    // 이 날짜 이전의 과거는 "설치 전"이므로 실패로 판정하지 않는다.
+    var startDate: Date {
+        let calendar = Calendar.current
+        let launchDay = calendar.startOfDay(for: SettingsManager.shared.appStartDate)
+        if let earliestRecord = records.map({ calendar.startOfDay(for: $0.date) }).min() {
+            return min(launchDay, earliestRecord)
+        }
+        return launchDay
+    }
+
     // Firebase 업로드 추적
     private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
     private var lastUploadTime: Date?
@@ -721,6 +733,18 @@ class MealRecordStore: ObservableObject {
     // MARK: - Streak 계산
 
     // 현재 연속 기록 일수 계산
+    // 특정 날짜가 "완전히 기록된 날"인지 (연속 끊김 판정 등에 사용)
+    func isDayComplete(_ date: Date) -> Bool {
+        let meals = getMeals(for: date)
+        if SettingsManager.shared.albumType == .exercise {
+            return meals[.breakfast]?.isComplete ?? false
+        } else {
+            // 간식 제외 주요 3끼 모두 완료
+            let mainMeals = meals.filter { !$0.key.isSnack }
+            return mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
+        }
+    }
+
     func getCurrentStreak() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

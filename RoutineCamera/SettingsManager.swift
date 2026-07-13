@@ -95,7 +95,20 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    // 앱을 처음 실행한 날 (이 날 이전의 과거 날짜는 "거른 끼니"로 판정하지 않음)
+    // 한 번 저장되면 바뀌지 않음
+    let appStartDate: Date
+
     private init() {
+        // 첫 실행일 로드 또는 최초 저장 (시작일 이전 날짜를 실패로 처리하지 않기 위함)
+        if let storedStart = UserDefaults.standard.object(forKey: "appStartDate") as? Date {
+            self.appStartDate = storedStart
+        } else {
+            let today = Calendar.current.startOfDay(for: Date())
+            self.appStartDate = today
+            UserDefaults.standard.set(today, forKey: "appStartDate")
+        }
+
         // 앨범 타입 로드 (기본값: 식단)
         if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
            let albumType = AlbumType(rawValue: albumTypeString) {

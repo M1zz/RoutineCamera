@@ -29,8 +29,34 @@ struct ContentView: View {
     @State private var isLoadingPast = false // 과거 날짜 로딩 중인지
     @State private var scrollToTodayTrigger = false // 오늘 날짜로 스크롤 트리거
     @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date()) // 현재 보이는 날짜
-    @State private var headerOffset: CGFloat = 0 // 헤더 오프셋 (숨기기용)
-    @State private var lastDragValue: CGFloat = 0 // 마지막 드래그 값
+
+    // 보이스오버 커스텀 로터용 네임스페이스
+    @Namespace private var rotorNamespace
+
+    // 한글 날짜 라벨 (로터 항목 낭독용)
+    private func rotorDateLabel(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일 EEEE"
+        return formatter.string(from: date)
+    }
+
+    // 거른 날 목록 (과거 + 필수 끼니 미기록) — "거른 날" 로터에 사용
+    private var missedDates: [Date] {
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: Date())
+        let startDay = calendar.startOfDay(for: mealStore.startDate)
+        let isExerciseMode = SettingsManager.shared.albumType == .exercise
+        return dateList.filter { date in
+            guard date < startOfToday, date >= startDay else { return false }
+            let meals = mealStore.getMeals(for: date)
+            if isExerciseMode {
+                return meals[.breakfast] == nil
+            } else {
+                return MealType.allCases.contains { !$0.isSnack && meals[$0] == nil }
+            }
+        }
+    }
 
     private func initializeDateList() {
         print("📅 [ContentView] 날짜 리스트 초기화 시작")
@@ -71,81 +97,30 @@ struct ContentView: View {
         }
     }
 
-    // 식사 시간 이후 미기록 확인 후 자동 카메라 열기 (식단 모드에서만)
-    private func checkAndAutoOpenCamera() {
-        // 설정에서 자동 카메라 열기가 꺼져있으면 실행 안 함
-        guard settingsManager.autoOpenCamera else {
-            print("⚠️ [AutoCamera] 자동 카메라 열기 설정 꺼짐 - 취소")
-            return
-        }
+    // 식사 시간이 지났는데 아직 기록하지 않은 가장 최근 끼니 (기록 유도 배너용, 식단 모드 전용)
+    // 카메라를 강제로 열지 않고, 배너를 탭했을 때만 연다
+    private var pendingMealType: MealType? {
+        guard settingsManager.autoOpenCamera, settingsManager.albumType == .diet else { return nil }
 
-        // 운동 모드에서는 자동 카메라 열기 안 함
-        guard settingsManager.albumType == .diet else {
-            print("⚠️ [AutoCamera] 운동 모드 - 카메라 자동 열기 취소")
-            return
-        }
-
-        // dateList가 비어있으면 실행하지 않음
-        guard !dateList.isEmpty else {
-            print("⚠️ [AutoCamera] dateList가 비어있음 - 카메라 자동 열기 취소")
-            return
-        }
-
-        let now = Date()
         let calendar = Calendar.current
-        let currentHour = calendar.component(.hour, from: now)
-        let currentMinute = calendar.component(.minute, from: now)
-        let currentMinutes = currentHour * 60 + currentMinute
+        let now = Date()
+        let currentMinutes = calendar.component(.hour, from: now) * 60 + calendar.component(.minute, from: now)
+        let todayMeals = mealStore.getMeals(for: calendar.startOfDay(for: now))
 
-        // todayDate가 오늘인지 확인
-        let actualToday = calendar.startOfDay(for: Date())
-        guard calendar.isDate(todayDate, inSameDayAs: actualToday) else {
-            print("⚠️ [AutoCamera] todayDate가 오늘이 아님 - 카메라 자동 열기 취소")
-            return
+        func minutes(of time: Date) -> Int {
+            calendar.component(.hour, from: time) * 60 + calendar.component(.minute, from: time)
         }
 
-        // 오늘 날짜의 식사 기록 확인
-        let todayMeals = mealStore.getMeals(for: todayDate)
-
-        // NotificationManager의 식사 시간 가져오기
-        let breakfastHour = calendar.component(.hour, from: notificationManager.breakfastTime)
-        let breakfastMinute = calendar.component(.minute, from: notificationManager.breakfastTime)
-        let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
-        let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
-        let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
-        let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
-
-        let breakfastMinutes = breakfastHour * 60 + breakfastMinute
-        let lunchMinutes = lunchHour * 60 + lunchMinute
-        let dinnerMinutes = dinnerHour * 60 + dinnerMinute
-
-        // 가장 최근에 지나간 미기록 식사 찾기
-        var targetMealType: MealType? = nil
-
-        // 저녁 시간이 지났고 저녁 미기록
-        if currentMinutes >= dinnerMinutes && todayMeals[.dinner] == nil {
-            targetMealType = .dinner
+        if currentMinutes >= minutes(of: notificationManager.dinnerTime), todayMeals[.dinner] == nil {
+            return .dinner
         }
-        // 점심 시간이 지났고 점심 미기록
-        else if currentMinutes >= lunchMinutes && todayMeals[.lunch] == nil {
-            targetMealType = .lunch
+        if currentMinutes >= minutes(of: notificationManager.lunchTime), todayMeals[.lunch] == nil {
+            return .lunch
         }
-        // 아침 시간이 지났고 아침 미기록
-        else if currentMinutes >= breakfastMinutes && todayMeals[.breakfast] == nil {
-            targetMealType = .breakfast
+        if currentMinutes >= minutes(of: notificationManager.breakfastTime), todayMeals[.breakfast] == nil {
+            return .breakfast
         }
-
-        // 미기록 식사가 있으면 카메라 자동 열기
-        if let mealType = targetMealType {
-            print("📸 [AutoCamera] \(mealType.rawValue) 식사 시간이 지났고 기록 없음 - 자동으로 카메라 열기")
-            // autoOpenMealType 설정하면 자동으로 sheet가 열림
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.autoOpenMealType = mealType
-                print("📸 [AutoCamera] autoOpenMealType 설정 완료 - sheet 자동 열림")
-            }
-        } else {
-            print("✅ [AutoCamera] 모든 식사 기록됨 또는 식사 시간 전")
-        }
+        return nil
     }
 
     var body: some View {
@@ -157,67 +132,39 @@ struct ContentView: View {
 
                 // 메인 콘텐츠
                 VStack(spacing: 0) {
-                    // 상단 헤더 (Streak 표시)
-                    StreakHeaderView(
+                    // 상단 헤더 (날짜 · 모드 전환 · 통계/친구/설정 · 목표 진행률)
+                    HomeHeaderView(
+                        date: currentVisibleDate,
                         mealStore: mealStore,
                         goalManager: goalManager,
                         settingsManager: settingsManager,
                         onStatisticsTap: { showingStatistics = true },
                         onFriendsTap: { showingFriends = true },
                         onSettingsTap: { showingSettings = true },
-                        onHeaderTap: {
+                        onTodayTap: {
                             withAnimation {
                                 proxy.scrollTo(todayDate, anchor: .top)
-                                headerOffset = 0 // 헤더 다시 보이기
                             }
                         }
                     )
-                    .frame(height: headerOffset < 0 ? 0 : nil)
-                    .clipped()
-                    .offset(y: headerOffset)
-                    .animation(.easeInOut(duration: 0.25), value: headerOffset)
-                    .onChange(of: headerOffset) { oldValue, newValue in
-                        print("🎯 [HeaderOffset] 변경됨: \(oldValue) → \(newValue)")
-                    }
 
-                    // 날짜 헤더 (항상 표시)
-                    DateHeaderView(date: currentVisibleDate, settingsManager: settingsManager)
+                    // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시, 탭하면 카메라
+                    if let pending = pendingMealType {
+                        RecordNowBanner(mealType: pending) {
+                            autoOpenPhotoType = .before
+                            autoOpenMealType = pending
+                        }
+                    }
 
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
-                            ForEach(Array(dateList.enumerated()), id: \.element) { index, date in
-                                // 위쪽(최근) 날짜들의 거른 끼니 수 계산 (최근부터 1, 2, 3...)
-                                let previousMissedCount: Int = {
-                                    var count = 0
-                                    let isExerciseMode = SettingsManager.shared.albumType == .exercise
-                                    // 현재 날짜보다 위에 있는 날짜들(최근)을 세기
-                                    for i in 0..<index {
-                                        let prevDate = dateList[i]
-                                        let isPastDate = prevDate < Calendar.current.startOfDay(for: Date())
-                                        if isPastDate {
-                                            let meals = mealStore.getMeals(for: prevDate)
-                                            if isExerciseMode {
-                                                // 운동 모드: 하루에 1개만 카운트 (breakfast 사용)
-                                                if meals[.breakfast] == nil {
-                                                    count += 1
-                                                }
-                                            } else {
-                                                // 식단 모드: 간식 제외하고 3끼만 카운트
-                                                count += MealType.allCases.filter { mealType in
-                                                    !mealType.isSnack && meals[mealType] == nil
-                                                }.count
-                                            }
-                                        }
-                                    }
-                                    return count
-                                }()
-
+                            ForEach(dateList, id: \.self) { date in
                                 DailySectionView(
                                     date: date,
-                                    mealStore: mealStore,
-                                    previousMissedMealsCount: previousMissedCount
+                                    mealStore: mealStore
                                 )
                                 .id(date)
+                                .accessibilityRotorEntry(id: date, in: rotorNamespace)
                                 .background(
                                     GeometryReader { geometry in
                                         Color.clear.preference(
@@ -244,38 +191,13 @@ struct ContentView: View {
                         }
                     }
                     .coordinateSpace(name: "scroll")
-                    .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                let currentY = value.translation.height
-                                let delta = currentY - lastDragValue
-
-                                print("👆 [Drag] translation: \(currentY), lastDrag: \(lastDragValue), delta: \(delta)")
-
-                                // 드래그 방향에 따라 헤더 숨김/표시
-                                if delta < -20 { // 위로 드래그 (아래로 스크롤, 콘텐츠 올라감)
-                                    if headerOffset == 0 {
-                                        print("⬇️ [Drag] 위로 드래그 - 헤더 숨김")
-                                        withAnimation(.easeInOut(duration: 0.25)) {
-                                            headerOffset = -80 // StreakHeaderView 완전히 숨김
-                                        }
-                                    }
-                                } else if delta > 20 { // 아래로 드래그 (위로 스크롤, 콘텐츠 내려김)
-                                    if headerOffset != 0 {
-                                        print("⬆️ [Drag] 아래로 드래그 - 헤더 표시")
-                                        withAnimation(.easeInOut(duration: 0.25)) {
-                                            headerOffset = 0
-                                        }
-                                    }
-                                }
-
-                                lastDragValue = currentY
-                            }
-                            .onEnded { _ in
-                                print("🏁 [Drag] 종료 - lastDrag 리셋")
-                                lastDragValue = 0
-                            }
-                    )
+                    // 보이스오버 커스텀 로터: 긴 스크롤에서 바로 점프
+                    .modifier(MealListRotors(
+                        todayDate: todayDate,
+                        missedDates: missedDates,
+                        namespace: rotorNamespace,
+                        dateLabel: rotorDateLabel
+                    ))
                     .onChange(of: scrollToTodayTrigger) { _, _ in
                         // 설정 창에서 돌아올 때 오늘 날짜로 스크롤
                         withAnimation {
@@ -285,7 +207,15 @@ struct ContentView: View {
                 }
                 .zIndex(0)
                 .onAppear {
-                    print("✅ [ContentView] onAppear - 초기 headerOffset: \(headerOffset)")
+                    #if DEBUG
+                    // UI 검증용: 환경변수로 카메라 시트 자동 오픈 (시뮬레이터 스크린샷 검증에 사용)
+                    if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            autoOpenMealType = .lunch
+                        }
+                    }
+                    #endif
+
                     // 날짜 리스트 초기화
                     if dateList.isEmpty {
                         initializeDateList()
@@ -295,12 +225,8 @@ struct ContentView: View {
                             proxy.scrollTo(todayDate, anchor: .top)
                         }
 
-                        // 식사 시간 이후 미기록 확인 후 자동 카메라 열기
-                        // dateList 초기화와 스크롤이 완료된 후 호출
+                        // 알림 상태 갱신 (dateList 초기화와 스크롤이 완료된 후)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            print("🔍 [AutoCamera] 자동 카메라 체크 시작 - dateList.count: \(self.dateList.count)")
-                            self.checkAndAutoOpenCamera()
-
                             // 날짜 변경 확인 및 알림 재설정
                             self.notificationManager.checkAndRescheduleIfNeeded()
 
@@ -308,7 +234,7 @@ struct ContentView: View {
                             let todayMeals = self.mealStore.getMeals(for: self.todayDate)
                             self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
                         }
-                    } 
+                    }
 
                     // 알림 권한 요청
                     if !notificationManager.notificationsEnabled {
@@ -320,7 +246,40 @@ struct ContentView: View {
                     }
                 }
 
+                // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼
+                if !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button {
+                                withAnimation {
+                                    proxy.scrollTo(todayDate, anchor: .top)
+                                }
+                            } label: {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "arrow.up")
+                                        .font(.system(size: 13, weight: .semibold))
+                                    Text("오늘")
+                                        .font(.system(size: 15, weight: .semibold))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .background(Capsule().fill(Color.blue))
+                                .shadow(color: .black.opacity(0.15), radius: 5, y: 2)
+                            }
+                            .padding(.trailing, 16)
+                            .padding(.bottom, 24)
+                            .accessibilityLabel("오늘로 이동")
+                            .accessibilityHint("두 번 탭하여 오늘 날짜로 스크롤")
+                        }
+                    }
+                    .zIndex(1)
+                    .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.2), value: Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate))
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
             }
@@ -378,112 +337,74 @@ struct ContentView: View {
     }
 }
 
-// Streak 헤더 뷰
-struct StreakHeaderView: View {
+// 보이스오버 커스텀 로터 (타입 체크 부담 분리를 위해 별도 ViewModifier로 추출)
+struct MealListRotors: ViewModifier {
+    let todayDate: Date
+    let missedDates: [Date]
+    let namespace: Namespace.ID
+    let dateLabel: (Date) -> String
+
+    func body(content: Content) -> some View {
+        content
+            .accessibilityRotor("오늘") {
+                AccessibilityRotorEntry(Text("오늘, \(dateLabel(todayDate))"), id: todayDate, in: namespace)
+            }
+            .accessibilityRotor("거른 날") {
+                ForEach(missedDates, id: \.self) { date in
+                    AccessibilityRotorEntry(Text(dateLabel(date)), id: date, in: namespace)
+                }
+            }
+    }
+}
+
+// 기록 유도 배너: 식사 시간이 지났는데 미기록일 때 홈 상단에 표시.
+// 카메라를 강제로 열지 않고, 탭했을 때만 연다.
+struct RecordNowBanner: View {
+    let mealType: MealType
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 8) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                Text("\(mealType.rawValue) 기록할 시간이에요")
+                    .font(.system(size: 15, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .opacity(0.7)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.blue))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .accessibilityLabel("\(mealType.rawValue) 기록할 시간이에요")
+        .accessibilityHint("두 번 탭하여 카메라 열기")
+    }
+}
+
+// 홈 상단 헤더: 날짜 · 오늘 뱃지 · (옵션) 모드 전환 · 통계/친구/설정
+// 목표가 켜져 있으면 아래에 얇은 진행률 바 한 줄
+struct HomeHeaderView: View {
+    let date: Date // 현재 보이는 날짜
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var settingsManager: SettingsManager
     let onStatisticsTap: () -> Void
     let onFriendsTap: () -> Void
     let onSettingsTap: () -> Void
-    let onHeaderTap: () -> Void
-
-    var body: some View {
-        VStack(spacing: 12) {
-            HStack {
-                // 통계 버튼
-                Button(action: onStatisticsTap) {
-                    Image(systemName: "chart.bar.fill")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                }
-                .padding(.leading, 16)
-
-                Spacer()
-
-                // 친구 버튼
-                Button(action: onFriendsTap) {
-                    Image(systemName: "person.2.fill")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                }
-                .padding(.trailing, 8)
-
-                // 설정 버튼
-                Button(action: onSettingsTap) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                }
-                .padding(.trailing, 16)
-            }
-            .padding(.vertical, 8)
-
-            // 목표 진행률
-            if goalManager.goalEnabled {
-                let currentStreak = mealStore.getCurrentStreak()
-                let progress = goalManager.getProgress(currentStreak: currentStreak)
-
-                VStack(spacing: 8) {
-                    HStack {
-                        Text("목표: \(goalManager.goalDays)일 연속 기록")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Spacer()
-                        Text("\(currentStreak)/\(goalManager.goalDays)일")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(goalManager.isGoalAchieved(currentStreak: currentStreak) ? .green : .orange)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(.systemGray6))
-                                .frame(height: 10)
-
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(goalManager.isGoalAchieved(currentStreak: currentStreak) ? Color.green : Color.orange)
-                                .frame(width: geometry.size.width * CGFloat(progress), height: 10)
-                        }
-                    }
-                    .frame(height: 10)
-
-                    if goalManager.isGoalAchieved(currentStreak: currentStreak) {
-                        Text("🎉 목표 달성! 축하합니다!")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.green)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    onHeaderTap()
-                }
-            }
-        }
-        .padding(.vertical, 18)
-        .frame(maxWidth: .infinity)
-        .background(Color(.systemBackground))
-        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
-    }
-}
-
-// 날짜 헤더 뷰
-struct DateHeaderView: View {
-    let date: Date
-    @ObservedObject var settingsManager: SettingsManager
+    let onTodayTap: () -> Void
 
     private var dateString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy년 MM월 dd일 (E)"
+        formatter.dateFormat = "M월 d일 (E)"
         return formatter.string(from: date)
     }
 
@@ -492,48 +413,118 @@ struct DateHeaderView: View {
     }
 
     var body: some View {
-        HStack {
-            Text(dateString)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(isToday ? .blue : .primary)
+        VStack(spacing: 10) {
+            HStack(spacing: 14) {
+                // 날짜 (탭하면 오늘로 이동)
+                HStack(spacing: 6) {
+                    Text(dateString)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
 
-            if isToday {
-                Text("오늘")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.blue)
-                    .cornerRadius(6)
+                    if isToday {
+                        Text("오늘")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(Capsule().fill(Color.blue))
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { onTodayTap() }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("현재 \(dateString)\(isToday ? ", 오늘" : "")")
+                .accessibilityHint("두 번 탭하여 오늘 날짜로 이동")
+                .accessibilityAddTraits(.isButton)
+
+                Spacer()
+
+                // 앨범 타입 전환 (설정에서 켠 경우에만)
+                if settingsManager.showAlbumSwitcher {
+                    Button(action: {
+                        withAnimation {
+                            settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
+                        }
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: settingsManager.albumType.symbolName)
+                                .font(.system(size: 12))
+                            Text(settingsManager.albumType.rawValue)
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(Color(.systemGray6)))
+                    }
+                    .accessibilityLabel("기록 모드 전환")
+                    .accessibilityValue("현재 \(settingsManager.albumType.rawValue) 모드")
+                    .accessibilityHint("두 번 탭하여 \(settingsManager.albumType == .diet ? "운동" : "식단") 모드로 전환")
+                }
+
+                // 통계 버튼
+                Button(action: onStatisticsTap) {
+                    Image(systemName: "chart.bar.fill")
+                        .font(.system(size: 19))
+                        .foregroundColor(.gray)
+                }
+                .accessibilityLabel("통계")
+                .accessibilityHint("나의 기록 통계를 봅니다")
+
+                // 친구 버튼
+                Button(action: onFriendsTap) {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: 19))
+                        .foregroundColor(.gray)
+                }
+                .accessibilityLabel("친구")
+                .accessibilityHint("친구 목록과 친구의 기록을 봅니다")
+
+                // 설정 버튼
+                Button(action: onSettingsTap) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 19))
+                        .foregroundColor(.gray)
+                }
+                .accessibilityLabel("설정")
             }
 
-            Spacer()
+            // 목표 진행률 (켠 경우에만, 한 줄)
+            if goalManager.goalEnabled {
+                let currentStreak = mealStore.getCurrentStreak()
+                let progress = goalManager.getProgress(currentStreak: currentStreak)
+                let achieved = goalManager.isGoalAchieved(currentStreak: currentStreak)
 
-            // 앨범 타입 전환 버튼 (설정에서 활성화한 경우에만 표시)
-            if settingsManager.showAlbumSwitcher {
-                Button(action: {
-                    withAnimation {
-                        settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
+                HStack(spacing: 10) {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(Color(.systemGray5))
+                                .frame(height: 6)
+
+                            Capsule()
+                                .fill(achieved ? Color.green : Color.blue)
+                                .frame(width: geometry.size.width * CGFloat(progress), height: 6)
+                        }
                     }
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: settingsManager.albumType.symbolName)
-                            .font(.system(size: 13))
-                        Text(settingsManager.albumType.rawValue)
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(settingsManager.albumType == .diet ? Color.orange : Color.blue)
-                    .cornerRadius(15)
+                    .frame(height: 6)
+
+                    Text("\(currentStreak)/\(goalManager.goalDays)일")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("목표 진행률")
+                .accessibilityValue("\(goalManager.goalDays)일 목표 중 \(currentStreak)일 연속 기록, \(Int((progress * 100).rounded()))퍼센트 달성\(achieved ? ", 목표 달성 완료" : "")")
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .background(Color(.systemBackground))
-        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+        .overlay(Divider(), alignment: .bottom)
     }
 }
 
@@ -737,12 +728,12 @@ struct SettingsView: View {
                     Divider()
                         .padding(.vertical, 8)
 
-                    Toggle("식사 시간에 자동으로 카메라 열기", isOn: $settingsManager.autoOpenCamera)
+                    Toggle("기록 시간 배너 표시", isOn: $settingsManager.autoOpenCamera)
 
-                    Text("식사 시간이 지나고 아직 기록하지 않았을 때 자동으로 카메라를 열어드립니다.")
+                    Text("식사 시간이 지났는데 아직 기록하지 않았을 때 홈 화면 상단에 배너를 보여드립니다. 배너를 탭하면 바로 카메라가 열립니다.")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(3)
                         .minimumScaleFactor(0.8)
                 }
 
@@ -1079,7 +1070,6 @@ struct DatePositionPreferenceKey: PreferenceKey {
 struct DailySectionView: View {
     let date: Date
     @ObservedObject var mealStore: MealRecordStore
-    let previousMissedMealsCount: Int // 이전 날짜들의 거른 끼니 수
 
     private var isToday: Bool {
         Calendar.current.isDate(date, inSameDayAs: Date())
@@ -1107,7 +1097,7 @@ struct DailySectionView: View {
         let meals = mealStore.getMeals(for: date)
         let isPastDate = date < Calendar.current.startOfDay(for: Date())
         let isExerciseMode = SettingsManager.shared.albumType == .exercise
-        let layout = calculateLayout(isExerciseMode: isExerciseMode)
+        let layout = calculateLayout(isExerciseMode: isExerciseMode, cardCount: getMealsToShow(meals: meals).count)
 
         VStack(spacing: 4) {
             mealPhotosRow(
@@ -1121,7 +1111,7 @@ struct DailySectionView: View {
             )
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 2)
+        .padding(.vertical, 5)
         .background(
             GeometryReader { geometry in
                 Color.clear.preference(
@@ -1173,33 +1163,20 @@ struct DailySectionView: View {
         }
     }
 
-    // 동적 간식 칸 계산 (기록된 간식 + 1개 빈 칸)
+    // 동적 간식 칸 계산: 기록된 간식은 항상 표시하고,
+    // 빈 간식 칸(기록 초대)은 "간식 보이기" 설정이 켜져 있을 때만 1개 노출
     private func getSnacksToShow(meals: [MealType: MealRecord]) -> [MealType] {
         var snacks: [MealType] = []
 
-        // snack1이 있으면 추가
-        if meals[.snack1]?.isComplete ?? false {
-            snacks.append(.snack1)
-
-            // snack2가 있으면 추가
-            if meals[.snack2]?.isComplete ?? false {
-                snacks.append(.snack2)
-
-                // snack3이 있으면 추가
-                if meals[.snack3]?.isComplete ?? false {
-                    snacks.append(.snack3)
-                    // 모두 채워짐 - 더 이상 추가 불가
-                } else {
-                    // snack3 빈 칸 추가
-                    snacks.append(.snack3)
-                }
+        for snack in [MealType.snack1, .snack2, .snack3] {
+            if meals[snack]?.isComplete ?? false {
+                snacks.append(snack)
             } else {
-                // snack2 빈 칸 추가
-                snacks.append(.snack2)
+                if SettingsManager.shared.writeSnack {
+                    snacks.append(snack)
+                }
+                break
             }
-        } else {
-            // snack1 빈 칸 추가
-            snacks.append(.snack1)
         }
 
         return snacks
@@ -1247,13 +1224,22 @@ struct DailySectionView: View {
         }
     }
 
-    private func calculateLayout(isExerciseMode: Bool) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
+    private func calculateLayout(isExerciseMode: Bool, cardCount: Int) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
         let screenWidth = UIScreen.main.bounds.width
         let horizontalPadding: CGFloat = 16
         let cardPadding: CGFloat = 8
         let spacing: CGFloat = 6
 
-        let photoCount: CGFloat = isExerciseMode ? 1 : 3
+        // 4칸 이상이면 3.35칸 기준으로 크기를 잡아 4번째 칸이 살짝 보이게 함
+        // (가로로 더 스크롤할 수 있음을 시각적으로 암시)
+        let photoCount: CGFloat
+        if isExerciseMode {
+            photoCount = 1
+        } else if cardCount > 3 {
+            photoCount = 3.35
+        } else {
+            photoCount = 3
+        }
         let availableWidth = screenWidth - horizontalPadding - (cardPadding * 2) - (spacing * (photoCount - 1))
         let photoSize = availableWidth / photoCount
         let cellHeight = photoSize + (cardPadding * 2) + 4
@@ -1311,28 +1297,25 @@ struct DailySectionView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isToday ? Color.blue.opacity(0.05) : Color(.systemBackground))
+            RoundedRectangle(cornerRadius: 14)
+                .fill(isToday ? Color.blue.opacity(0.04) : Color(.systemBackground))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isToday ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 2)
+            RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(isToday ? Color.blue.opacity(0.35) : Color.clear, lineWidth: 1.5)
         )
         .frame(height: cellHeight)
     }
 
     @ViewBuilder
     private func exerciseModePhoto(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat) -> some View {
-        let missedCount = isPastDate && meals[.breakfast] == nil ? (previousMissedMealsCount + 1) : 0
-
         MealPhotoView(
             date: date,
             mealType: .breakfast,
             mealRecord: meals[.breakfast],
             mealStore: mealStore,
             isToday: isToday,
-            photoSize: photoSize,
-            missedMealsCount: missedCount
+            photoSize: photoSize
         )
         .frame(width: photoSize, height: photoSize)
     }
@@ -1341,46 +1324,17 @@ struct DailySectionView: View {
     private func dietModePhotos(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat, spacing: CGFloat) -> some View {
         let mealsToShow = getMealsToShow(meals: meals)
 
-        ForEach(Array(mealsToShow.enumerated()), id: \.element) { index, mealType in
-            let cumulativeMissedCount = calculateMissedCount(
-                index: index,
-                meals: meals,
-                isPastDate: isPastDate,
-                mealsToShow: mealsToShow
-            )
-
+        ForEach(mealsToShow, id: \.self) { mealType in
             MealPhotoView(
                 date: date,
                 mealType: mealType,
                 mealRecord: meals[mealType],
                 mealStore: mealStore,
                 isToday: isToday,
-                photoSize: photoSize,
-                missedMealsCount: cumulativeMissedCount
+                photoSize: photoSize
             )
             .frame(width: photoSize, height: photoSize)
             .id(mealType) // ScrollViewReader가 스크롤할 수 있도록 ID 추가
-        }
-    }
-
-    private func calculateMissedCount(index: Int, meals: [MealType: MealRecord], isPastDate: Bool, mealsToShow: [MealType]) -> Int {
-        if !isPastDate { return 0 }
-
-        let isExerciseMode = SettingsManager.shared.albumType == .exercise
-
-        if isExerciseMode {
-            // 운동 모드: 하루에 1개만 (breakfast만 사용)
-            let todayMissed = meals[.breakfast] == nil ? 1 : 0
-            return previousMissedMealsCount + todayMissed
-        } else {
-            // 식단 모드: 현재 인덱스까지의 끼니 중 빠진 것 카운트 (간식 제외)
-            // 위쪽(최근)부터 누적하여 1, 2, 3... 순서로 세기
-            let mealsUpToHere = Array(mealsToShow.prefix(index + 1))
-            // 간식은 건너뛴 끼니로 세지 않음
-            let todayMissed = mealsUpToHere.filter { mealType in
-                !mealType.isSnack && meals[mealType] == nil
-            }.count
-            return previousMissedMealsCount + todayMissed
         }
     }
 }
@@ -1393,10 +1347,10 @@ struct MealPhotoView: View {
     @ObservedObject var mealStore: MealRecordStore
     let isToday: Bool
     let photoSize: CGFloat
-    let missedMealsCount: Int
 
     @State private var showingCameraPicker = false // 이미지 없을 때
     @State private var showingPhotoDetail = false // 이미지 있을 때
+    @State private var showingFeedbackSheet = false // 기록 없는 칸에 온 피드백(콕/댓글) 열람
     @State private var selectedImage: UIImage?
     @State private var selectedPhotoType: PhotoType = .before // 식전/식후 선택
     @State private var unreadFeedbackCount: Int = 0 // 안읽은 피드백 개수
@@ -1425,17 +1379,42 @@ struct MealPhotoView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let targetDate = calendar.startOfDay(for: date)
-        return targetDate < today && mealRecord == nil
+        // 시작일(첫 실행/최오래 기록) 이전 날짜는 "설치 전"이므로 실패로 판정하지 않음
+        let startDay = calendar.startOfDay(for: mealStore.startDate)
+        return targetDate < today && targetDate >= startDay && mealRecord == nil
     }
 
-    // 배경 색상 계산 (복잡한 표현식을 분리)
+    // 시작 직후 유예 기간(첫 3일). 이 기간의 미기록은 "실패"로 강조하지 않고 부드럽게 안내
+    private var graceDays: Int { 3 }
+    private var isWithinGracePeriod: Bool {
+        let calendar = Calendar.current
+        let startDay = calendar.startOfDay(for: mealStore.startDate)
+        guard let graceEnd = calendar.date(byAdding: .day, value: graceDays, to: startDay) else { return false }
+        let targetDate = calendar.startOfDay(for: date)
+        return targetDate < graceEnd
+    }
+
+    // 진짜 "연속 끊김" 지점: 미기록이면서 바로 이전 날은 완전히 기록된 경우에만 강조
+    private var isStreakBreakDay: Bool {
+        guard isPastDateMissed, !isWithinGracePeriod else { return false }
+        let calendar = Calendar.current
+        guard let prevDay = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: date)) else { return false }
+        return mealStore.isDayComplete(prevDay)
+    }
+
+    // 미기록이지만 강조하지 않는 "부드러운 미기록"
+    private var isSoftMissed: Bool {
+        isPastDateMissed && !isStreakBreakDay
+    }
+
+    // 배경 색상 계산 (색은 최소화, 연속 끊김만 옅은 강조)
     private var backgroundColor: Color {
-        if isPastDateMissed {
-            return Color.red.opacity(0.15)
+        if isStreakBreakDay {
+            return Color.red.opacity(0.10)   // 진짜 끊긴 지점만 옅은 강조
         } else if isFutureDate {
             return Color(.systemGray5)
         } else {
-            return Color(.systemGray6)
+            return Color(.systemGray6)       // 그 외는 동일한 중립 배경
         }
     }
 
@@ -1501,10 +1480,9 @@ struct MealPhotoView: View {
                 .scaledToFill()
                 .frame(width: photoSize, height: photoSize)
                 .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
 
             badgeOverlayView(for: record)
-            feedbackBadgeOverlay()
         }
     }
 
@@ -1578,11 +1556,32 @@ struct MealPhotoView: View {
     // 사진이 없을 때 표시할 뷰
     @ViewBuilder
     private var emptyStateView: some View {
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: 12)
             .fill(backgroundColor)
             .overlay {
                 emptyStateContent
             }
+            .overlay {
+                stateBorderOverlay
+            }
+    }
+
+    // 색 이중 인코딩: 색만으로 구분되던 상태를 테두리 '패턴'으로도 표현
+    // 실선(빨강)=연속 끊김 강조 / 점선(회색)=부드러운 미기록 / 없음=예정·일반
+    @ViewBuilder
+    private var stateBorderOverlay: some View {
+        if isStreakBreakDay {
+            // 진짜 끊긴 지점만 실선으로 강조
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(Color.red.opacity(0.45), lineWidth: 2)
+        } else if isSoftMissed {
+            // 부드러운 미기록: 점선으로 조용히 안내
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(
+                    Color.gray.opacity(0.4),
+                    style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
+                )
+        }
     }
 
     // 빈 상태의 내용
@@ -1590,20 +1589,27 @@ struct MealPhotoView: View {
     private var emptyStateContent: some View {
         VStack(spacing: 6) {
             mainSymbolView
-            if isToday && !isFutureDate {
-                plusIconView
+            // 미래가 아닌 빈 칸은 모두 탭해서 기록할 수 있음을 +로 표시
+            // 오늘·유예 기간은 파란색 초대, 과거는 회색으로 조용히
+            if isToday || (isWithinGracePeriod && isPastDateMissed) {
+                plusIcon(color: .blue)
+            } else if !isFutureDate {
+                plusIcon(color: Color.gray.opacity(0.45))
             }
         }
     }
 
-    // 메인 심볼 뷰
+    // 미기록/예정은 음소거 회색, 유예·일반은 초대하는 식사 색
+    private var symbolColor: Color {
+        if isFutureDate { return .gray }
+        if isSoftMissed || isStreakBreakDay { return Color.gray.opacity(0.7) }
+        return mealType.symbolColor
+    }
+
+    // 메인 심볼 뷰 (누적 빨간 숫자 제거, 상태별 톤만 조절)
     @ViewBuilder
     private var mainSymbolView: some View {
-        if isPastDateMissed && missedMealsCount > 0 {
-            Text("\(missedMealsCount)")
-                .font(.system(size: min(photoSize * 0.5, 40), weight: .bold))
-                .foregroundColor(.red)
-        } else if isCurrentMeal {
+        if isCurrentMeal {
             PulsingSymbolView(
                 symbolName: mealType.symbolName,
                 color: mealType.symbolColor,
@@ -1612,15 +1618,15 @@ struct MealPhotoView: View {
         } else {
             Image(systemName: mealType.symbolName)
                 .font(.system(size: min(photoSize * 0.4, 36)))
-                .foregroundColor(isFutureDate ? .gray : mealType.symbolColor)
+                .foregroundColor(symbolColor)
         }
     }
 
     // 플러스 아이콘 뷰
-    private var plusIconView: some View {
+    private func plusIcon(color: Color) -> some View {
         Image(systemName: "plus.circle.fill")
             .font(.system(size: min(photoSize * 0.25, 18)))
-            .foregroundColor(.blue)
+            .foregroundColor(color)
     }
 
     // 랜덤 음식 심볼 가져오기 (날짜와 식사 타입으로 시드 생성)
@@ -1665,7 +1671,7 @@ struct MealPhotoView: View {
     @ViewBuilder
     private func recordedWithoutPhotoView() -> some View {
         let (icon, color) = getRandomFoodSymbol()
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: 12)
             .fill(color.opacity(0.2))
             .overlay {
                 VStack(spacing: 6) {
@@ -1702,14 +1708,53 @@ struct MealPhotoView: View {
         }
     }
 
+    // 보이스오버용 상태 문장 (색·애니메이션·뱃지로만 주던 정보를 청각 위계로 번역)
+    private var accessibilityStatus: String {
+        if let record = mealRecord, record.isComplete {
+            var parts: [String] = []
+            parts.append(record.recordedWithoutPhoto ? "사진 없이 기록 완료" : "기록 완료")
+            if let memo = record.memo, !memo.isEmpty { parts.append("메모 있음") }
+            if unreadFeedbackCount > 0 { parts.append("안 읽은 피드백 \(unreadFeedbackCount)개") }
+            return parts.joined(separator: ", ")
+        }
+        if isFutureDate { return "예정된 끼니, 아직 기록할 수 없음" }
+
+        let baseStatus: String
+        if isWithinGracePeriod && isPastDateMissed { baseStatus = "아직 기록 전, 지금 기록할 수 있어요" }
+        else if isStreakBreakDay { baseStatus = "여기서 연속 기록이 끊겼어요" }
+        else if isSoftMissed { baseStatus = "미기록" }
+        else if isCurrentMeal { baseStatus = "지금 기록할 차례" }
+        else { baseStatus = "아직 기록 안 함" }
+
+        // 기록 없는 칸에도 콕/댓글 수신 상태 안내
+        if unreadFeedbackCount > 0 {
+            return "안 읽은 피드백 \(unreadFeedbackCount)개, \(baseStatus)"
+        }
+        return baseStatus
+    }
+
+    // 보이스오버 힌트 (액션 안내)
+    private var accessibilityActionHint: String {
+        if isFutureDate { return "" }
+        if mealRecord?.isComplete == true { return "두 번 탭하여 상세 보기" }
+        if unreadFeedbackCount > 0 { return "두 번 탭하여 피드백 보기" }
+        return "두 번 탭하여 기록"
+    }
+
     var body: some View {
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color.clear)
             .frame(width: photoSize, height: photoSize)
             .overlay(overlayContent)
+            .overlay(feedbackBadgeOverlay()) // 기록 유무와 관계없이 안 읽은 피드백(콕/댓글) 배지 표시
             .onTapGesture {
                 handleTap()
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(mealType.rawValue)
+            .accessibilityValue(accessibilityStatus)
+            .accessibilityHint(accessibilityActionHint)
+            .accessibilityAddTraits(isFutureDate ? [] : .isButton)
             .sheet(isPresented: $showingCameraPicker) {
                 cameraPickerSheet
             }
@@ -1717,6 +1762,17 @@ struct MealPhotoView: View {
                 loadUnreadFeedbackCount()
             } content: {
                 photoDetailSheet
+            }
+            .sheet(isPresented: $showingFeedbackSheet) {
+                loadUnreadFeedbackCount()
+            } content: {
+                EmptyMealFeedbackSheet(date: date, mealType: mealType) {
+                    // "지금 기록하기": 시트 닫고 카메라 열기
+                    showingFeedbackSheet = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        showingCameraPicker = true
+                    }
+                }
             }
             .onAppear {
                 loadUnreadFeedbackCount()
@@ -1728,6 +1784,9 @@ struct MealPhotoView: View {
         if !isFutureDate {
             if mealRecord != nil {
                 showingPhotoDetail = true
+            } else if unreadFeedbackCount > 0 {
+                // 기록 없는 칸에 콕/댓글이 와 있으면 먼저 보여줌
+                showingFeedbackSheet = true
             } else {
                 showingCameraPicker = true
             }
@@ -1755,6 +1814,91 @@ struct MealPhotoView: View {
     }
 }
 
+// 기록 없는 끼니로 온 피드백(콕/댓글) 열람 시트
+struct EmptyMealFeedbackSheet: View {
+    let date: Date
+    let mealType: MealType
+    let onRecord: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var feedbacks: [MealFeedback] = []
+    @State private var isLoading = true
+
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일 (E)"
+        return formatter.string(from: date)
+    }
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if feedbacks.isEmpty {
+                    Text("받은 피드백이 없습니다")
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(feedbacks) { feedback in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(feedback.authorNickname)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(feedback.createdAt, style: .relative)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            }
+                            Text(feedback.content)
+                                .font(.system(size: 15))
+                        }
+                        .padding(.vertical, 4)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(feedback.authorNickname)님의 피드백: \(feedback.content)")
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle("\(dateString) \(mealType.rawValue)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("완료") {
+                        dismiss()
+                    }
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Button(action: onRecord) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("지금 기록하기")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color.blue))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+            }
+            .task {
+                feedbacks = (try? await FriendManager.shared.getMyFeedbacks(date: date, mealType: mealType)) ?? []
+                isLoading = false
+                // 열람했으므로 읽음 처리 (배지 해제)
+                try? await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)
+            }
+        }
+    }
+}
+
 // 펄스 애니메이션이 적용된 심볼 뷰
 struct PulsingSymbolView: View {
     let symbolName: String
@@ -1762,14 +1906,19 @@ struct PulsingSymbolView: View {
     let size: CGFloat
 
     @State private var isAnimating = false
+    // 동작 줄이기(Reduce Motion) 설정 시 펄스 대신 정적 강조로 대체
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Image(systemName: symbolName)
             .font(.system(size: size))
             .foregroundColor(color)
-            .scaleEffect(isAnimating ? 1.2 : 1.0)
-            .opacity(isAnimating ? 0.6 : 1.0)
-            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isAnimating)
+            .scaleEffect(!reduceMotion && isAnimating ? 1.2 : 1.0)
+            .opacity(!reduceMotion && isAnimating ? 0.6 : 1.0)
+            .animation(
+                reduceMotion ? nil : .easeInOut(duration: 0.8).repeatForever(autoreverses: true),
+                value: isAnimating
+            )
             .onAppear {
                 isAnimating = true
             }
@@ -1814,55 +1963,46 @@ struct CameraPickerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 상단 헤더
+            // 상단 헤더 (ZStack으로 픽커를 정중앙에 고정)
             VStack(spacing: 0) {
-                HStack {
-                    Button("취소") {
-                        dismiss()
-                    }
-                    .font(.system(size: 17))
-                    .padding()
-
-                    Spacer()
-
-                    // 식단 모드일 때만 식전/식후 선택 Picker 표시
+                ZStack {
+                    // 중앙: 식전/식후 선택 (식단 모드일 때만)
                     if SettingsManager.shared.albumType == .diet && !recordWithoutPhoto {
                         Picker("", selection: $localPhotoType) {
                             Text("식전").tag(MealPhotoView.PhotoType.before)
                             Text("식후").tag(MealPhotoView.PhotoType.after)
                         }
                         .pickerStyle(.segmented)
-                        .frame(width: 150)
+                        .frame(width: 170)
                     }
 
-                    Spacer()
-
-                    // 완료 버튼 (사진 없이 기록일 때만 표시)
-                    if recordWithoutPhoto {
-                        Button("완료") {
-                            mealStore.recordWithoutPhoto(date: date, mealType: mealType)
-                            dismiss()
-                        }
-                        .font(.system(size: 17, weight: .semibold))
-                        .padding()
-                    } else {
-                        // 균형을 위한 투명 버튼
+                    HStack {
                         Button("취소") {
                             dismiss()
                         }
                         .font(.system(size: 17))
-                        .padding()
-                        .opacity(0)
+
+                        Spacer()
+
+                        // 완료 버튼 (사진 없이 기록일 때만 표시)
+                        if recordWithoutPhoto {
+                            Button("완료") {
+                                mealStore.recordWithoutPhoto(date: date, mealType: mealType)
+                                dismiss()
+                            }
+                            .font(.system(size: 17, weight: .semibold))
+                        }
                     }
+                    .padding(.horizontal, 16)
                 }
+                .frame(height: 52)
 
                 // 사진 없이 기록 토글
-                HStack {
-                    Toggle("사진 없이 기록", isOn: $recordWithoutPhoto)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                }
-                .background(Color(.systemGroupedBackground))
+                Toggle("사진 없이 기록", isOn: $recordWithoutPhoto)
+                    .font(.system(size: 15))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color(.systemGroupedBackground))
             }
             .background(Color(.systemBackground))
 
@@ -2076,11 +2216,13 @@ struct PhotoDetailView: View {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
+                                .accessibilityLabel("\(mealType.rawValue) 기록 사진")
                         } else {
                             VStack(spacing: 12) {
                                 Image(systemName: "photo")
                                     .font(.system(size: 60))
                                     .foregroundColor(.gray)
+                                    .accessibilityHidden(true)
                                 Text("사진 없음")
                                     .font(.system(size: 18))
                                     .foregroundColor(.secondary)
@@ -2104,11 +2246,13 @@ struct PhotoDetailView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .tag(0)
+                                    .accessibilityLabel("식전 사진")
                             } else {
                                 VStack(spacing: 12) {
                                     Image(systemName: "photo")
                                         .font(.system(size: 60))
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
                                     Text("식전 사진 없음")
                                         .font(.system(size: 18))
                                         .foregroundColor(.secondary)
@@ -2131,11 +2275,13 @@ struct PhotoDetailView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .tag(1)
+                                    .accessibilityLabel("식후 사진")
                             } else {
                                 VStack(spacing: 12) {
                                     Image(systemName: "photo")
                                         .font(.system(size: 60))
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
                                     Text("식후 사진 없음")
                                         .font(.system(size: 18))
                                         .foregroundColor(.secondary)
@@ -2441,6 +2587,8 @@ struct PhotoDetailView: View {
                         Image(systemName: "ellipsis.circle")
                             .font(.system(size: 20))
                     }
+                    .accessibilityLabel("더 보기")
+                    .accessibilityHint("분석, 저장, 사진 추가, 메모, 삭제 메뉴를 엽니다")
                 }
             }
         }
@@ -2941,42 +3089,31 @@ struct CustomCameraView: View {
                         }
                     }
                     .frame(width: geometry.size.width, height: geometry.size.width)
-                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .overlay(
+                        // 정사각형 촬영 프레임 경계 표시 (배경과 같은 검정이라 테두리로 구분)
+                        RoundedRectangle(cornerRadius: 18)
+                            .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+                    .padding(.top, 8)
 
                     Spacer()
 
-                    // 하단 컨트롤
-                    HStack {
-                        // 취소 버튼
-                        Button("취소") {
-                            dismiss()
-                        }
-                        .foregroundColor(.white)
-                        .frame(width: 60)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    // 셔터 버튼 (취소는 상단 헤더에 있으므로 여기서는 셔터만 중앙에)
+                    Button(action: capturePhoto) {
+                        ZStack {
+                            Circle()
+                                .strokeBorder(Color.white, lineWidth: 3.5)
+                                .frame(width: shutterSize(geometry), height: shutterSize(geometry))
 
-                        Spacer()
-
-                        // 셔터 버튼
-                        Button(action: capturePhoto) {
                             Circle()
                                 .fill(Color.white)
-                                .frame(width: min(geometry.size.width * 0.2, 80), height: min(geometry.size.width * 0.2, 80))
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.gray, lineWidth: 2)
-                                        .padding(5)
-                                )
+                                .frame(width: shutterSize(geometry) - 14, height: shutterSize(geometry) - 14)
                         }
-
-                        Spacer()
-
-                        // 빈 공간 (대칭을 위해)
-                        Color.clear.frame(width: 60)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 50)
+                    .accessibilityLabel("사진 촬영")
+
+                    Spacer()
                 }
                 .background(Color.black)
             }
@@ -3006,6 +3143,11 @@ struct CustomCameraView: View {
                 cameraManager.stopSession()
             }
         }
+    }
+
+    // 셔터 버튼 크기 (화면 폭 비례, 최대 78)
+    private func shutterSize(_ geometry: GeometryProxy) -> CGFloat {
+        min(geometry.size.width * 0.2, 78)
     }
 
     var dateString: String {
@@ -3184,29 +3326,28 @@ struct PreviewView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            VStack {
+            VStack(spacing: 0) {
                 // 이미지 미리보기
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
                     .aspectRatio(1, contentMode: .fit)
-                    .cornerRadius(12)
-                    .padding()
-                
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+
                 Spacer()
-                
-                HStack(spacing: 20) {
+
+                HStack(spacing: 12) {
                     // 다시 찍기 버튼
                     Button("다시 찍기") {
                         onRetake()
                     }
-                    .font(.title3)
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                     .frame(maxWidth: .infinity)
-                    .background(Color.gray.opacity(0.3))
-                    .cornerRadius(8)
+                    .background(RoundedRectangle(cornerRadius: 13).fill(Color.white.opacity(0.18)))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 
@@ -3214,18 +3355,16 @@ struct PreviewView: View {
                     Button("사용하기") {
                         onConfirm()
                     }
-                    .font(.title3)
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                     .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .cornerRadius(8)
+                    .background(RoundedRectangle(cornerRadius: 13).fill(Color.blue))
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 50)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 40)
             }
         }
     }
