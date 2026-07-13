@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세끼 (RoutineCamera) — 개인정보처리방침</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --text: #1c1c1e;
+      --secondary: #6e6e73;
+      --accent: #0a84ff;
+      --card: #f5f5f7;
+      --bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f5f5f7;
+        --secondary: #98989d;
+        --card: #1c1c1e;
+        --bg: #000000;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
+    h1 { font-size: 26px; margin-bottom: 4px; }
+    .updated { color: var(--secondary); font-size: 14px; margin-bottom: 36px; }
+    h2 { font-size: 19px; margin: 36px 0 10px; }
+    p, li { font-size: 15px; }
+    ul { padding-left: 22px; margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--card); vertical-align: top; }
+    th { color: var(--secondary); font-weight: 600; white-space: nowrap; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .note { background: var(--card); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--secondary); margin: 12px 0; }
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card);
+      color: var(--secondary);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>개인정보처리방침</h1>
+    <p class="updated">세끼 (RoutineCamera) · 시행일: 2026년 7월 14일</p>
+
+    <p>세끼(RoutineCamera, 이하 "앱")는 이용자의 개인정보를 소중히 다루며, 관련 법령을 준수합니다. 본 방침은 앱이 어떤 정보를 수집하고 어떻게 이용·보관·파기하는지 설명합니다.</p>
+
+    <h2>1. 수집하는 정보</h2>
+    <table>
+      <tr><th>항목</th><td>내용</td></tr>
+      <tr>
+        <th>계정 정보</th>
+        <td>Apple로 로그인 시 발급되는 계정 식별자, Apple 정책에 따라 제공되는 이메일(선택). 친구 기능 사용 시에만 수집됩니다.</td>
+      </tr>
+      <tr>
+        <th>프로필</th>
+        <td>이용자가 입력한 닉네임 (피드백 작성자 표시용)</td>
+      </tr>
+      <tr>
+        <th>기록 콘텐츠</th>
+        <td>식단/운동 사진, 메모. <strong>기본적으로 기기 안에만 저장</strong>되며, 이용자가 "내 식단 공유 가능"을 켠 경우에만 서버(Firebase)에 업로드되어 이용자가 추가한 친구에게 공개됩니다.</td>
+      </tr>
+      <tr>
+        <th>친구·피드백</th>
+        <td>친구 코드, 친구 목록, 주고받은 피드백(응원 댓글·콕 찌르기) 내용</td>
+      </tr>
+      <tr>
+        <th>알림 신호</th>
+        <td>피드백 푸시 알림 전달을 위해 보낸 사람의 닉네임과 끼니 이름이 Apple iCloud(CloudKit)를 경유합니다. 피드백 내용 자체는 알림 신호에 포함되지 않으며, 신호는 7일 후 자동 삭제됩니다.</td>
+      </tr>
+      <tr>
+        <th>결제 정보</th>
+        <td>구독·코인 결제는 Apple(App Store)이 처리하며, 앱은 카드번호 등 결제 수단 정보를 수집하지 않습니다.</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      선택 기능인 AI 음식 분석을 사용하는 경우: 기본 분석은 Apple Vision으로 <strong>기기 안에서</strong> 처리됩니다. 이용자가 직접 OpenAI API 키를 등록하고 분석을 실행하면 해당 사진이 OpenAI에 전송되며, 이는 OpenAI의 개인정보처리방침을 따릅니다.
+    </div>
+
+    <h2>2. 이용 목적</h2>
+    <ul>
+      <li>식단·운동 기록 저장 및 표시</li>
+      <li>친구 간 식단 공유, 피드백·응원 기능 제공</li>
+      <li>식사 리마인드 및 피드백 도착 알림 발송</li>
+      <li>구독·코인 등 구매 기능 제공</li>
+    </ul>
+
+    <h2>3. 보관 및 파기</h2>
+    <ul>
+      <li>기기에 저장된 기록은 앱을 삭제하면 함께 삭제됩니다.</li>
+      <li>서버에 업로드된 데이터는 <strong>회원 탈퇴 시 삭제</strong>됩니다 (앱 내 친구 화면 &gt; 계정 설정 &gt; 회원 탈퇴). 탈퇴 시 계정 식별자, 친구 코드, 업로드된 식단 데이터가 삭제되며 복구할 수 없습니다.</li>
+      <li>피드백 알림 신호(CloudKit)는 생성 7일 후 자동 정리됩니다.</li>
+      <li>잔여 데이터 삭제를 원하시면 아래 연락처로 요청해 주세요. 지체 없이 처리합니다.</li>
+    </ul>
+
+    <h2>4. 제3자 제공 및 처리 위탁</h2>
+    <p>앱은 이용자의 개인정보를 판매하지 않습니다. 서비스 제공을 위해 다음 서비스가 데이터를 처리합니다.</p>
+    <table>
+      <tr><th>서비스</th><td>용도</td></tr>
+      <tr><th>Google Firebase</th><td>로그인(Authentication), 공유 식단·피드백 저장(Realtime Database)</td></tr>
+      <tr><th>Apple iCloud/APNs</th><td>피드백 알림 신호 저장 및 푸시 알림 배달</td></tr>
+      <tr><th>Apple App Store</th><td>구독·인앱 결제 처리</td></tr>
+      <tr><th>OpenAI (선택)</th><td>이용자가 직접 활성화한 경우에 한해 음식 사진 분석</td></tr>
+    </table>
+
+    <h2>5. 이용자의 권리</h2>
+    <ul>
+      <li>공유 기능은 언제든 설정에서 끌 수 있으며, 끄면 이후 기록은 업로드되지 않습니다.</li>
+      <li>회원 탈퇴로 서버 데이터 삭제를 직접 실행할 수 있습니다.</li>
+      <li>개인정보 열람·정정·삭제 요청은 아래 연락처로 문의해 주세요.</li>
+    </ul>
+
+    <h2>6. 아동의 개인정보</h2>
+    <p>앱은 만 14세 미만 아동을 대상으로 하지 않으며, 아동의 개인정보를 의도적으로 수집하지 않습니다.</p>
+
+    <h2>7. 방침의 변경</h2>
+    <p>본 방침이 변경되는 경우 이 페이지를 통해 고지하며, 중요한 변경은 앱 내에서 별도로 안내합니다.</p>
+
+    <h2>8. 문의</h2>
+    <p>
+      개인정보 보호책임자: 이현호 (개발자)<br>
+      이메일: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
+      인스타그램: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
+    </p>
+
+    <footer>
+      © 2026 세끼 (RoutineCamera) · <a href="index.html">지원 페이지로 돌아가기</a>
+    </footer>
+  </div>
+</body>
+</html>
