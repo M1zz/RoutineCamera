@@ -32,6 +32,7 @@
 		9C1568D02ECC61DE004A4BB4 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568CF2ECC61DE004A4BB4 /* FirebaseRemoteConfig */; };
 		9C1568D22ECC61DE004A4BB4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568D12ECC61DE004A4BB4 /* FirebaseStorage */; };
 		9C1568D42ECC61DE004A4BB4 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 9C1568D32ECC61DE004A4BB4 /* FirebaseStorageCombine-Community */; };
+		F108504B0748180985B78EAA /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4217889FA43FFEE1BD7AEB4 /* LeeoKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5857FA102EC244BF00A539D8 /* RoutineCamera */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = RoutineCamera;
 			sourceTree = "<group>";
 		};
@@ -76,6 +79,7 @@
 				9C1568C22ECC61DE004A4BB4 /* FirebaseFunctions in Frameworks */,
 				9C1568B42ECC61DE004A4BB4 /* FirebaseAuth in Frameworks */,
 				9C1568C02ECC61DE004A4BB4 /* FirebaseFirestoreCombine-Community in Frameworks */,
+				F108504B0748180985B78EAA /* LeeoKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +147,7 @@
 				9C1568CF2ECC61DE004A4BB4 /* FirebaseRemoteConfig */,
 				9C1568D12ECC61DE004A4BB4 /* FirebaseStorage */,
 				9C1568D32ECC61DE004A4BB4 /* FirebaseStorageCombine-Community */,
+				C4217889FA43FFEE1BD7AEB4 /* LeeoKit */,
 			);
 			productName = RoutineCamera;
 			productReference = 5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */;
@@ -174,6 +179,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				9C1568A42ECC61DE004A4BB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				9B08C12CEDE5DA4FB930532C /* XCLocalSwiftPackageReference "LeeoKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5857FA0F2EC244BF00A539D8 /* Products */;
@@ -431,6 +437,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		9B08C12CEDE5DA4FB930532C /* XCLocalSwiftPackageReference "LeeoKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../LeeoKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		9C1568A42ECC61DE004A4BB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -562,6 +575,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9C1568A42ECC61DE004A4BB4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
+		};
+		C4217889FA43FFEE1BD7AEB4 /* LeeoKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B08C12CEDE5DA4FB930532C /* XCLocalSwiftPackageReference "LeeoKit" */;
+			productName = LeeoKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

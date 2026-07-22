@@ -8,6 +8,7 @@
 import SwiftUI
 import AVFoundation
 import Photos
+import LeeoKit
 
 struct ContentView: View {
     @StateObject private var mealStore = MealRecordStore.shared
@@ -162,6 +163,7 @@ struct ContentView: View {
                         mealStore: mealStore,
                         goalManager: goalManager,
                         settingsManager: settingsManager,
+                        unreadFeedbackCount: friendManager.totalUnreadFeedbackCount,
                         onStatisticsTap: { showingStatistics = true },
                         onFriendsTap: { showingFriends = true },
                         onSettingsTap: { showingSettings = true },
@@ -327,6 +329,22 @@ struct ContentView: View {
             .sheet(isPresented: $showingFriends) {
                 FriendsView()
             }
+            .task {
+                // 받은 격려(피드백) 배지 갱신
+                await friendManager.refreshTotalUnreadFeedbackCount()
+            }
+            .onChange(of: showingFriends) { oldValue, newValue in
+                if oldValue == true && newValue == false {
+                    _Concurrency.Task {
+                        await friendManager.refreshTotalUnreadFeedbackCount()
+                    }
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                _Concurrency.Task {
+                    await friendManager.refreshTotalUnreadFeedbackCount()
+                }
+            }
             .onChange(of: showingSettings) { oldValue, newValue in
                 // 설정 창이 닫힐 때 dateList 재초기화
                 if oldValue == true && newValue == false {
@@ -383,6 +401,7 @@ struct StreakHeaderView: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var settingsManager: SettingsManager
+    var unreadFeedbackCount: Int = 0
     let onStatisticsTap: () -> Void
     let onFriendsTap: () -> Void
     let onSettingsTap: () -> Void
@@ -406,6 +425,19 @@ struct StreakHeaderView: View {
                     Image(systemName: "person.2.fill")
                         .font(.title2)
                         .foregroundColor(.gray)
+                        .overlay(alignment: .topTrailing) {
+                            // 안읽은 격려(피드백) 배지
+                            if unreadFeedbackCount > 0 {
+                                Text(unreadFeedbackCount > 99 ? "99+" : "\(unreadFeedbackCount)")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(Color.red)
+                                    .clipShape(Capsule())
+                                    .offset(x: 12, y: -10)
+                            }
+                        }
                 }
                 .padding(.trailing, 8)
 
@@ -1023,6 +1055,13 @@ struct SettingsView: View {
 
                 // 개발자 문의
                 DeveloperContactSection()
+
+                // 지원
+                Section {
+                    LeeoSupportSection<RoutineCameraSpec>()
+                } header: {
+                    Text("지원")
+                }
             }
             .navigationTitle("설정")
             .navigationBarTitleDisplayMode(.inline)

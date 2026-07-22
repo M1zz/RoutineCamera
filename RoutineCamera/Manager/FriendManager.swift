@@ -79,6 +79,7 @@ class FriendManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isSignedIn = false // Apple 로그인 상태
+    @Published var totalUnreadFeedbackCount = 0 // 내가 받은 전체 안읽은 피드백 개수
 
     private var ref: DatabaseReference
     private var authStateListener: AuthStateDidChangeListenerHandle?
@@ -148,6 +149,7 @@ class FriendManager: ObservableObject {
             isSignedIn = true
             generateOrLoadUserCode()
             loadFriends()
+            syncMyDisplayName()
             print("✅ 기존 로그인 유지: \(myUserId)")
 
             // 샘플 데이터는 수동 생성 버튼 사용 (자동 생성 제거)
@@ -214,6 +216,7 @@ class FriendManager: ObservableObject {
                 self.isSignedIn = true
                 self.generateOrLoadUserCode()
                 self.loadFriends()
+                self.syncMyDisplayName()
                 print("✅ Apple 로그인 성공: \(self.myUserId)")
             }
 
@@ -375,6 +378,19 @@ class FriendManager: ObservableObject {
         return String((0..<6).map { _ in characters.randomElement()! })
     }
 
+    /// 내 표시 이름을 Firebase에 동기화 (친구가 나를 추가할 때 보이는 이름)
+    private func syncMyDisplayName() {
+        guard !myUserId.isEmpty else { return }
+        let uid = myUserId
+
+        _Concurrency.Task { [weak self] in
+            guard let self = self else { return }
+            let nickname = await MainActor.run { SettingsManager.shared.nickname }
+            guard !nickname.isEmpty else { return }
+            try? await self.ref.child("users").child(uid).child("name").setValue(nickname)
+        }
+    }
+
     // MARK: - 친구 관리
 
     func addFriend(code: String) async throws {
@@ -412,7 +428,11 @@ class FriendManager: ObservableObject {
                              userInfo: [NSLocalizedDescriptionKey: "친구 정보를 가져올 수 없습니다."])
             }
 
-            let friendName = friendData["name"] as? String ?? "친구"
+            // 닉네임 우선, 없으면 name 필드 (둘 다 없으면 "친구")
+            let profileData = friendData["profile"] as? [String: Any]
+            let friendName = (profileData?["nickname"] as? String)
+                ?? (friendData["name"] as? String)
+                ?? "친구"
 
             // 4. 내 친구 목록에 추가
             try await ref.child("users").child(myUserId).child("friends").child(friendId).setValue([
@@ -421,7 +441,18 @@ class FriendManager: ObservableObject {
                 "addedDate": Date().timeIntervalSince1970
             ])
 
-            // 5. 로컬에 추가
+            // 5. 상대방 친구 목록에도 나를 추가 (양방향 친구)
+            //    상대측 쓰기가 실패해도 내 쪽 추가는 유지되도록 비치명적으로 처리
+            if !myUserCode.isEmpty {
+                let myName = SettingsManager.shared.nickname
+                try? await ref.child("users").child(friendId).child("friends").child(myUserId).setValue([
+                    "code": myUserCode,
+                    "name": myName,
+                    "addedDate": Date().timeIntervalSince1970
+                ])
+            }
+
+            // 6. 로컬에 추가
             let newFriend = Friend(
                 id: friendId,
                 code: code,
@@ -450,6 +481,9 @@ class FriendManager: ObservableObject {
         isLoading = true
 
         try await ref.child("users").child(myUserId).child("friends").child(friendId).removeValue()
+
+        // 상대방 친구 목록에서도 나를 제거 (양방향) — 실패해도 내 쪽 삭제는 유지
+        try? await ref.child("users").child(friendId).child("friends").child(myUserId).removeValue()
 
         await MainActor.run {
             friends.removeAll { $0.id == friendId }
@@ -1011,6 +1045,15 @@ class FriendManager: ObservableObject {
             ]
 
             try await ref.child("users").child(myUserId).child("profile").setValue(nicknameData)
+
+            // 친구 추가 시 상대에게 보이는 이름(name)도 함께 갱신
+            try? await ref.child("users").child(myUserId).child("name").setValue(nickname)
+
+            // 이미 나를 추가한 친구들의 목록에도 새 이름 반영
+            for friend in friends {
+                try? await ref.child("users").child(friend.id).child("friends").child(myUserId).child("name").setValue(nickname)
+            }
+
             print("✅ [FriendManager] 닉네임 저장 완료: \(nickname)")
         } catch {
             print("❌ [FriendManager] 닉네임 저장 Firebase 에러: \(error.localizedDescription)")
@@ -1165,6 +1208,37 @@ class FriendManager: ObservableObject {
         }
     }
 
+    /// 내가 받은 전체 안읽은 피드백 개수 갱신 (모든 날짜/끼니 합산)
+    func refreshTotalUnreadFeedbackCount() async {
+        guard !myUserId.isEmpty else { return }
+
+        do {
+            let snapshot = try await ref.child("feedbacks").child(myUserId).getData()
+
+            var count = 0
+            for dateChild in snapshot.children {
+                guard let dateSnapshot = dateChild as? DataSnapshot else { continue }
+                for mealChild in dateSnapshot.children {
+                    guard let mealSnapshot = mealChild as? DataSnapshot else { continue }
+                    for feedbackChild in mealSnapshot.children {
+                        guard let feedbackSnapshot = feedbackChild as? DataSnapshot,
+                              let feedbackData = feedbackSnapshot.value as? [String: Any] else { continue }
+                        if (feedbackData["isRead"] as? Bool ?? false) == false {
+                            count += 1
+                        }
+                    }
+                }
+            }
+
+            let total = count
+            await MainActor.run {
+                totalUnreadFeedbackCount = total
+            }
+        } catch {
+            print("❌ [FriendManager] 전체 안읽은 피드백 조회 에러: \(error.localizedDescription)")
+        }
+    }
+
     /// 내 식단의 안읽은 피드백 개수 가져오기
     func getUnreadFeedbackCount(date: Date, mealType: MealType) async throws -> Int {
         do {
@@ -1195,6 +1269,9 @@ class FriendManager: ObservableObject {
             let feedbackPath = "feedbacks/\(myUserId)/\(dateString)/\(mealType.rawValue)/\(feedbackId)"
 
             try await ref.child(feedbackPath).child("isRead").setValue(true)
+            await MainActor.run {
+                totalUnreadFeedbackCount = max(0, totalUnreadFeedbackCount - 1)
+            }
             print("✅ [FriendManager] 피드백 읽음 처리: \(feedbackId)")
         } catch {
             print("❌ [FriendManager] 피드백 읽음 처리 Firebase 에러: \(error.localizedDescription)")

@@ -9,15 +9,21 @@ import SwiftUI
 import FirebaseCore
 import FirebaseDatabase
 import FirebaseAppCheck
+import LeeoKit
 
 @main
 struct RoutineCameraApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
+    init() {
+        LeeoEngagement.shared.registerLaunch()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .leeoSatisfactionCheck(RoutineCameraSpec.self)
         }
     }
 }
