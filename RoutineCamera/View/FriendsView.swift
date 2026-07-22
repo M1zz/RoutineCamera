@@ -6,24 +6,22 @@
 //
 
 import SwiftUI
-import AuthenticationServices
 
 struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
     @State private var showingAddFriend = false
-    @State private var codeCopied = false
+    @State private var friendCode = ""
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var selectedFriend: Friend?
     @State private var showingAccountSettings = false
-    @State private var showingLogoutConfirm = false
     @State private var showingDeleteConfirm = false
 
     var body: some View {
         NavigationView {
             if !friendManager.isSignedIn {
-                // Apple 로그인 화면
-                AppleSignInView()
+                // iCloud 로그인 안내 화면
+                ICloudRequiredView()
             } else {
                 // 친구 목록 화면
                 friendsContentView
@@ -55,26 +53,17 @@ struct FriendsView: View {
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
                                 .foregroundColor(.blue)
                                 .frame(maxWidth: .infinity)
+                                .accessibilityLabel("내 친구 코드")
+                                .accessibilityValue(friendManager.myUserCode.map { String($0) }.joined(separator: " "))
 
                             Button(action: {
                                 UIPasteboard.general.string = friendManager.myUserCode
-                                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                                withAnimation { codeCopied = true }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                    withAnimation { codeCopied = false }
-                                }
                             }) {
-                                Image(systemName: codeCopied ? "checkmark" : "doc.on.doc")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(codeCopied ? .green : .blue)
-                            }
-
-                            // 단체 채팅방 등으로 코드 공유
-                            ShareLink(item: "루틴카메라에서 같이 식단 인증해요!\n제 친구 코드: \(friendManager.myUserCode)\n앱의 친구 탭 > 친구 추가에 이 코드를 입력해주세요.") {
-                                Image(systemName: "square.and.arrow.up")
+                                Image(systemName: "doc.on.doc")
                                     .font(.system(size: 20))
                                     .foregroundColor(.blue)
                             }
+                            .accessibilityLabel("친구 코드 복사")
                         }
                     }
                     .padding()
@@ -96,6 +85,7 @@ struct FriendsView: View {
                         Image(systemName: "person.2.slash")
                             .font(.system(size: 60))
                             .foregroundColor(.gray)
+                            .accessibilityHidden(true)
 
                         Text("아직 친구가 없어요")
                             .font(.system(size: 18, weight: .semibold))
@@ -156,9 +146,13 @@ struct FriendsView: View {
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
+                                        .accessibilityHidden(true)
                                 }
                                 .padding(.vertical, 8)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(friend.name)")
+                            .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     _Concurrency.Task {
@@ -200,6 +194,7 @@ struct FriendsView: View {
                                 .foregroundColor(friendManager.isLoading ? .gray : .orange)
                         }
                         .disabled(friendManager.isLoading)
+                        .accessibilityLabel("샘플 친구 생성")
                         #endif
 
                         // 계정 설정 버튼
@@ -210,6 +205,7 @@ struct FriendsView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(.blue)
                         }
+                        .accessibilityLabel("계정 설정")
                     }
                 }
 
@@ -220,32 +216,48 @@ struct FriendsView: View {
                         Image(systemName: "person.badge.plus")
                             .font(.system(size: 20))
                     }
+                    .accessibilityLabel("친구 추가")
                 }
             }
             .sheet(isPresented: $showingAddFriend) {
-                AddFriendSheet()
+                AddFriendSheet(
+                    friendCode: $friendCode,
+                    onAdd: {
+                        _Concurrency.Task {
+                            // 쉼표/공백/줄바꿈으로 구분된 여러 코드 일괄 추가 (이벤트용)
+                            let codes = parseFriendCodes(friendCode)
+                            var addedCount = 0
+                            var failures: [String] = []
+
+                            for code in codes {
+                                do {
+                                    try await friendManager.addFriend(code: code)
+                                    addedCount += 1
+                                } catch {
+                                    failures.append("\(code): \(error.localizedDescription)")
+                                }
+                            }
+
+                            friendCode = ""
+                            showingAddFriend = false
+
+                            if !failures.isEmpty {
+                                errorMessage = "\(addedCount)명 추가 성공, \(failures.count)개 실패\n\n" + failures.joined(separator: "\n")
+                                showingError = true
+                            }
+                        }
+                    }
+                )
             }
             .sheet(item: $selectedFriend) { friend in
                 FriendMealsView(friend: friend)
             }
             .sheet(isPresented: $showingAccountSettings) {
                 AccountSettingsSheet(
-                    onLogout: {
-                        showingLogoutConfirm = true
-                    },
                     onDeleteAccount: {
                         showingDeleteConfirm = true
                     }
                 )
-            }
-            .alert("로그아웃", isPresented: $showingLogoutConfirm) {
-                Button("취소", role: .cancel) { }
-                Button("로그아웃", role: .destructive) {
-                    friendManager.signOut()
-                    showingAccountSettings = false
-                }
-            } message: {
-                Text("정말 로그아웃 하시겠습니까?")
             }
             .alert("회원 탈퇴", isPresented: $showingDeleteConfirm) {
                 Button("취소", role: .cancel) { }
@@ -271,17 +283,22 @@ struct FriendsView: View {
         }
     }
 
+// 쉼표/공백/줄바꿈으로 구분된 여러 친구 코드 파싱 (6자리 영숫자, 중복 제거)
+func parseFriendCodes(_ text: String) -> [String] {
+    let tokens = text.uppercased().components(separatedBy: CharacterSet.alphanumerics.inverted)
+    var seen = Set<String>()
+    return tokens.filter { $0.count == 6 && seen.insert($0).inserted }
+}
+
 // 친구 추가 시트
 struct AddFriendSheet: View {
-    @ObservedObject var friendManager = FriendManager.shared
+    @Binding var friendCode: String
+    let onAdd: () -> Void
     @Environment(\.dismiss) var dismiss
 
-    @State private var friendCode = ""
-    @State private var errorMessage: String?
-    @State private var isAdding = false
-
-    // 친구 코드에 사용되는 문자 (생성 규칙과 동일: I, O, 0, 1 제외)
-    private static let allowedCharacters = Set("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
+    private var parsedCodes: [String] {
+        parseFriendCodes(friendCode)
+    }
 
     var body: some View {
         NavigationView {
@@ -294,63 +311,36 @@ struct AddFriendSheet: View {
                     Text("친구 코드 입력")
                         .font(.system(size: 24, weight: .bold))
 
-                    Text("친구가 공유한 6자리 코드를 입력하세요")
+                    Text("친구가 공유한 6자리 코드를 입력하세요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 추가할 수 있어요.")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 40)
 
-                // 코드 입력 필드
-                TextField("예: ABC123", text: $friendCode)
-                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                // 코드 입력 필드 (여러 코드 붙여넣기 가능)
+                TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
+                    .font(.system(size: 20, weight: .bold, design: .monospaced))
                     .multilineTextAlignment(.center)
+                    .textCase(.uppercase)
                     .autocapitalization(.allCharacters)
                     .disableAutocorrection(true)
+                    .lineLimit(1...5)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
                     .padding(.horizontal)
-                    .onChange(of: friendCode) { oldValue, newValue in
-                        let filtered = Self.extractCode(from: newValue)
-                        if filtered != newValue {
-                            friendCode = filtered
-                        }
-                        errorMessage = nil
-                    }
 
-                // 붙여넣기 버튼 - 채팅방에서 받은 공유 메시지를 그대로 붙여넣어도 코드만 추출
-                Button(action: pasteCode) {
-                    Label("붙여넣기", systemImage: "doc.on.clipboard")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.blue)
+                Button(action: onAdd) {
+                    Text(parsedCodes.count > 1 ? "\(parsedCodes.count)명 추가" : "친구 추가")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(parsedCodes.isEmpty ? Color.gray : Color.blue)
+                        .cornerRadius(12)
                 }
-
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.footnote)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                Button(action: addFriend) {
-                    Group {
-                        if isAdding {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Text("친구 추가")
-                                .font(.system(size: 18, weight: .semibold))
-                        }
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(friendCode.count == 6 && !isAdding ? Color.blue : Color.gray)
-                    .cornerRadius(12)
-                }
-                .disabled(friendCode.count != 6 || isAdding)
+                .disabled(parsedCodes.isEmpty)
                 .padding(.horizontal)
 
                 Spacer()
@@ -362,42 +352,6 @@ struct AddFriendSheet: View {
                     Button("취소") {
                         dismiss()
                     }
-                }
-            }
-        }
-    }
-
-    /// 문자열에서 코드 문자만 남기고 6자리로 자르기
-    private static func extractCode(from text: String) -> String {
-        String(text.uppercased().filter { Self.allowedCharacters.contains($0) }.prefix(6))
-    }
-
-    private func pasteCode() {
-        guard let pasted = UIPasteboard.general.string else { return }
-        let code = Self.extractCode(from: pasted)
-        if code.isEmpty {
-            errorMessage = "클립보드에서 친구 코드를 찾지 못했어요."
-        } else {
-            friendCode = code
-        }
-    }
-
-    private func addFriend() {
-        errorMessage = nil
-        isAdding = true
-
-        _Concurrency.Task {
-            do {
-                try await friendManager.addFriend(code: friendCode)
-                await MainActor.run {
-                    isAdding = false
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    dismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    isAdding = false
-                    errorMessage = error.localizedDescription
                 }
             }
         }
@@ -848,7 +802,7 @@ struct FriendGridDayView: View {
                         FriendMealPhotoCell(meal: meal, mealType: mealType, friend: friend, date: date)
                             .frame(width: photoSize, height: photoSize)
                     } else {
-                        EmptyMealPhotoCell(mealType: mealType)
+                        EmptyMealPhotoCell(mealType: mealType, friend: friend, date: date)
                             .frame(width: photoSize, height: photoSize)
                     }
                 }
@@ -925,49 +879,126 @@ struct FriendMealPhotoCell: View {
                                 .shadow(radius: 2)
                         }
                         .padding(4)
+                        .accessibilityLabel("응원 남기기")
+                        .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
                     }
                 }
             }
             .background(Color(.systemGray6))
             .cornerRadius(8)
         }
+        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue) 기록")
+        .accessibilityHint("두 번 탭하여 상세 보기")
         .sheet(isPresented: $showingDetail) {
             FriendMealDetailView(meal: meal, mealType: mealType, friend: friend, date: date)
         }
         .sheet(isPresented: $showingQuickFeedback) {
-            QuickFeedbackView(friend: friend, date: date, mealType: mealType, meal: meal)
+            QuickFeedbackView(friend: friend, date: date, mealType: mealType)
         }
     }
 }
 
-// 빈 식단 셀
+// 빈 식단 셀 (탭하면 콕 찌르기 / 댓글 남기기)
 struct EmptyMealPhotoCell: View {
     let mealType: MealType
+    let friend: Friend
+    let date: Date
+
+    @State private var showingActions = false
+    @State private var showingComment = false
+    @State private var isPoking = false
+    @State private var pokeSent = false
 
     var body: some View {
-        ZStack {
-            // 그라데이션 배경
-            LinearGradient(
-                colors: [
-                    mealType.symbolColor.opacity(0.15),
-                    mealType.symbolColor.opacity(0.05)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+        Button(action: {
+            showingActions = true
+        }) {
+            ZStack {
+                Color(.systemGray6)
 
-            // 기본 이미지
-            VStack(spacing: 8) {
-                Image(systemName: defaultImageName)
-                    .font(.system(size: 40))
-                    .foregroundColor(mealType.symbolColor.opacity(0.4))
+                // 기본 이미지
+                VStack(spacing: 8) {
+                    Image(systemName: defaultImageName)
+                        .font(.system(size: 36))
+                        .foregroundColor(mealType.symbolColor.opacity(0.35))
 
-                Text(mealType.rawValue)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    Text(mealType.rawValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+
+                // 콕 찌른 후 표시
+                if pokeSent {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text("👉 콕!")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(Color.orange))
+                                .padding(4)
+                        }
+                    }
+                } else if isPoking {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .padding(6)
+                        }
+                    }
+                }
+            }
+            .cornerRadius(8)
+        }
+        .confirmationDialog(
+            "\(friend.name)님이 아직 \(mealType.rawValue)을 기록하지 않았어요",
+            isPresented: $showingActions,
+            titleVisibility: .visible
+        ) {
+            Button("👉 콕 찌르기") {
+                sendPoke()
+            }
+            Button("댓글 남기기") {
+                showingComment = true
+            }
+            Button("취소", role: .cancel) { }
+        }
+        .sheet(isPresented: $showingComment) {
+            QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+        }
+        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue), 아직 기록 없음")
+        .accessibilityHint("두 번 탭하여 콕 찌르기 또는 댓글 남기기")
+    }
+
+    private func sendPoke() {
+        guard !isPoking, !pokeSent else { return }
+        isPoking = true
+
+        Task {
+            do {
+                try await FriendManager.shared.addFeedback(
+                    to: friend.id,
+                    date: date,
+                    mealType: mealType,
+                    content: "👉 콕! \(mealType.rawValue) 기록을 기다리고 있어요"
+                )
+                await MainActor.run {
+                    isPoking = false
+                    pokeSent = true
+                }
+            } catch {
+                await MainActor.run {
+                    isPoking = false
+                }
+                print("❌ [EmptyMealPhotoCell] 콕 찌르기 실패: \(error)")
             }
         }
-        .cornerRadius(8)
     }
 
     private var defaultImageName: String {
@@ -994,8 +1025,6 @@ struct FriendMealDetailView: View {
     @State private var feedbackText: String = ""
     @State private var isSubmitting: Bool = false
     @State private var showSuccessAlert: Bool = false
-
-    private let maxLength = 200
 
     var body: some View {
         NavigationView {
@@ -1055,20 +1084,7 @@ struct FriendMealDetailView: View {
                             .font(.headline)
                             .padding(.horizontal)
 
-                        // 빠른 격려 - 탭하면 바로 전송
-                        EncouragementChips(isDisabled: isSubmitting) { preset in
-                            send(content: preset)
-                        }
-                        .padding(.horizontal)
-
                         VStack(spacing: 12) {
-                            HStack {
-                                Spacer()
-                                Text("\(feedbackText.count)/\(maxLength)")
-                                    .font(.caption)
-                                    .foregroundColor(feedbackText.count >= maxLength ? .red : .secondary)
-                            }
-
                             TextEditor(text: $feedbackText)
                                 .frame(height: 100)
                                 .padding(8)
@@ -1078,11 +1094,6 @@ struct FriendMealDetailView: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                                 )
-                                .onChange(of: feedbackText) { oldValue, newValue in
-                                    if newValue.count > maxLength {
-                                        feedbackText = String(newValue.prefix(maxLength))
-                                    }
-                                }
 
                             Button(action: submitFeedback) {
                                 HStack {
@@ -1129,12 +1140,8 @@ struct FriendMealDetailView: View {
     }
 
     private func submitFeedback() {
-        send(content: feedbackText)
-    }
-
-    private func send(content: String) {
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, !isSubmitting else { return }
+        let content = feedbackText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
 
         isSubmitting = true
 
@@ -1144,12 +1151,11 @@ struct FriendMealDetailView: View {
                     to: friend.id,
                     date: date,
                     mealType: mealType,
-                    content: trimmed
+                    content: content
                 )
 
                 await MainActor.run {
                     isSubmitting = false
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     showSuccessAlert = true
                 }
             } catch {
@@ -1302,7 +1308,6 @@ struct FriendMealCard: View {
 
 // 계정 설정 시트
 struct AccountSettingsSheet: View {
-    let onLogout: () -> Void
     let onDeleteAccount: () -> Void
     @Environment(\.dismiss) var dismiss
     @ObservedObject var friendManager = FriendManager.shared
@@ -1318,10 +1323,10 @@ struct AccountSettingsSheet: View {
                             .foregroundColor(.blue)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Apple 계정")
+                            Text("iCloud 계정")
                                 .font(.system(size: 18, weight: .semibold))
 
-                            Text(friendManager.myUserId.isEmpty ? "" : "로그인됨")
+                            Text(friendManager.myUserId.isEmpty ? "" : "연결됨")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
                         }
@@ -1350,23 +1355,6 @@ struct AccountSettingsSheet: View {
                         }) {
                             Image(systemName: "doc.on.doc")
                                 .foregroundColor(.blue)
-                        }
-                    }
-                }
-
-                // 로그아웃
-                Section {
-                    Button(action: {
-                        dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            onLogout()
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.blue)
-                            Text("로그아웃")
-                                .foregroundColor(.primary)
                         }
                     }
                 }
@@ -1405,12 +1393,8 @@ struct AccountSettingsSheet: View {
     }
 }
 
-// Apple 로그인 화면
-struct AppleSignInView: View {
-    @ObservedObject var friendManager = FriendManager.shared
-    @State private var showingError = false
-    @State private var errorMessage = ""
-
+// iCloud 로그인 안내 화면 (별도 로그인 없이 기기의 iCloud 계정을 사용)
+struct ICloudRequiredView: View {
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -1433,95 +1417,28 @@ struct AppleSignInView: View {
 
             Spacer()
 
-            // Apple 로그인 버튼
-            SignInWithAppleButton(
-                onRequest: { request in
-                    print("🍎 [Apple Sign In] 로그인 요청 시작")
-                    request.requestedScopes = [.fullName, .email]
-                    let nonce = friendManager.prepareAppleSignIn()
-                    request.nonce = nonce
-                    print("🍎 [Apple Sign In] nonce 설정 완료: \(nonce.prefix(10))...")
-                },
-                onCompletion: { result in
-                    print("🍎 [Apple Sign In] 로그인 응답 수신")
-                    switch result {
-                    case .success(let authorization):
-                        print("✅ [Apple Sign In] 인증 성공")
-                        print("   - Credential type: \(type(of: authorization.credential))")
-                        _Concurrency.Task {
-                            do {
-                                try await friendManager.signInWithApple(authorization: authorization)
-                                print("✅ [Apple Sign In] Firebase 연동 완료")
-                            } catch {
-                                print("❌ [Apple Sign In] Firebase 연동 실패: \(error)")
-                                print("   - Error domain: \((error as NSError).domain)")
-                                print("   - Error code: \((error as NSError).code)")
-                                print("   - Error info: \((error as NSError).userInfo)")
-                                errorMessage = "로그인 실패: \(error.localizedDescription)"
-                                showingError = true
-                            }
-                        }
-                    case .failure(let error):
-                        print("❌ [Apple Sign In] 인증 실패: \(error)")
-                        print("   - Error domain: \((error as NSError).domain)")
-                        print("   - Error code: \((error as NSError).code)")
-                        errorMessage = "로그인 취소: \(error.localizedDescription)"
-                        showingError = true
-                    }
-                }
-            )
-            .signInWithAppleButtonStyle(.black)
-            .frame(height: 50)
-            .padding(.horizontal, 40)
+            VStack(spacing: 12) {
+                Image(systemName: "icloud")
+                    .font(.system(size: 32))
+                    .foregroundColor(.secondary)
 
-            Text("로그인하면 친구 추가 및\n식단 공유 기능을 사용할 수 있습니다")
-                .font(.system(size: 12))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 40)
+                Text("iCloud 로그인이 필요해요")
+                    .font(.system(size: 16, weight: .semibold))
+
+                Text("설정 앱에서 iCloud에 로그인하면\n친구 추가 및 식단 공유 기능을 사용할 수 있습니다")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                Link("설정 열기", destination: url)
+                    .font(.system(size: 16, weight: .semibold))
+                    .padding(.bottom, 40)
+            }
         }
         .navigationTitle("친구")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("오류", isPresented: $showingError) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text(errorMessage)
-        }
-    }
-}
-
-// 격려 프리셋 칩 - 한 번의 탭으로 응원 보내기
-struct EncouragementChips: View {
-    var isDisabled: Bool = false
-    let onSelect: (String) -> Void
-
-    static let presets = [
-        "👍 잘하고 있어요!",
-        "🔥 오늘도 화이팅!",
-        "💪 꾸준함이 멋져요",
-        "🥗 건강해 보여요",
-        "😋 맛있겠다!",
-        "👏 인증 성공!"
-    ]
-
-    var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 8)], spacing: 8) {
-            ForEach(Self.presets, id: \.self) { preset in
-                Button(action: { onSelect(preset) }) {
-                    Text(preset)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 8)
-                        .background(Color.orange.opacity(0.12))
-                        .foregroundColor(.primary)
-                        .cornerRadius(20)
-                }
-                .disabled(isDisabled)
-            }
-        }
     }
 }
 
@@ -1530,102 +1447,66 @@ struct QuickFeedbackView: View {
     let friend: Friend
     let date: Date
     let mealType: MealType
-    var meal: MealRecord? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var feedbackText: String = ""
     @State private var isSubmitting: Bool = false
+    @State private var showSuccessAlert: Bool = false
     @State private var showErrorAlert: Bool = false
     @State private var errorMessage: String = ""
 
-    private let maxLength = 200
-
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // 헤더
-                    VStack(spacing: 8) {
-                        Text("\(friend.name)님의 \(mealType.rawValue)")
-                            .font(.headline)
-                        Text(date, style: .date)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.top)
-
-                    // 어떤 식사에 대한 피드백인지 사진으로 보여주기
-                    if let imageData = meal?.thumbnailImageData ?? meal?.beforeImageData,
-                       let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 160)
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                            .cornerRadius(12)
-                    }
-
-                    // 빠른 격려 - 탭하면 바로 전송
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("빠른 격려")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-
-                        EncouragementChips(isDisabled: isSubmitting) { preset in
-                            send(content: preset)
-                        }
-                    }
-
-                    // 직접 입력
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("직접 쓰기")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text("\(feedbackText.count)/\(maxLength)")
-                                .font(.caption)
-                                .foregroundColor(feedbackText.count >= maxLength ? .red : .secondary)
-                        }
-
-                        TextEditor(text: $feedbackText)
-                            .frame(height: 120)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                            )
-                            .onChange(of: feedbackText) { oldValue, newValue in
-                                if newValue.count > maxLength {
-                                    feedbackText = String(newValue.prefix(maxLength))
-                                }
-                            }
-                    }
-
-                    // 전송 버튼
-                    Button(action: { send(content: feedbackText) }) {
-                        HStack {
-                            if isSubmitting {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Image(systemName: "paperplane.fill")
-                                Text("피드백 보내기")
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                    }
-                    .disabled(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
+            VStack(spacing: 20) {
+                // 헤더
+                VStack(spacing: 8) {
+                    Text("\(friend.name)님의 \(mealType.rawValue)")
+                        .font(.headline)
+                    Text(date, style: .date)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-                .padding()
+                .padding(.top)
+
+                // 피드백 입력
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("피드백")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    TextEditor(text: $feedbackText)
+                        .frame(height: 150)
+                        .padding(8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                        )
+                }
+
+                // 전송 버튼
+                Button(action: submitFeedback) {
+                    HStack {
+                        if isSubmitting {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Image(systemName: "paperplane.fill")
+                            Text("피드백 보내기")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .disabled(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
+
+                Spacer()
             }
+            .padding()
             .navigationTitle("빠른 피드백")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -1635,6 +1516,13 @@ struct QuickFeedbackView: View {
                     }
                 }
             }
+            .alert("전송 완료", isPresented: $showSuccessAlert) {
+                Button("확인", role: .cancel) {
+                    dismiss()
+                }
+            } message: {
+                Text("피드백을 성공적으로 보냈습니다!")
+            }
             .alert("전송 실패", isPresented: $showErrorAlert) {
                 Button("확인", role: .cancel) { }
             } message: {
@@ -1643,9 +1531,9 @@ struct QuickFeedbackView: View {
         }
     }
 
-    private func send(content: String) {
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, !isSubmitting else { return }
+    private func submitFeedback() {
+        let content = feedbackText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
 
         isSubmitting = true
 
@@ -1655,13 +1543,12 @@ struct QuickFeedbackView: View {
                     to: friend.id,
                     date: date,
                     mealType: mealType,
-                    content: trimmed
+                    content: content
                 )
 
                 await MainActor.run {
                     isSubmitting = false
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    dismiss()
+                    showSuccessAlert = true
                 }
             } catch {
                 await MainActor.run {

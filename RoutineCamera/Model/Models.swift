@@ -101,7 +101,7 @@ struct VisionAnalysisData: Codable {
 
 // 피드백 모델 (받은 피드백)
 struct MealFeedback: Identifiable, Codable {
-    let id: String // Firebase에서 생성하는 고유 ID
+    let id: String // 고유 ID (CloudKit 레코드 이름)
     let authorId: String // 작성자 UID
     let authorNickname: String // 작성자 닉네임
     let content: String // 피드백 내용
@@ -256,7 +256,19 @@ class MealRecordStore: ObservableObject {
     private let exerciseRecordsKey = "ExerciseMealRecords"
     private var cancellables = Set<AnyCancellable>()
 
-    // Firebase 업로드 추적
+    // 실패(거른 끼니) 판정의 기준 시작일
+    // = 첫 실행일과 가장 오래된 기록일 중 이른 쪽
+    // 이 날짜 이전의 과거는 "설치 전"이므로 실패로 판정하지 않는다.
+    var startDate: Date {
+        let calendar = Calendar.current
+        let launchDay = calendar.startOfDay(for: SettingsManager.shared.appStartDate)
+        if let earliestRecord = records.map({ calendar.startOfDay(for: $0.date) }).min() {
+            return min(launchDay, earliestRecord)
+        }
+        return launchDay
+    }
+
+    // CloudKit 업로드 추적
     private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
     private var lastUploadTime: Date?
     private var uploadTimer: Timer?
@@ -288,7 +300,7 @@ class MealRecordStore: ObservableObject {
         uploadTimer?.invalidate()
         // 앱 종료 시 대기 중인 업로드 실행
         if !dirtyDates.isEmpty {
-            print("⚠️ [Firebase] 앱 종료 - 남은 업로드 실행")
+            print("⚠️ [CloudKit] 앱 종료 - 남은 업로드 실행")
         }
     }
 
@@ -522,19 +534,15 @@ class MealRecordStore: ObservableObject {
                 userDefaults.set(encoded, forKey: dietRecordsKey)
                 print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
 
-                // Firebase 동기화 (식단 공유가 활성화된 경우)
-                print("🔍 [Firebase] shareMealsToFirebase 설정: \(SettingsManager.shared.shareMealsToFirebase)")
-                print("🔍 [Firebase] 현재 로그인 상태: \(FriendManager.shared.isSignedIn)")
-                print("🔍 [Firebase] 사용자 ID: \(FriendManager.shared.myUserId)")
-
+                // CloudKit 동기화 (식단 공유가 활성화된 경우)
                 if !FriendManager.shared.isSignedIn {
-                    print("⚠️ [Firebase] Apple 로그인하지 않아 업로드 건너뜀")
-                } else if SettingsManager.shared.shareMealsToFirebase {
+                    print("⚠️ [CloudKit] iCloud 미로그인이라 업로드 건너뜀")
+                } else if SettingsManager.shared.shareMealsToCloud {
                     // 변경된 날짜들을 dirty로 표시하고 지연 업로드 스케줄
                     markDirtyDatesFromRecords()
                     scheduleDelayedUpload()
                 } else {
-                    print("⚠️ [Firebase] Firebase 업로드 비활성화됨 - 설정에서 활성화 필요")
+                    print("⚠️ [CloudKit] 식단 공유 비활성화됨 - 설정에서 활성화 필요")
                 }
             }
         case .exercise:
@@ -545,7 +553,7 @@ class MealRecordStore: ObservableObject {
         }
     }
 
-    // MARK: - 스마트 Firebase 업로드
+    // MARK: - 스마트 CloudKit 업로드
 
     /// 현재 식단 기록에서 변경된 날짜를 dirty로 표시
     private func markDirtyDatesFromRecords() {
@@ -564,7 +572,7 @@ class MealRecordStore: ObservableObject {
         }
 
         if !dirtyDates.isEmpty {
-            print("📝 [Firebase] 업로드 대기 날짜: \(dirtyDates.sorted())")
+            print("📝 [CloudKit] 업로드 대기 날짜: \(dirtyDates.sorted())")
         }
     }
 
@@ -578,17 +586,17 @@ class MealRecordStore: ObservableObject {
             self?.uploadDirtyDates()
         }
 
-        print("⏰ [Firebase] \(Int(uploadDelaySeconds))초 후 업로드 예정")
+        print("⏰ [CloudKit] \(Int(uploadDelaySeconds))초 후 업로드 예정")
     }
 
     /// dirty로 표시된 날짜만 업로드
     private func uploadDirtyDates() {
         guard !dirtyDates.isEmpty else {
-            print("ℹ️ [Firebase] 업로드할 날짜 없음")
+            print("ℹ️ [CloudKit] 업로드할 날짜 없음")
             return
         }
 
-        print("🚀 [Firebase] 스마트 업로드 시작 - \(dirtyDates.count)개 날짜")
+        print("🚀 [CloudKit] 스마트 업로드 시작 - \(dirtyDates.count)개 날짜")
 
         let datesToUpload = dirtyDates
         dirtyDates.removeAll()  // 먼저 클리어 (중복 방지)
@@ -621,83 +629,8 @@ class MealRecordStore: ObservableObject {
 
             await MainActor.run {
                 self.lastUploadTime = Date()
-                print("🏁 [Firebase] 스마트 업로드 완료")
+                print("🏁 [CloudKit] 스마트 업로드 완료")
             }
-        }
-    }
-
-    // MARK: - Legacy Upload (사용 안 함)
-
-    /// 최근 3일간의 식단 업로드 (레거시 - 사용 안 함)
-    @available(*, deprecated, message: "Use uploadDirtyDates() instead")
-    private func uploadRecentMealsToFirebase() {
-        print("🚀 [Firebase] uploadRecentMealsToFirebase() 시작")
-        _Concurrency.Task {
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
-
-            // 최근 3일간의 날짜 생성
-            for dayOffset in 0..<3 {
-                guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
-
-                let meals = getMeals(for: date)
-                print("   📅 \(dayOffset)일 전 (\(date)) - 로컬 식단 개수: \(meals.count)")
-
-                if meals.isEmpty {
-                    print("   ⏭️ \(dayOffset)일 전 - 식단 없음, 건너뜀")
-                    continue
-                }
-
-                // Firebase에 이미 있는지 확인
-                do {
-                    let existingMeals = try await FriendManager.shared.loadFriendMeals(
-                        friendId: FriendManager.shared.myUserId,
-                        date: date
-                    )
-
-                    print("   🔍 Firebase에 이미 있는 식단: \(existingMeals.count)개")
-
-                    // 로컬에는 있지만 Firebase에 없는 식단만 필터링
-                    var mealsToUpload: [MealType: MealRecord] = [:]
-
-                    for (mealType, localMeal) in meals {
-                        if existingMeals[mealType] == nil {
-                            mealsToUpload[mealType] = localMeal
-                            print("      ➕ \(mealType.rawValue) - Firebase에 없음, 업로드 예정")
-                        } else {
-                            // 사진이 있는데 Firebase에는 사진이 없는 경우도 업로드
-                            let hasLocalPhoto = localMeal.beforeImageData != nil || localMeal.afterImageData != nil
-                            let hasFirebasePhoto = existingMeals[mealType]?.beforeImageData != nil ||
-                                                   existingMeals[mealType]?.afterImageData != nil
-
-                            if hasLocalPhoto && !hasFirebasePhoto {
-                                mealsToUpload[mealType] = localMeal
-                                print("      📸 \(mealType.rawValue) - 사진 추가됨, 업로드 예정")
-                            } else {
-                                print("      ✓ \(mealType.rawValue) - 이미 Firebase에 있음, 건너뜀")
-                            }
-                        }
-                    }
-
-                    // 업로드할 식단이 있으면 업로드
-                    if !mealsToUpload.isEmpty {
-                        try await FriendManager.shared.uploadMyMeals(date: date, meals: mealsToUpload)
-                        print("   📤 [Firebase] \(dayOffset)일 전 식단 업로드 완료 (\(mealsToUpload.count)개)")
-                    } else {
-                        print("   ✅ \(dayOffset)일 전 - 모두 동기화됨, 업로드 불필요")
-                    }
-                } catch {
-                    print("   ⚠️ [Firebase] 확인 실패, 전체 업로드 시도: \(error)")
-                    // 확인 실패 시 전체 업로드
-                    do {
-                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
-                        print("   📤 [Firebase] \(dayOffset)일 전 식단 업로드 완료")
-                    } catch {
-                        print("   ❌ [Firebase] 식단 업로드 실패: \(error)")
-                    }
-                }
-            }
-            print("🏁 [Firebase] uploadRecentMealsToFirebase() 완료")
         }
     }
 
@@ -721,6 +654,18 @@ class MealRecordStore: ObservableObject {
     // MARK: - Streak 계산
 
     // 현재 연속 기록 일수 계산
+    // 특정 날짜가 "완전히 기록된 날"인지 (연속 끊김 판정 등에 사용)
+    func isDayComplete(_ date: Date) -> Bool {
+        let meals = getMeals(for: date)
+        if SettingsManager.shared.albumType == .exercise {
+            return meals[.breakfast]?.isComplete ?? false
+        } else {
+            // 간식 제외 주요 3끼 모두 완료
+            let mainMeals = meals.filter { !$0.key.isSnack }
+            return mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
+        }
+    }
+
     func getCurrentStreak() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

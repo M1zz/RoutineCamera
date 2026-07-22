@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세끼 (RoutineCamera) — 지원</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --text: #1c1c1e;
+      --secondary: #6e6e73;
+      --accent: #0a84ff;
+      --card: #f5f5f7;
+      --bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f5f5f7;
+        --secondary: #98989d;
+        --card: #1c1c1e;
+        --bg: #000000;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
+    .app-icon { font-size: 56px; }
+    h1 { font-size: 28px; margin: 12px 0 4px; }
+    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
+    h2 { font-size: 20px; margin: 40px 0 12px; }
+    p, li { font-size: 16px; color: var(--text); }
+    ul { padding-left: 22px; margin: 8px 0; }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 12px 0;
+    }
+    .card h3 { font-size: 16px; margin-bottom: 6px; }
+    .card p { font-size: 15px; color: var(--secondary); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .contact-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      margin: 8px 8px 0 0;
+    }
+    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card);
+      color: var(--secondary);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-icon">🍽️</div>
+    <h1>세끼 (RoutineCamera)</h1>
+    <p class="tagline">사진 한 장으로 만드는 식단·운동 기록 습관</p>
+
+    <h2>문의하기</h2>
+    <p>버그 제보, 기능 제안, 계정 관련 문의 모두 환영합니다.</p>
+    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 이메일 문의</a>
+    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 인스타그램 DM</a>
+    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
+      이메일: leeo@kakao.com · 인스타그램: @lee25_ios<br>
+      보통 1~2일 내에 답변드립니다.
+    </p>
+
+    <h2>자주 묻는 질문</h2>
+
+    <div class="card">
+      <h3>Q. 사진은 어디에 저장되나요?</h3>
+      <p>기본적으로 기기 안에만 저장됩니다. 설정에서 "자동으로 사진앱에 저장"을 켜면 사진 앱의 '세끼식단'/'세끼운동' 앨범에도 저장되고, "내 식단 공유 가능"을 켜면 친구가 볼 수 있도록 서버에 업로드됩니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>Q. 친구는 어떻게 추가하나요?</h3>
+      <p>친구 화면에서 내 6자리 코드를 공유하고, 친구의 코드를 입력하면 됩니다. 여러 명의 코드를 쉼표로 구분해 한 번에 붙여넣을 수도 있어요.</p>
+    </div>
+
+    <div class="card">
+      <h3>Q. 콕 찌르기가 뭔가요?</h3>
+      <p>친구가 아직 식사를 기록하지 않았을 때, 빈 끼니 칸을 탭해서 "콕!" 하고 기록을 독려하거나 응원 댓글을 남길 수 있는 기능입니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>Q. 계정과 데이터를 삭제하고 싶어요</h3>
+      <p>친구 화면 &gt; 계정 설정 &gt; 회원 탈퇴에서 직접 삭제할 수 있습니다. 서버에 저장된 계정과 식단 데이터가 삭제되며 복구할 수 없습니다. 문제가 있으면 이메일로 문의해 주세요.</p>
+    </div>
+
+    <div class="card">
+      <h3>Q. 알림이 오지 않아요</h3>
+      <p>iOS 설정 &gt; 알림에서 앱 알림이 허용되어 있는지, 그리고 기기가 iCloud에 로그인되어 있는지 확인해 주세요. 식사 리마인드 시간은 앱 설정에서 바꿀 수 있습니다.</p>
+    </div>
+
+    <h2>개인정보처리방침</h2>
+    <p><a href="privacy.html">개인정보처리방침 보기 →</a></p>
+
+    <footer>
+      © 2026 세끼 (RoutineCamera) · <a href="privacy.html">개인정보처리방침</a>
+    </footer>
+  </div>
+</body>
+</html>
