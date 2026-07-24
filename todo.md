@@ -1,5 +1,16 @@
 # RoutineCamera 접근성(VoiceOver) 개선
 
+## 진행: 완벽주의/올오어낫씽 완화 (식단 기록 이탈 심리 대응)
+리서치 근거: 추적 피로 + "나쁜 날 회피"가 식단 기록 이탈의 핵심 심리
+- [x] ① 하루 완료 기준 완화: 스트릭이 "주요 3끼 전부"가 아니라 "최소 한 끼라도"면 이어짐 (Models.isDayRecorded, getCurrentStreak/getMaxStreak)
+- [x] ② 회복 프레임: 통계의 "🏆 최고 연속"(경쟁·리셋) → "📸 기록한 날"(절대 안 줄어드는 누적) + 격려 한 줄 (StatisticsView.StreakAndGoalView, Models.getTotalRecordedDays)
+- [x] ③ 끊김 빨강 '박제' 제거: 끊긴 날 빨간 배경/실선 테두리 → 미기록과 동일한 회색 점선, "끊겼어요" → "다음 기록부터 다시 이어져요" (ContentView backgroundColor/stateBorderOverlay/accessibilityStatus)
+- [x] LeeoKit 미구현 API 구현 (블로커 해소): LeeoEngagement(참여도 추적) + .leeoSatisfactionCheck(2갈래 만족도 체크: 만족→앱스토어 리뷰 / 불만족→피드백) — LeeoKit/Sources/LeeoKit/Engagement/
+- [x] 앱 전체 빌드 성공 (BUILD SUCCEEDED) + LeeoKit 패키지 단독 빌드 성공
+- [x] 제안 3 시뮬레이터 시각 확인: 과거 미기록 칸 전부 빨강 없이 균일한 회색 점선
+- [ ] 제안 1·2 시뮬레이터 확인 남음: 통계 화면(🔥 현재 연속 / 📸 기록한 날 + 격려 문구) — System Events 접근성 권한 게이트로 탭 자동화 불가, 수동 확인 필요
+
+
 ## 완료: 접근성 코드 적용 (빌드 검증 완료 ✅)
 - [x] ① 헤더 아이콘 버튼 라벨 (통계/친구/설정) - ContentView StreakHeaderView
 - [x] ② 목표 진행률 값 번역 + 버튼 트레잇 - ContentView StreakHeaderView
@@ -94,6 +105,11 @@
 - [x] CLOUDKIT_SETUP.md 작성 (스키마·Production 배포 절차·이벤트 점검 목록)
 - [ ] 실기기에서 CloudKit 흐름 검증 (코드 생성 → 친구 추가 → 식단 업로드 → 피드백 푸시)
 - [ ] TestFlight 배포 전 CloudKit Console에서 스키마 Production 배포 + Queryable 인덱스 확인
+
+## 완료: "간식 보이기" 설정 강화 (빌드 검증 완료 ✅)
+- [x] 꺼져 있으면 과거 날짜의 **기록된 간식도** 화면에서 숨김 (기존엔 빈 칸만 숨겨짐, 오늘 행과 동작 통일) - getSnacksToShow
+- [x] 토글을 "사진 저장" 섹션 → "표시 설정" 섹션으로 이동 + 상태별 설명 문구 추가 (기록은 삭제되지 않음을 명시)
+- [x] DailySectionView가 SettingsManager를 관찰하도록 해 토글 즉시 반영
 
 ## 향후(선택) 개선 아이디어
 - [ ] 로터에 "안 읽은 피드백" 추가 (피드백 개수 비동기 집계 데이터 소스 필요)

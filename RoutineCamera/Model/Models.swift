@@ -653,8 +653,7 @@ class MealRecordStore: ObservableObject {
 
     // MARK: - Streak 계산
 
-    // 현재 연속 기록 일수 계산
-    // 특정 날짜가 "완전히 기록된 날"인지 (연속 끊김 판정 등에 사용)
+    // 특정 날짜가 "완전히 기록된 날"인지 (주요 3끼 모두 — '완벽한 날' 개념)
     func isDayComplete(_ date: Date) -> Bool {
         let meals = getMeals(for: date)
         if SettingsManager.shared.albumType == .exercise {
@@ -666,47 +665,39 @@ class MealRecordStore: ObservableObject {
         }
     }
 
+    // 하루가 "연속 기록에 포함되는 날"인지 (완벽주의/올오어낫씽 완화)
+    // 3끼를 다 채워야 인정하던 기준을 "최소 한 끼라도 남기면 이어진 것"으로 바꾼다.
+    // → 두 끼만 찍은 날에도 연속이 끊기지 않아 '완벽하지 못하면 안 하느니만' 심리를 줄인다.
+    func isDayRecorded(_ date: Date) -> Bool {
+        let meals = getMeals(for: date)
+        if SettingsManager.shared.albumType == .exercise {
+            return meals[.breakfast]?.isComplete ?? false
+        }
+        // 간식 포함 어떤 끼니든 하나라도 완료되면 기록된 날로 인정
+        return meals.values.contains { $0.isComplete }
+    }
+
     func getCurrentStreak() -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        let isExerciseMode = SettingsManager.shared.albumType == .exercise
-
-        // 오늘 기록이 완료되었는지 확인
-        let todayMeals = getMeals(for: today)
-        let todayComplete: Bool
-        if isExerciseMode {
-            todayComplete = todayMeals[.breakfast]?.isComplete ?? false
-        } else {
-            // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
-            let mainMeals = todayMeals.filter { !$0.key.isSnack }
-            todayComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
-        }
+        // 완화된 기준(isDayRecorded)으로 연속을 계산 — 한 끼라도 남기면 이어진다
+        let todayRecorded = isDayRecorded(today)
 
         var streak = 0
         var currentDate = today
 
         // 오늘부터 과거로 거슬러 올라가며 연속 기록 확인
         while true {
-            let meals = getMeals(for: currentDate)
-            let isComplete: Bool
-            if isExerciseMode {
-                isComplete = meals[.breakfast]?.isComplete ?? false
-            } else {
-                // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
-                let mainMeals = meals.filter { !$0.key.isSnack }
-                isComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
-            }
-
-            if isComplete {
+            if isDayRecorded(currentDate) {
                 streak += 1
                 guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
                     break
                 }
                 currentDate = previousDay
             } else {
-                // 오늘이 아직 완료되지 않았다면, 어제부터 확인
-                if calendar.isDate(currentDate, inSameDayAs: today) && !todayComplete {
+                // 오늘이 아직 미기록이면 '진행 중'이므로 끊긴 게 아님 — 어제부터 확인
+                if calendar.isDate(currentDate, inSameDayAs: today) && !todayRecorded {
                     guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
                         break
                     }
@@ -720,13 +711,11 @@ class MealRecordStore: ObservableObject {
         return streak
     }
 
-    // 최고 연속 기록 일수
+    // 최고 연속 기록 일수 (완화된 기준 — 업적 판정 등에 사용)
     func getMaxStreak() -> Int {
         let calendar = Calendar.current
         var maxStreak = 0
         var currentStreak = 0
-
-        let isExerciseMode = SettingsManager.shared.albumType == .exercise
 
         // 모든 날짜별로 정렬
         let sortedDates = Set(records.map { calendar.startOfDay(for: $0.date) }).sorted()
@@ -734,17 +723,7 @@ class MealRecordStore: ObservableObject {
         guard !sortedDates.isEmpty else { return 0 }
 
         for (index, date) in sortedDates.enumerated() {
-            let meals = getMeals(for: date)
-            let isComplete: Bool
-            if isExerciseMode {
-                isComplete = meals[.breakfast]?.isComplete ?? false
-            } else {
-                // 간식 제외하고 주요 3끼(아침, 점심, 저녁)만 확인
-                let mainMeals = meals.filter { !$0.key.isSnack }
-                isComplete = mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
-            }
-
-            if isComplete {
+            if isDayRecorded(date) {
                 // 이전 날짜와 연속인지 확인
                 if index > 0,
                    let previousDate = sortedDates[safe: index - 1],
@@ -762,6 +741,14 @@ class MealRecordStore: ObservableObject {
         }
 
         return maxStreak
+    }
+
+    // 지금까지 기록한 날 수 (한 번 올라가면 절대 줄지 않는 누적 카운터)
+    // 연속이 끊겨도 사라지지 않아 '나쁜 날'에 대한 자책을 만들지 않는다.
+    func getTotalRecordedDays() -> Int {
+        let calendar = Calendar.current
+        let days = Set(records.filter { $0.isComplete }.map { calendar.startOfDay(for: $0.date) })
+        return days.count
     }
 
     // MARK: - 개발용 샘플 데이터 생성

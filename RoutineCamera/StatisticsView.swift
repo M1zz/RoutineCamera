@@ -335,15 +335,31 @@ struct MealTypeStatsView: View {
 struct StreakAndGoalView: View {
     @ObservedObject var mealStore: MealRecordStore
 
+    private var currentStreak: Int { mealStore.getCurrentStreak() }
+    private var totalDays: Int { mealStore.getTotalRecordedDays() }
+
+    // 회복 프레임: 끊김을 실패로 두지 않고 '다시 시작'을 격려하는 한 줄
+    private var encouragement: String {
+        if totalDays == 0 {
+            return "오늘 한 끼만 남겨도 시작이에요 🌱"
+        } else if currentStreak == 0 {
+            return "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱"
+        } else if currentStreak < 3 {
+            return "좋아요, 다시 이어가는 중이에요"
+        } else {
+            return "\(currentStreak)일째 이어가는 중이에요 🔥"
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 16) {
-            // 연속 기록
+        VStack(spacing: 14) {
+            // 연속 기록 + 누적 기록일
             HStack(spacing: 20) {
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Text("🔥")
                             .font(.title)
-                        Text("\(mealStore.getCurrentStreak())")
+                        Text("\(currentStreak)")
                             .font(.system(size: 36, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
@@ -355,29 +371,38 @@ struct StreakAndGoalView: View {
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("현재 연속 기록")
-                .accessibilityValue("\(mealStore.getCurrentStreak())일")
+                .accessibilityValue("\(currentStreak)일")
 
                 Divider()
                     .frame(height: 60)
 
+                // '최고 연속'(경쟁·리셋되는 숫자) 대신 절대 줄지 않는 누적 기록일
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Text("🏆")
+                        Text("📸")
                             .font(.title)
-                        Text("\(mealStore.getMaxStreak())")
+                        Text("\(totalDays)")
                             .font(.system(size: 36, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
                     }
-                    Text("최고 연속")
+                    Text("기록한 날")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("최고 연속 기록")
-                .accessibilityValue("\(mealStore.getMaxStreak())일")
+                .accessibilityLabel("지금까지 기록한 날")
+                .accessibilityValue("\(totalDays)일")
             }
+
+            // 회복 프레임: 끊겨도 자책 없이 다시 시작하도록 격려
+            Text(encouragement)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .accessibilityLabel(encouragement)
         }
         .padding(16)
         .background(Color(.systemBackground))

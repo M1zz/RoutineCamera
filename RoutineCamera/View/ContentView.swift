@@ -741,7 +741,6 @@ struct SettingsView: View {
                 // 사진 저장 설정
                 Section(header: Text("사진 저장")) {
                     Toggle("자동으로 사진앱에 저장", isOn: $settingsManager.autoSaveToPhotoLibrary)
-                    Toggle("간식 보이기", isOn: $settingsManager.writeSnack)
                     let albumName = settingsManager.albumType == .diet ? "세끼식단" : "세끼운동"
                     Text(settingsManager.autoSaveToPhotoLibrary
                         ? "사진을 촬영하면 자동으로 사진앱의 '\(albumName)' 앨범에 저장됩니다."
@@ -754,6 +753,19 @@ struct SettingsView: View {
 
                 // 표시 설정
                 Section(header: Text("표시 설정")) {
+                    // 식단 모드일 때만 간식 표시 옵션
+                    if settingsManager.albumType == .diet {
+                        Toggle("간식 보이기", isOn: $settingsManager.writeSnack)
+
+                        Text(settingsManager.writeSnack
+                            ? "메인 화면에 간식 칸을 표시합니다."
+                            : "간식 칸을 숨깁니다. 이미 기록한 간식도 화면에서 가려지며, 기록은 삭제되지 않습니다.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.8)
+                    }
+
                     // 식단 모드일 때만 남은 장수 표시 옵션
                     if settingsManager.albumType == .diet {
                         Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)
@@ -1078,6 +1090,7 @@ struct DatePositionPreferenceKey: PreferenceKey {
 struct DailySectionView: View {
     let date: Date
     @ObservedObject var mealStore: MealRecordStore
+    @ObservedObject private var settingsManager = SettingsManager.shared // "간식 보이기" 등 표시 설정 즉시 반영
 
     private var isToday: Bool {
         Calendar.current.isDate(date, inSameDayAs: Date())
@@ -1171,18 +1184,18 @@ struct DailySectionView: View {
         }
     }
 
-    // 동적 간식 칸 계산: 기록된 간식은 항상 표시하고,
-    // 빈 간식 칸(기록 초대)은 "간식 보이기" 설정이 켜져 있을 때만 1개 노출
+    // 동적 간식 칸 계산: "간식 보이기"가 꺼져 있으면 기록된 간식까지 모두 숨기고(오늘 행과 동일),
+    // 켜져 있으면 기록된 간식 + 빈 간식 칸(기록 초대) 1개를 노출
     private func getSnacksToShow(meals: [MealType: MealRecord]) -> [MealType] {
+        guard SettingsManager.shared.writeSnack else { return [] }
+
         var snacks: [MealType] = []
 
         for snack in [MealType.snack1, .snack2, .snack3] {
             if meals[snack]?.isComplete ?? false {
                 snacks.append(snack)
             } else {
-                if SettingsManager.shared.writeSnack {
-                    snacks.append(snack)
-                }
+                snacks.append(snack)
                 break
             }
         }
@@ -1235,8 +1248,8 @@ struct DailySectionView: View {
     private func calculateLayout(isExerciseMode: Bool, cardCount: Int) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
         let screenWidth = UIScreen.main.bounds.width
         let horizontalPadding: CGFloat = 16
-        let cardPadding: CGFloat = 8
-        let spacing: CGFloat = 6
+        let cardPadding: CGFloat = 12 // 오늘 테두리와 사진 사이 여백 (8은 너무 타이트)
+        let spacing: CGFloat = 4
 
         // 4칸 이상이면 3.35칸 기준으로 크기를 잡아 4번째 칸이 살짝 보이게 함
         // (가로로 더 스크롤할 수 있음을 시각적으로 암시)
@@ -1277,7 +1290,9 @@ struct DailySectionView: View {
                         HStack(spacing: spacing) {
                             dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
                         }
+                        // 세로 패딩이 없으면 카드가 오늘 테두리 위아래에 딱 붙음
                         .padding(.horizontal, cardPadding)
+                        .padding(.vertical, cardPadding)
                     }
                     .onAppear {
                         // 오늘 날짜인 경우에만 자동 스크롤
@@ -1402,12 +1417,16 @@ struct MealPhotoView: View {
         return targetDate < graceEnd
     }
 
-    // 진짜 "연속 끊김" 지점: 미기록이면서 바로 이전 날은 완전히 기록된 경우에만 강조
+    // "연속 끊김" 지점: 이 날 전체가 미기록이고 바로 이전 날은 기록이 있던 경우
+    // (완화된 기준 isDayRecorded 사용). 시각적으로 빨강 강조는 하지 않고 접근성 안내에만 쓴다.
     private var isStreakBreakDay: Bool {
         guard isPastDateMissed, !isWithinGracePeriod else { return false }
         let calendar = Calendar.current
-        guard let prevDay = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: date)) else { return false }
-        return mealStore.isDayComplete(prevDay)
+        let day = calendar.startOfDay(for: date)
+        // 이 날에 아무 기록도 없어야 진짜 끊김
+        guard !mealStore.isDayRecorded(day) else { return false }
+        guard let prevDay = calendar.date(byAdding: .day, value: -1, to: day) else { return false }
+        return mealStore.isDayRecorded(prevDay)
     }
 
     // 미기록이지만 강조하지 않는 "부드러운 미기록"
@@ -1415,14 +1434,12 @@ struct MealPhotoView: View {
         isPastDateMissed && !isStreakBreakDay
     }
 
-    // 배경 색상 계산 (색은 최소화, 연속 끊김만 옅은 강조)
+    // 배경 색상 계산 (색은 최소화 — 끊김도 빨강으로 '박제'하지 않고 전부 중립)
     private var backgroundColor: Color {
-        if isStreakBreakDay {
-            return Color.red.opacity(0.10)   // 진짜 끊긴 지점만 옅은 강조
-        } else if isFutureDate {
+        if isFutureDate {
             return Color(.systemGray5)
         } else {
-            return Color(.systemGray6)       // 그 외는 동일한 중립 배경
+            return Color(.systemGray6)       // 미기록·끊김 모두 동일한 중립 배경
         }
     }
 
@@ -1575,15 +1592,10 @@ struct MealPhotoView: View {
     }
 
     // 색 이중 인코딩: 색만으로 구분되던 상태를 테두리 '패턴'으로도 표현
-    // 실선(빨강)=연속 끊김 강조 / 점선(회색)=부드러운 미기록 / 없음=예정·일반
+    // 미기록·끊김 모두 동일한 회색 점선으로 조용히 안내 (빨강 강조 없음)
     @ViewBuilder
     private var stateBorderOverlay: some View {
-        if isStreakBreakDay {
-            // 진짜 끊긴 지점만 실선으로 강조
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color.red.opacity(0.45), lineWidth: 2)
-        } else if isSoftMissed {
-            // 부드러운 미기록: 점선으로 조용히 안내
+        if isSoftMissed || isStreakBreakDay {
             RoundedRectangle(cornerRadius: 12)
                 .strokeBorder(
                     Color.gray.opacity(0.4),
@@ -1729,7 +1741,7 @@ struct MealPhotoView: View {
 
         let baseStatus: String
         if isWithinGracePeriod && isPastDateMissed { baseStatus = "아직 기록 전, 지금 기록할 수 있어요" }
-        else if isStreakBreakDay { baseStatus = "여기서 연속 기록이 끊겼어요" }
+        else if isStreakBreakDay { baseStatus = "미기록, 다음 기록부터 다시 이어져요" }
         else if isSoftMissed { baseStatus = "미기록" }
         else if isCurrentMeal { baseStatus = "지금 기록할 차례" }
         else { baseStatus = "아직 기록 안 함" }
