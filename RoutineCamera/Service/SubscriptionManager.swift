@@ -2,24 +2,26 @@
 //  SubscriptionManager.swift
 //  RoutineCamera
 //
-//  StoreKit 기반 구독 관리
+//  StoreKit 기반 구독 관리 — 파사드
 //  - 월 $2 구독으로 매달 99코인 충전
+//
+//  StoreKit 2 엔진(상품 로드·구매·복원·권한 추적·트랜잭션 리스너·검증·오프라인 캐시)은
+//  이제 LeeoKit 의 LeeoStore 가 공용으로 담당한다. 이 파일은 그 위에 앱 고유의
+//  "구독 활성 ↔ CoinManager 월 충전" 연결만 얹은 얇은 파사드로, 기존 호출부는
+//  그대로 동작한다. (구독 상품 ID·코인 지급 정책은 변경 없음.)
 //
 
 import Foundation
 import StoreKit
 import Combine
+import LeeoKit
 
 @MainActor
 class SubscriptionManager: ObservableObject {
     static let shared = SubscriptionManager()
 
-    // 구독 상품 ID (App Store Connect에서 설정한 ID)
+    // 구독 상품 ID (App Store Connect에서 설정한 ID) — 절대 변경 금지
     static let monthlySubscriptionID = "com.ysoup.routinecamera.monthly.99coins"
-
-    @Published private(set) var products: [Product] = []
-    @Published private(set) var purchasedSubscriptions: [Product] = []
-    @Published private(set) var subscriptionStatus: SubscriptionStatus = .notSubscribed
 
     enum SubscriptionStatus {
         case notSubscribed
@@ -28,160 +30,74 @@ class SubscriptionManager: ObservableObject {
         case loading
     }
 
-    private var updateListenerTask: Task<Void, Error>?
+    /// 공용 StoreKit 엔진. 구독 권한(entitlement) 판정을 담당한다.
+    private let store: LeeoStore
+    private var cancellable: AnyCancellable?
+    /// CoinManager 로 이미 반영한 구독 상태(전이 감지용).
+    private var lastSyncedSubscribed: Bool?
 
     private init() {
-        // 구독 상태 변경 리스너 시작
-        updateListenerTask = listenForTransactions()
-
-        // 상품 로드
-        Task {
-            await loadProducts()
-            await updateSubscriptionStatus()
+        store = LeeoStore(config: RoutineCameraSpec.paywall!)
+        // 공용 스토어의 상태 변화를 뷰에 전파하고, 구독 활성 여부를 코인 시스템에 반영한다.
+        cancellable = store.objectWillChange.sink { [weak self] _ in
+            guard let self else { return }
+            self.objectWillChange.send()
+            self.syncCoinSubscription()
         }
+        syncCoinSubscription()
     }
 
-    deinit {
-        updateListenerTask?.cancel()
+    // MARK: - 공개 상태 (기존 API 유지)
+
+    var products: [Product] { store.products }
+
+    var purchasedSubscriptions: [Product] {
+        store.products.filter { store.purchasedProductIDs.contains($0.id) }
     }
 
-    // MARK: - 상품 로드
-
-    func loadProducts() async {
-        do {
-            print("🛒 [SubscriptionManager] 상품 로드 중...")
-            let storeProducts = try await Product.products(for: [Self.monthlySubscriptionID])
-            products = storeProducts
-            print("✅ [SubscriptionManager] 상품 로드 완료: \(storeProducts.count)개")
-
-            for product in storeProducts {
-                print("   - \(product.displayName): \(product.displayPrice)")
-            }
-        } catch {
-            print("❌ [SubscriptionManager] 상품 로드 실패: \(error)")
-        }
+    var subscriptionStatus: SubscriptionStatus {
+        store.hasPro ? .subscribed : .notSubscribed
     }
 
-    // MARK: - 구독 구매
-
-    func purchase(_ product: Product) async throws -> Bool {
-        print("💳 [SubscriptionManager] 구매 시도: \(product.displayName)")
-
-        let result = try await product.purchase()
-
-        switch result {
-        case .success(let verification):
-            // 구매 성공 - 트랜잭션 검증
-            let transaction = try checkVerified(verification)
-            await transaction.finish()
-
-            // 구독 활성화
-            await updateSubscriptionStatus()
-
-            print("✅ [SubscriptionManager] 구매 성공")
-            return true
-
-        case .userCancelled:
-            print("⚠️ [SubscriptionManager] 사용자가 구매 취소")
-            return false
-
-        case .pending:
-            print("⏳ [SubscriptionManager] 구매 대기 중 (승인 필요)")
-            return false
-
-        @unknown default:
-            print("❓ [SubscriptionManager] 알 수 없는 구매 결과")
-            return false
-        }
-    }
-
-    // MARK: - 구독 복원
-
-    func restorePurchases() async {
-        print("🔄 [SubscriptionManager] 구독 복원 시작...")
-
-        do {
-            try await AppStore.sync()
-            await updateSubscriptionStatus()
-            print("✅ [SubscriptionManager] 구독 복원 완료")
-        } catch {
-            print("❌ [SubscriptionManager] 구독 복원 실패: \(error)")
-        }
-    }
-
-    // MARK: - 구독 상태 업데이트
-
-    func updateSubscriptionStatus() async {
-        print("🔍 [SubscriptionManager] 구독 상태 확인 중...")
-
-        var activeSubscriptions: [Product] = []
-
-        for await result in Transaction.currentEntitlements {
-            do {
-                let transaction = try checkVerified(result)
-
-                // 구독 상품인지 확인
-                if let product = products.first(where: { $0.id == transaction.productID }) {
-                    activeSubscriptions.append(product)
-                }
-            } catch {
-                print("❌ [SubscriptionManager] 트랜잭션 검증 실패: \(error)")
-            }
-        }
-
-        purchasedSubscriptions = activeSubscriptions
-
-        // 구독 상태 업데이트
-        if !activeSubscriptions.isEmpty {
-            subscriptionStatus = .subscribed
-            CoinManager.shared.activateSubscription()
-            print("✅ [SubscriptionManager] 활성 구독 확인됨")
-        } else {
-            subscriptionStatus = .notSubscribed
-            CoinManager.shared.deactivateSubscription()
-            print("ℹ️ [SubscriptionManager] 활성 구독 없음")
-        }
-    }
-
-    // MARK: - 트랜잭션 검증
-
-    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .unverified:
-            throw StoreError.failedVerification
-        case .verified(let safe):
-            return safe
-        }
-    }
-
-    enum StoreError: Error {
-        case failedVerification
-    }
-
-    // MARK: - 트랜잭션 리스너
-
-    private func listenForTransactions() -> Task<Void, Error> {
-        return Task.detached {
-            for await result in Transaction.updates {
-                do {
-                    let transaction = try self.checkVerified(result)
-                    await transaction.finish()
-                    await self.updateSubscriptionStatus()
-                    print("🔔 [SubscriptionManager] 트랜잭션 업데이트 감지")
-                } catch {
-                    print("❌ [SubscriptionManager] 트랜잭션 처리 실패: \(error)")
-                }
-            }
-        }
-    }
-
-    // MARK: - 구독 정보
-
-    var isSubscribed: Bool {
-        return subscriptionStatus == .subscribed
-    }
+    var isSubscribed: Bool { store.hasPro }
 
     var monthlyProduct: Product? {
-        return products.first(where: { $0.id == Self.monthlySubscriptionID })
+        store.products.first(where: { $0.id == Self.monthlySubscriptionID })
+    }
+
+    // MARK: - 상품 로드 / 구매 / 복원 (LeeoStore 로 위임)
+
+    func loadProducts() async {
+        await store.loadProducts()
+    }
+
+    @discardableResult
+    func purchase(_ product: Product) async throws -> Bool {
+        await store.purchase(product)
+    }
+
+    func restorePurchases() async {
+        await store.restore()
+    }
+
+    /// 현재 유효한 구독 권한을 다시 확인하고 코인 시스템에 반영한다.
+    func updateSubscriptionStatus() async {
+        await store.refreshEntitlements()
+        syncCoinSubscription()
+    }
+
+    // MARK: - 구독 ↔ 코인 시스템 연결
+
+    /// 구독이 활성/비활성으로 "전이"될 때만 CoinManager 에 알린다.
+    /// activateSubscription() 은 월 단위로 멱등(같은 달 재충전 안 함)하므로 안전하다.
+    private func syncCoinSubscription() {
+        let subscribed = store.hasPro
+        guard subscribed != lastSyncedSubscribed else { return }
+        lastSyncedSubscribed = subscribed
+        if subscribed {
+            CoinManager.shared.activateSubscription()
+        } else {
+            CoinManager.shared.deactivateSubscription()
+        }
     }
 }

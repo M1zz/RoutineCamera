@@ -2,23 +2,40 @@
 //  CoinManager.swift
 //  RoutineCamera
 //
-//  코인 기반 식단 분석 시스템
+//  코인 기반 식단 분석 시스템 — 파사드
 //  - 한 달에 99코인 제공 (구독 시)
 //  - 1회 분석 = 1코인 차감
+//
+//  코인 "잔액"의 저장/차감/충전 및 중단된 소비성 트랜잭션 복구는 이제 LeeoKit 의
+//  LeeoConsumableStore 가 공용으로 담당한다. 이 파일은 그 위에 앱 고유의 월 단위
+//  자동 충전 정책만 얹은 얇은 파사드로, 기존 호출부(currentCoins/consumeCoin 등)는
+//  그대로 동작한다.
+//
+//  ⚠️ 잔액 보존: 예전엔 코인을 UserDefaults.standard 의 "analysisCoins" 키에 직접 저장했다.
+//  LeeoConsumableStore 는 자체 키("leeo.consumable.balance")를 쓰므로, 최초 1회
+//  기존 잔액을 새 스토어로 옮긴다(아래 마이그레이션). 기존 사용자의 코인은 유실되지 않는다.
 //
 
 import Foundation
 import Combine
+import LeeoKit
 
 class CoinManager: ObservableObject {
     static let shared = CoinManager()
 
-    @Published private(set) var currentCoins: Int {
-        didSet {
-            UserDefaults.standard.set(currentCoins, forKey: "analysisCoins")
-            print("💰 [CoinManager] 코인 변경: \(currentCoins)개")
-        }
-    }
+    /// 기존 코인 잔액 저장 키(마이그레이션 원본).
+    private static let legacyBalanceKey = "analysisCoins"
+    /// 마이그레이션 완료 플래그.
+    private static let migrationFlagKey = "coinBalance.migratedToLeeoKit.v1"
+
+    /// 공용 소비성 결제/잔액 엔진.
+    /// 이 앱은 코인을 소비성 IAP 로 팔지 않고 구독으로 충전하므로 판매 상품은 없다.
+    /// (잔액 저장·차감·충전·중단 트랜잭션 복구를 위해 사용한다.)
+    private let store: LeeoConsumableStore
+    private var cancellable: AnyCancellable?
+
+    /// 현재 코인 잔액 (LeeoConsumableStore 가 소유·영속화).
+    var currentCoins: Int { store.balance }
 
     @Published private(set) var isSubscribed: Bool {
         didSet {
@@ -37,9 +54,22 @@ class CoinManager: ObservableObject {
     }
 
     private init() {
-        // 저장된 코인 불러오기
-        self.currentCoins = UserDefaults.standard.object(forKey: "analysisCoins") as? Int ?? 0
+        store = LeeoConsumableStore(config: LeeoConsumableConfig(products: []))
         self.isSubscribed = UserDefaults.standard.bool(forKey: "isSubscribed")
+
+        // 기존 잔액을 공용 스토어로 1회 이전 (기존 사용자 코인 보존).
+        let defaults = UserDefaults.standard
+        if !defaults.bool(forKey: Self.migrationFlagKey) {
+            let legacy = defaults.object(forKey: Self.legacyBalanceKey) as? Int ?? 0
+            if legacy > 0 { store.credit(legacy) }
+            defaults.set(true, forKey: Self.migrationFlagKey)
+            print("🔀 [CoinManager] 코인 잔액 마이그레이션 완료: \(legacy)개 이전")
+        }
+
+        // 잔액 변화(구매 복구 등)를 뷰에 전파.
+        cancellable = store.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
 
         print("💰 [CoinManager] 초기화 완료")
         print("   - 현재 코인: \(currentCoins)개")
@@ -54,17 +84,15 @@ class CoinManager: ObservableObject {
 
     /// 분석에 필요한 코인이 있는지 확인
     func hasEnoughCoins() -> Bool {
-        return currentCoins > 0
+        return store.canAfford(1)
     }
 
     /// 분석 시 코인 차감
     func consumeCoin() -> Bool {
-        guard currentCoins > 0 else {
+        guard store.spend(1) else {
             print("❌ [CoinManager] 코인 부족")
             return false
         }
-
-        currentCoins -= 1
         print("✅ [CoinManager] 코인 차감 완료 (남은 코인: \(currentCoins)개)")
         return true
     }
@@ -73,7 +101,7 @@ class CoinManager: ObservableObject {
 
     /// 수동 코인 충전 (구독 결제 완료 시)
     func rechargeCoins(amount: Int = 99) {
-        currentCoins += amount
+        store.credit(amount)
         lastRechargeDate = Date()
         print("✅ [CoinManager] 코인 충전 완료: +\(amount)개 (총: \(currentCoins)개)")
     }
@@ -129,13 +157,13 @@ class CoinManager: ObservableObject {
     #if DEBUG
     /// 테스트용 코인 추가
     func addTestCoins(_ amount: Int) {
-        currentCoins += amount
+        store.credit(amount)
         print("🧪 [CoinManager] 테스트 코인 추가: +\(amount)개")
     }
 
     /// 테스트용 초기화
     func resetForTesting() {
-        currentCoins = 0
+        store.spend(store.balance) // 잔액을 0으로
         isSubscribed = false
         lastRechargeDate = nil
         print("🔄 [CoinManager] 테스트용 초기화 완료")
