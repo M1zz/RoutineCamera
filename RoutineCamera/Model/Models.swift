@@ -285,7 +285,8 @@ class MealRecordStore: ObservableObject {
         }
     }
 
-    private let userDefaults = UserDefaults.standard
+    // 위젯과 공유하기 위해 App Group 저장소 사용 (미등록 시 표준으로 폴백)
+    private let userDefaults = AppGroup.defaults
     private let dietRecordsKey = "DietMealRecords"
     private let exerciseRecordsKey = "ExerciseMealRecords"
     private var cancellables = Set<AnyCancellable>()
@@ -309,8 +310,10 @@ class MealRecordStore: ObservableObject {
     private let uploadDelaySeconds: TimeInterval = 5  // 5초 후 업로드
 
     init() {
+        migrateToAppGroupIfNeeded()
         loadRecords()
         migrateOldDataIfNeeded()
+        drainPendingAteAll()
 
         // SettingsManager의 albumType 변경 감지
         SettingsManager.shared.$albumType
@@ -318,6 +321,15 @@ class MealRecordStore: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        // 앱이 다시 활성화될 때, 위젯/알림에서 앱 없이 쌓인 "다 먹음" 대기열 반영
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.drainPendingAteAll()
+        }
 
         // 앱 백그라운드 진입 시 대기 중인 업로드 즉시 실행
         NotificationCenter.default.addObserver(
@@ -336,6 +348,27 @@ class MealRecordStore: ObservableObject {
         if !dirtyDates.isEmpty {
             print("⚠️ [CloudKit] 앱 종료 - 남은 업로드 실행")
         }
+    }
+
+    // 표준 UserDefaults → App Group 공유 저장소로 1회 이관 (위젯 공유 전환 시 데이터 보존)
+    private func migrateToAppGroupIfNeeded() {
+        let flagKey = "migratedToAppGroup_v1"
+        // 공유 suite가 표준과 동일(폴백)하면 이관 불필요
+        guard userDefaults != UserDefaults.standard else { return }
+        guard !userDefaults.bool(forKey: flagKey) else { return }
+
+        let std = UserDefaults.standard
+        if userDefaults.object(forKey: dietRecordsKey) == nil,
+           let data = std.data(forKey: dietRecordsKey) {
+            userDefaults.set(data, forKey: dietRecordsKey)
+            print("📦 [AppGroup] 식단 기록 이관 완료")
+        }
+        if userDefaults.object(forKey: exerciseRecordsKey) == nil,
+           let data = std.data(forKey: exerciseRecordsKey) {
+            userDefaults.set(data, forKey: exerciseRecordsKey)
+            print("📦 [AppGroup] 운동 기록 이관 완료")
+        }
+        userDefaults.set(true, forKey: flagKey)
     }
 
     // 기존 데이터를 식단 전용으로 마이그레이션
@@ -515,6 +548,26 @@ class MealRecordStore: ObservableObject {
     // 가장 최근의 "먹는 중"(식전만 있는) 기록을 찾아 반환 (다먹음 신호를 붙일 대상 추정용)
     func latestEatingInProgress() -> MealRecord? {
         return records.filter { $0.isEatingInProgress }.max(by: { $0.sortDate < $1.sortDate })
+    }
+
+    // 위젯/알림에서 앱 없이 쌓아둔 "다 먹음" 대기열을 실제 기록으로 반영
+    func drainPendingAteAll() {
+        guard let data = userDefaults.data(forKey: AppGroup.pendingAteAllKey),
+              let items = try? JSONDecoder().decode([PendingAteAll].self, from: data),
+              !items.isEmpty else { return }
+
+        // 대기열은 항상 식단 기록으로 반영 (위젯은 식단 전용)
+        let previousAlbum = SettingsManager.shared.albumType
+        if previousAlbum != .diet { SettingsManager.shared.albumType = .diet }
+
+        for item in items {
+            guard let mealType = MealType(rawValue: item.mealType) else { continue }
+            recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType)
+        }
+
+        if previousAlbum != .diet { SettingsManager.shared.albumType = previousAlbum }
+        userDefaults.removeObject(forKey: AppGroup.pendingAteAllKey)
+        print("📥 [AppGroup] 대기 중 '다 먹음' \(items.count)건 반영")
     }
 
     // 식사 기록 삭제

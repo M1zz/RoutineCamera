@@ -3,7 +3,7 @@
 ## 🚀 대전환: "얼마나 먹었나" 리디자인 (스펙: REDESIGN_SPEC.md)
 격자(3끼 슬롯) → 순간 컬렉션 + 앱 안 여는 원탭 기록. 핵심 지표는 칼로리가 아닌 "양"(식전/식후 차이 + "다 먹음" 탭).
 - [ ] Phase 1 (앱 본체): capturedAt/ateAll 모델 + MomentsView 피드 + 식후 알림 + AppIntent(액션버튼/단축어) + 격자는 설정 토글로 보존
-- [ ] Phase 2 (Widget 익스텐션 타깃 + App Group): 잠금화면/홈 위젯 원탭 "다 먹음"
+- [~] Phase 2 (Widget): App Group 배관 완료(entitlements+공유 suite+대기열 drain, 앱 빌드 검증). 위젯 코드는 SekkiWidget/ 에 준비됨 → 사용자가 Xcode에서 Widget Extension 타깃 생성 후 연결 필요 (SekkiWidget/README.md)
 - 상세 로직·페르소나·기록 조합표는 REDESIGN_SPEC.md 참조
 
 
