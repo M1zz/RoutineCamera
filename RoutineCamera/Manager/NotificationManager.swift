@@ -41,6 +41,10 @@ class NotificationManager: ObservableObject {
         }
     }
 
+    // "다 먹음" 알림 카테고리/액션 식별자 (알림에서 앱 안 열고 바로 처리)
+    static let ateAllCategoryID = "ATE_ALL_REMINDER"
+    static let ateAllActionID = "MARK_ATE_ALL"
+
     private init() {
         // 저장된 시간 불러오기 또는 기본값 설정
         self.breakfastTime = NotificationManager.loadTime(forKey: "breakfastTime") ?? NotificationManager.createTime(hour: 7, minute: 0)
@@ -48,6 +52,53 @@ class NotificationManager: ObservableObject {
         self.dinnerTime = NotificationManager.loadTime(forKey: "dinnerTime") ?? NotificationManager.createTime(hour: 18, minute: 0)
 
         checkNotificationStatus()
+        registerNotificationCategories()
+    }
+
+    // "다 먹음" 액션 카테고리 등록 — 알림 배너에서 앱을 열지 않고 바로 '다 먹음' 탭 가능
+    func registerNotificationCategories() {
+        let ateAll = UNNotificationAction(
+            identifier: NotificationManager.ateAllActionID,
+            title: "다 먹음",
+            options: []  // .foreground 없음 = 앱 안 열고 백그라운드 처리
+        )
+        let category = UNNotificationCategory(
+            identifier: NotificationManager.ateAllCategoryID,
+            actions: [ateAll],
+            intentIdentifiers: [],
+            options: []
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+    }
+
+    // 식전만 찍었을 때, 잠시 후 "다 드셨어요?" 알림 → 알림에서 바로 '다 먹음' 원탭
+    func scheduleAteAllReminder(date: Date, mealType: MealType, afterMinutes: Double = 90) {
+        guard notificationsEnabled else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "🍽️ 다 드셨어요?"
+        content.body = "\(mealType.rawValue), 다 먹었으면 여기서 바로 남겨요."
+        content.sound = .default
+        content.categoryIdentifier = NotificationManager.ateAllCategoryID
+        content.userInfo = [
+            "mealType": mealType.rawValue,
+            "date": date.timeIntervalSince1970
+        ]
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(afterMinutes * 60, 1), repeats: false)
+        let dayKey = Calendar.current.startOfDay(for: date).timeIntervalSince1970
+        let id = "ateall-\(mealType.rawValue)-\(dayKey)"
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("다먹음 리마인더 오류: \(error)")
+            }
+        }
+    }
+
+    // 다먹음/식후가 확정되면 해당 리마인더 취소
+    func cancelAteAllReminder(date: Date, mealType: MealType) {
+        let dayKey = Calendar.current.startOfDay(for: date).timeIntervalSince1970
+        let id = "ateall-\(mealType.rawValue)-\(dayKey)"
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
 
     private static func createTime(hour: Int, minute: Int) -> Date {

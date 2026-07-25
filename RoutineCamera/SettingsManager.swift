@@ -62,6 +62,13 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    // 순간 피드(슬롯 없는 시간순 사진 일기) 사용 여부. false면 기존 격자 화면.
+    @Published var useMomentsFeed: Bool {
+        didSet {
+            UserDefaults.standard.set(useMomentsFeed, forKey: "useMomentsFeed")
+        }
+    }
+
     @Published var shareMealsToCloud: Bool {
         didSet {
             UserDefaults.standard.set(shareMealsToCloud, forKey: "shareMealsToFirebase") // 기존 설정값 유지를 위해 키 이름은 그대로 둠
@@ -123,6 +130,8 @@ class SettingsManager: ObservableObject {
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
+        // 순간 피드 기본 ON (새 경험). 기존 격자를 원하면 설정에서 끄기.
+        self.useMomentsFeed = UserDefaults.standard.object(forKey: "useMomentsFeed") as? Bool ?? true
 
         // 식단 공유 기본값은 true (자동 싱크 활성화)
         self.shareMealsToCloud = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true

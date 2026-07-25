@@ -149,14 +149,18 @@ struct ContentView: View {
                         }
                     )
 
-                    // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시, 탭하면 카메라
-                    if let pending = pendingMealType {
+                    // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시 (격자 모드에서만)
+                    if !settingsManager.useMomentsFeed, let pending = pendingMealType {
                         RecordNowBanner(mealType: pending) {
                             autoOpenPhotoType = .before
                             autoOpenMealType = pending
                         }
                     }
 
+                    if settingsManager.useMomentsFeed {
+                        // 순간 컬렉션 피드 (슬롯 없는 사진 일기)
+                        MomentsView(mealStore: mealStore)
+                    } else {
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
                             ForEach(dateList, id: \.self) { date in
@@ -205,6 +209,7 @@ struct ContentView: View {
                             proxy.scrollTo(todayDate, anchor: .top)
                         }
                     }
+                    } // end else (격자 모드)
                 }
                 .zIndex(0)
                 .onAppear {
@@ -247,8 +252,8 @@ struct ContentView: View {
                     }
                 }
 
-                // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼
-                if !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
+                // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)
+                if !settingsManager.useMomentsFeed && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
                     VStack {
                         Spacer()
                         HStack {
@@ -493,10 +498,11 @@ struct HomeHeaderView: View {
             }
 
             // 목표 진행률 (켠 경우에만, 한 줄)
+            // 연속(끊기면 리셋)이 아니라 누적 기록일 기준 — 하루 놓쳐도 바가 줄지 않는다.
             if goalManager.goalEnabled {
-                let currentStreak = mealStore.getCurrentStreak()
-                let progress = goalManager.getProgress(currentStreak: currentStreak)
-                let achieved = goalManager.isGoalAchieved(currentStreak: currentStreak)
+                let recordedDays = mealStore.getTotalRecordedDays()
+                let progress = goalManager.getProgress(currentStreak: recordedDays)
+                let achieved = goalManager.isGoalAchieved(currentStreak: recordedDays)
 
                 HStack(spacing: 10) {
                     GeometryReader { geometry in
@@ -512,14 +518,14 @@ struct HomeHeaderView: View {
                     }
                     .frame(height: 6)
 
-                    Text("\(currentStreak)/\(goalManager.goalDays)일")
+                    Text("\(recordedDays)/\(goalManager.goalDays)일")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("목표 진행률")
-                .accessibilityValue("\(goalManager.goalDays)일 목표 중 \(currentStreak)일 연속 기록, \(Int((progress * 100).rounded()))퍼센트 달성\(achieved ? ", 목표 달성 완료" : "")")
+                .accessibilityValue("\(goalManager.goalDays)일 목표 중 \(recordedDays)일 기록, \(Int((progress * 100).rounded()))퍼센트 달성\(achieved ? ", 목표 달성 완료" : "")")
             }
         }
         .padding(.horizontal, 16)
@@ -745,6 +751,19 @@ struct SettingsView: View {
                     Text(settingsManager.autoSaveToPhotoLibrary
                         ? "사진을 촬영하면 자동으로 사진앱의 '\(albumName)' 앨범에 저장됩니다."
                         : "사진을 앱 내부에만 저장합니다. 상세보기에서 다운로드 버튼으로 사진앱에 저장할 수 있습니다.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.8)
+                }
+
+                // 화면 방식 (순간 피드 vs 기존 격자)
+                Section(header: Text("화면 방식")) {
+                    Toggle("순간 피드", isOn: $settingsManager.useMomentsFeed)
+
+                    Text(settingsManager.useMomentsFeed
+                        ? "빈 칸 없이 남긴 기록만 시간순으로 쌓이는 사진 일기 방식입니다."
+                        : "아침·점심·저녁 칸이 있는 기존 격자 방식입니다.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(3)
@@ -1591,17 +1610,11 @@ struct MealPhotoView: View {
             }
     }
 
-    // 색 이중 인코딩: 색만으로 구분되던 상태를 테두리 '패턴'으로도 표현
-    // 미기록·끊김 모두 동일한 회색 점선으로 조용히 안내 (빨강 강조 없음)
+    // 과거 미기록 칸은 테두리 없이 조용한 빈 공간으로 둔다.
+    // (점선 '미기록' 표시가 지나간 날마다 벽처럼 쌓여 완벽주의를 자극하던 것을 제거)
     @ViewBuilder
     private var stateBorderOverlay: some View {
-        if isSoftMissed || isStreakBreakDay {
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(
-                    Color.gray.opacity(0.4),
-                    style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
-                )
-        }
+        EmptyView()
     }
 
     // 빈 상태의 내용
@@ -1609,20 +1622,19 @@ struct MealPhotoView: View {
     private var emptyStateContent: some View {
         VStack(spacing: 6) {
             mainSymbolView
-            // 미래가 아닌 빈 칸은 모두 탭해서 기록할 수 있음을 +로 표시
-            // 오늘·유예 기간은 파란색 초대, 과거는 회색으로 조용히
+            // + 초대는 '지금 기록할 수 있는' 오늘·유예 기간에만.
+            // 과거 미기록 칸은 +를 빼서 "못 채운 칸"이 아니라 조용한 빈 공간으로 둔다.
             if isToday || (isWithinGracePeriod && isPastDateMissed) {
                 plusIcon(color: .blue)
-            } else if !isFutureDate {
-                plusIcon(color: Color.gray.opacity(0.45))
             }
         }
     }
 
-    // 미기록/예정은 음소거 회색, 유예·일반은 초대하는 식사 색
+    // 미래·과거 미기록은 옅은 회색, 유예·일반은 초대하는 식사 색
     private var symbolColor: Color {
         if isFutureDate { return .gray }
-        if isSoftMissed || isStreakBreakDay { return Color.gray.opacity(0.7) }
+        if isWithinGracePeriod && isPastDateMissed { return mealType.symbolColor }  // 유예는 초대 톤 유지
+        if isSoftMissed || isStreakBreakDay { return Color.gray.opacity(0.35) }     // 과거 미기록은 더 옅게 물러남
         return mealType.symbolColor
     }
 
@@ -2107,6 +2119,15 @@ struct CameraPickerView: View {
                 // 식단 모드일 때 식전 사진만 자동으로 Vision 분석 실행
                 if SettingsManager.shared.albumType == .diet && localPhotoType == .before {
                     autoAnalyzeFood(image: image, date: date, mealType: mealType)
+                }
+
+                // 식전만 남긴 "먹는 중" 상태면 잠시 후 "다 드셨어요?" 알림 예약 (앱 안 열고 원탭)
+                if SettingsManager.shared.albumType == .diet, let saved = mealStore.getMeals(for: date)[mealType] {
+                    if saved.isEatingInProgress {
+                        NotificationManager.shared.scheduleAteAllReminder(date: date, mealType: mealType)
+                    } else {
+                        NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
+                    }
                 }
 
                 dismiss()

@@ -49,6 +49,18 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
             return false
         }
     }
+
+    // 촬영 시각으로 끼니를 자동 추론 (순간 기록에서 슬롯 선택 없이 바로 기록하기 위함)
+    // 아침 05~10시 / 점심 11~15시 / 저녁 16~21시 / 그 외 간식
+    static func inferred(at date: Date = Date()) -> MealType {
+        let hour = Calendar.current.component(.hour, from: date)
+        switch hour {
+        case 5...10:  return .breakfast
+        case 11...15: return .lunch
+        case 16...21: return .dinner
+        default:      return .snack1
+        }
+    }
 }
 
 // Vision 분석 결과 저장용 모델
@@ -179,8 +191,10 @@ struct MealRecord: Identifiable, Codable {
     let recordedWithoutPhoto: Bool  // 사진 없이 기록했는지
     var hidePhotoCountBadge: Bool  // 이 식사의 사진 개수 알림 숨기기
     var visionAnalysis: VisionAnalysisData?  // Vision Framework 분석 결과
+    var capturedAt: Date?  // 실제 촬영/기록 시각 (순간 피드 정렬용). 기존 데이터는 nil → date로 폴백
+    var ateAll: Bool  // "다 먹음" 신호 (식후 사진 대체). 식전만 찍고 다 먹었을 때
 
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil) {
+    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false) {
         self.id = UUID()
         self.date = date
         self.mealType = mealType
@@ -190,6 +204,8 @@ struct MealRecord: Identifiable, Codable {
         self.recordedWithoutPhoto = recordedWithoutPhoto
         self.hidePhotoCountBadge = hidePhotoCountBadge
         self.visionAnalysis = visionAnalysis
+        self.capturedAt = capturedAt
+        self.ateAll = ateAll
     }
 
     // 기존 데이터 호환성을 위한 커스텀 디코딩
@@ -207,6 +223,9 @@ struct MealRecord: Identifiable, Codable {
         hidePhotoCountBadge = try container.decodeIfPresent(Bool.self, forKey: .hidePhotoCountBadge) ?? false
         // 기존 데이터에는 visionAnalysis가 없을 수 있으므로 기본값 nil 사용
         visionAnalysis = try container.decodeIfPresent(VisionAnalysisData.self, forKey: .visionAnalysis)
+        // 신규 필드 — 기존 데이터 호환 기본값
+        capturedAt = try container.decodeIfPresent(Date.self, forKey: .capturedAt)
+        ateAll = try container.decodeIfPresent(Bool.self, forKey: .ateAll) ?? false
     }
 
     // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
@@ -214,9 +233,24 @@ struct MealRecord: Identifiable, Codable {
         return afterImageData ?? beforeImageData
     }
 
-    // 기록이 완료되었는지 (최소 1개 사진 있거나 사진 없이 기록했으면 완료)
+    // 기록이 완료되었는지 (사진 1장 이상 / 사진 없이 기록 / "다 먹음" 중 하나라도)
     var isComplete: Bool {
-        return beforeImageData != nil || afterImageData != nil || recordedWithoutPhoto
+        return beforeImageData != nil || afterImageData != nil || recordedWithoutPhoto || ateAll
+    }
+
+    // 피드 정렬용 시각 (촬영 시각 있으면 그것, 없으면 그날 날짜)
+    var sortDate: Date {
+        return capturedAt ?? date
+    }
+
+    // 식전만 찍고 아직 식후/다먹음 신호가 없는 "먹는 중" 상태
+    var isEatingInProgress: Bool {
+        return beforeImageData != nil && afterImageData == nil && !ateAll && !recordedWithoutPhoto
+    }
+
+    // 식전→식후 비교가 가능한 기록 (양 변화 시각화)
+    var hasBeforeAfterComparison: Bool {
+        return beforeImageData != nil && afterImageData != nil
     }
 }
 
@@ -374,7 +408,9 @@ class MealRecordStore: ObservableObject {
                     memo: existing.memo,
                     recordedWithoutPhoto: false,
                     hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                    visionAnalysis: existing.visionAnalysis
+                    visionAnalysis: existing.visionAnalysis,
+                    capturedAt: existing.capturedAt ?? Date(),
+                    ateAll: existing.ateAll
                 )
             } else {
                 currentRecords[existingIndex] = MealRecord(
@@ -385,7 +421,9 @@ class MealRecordStore: ObservableObject {
                     memo: existing.memo,
                     recordedWithoutPhoto: false,
                     hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                    visionAnalysis: existing.visionAnalysis
+                    visionAnalysis: existing.visionAnalysis,
+                    capturedAt: existing.capturedAt ?? Date(),
+                    ateAll: existing.ateAll
                 )
             }
         } else {
@@ -394,7 +432,8 @@ class MealRecordStore: ObservableObject {
                 date: targetDate,
                 mealType: mealType,
                 beforeImageData: isBefore ? imageData : nil,
-                afterImageData: isBefore ? nil : imageData
+                afterImageData: isBefore ? nil : imageData,
+                capturedAt: Date()
             )
             currentRecords.append(newRecord)
         }
@@ -426,7 +465,8 @@ class MealRecordStore: ObservableObject {
             mealType: mealType,
             beforeImageData: nil,
             afterImageData: nil,
-            recordedWithoutPhoto: true
+            recordedWithoutPhoto: true,
+            capturedAt: Date()
         )
         currentRecords.append(newRecord)
 
@@ -434,6 +474,47 @@ class MealRecordStore: ObservableObject {
 
         // 업적 체크
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
+    }
+
+    // "다 먹음" 기록 — 식전만 찍은 기록에 다먹음 신호를 붙이거나, 없으면 사진 없이 다먹음 기록 생성.
+    // 위젯/액션버튼/알림에서 앱 안 열고 호출되는 진입점.
+    func recordAteAll(date: Date, mealType: MealType) {
+        let targetDate = Calendar.current.startOfDay(for: date)
+        var currentRecords = records
+
+        if let existingIndex = currentRecords.firstIndex(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+        }) {
+            let existing = currentRecords[existingIndex]
+            currentRecords[existingIndex] = MealRecord(
+                date: targetDate,
+                mealType: mealType,
+                beforeImageData: existing.beforeImageData,
+                afterImageData: existing.afterImageData,
+                memo: existing.memo,
+                recordedWithoutPhoto: existing.recordedWithoutPhoto,
+                hidePhotoCountBadge: existing.hidePhotoCountBadge,
+                visionAnalysis: existing.visionAnalysis,
+                capturedAt: existing.capturedAt ?? Date(),
+                ateAll: true
+            )
+        } else {
+            let newRecord = MealRecord(
+                date: targetDate,
+                mealType: mealType,
+                capturedAt: Date(),
+                ateAll: true
+            )
+            currentRecords.append(newRecord)
+        }
+
+        records = currentRecords
+        AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
+    }
+
+    // 가장 최근의 "먹는 중"(식전만 있는) 기록을 찾아 반환 (다먹음 신호를 붙일 대상 추정용)
+    func latestEatingInProgress() -> MealRecord? {
+        return records.filter { $0.isEatingInProgress }.max(by: { $0.sortDate < $1.sortDate })
     }
 
     // 식사 기록 삭제
@@ -470,7 +551,9 @@ class MealRecordStore: ObservableObject {
                 memo: memo,
                 recordedWithoutPhoto: existing.recordedWithoutPhoto,
                 hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                visionAnalysis: existing.visionAnalysis
+                visionAnalysis: existing.visionAnalysis,
+                capturedAt: existing.capturedAt,
+                ateAll: existing.ateAll
             )
             records = currentRecords
         }
@@ -493,7 +576,9 @@ class MealRecordStore: ObservableObject {
                 memo: existing.memo,
                 recordedWithoutPhoto: existing.recordedWithoutPhoto,
                 hidePhotoCountBadge: hide,
-                visionAnalysis: existing.visionAnalysis
+                visionAnalysis: existing.visionAnalysis,
+                capturedAt: existing.capturedAt,
+                ateAll: existing.ateAll
             )
             records = currentRecords
         }
@@ -516,7 +601,9 @@ class MealRecordStore: ObservableObject {
                 memo: existing.memo,
                 recordedWithoutPhoto: existing.recordedWithoutPhoto,
                 hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                visionAnalysis: analysis
+                visionAnalysis: analysis,
+                capturedAt: existing.capturedAt,
+                ateAll: existing.ateAll
             )
             records = currentRecords
         }

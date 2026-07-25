@@ -17,8 +17,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5857FA102EC244BF00A539D8 /* RoutineCamera */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = RoutineCamera;
 			sourceTree = "<group>";
 		};
@@ -103,7 +101,7 @@
 			mainGroup = 5857FA052EC244BF00A539D8;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "LeeoKit" */,
+				86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5857FA0F2EC244BF00A539D8 /* Products */;
@@ -361,7 +359,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "LeeoKit" */ = {
+		86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../LeeoKit;
 		};
@@ -370,7 +368,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		C4C8CC1A526115B7855DF619 /* LeeoKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "LeeoKit" */;
+			package = 86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */;
 			productName = LeeoKit;
 		};
 /* End XCSwiftPackageProductDependency section */

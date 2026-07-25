@@ -58,4 +58,16 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                               willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
     return [.banner, .sound, .badge]
   }
+
+  // 알림의 "다 먹음" 액션 처리 — 앱을 열지 않고 기록만 남긴다
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse) async {
+    guard response.actionIdentifier == NotificationManager.ateAllActionID else { return }
+    let info = response.notification.request.content.userInfo
+    guard let raw = info["mealType"] as? String, let mealType = MealType(rawValue: raw) else { return }
+    let date = (info["date"] as? TimeInterval).map { Date(timeIntervalSince1970: $0) } ?? Date()
+    await MainActor.run {
+      MealRecordStore.shared.recordAteAll(date: date, mealType: mealType)
+    }
+  }
 }
