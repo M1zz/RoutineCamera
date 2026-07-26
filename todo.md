@@ -6,7 +6,8 @@
 - [x] 단위 테스트 23개 작성 + `swift test` 통과 (스트릭·기록일·추론·정렬·Codable 호환)
 - [x] 프로젝트 경고 0건 정리
 - [ ] STAGE 2: 앱이 RoutineCameraCore를 import하도록 통합 (중복 타입 제거) — Xcode에서 로컬 패키지 추가 필요(안전) 또는 pbxproj 배선(위험)
-- [ ] STAGE 3: ContentView.swift(3232줄, 22개 타입) 파일별 분리 (HomeHeaderView/DailySectionView/MealPhotoView/CameraPickerView/PhotoDetailView/CameraCapture 등)
+- [x] STAGE 3: ContentView.swift 3232줄 → 429줄, 7개 파일로 분리 (빌드+실행 검증)
+  → STAGE 2(패키지 통합)는 선택 사항 — 앱은 자체 타입으로 정상 동작, 테스트는 swift test로 독립 보장
 
 
 ## 🚀 대전환: "얼마나 먹었나" 리디자인 (스펙: REDESIGN_SPEC.md)
