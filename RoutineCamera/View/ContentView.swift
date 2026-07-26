@@ -439,15 +439,6 @@ struct HomeHeaderView: View {
                         .foregroundColor(.primary)
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
-
-                    if isToday {
-                        Text("오늘")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(Capsule().fill(Color.blue))
-                    }
                 }
                 .layoutPriority(1)
                 .contentShape(Rectangle())
