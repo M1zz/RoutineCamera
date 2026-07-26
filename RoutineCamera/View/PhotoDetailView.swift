@@ -365,9 +365,11 @@ struct PhotoDetailView: View {
             .navigationTitle(dateFormatter.string(from: date))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(embedInNavigation ? "닫기" : "뒤로") {
-                        dismiss()
+                if embedInNavigation {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("닫기") {
+                            dismiss()
+                        }
                     }
                 }
 

@@ -125,31 +125,80 @@ struct ContentView: View {
         return nil
     }
 
+    // 네이티브 내비게이션 바 타이틀
+    private var navTitle: String {
+        if settingsManager.useMomentsFeed {
+            return settingsManager.albumType == .exercise ? "운동" : "식단"
+        }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "M월 d일 (E)"
+        return f.string(from: currentVisibleDate)
+    }
+
+    // 내비게이션 바 트레일링: 모드 전환 + 통계/친구/설정 메뉴
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            if settingsManager.showAlbumSwitcher {
+                Button {
+                    withAnimation {
+                        settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
+                    }
+                } label: {
+                    Label(settingsManager.albumType.rawValue, systemImage: settingsManager.albumType.symbolName)
+                }
+            }
+            Menu {
+                Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
+                Button { showingFriends = true } label: { Label("친구", systemImage: "person.2.fill") }
+                Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+        }
+    }
+
+    // 목표 진행률 바 (켠 경우에만, 네이티브 바 아래 얇게)
+    @ViewBuilder
+    private var goalProgressBar: some View {
+        if goalManager.goalEnabled {
+            let recordedDays = mealStore.getTotalRecordedDays()
+            let progress = goalManager.getProgress(currentStreak: recordedDays)
+            let achieved = goalManager.isGoalAchieved(currentStreak: recordedDays)
+            HStack(spacing: 10) {
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color(.systemGray5)).frame(height: 6)
+                        Capsule().fill(achieved ? Color.green : Color.blue)
+                            .frame(width: geo.size.width * CGFloat(progress), height: 6)
+                    }
+                }
+                .frame(height: 6)
+                Text("\(recordedDays)/\(goalManager.goalDays)일")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.bar)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("목표 진행률")
+            .accessibilityValue("\(goalManager.goalDays)일 목표 중 \(recordedDays)일 기록")
+        }
+    }
+
     var body: some View {
+        NavigationStack {
         ScrollViewReader { proxy in
             ZStack {
                 // 배경색 (safe area까지 확장)
                 Color(uiColor: .systemBackground)
                     .ignoresSafeArea()
 
-                // 메인 콘텐츠
+                // 메인 콘텐츠 (상단은 네이티브 내비게이션 바)
                 VStack(spacing: 0) {
-                    // 상단 헤더 (날짜 · 모드 전환 · 통계/친구/설정 · 목표 진행률)
-                    HomeHeaderView(
-                        date: currentVisibleDate,
-                        mealStore: mealStore,
-                        goalManager: goalManager,
-                        settingsManager: settingsManager,
-                        onStatisticsTap: { showingStatistics = true },
-                        onFriendsTap: { showingFriends = true },
-                        onSettingsTap: { showingSettings = true },
-                        onTodayTap: {
-                            withAnimation {
-                                proxy.scrollTo(todayDate, anchor: .top)
-                            }
-                        }
-                    )
-
                     // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시 (격자 모드에서만)
                     if !settingsManager.useMomentsFeed, let pending = pendingMealType {
                         RecordNowBanner(mealType: pending) {
@@ -293,6 +342,10 @@ struct ContentView: View {
                     .transition(.opacity)
                 }
             }
+            .safeAreaInset(edge: .top) { goalProgressBar }
+            .navigationTitle(navTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
             .animation(.easeInOut(duration: 0.2), value: Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate))
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
@@ -350,6 +403,7 @@ struct ContentView: View {
                     print("📸 [AutoCamera] CameraPickerView 표시됨 - mealType: \(mealType.rawValue)")
                 }
             }
+        }
         }
     }
 }

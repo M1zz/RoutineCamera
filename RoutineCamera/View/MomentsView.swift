@@ -58,52 +58,49 @@ struct MomentsView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if moments.isEmpty {
-                    emptyState
-                } else {
-                    VStack(spacing: 0) {
-                        recordButton
-                            .padding(.horizontal, 16)
-                            .padding(.top, 8)
-                            .padding(.bottom, 6)
-
-                        List {
-                            ForEach(dayGroups, id: \.day) { group in
-                                Section {
-                                    ForEach(group.records) { record in
-                                        NavigationLink {
-                                            PhotoDetailView(
-                                                date: record.date,
-                                                mealType: record.mealType,
-                                                mealRecord: record,
-                                                mealStore: mealStore,
-                                                embedInNavigation: false
-                                            )
-                                            .navigationBarBackButtonHidden(true)
-                                        } label: {
-                                            momentRow(record)
-                                        }
-                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                        .swipeActions(edge: .trailing) {
-                                            Button(role: .destructive) {
-                                                mealStore.deleteMeal(date: record.date, mealType: record.mealType)
-                                            } label: {
-                                                Label("삭제", systemImage: "trash")
-                                            }
-                                        }
+        Group {
+            if moments.isEmpty {
+                emptyState
+            } else {
+                List {
+                    ForEach(dayGroups, id: \.day) { group in
+                        Section {
+                            ForEach(group.records) { record in
+                                NavigationLink {
+                                    PhotoDetailView(
+                                        date: record.date,
+                                        mealType: record.mealType,
+                                        mealRecord: record,
+                                        mealStore: mealStore,
+                                        embedInNavigation: false
+                                    )
+                                } label: {
+                                    momentRow(record)
+                                }
+                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                                    } label: {
+                                        Label("삭제", systemImage: "trash")
                                     }
-                                } header: {
-                                    dayHeader(group.day, count: group.records.count)
                                 }
                             }
+                        } header: {
+                            dayHeader(group.day, count: group.records.count)
                         }
-                        .listStyle(.plain)
                     }
                 }
+                .listStyle(.plain)
             }
-            .toolbar(.hidden, for: .navigationBar)
+        }
+        // 기록 버튼은 하단 고정 (스크롤해도 항상 보임)
+        .safeAreaInset(edge: .bottom) {
+            recordButton
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 6)
+                .background(.bar)
         }
         .sheet(item: $recordingMealType) { mealType in
             CameraPickerView(
@@ -274,8 +271,6 @@ struct MomentsView: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
-            recordButton
-                .padding(.horizontal, 40)
             Spacer()
             Spacer()
         }
