@@ -431,14 +431,14 @@ struct HomeHeaderView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            HStack(spacing: 14) {
+            HStack(spacing: 10) {
                 // 날짜 (탭하면 오늘로 이동)
                 HStack(spacing: 6) {
                     Text(dateString)
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.primary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: true, vertical: false)
 
                     if isToday {
                         Text("오늘")
@@ -449,6 +449,7 @@ struct HomeHeaderView: View {
                             .background(Capsule().fill(Color.blue))
                     }
                 }
+                .layoutPriority(1)
                 .contentShape(Rectangle())
                 .onTapGesture { onTodayTap() }
                 .accessibilityElement(children: .ignore)
@@ -456,7 +457,7 @@ struct HomeHeaderView: View {
                 .accessibilityHint("두 번 탭하여 오늘 날짜로 이동")
                 .accessibilityAddTraits(.isButton)
 
-                Spacer()
+                Spacer(minLength: 8)
 
                 // 앨범 타입 전환 (설정에서 켠 경우에만)
                 if settingsManager.showAlbumSwitcher {
