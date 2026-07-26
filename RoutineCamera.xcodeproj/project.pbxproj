@@ -8,16 +8,52 @@
 
 /* Begin PBXBuildFile section */
 		D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4C8CC1A526115B7855DF619 /* LeeoKit */; };
+		AA0100000000000000000A08 /* SekkiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000A02 /* SekkiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA0200000000000000000B03 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0200000000000000000B02 /* RoutineCameraCore */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA0100000000000000000A07 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA0100000000000000000A08 /* SekkiWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0100000000000000000A02 /* SekkiWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SekkiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA0100000000000000000A0E /* Exceptions for "SekkiWidget" folder in "SekkiWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				SekkiWidget.entitlements,
+			);
+			target = AA0100000000000000000A03 /* SekkiWidget */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5857FA102EC244BF00A539D8 /* RoutineCamera */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = RoutineCamera;
+			sourceTree = "<group>";
+		};
+		AA0100000000000000000A01 /* SekkiWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA0100000000000000000A0E /* Exceptions for "SekkiWidget" folder in "SekkiWidget" target */,
+			);
+			path = SekkiWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +67,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0100000000000000000A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0200000000000000000B03 /* RoutineCameraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				5857FA102EC244BF00A539D8 /* RoutineCamera */,
+				AA0100000000000000000A01 /* SekkiWidget */,
 				5857FA0F2EC244BF00A539D8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */,
+				AA0100000000000000000A02 /* SekkiWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -60,10 +106,12 @@
 				5857FA0A2EC244BF00A539D8 /* Sources */,
 				5857FA0B2EC244BF00A539D8 /* Frameworks */,
 				5857FA0C2EC244BF00A539D8 /* Resources */,
+				AA0100000000000000000A07 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA0100000000000000000A09 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5857FA102EC244BF00A539D8 /* RoutineCamera */,
@@ -76,6 +124,29 @@
 			productReference = 5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AA0100000000000000000A03 /* SekkiWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0100000000000000000A0D /* Build configuration list for PBXNativeTarget "SekkiWidget" */;
+			buildPhases = (
+				AA0100000000000000000A04 /* Sources */,
+				AA0100000000000000000A05 /* Frameworks */,
+				AA0100000000000000000A06 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0100000000000000000A01 /* SekkiWidget */,
+			);
+			name = SekkiWidget;
+			packageProductDependencies = (
+				AA0200000000000000000B02 /* RoutineCameraCore */,
+			);
+			productName = SekkiWidget;
+			productReference = AA0100000000000000000A02 /* SekkiWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -87,6 +158,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					5857FA0D2EC244BF00A539D8 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					AA0100000000000000000A03 = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
@@ -102,6 +176,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */,
+				AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5857FA0F2EC244BF00A539D8 /* Products */;
@@ -109,12 +184,30 @@
 			projectRoot = "";
 			targets = (
 				5857FA0D2EC244BF00A539D8 /* RoutineCamera */,
+				AA0100000000000000000A03 /* SekkiWidget */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXContainerItemProxy section */
+		AA0100000000000000000A0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5857FA062EC244BF00A539D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0100000000000000000A03;
+			remoteInfo = SekkiWidget;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		5857FA0C2EC244BF00A539D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0100000000000000000A06 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -131,7 +224,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0100000000000000000A04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA0100000000000000000A09 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0100000000000000000A03 /* SekkiWidget */;
+			targetProxy = AA0100000000000000000A0A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5857FA172EC244C000A539D8 /* Debug */ = {
@@ -335,6 +443,65 @@
 			};
 			name = Release;
 		};
+		AA0100000000000000000A0B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QGAQ3AY3R3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SekkiWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AA0100000000000000000A0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QGAQ3AY3R3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SekkiWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -356,12 +523,25 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		AA0100000000000000000A0D /* Build configuration list for PBXNativeTarget "SekkiWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0100000000000000000A0B /* Debug */,
+				AA0100000000000000000A0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
 		86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../LeeoKit;
+		};
+		AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = RoutineCameraCore;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -370,6 +550,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 86F525831A64E226403DA3D4 /* XCLocalSwiftPackageReference "../LeeoKit" */;
 			productName = LeeoKit;
+		};
+		AA0200000000000000000B02 /* RoutineCameraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
+			productName = RoutineCameraCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

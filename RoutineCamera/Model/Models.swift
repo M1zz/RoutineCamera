@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
 // 식사 타입 정의
 enum MealType: String, CaseIterable, Codable, Identifiable {
@@ -710,6 +711,37 @@ class MealRecordStore: ObservableObject {
                 print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
             }
         }
+
+        // 위젯(홈/잠금화면)이 읽는 경량 스냅샷은 앨범 모드와 무관하게 식단 기준으로 항상 갱신
+        publishWidgetSnapshot()
+    }
+
+    // MARK: - 위젯 스냅샷
+
+    // 위젯은 사진이 담긴 기록 전체를 디코딩하지 않고 이 요약만 읽는다.
+    // 기록이 바뀔 때마다 공유 저장소에 쓰고 위젯 타임라인을 새로고침한다.
+    func publishWidgetSnapshot() {
+        let cal = Calendar.current
+        let now = Date()
+        let todays = dietRecords.filter { $0.isComplete && cal.isDate($0.sortDate, inSameDayAs: now) }
+        let inProgress = dietRecords
+            .filter { $0.isEatingInProgress(asOf: now) }
+            .max(by: { $0.sortDate < $1.sortDate })
+
+        let snapshot = WidgetSnapshot(
+            todayCount: todays.count,
+            inProgressMealType: inProgress?.mealType.rawValue,
+            inProgressSince: inProgress?.sortDate,
+            lastRecordedAt: todays.map(\.sortDate).max(),
+            needsRecordCount: dietRecords.filter { $0.needsRecordCompletion(asOf: now) }.count,
+            generatedAt: now
+        )
+
+        if let encoded = try? JSONEncoder().encode(snapshot) {
+            userDefaults.set(encoded, forKey: AppGroup.widgetSnapshotKey)
+            WidgetCenter.shared.reloadAllTimelines()
+            print("🧩 [Widget] 스냅샷 갱신: 오늘 \(snapshot.todayCount)개, 먹는 중 \(snapshot.inProgressMealType ?? "없음")")
+        }
     }
 
     // MARK: - 스마트 CloudKit 업로드
@@ -807,6 +839,9 @@ class MealRecordStore: ObservableObject {
             exerciseRecords = decoded
             print("📂 [MealRecordStore] 운동 기록 로드: \(exerciseRecords.count)개")
         }
+
+        // 저장 없이 앱만 켠 경우에도 위젯이 최신 상태를 보도록 (날이 바뀌면 오늘 수/먹는 중이 달라진다)
+        publishWidgetSnapshot()
     }
 
     // MARK: - Streak 계산
