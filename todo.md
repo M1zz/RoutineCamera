@@ -1,5 +1,14 @@
 # RoutineCamera 접근성(VoiceOver) 개선
 
+## 진행: 코드 구조화 · 리팩터 · 테스트
+- [x] 기능 목록 문서화 (FEATURES.md)
+- [x] 핵심 순수 로직을 RoutineCameraCore 로컬 패키지로 추출 (MealType/MealRecord/MealStats/PendingAteAll)
+- [x] 단위 테스트 23개 작성 + `swift test` 통과 (스트릭·기록일·추론·정렬·Codable 호환)
+- [x] 프로젝트 경고 0건 정리
+- [ ] STAGE 2: 앱이 RoutineCameraCore를 import하도록 통합 (중복 타입 제거) — Xcode에서 로컬 패키지 추가 필요(안전) 또는 pbxproj 배선(위험)
+- [ ] STAGE 3: ContentView.swift(3232줄, 22개 타입) 파일별 분리 (HomeHeaderView/DailySectionView/MealPhotoView/CameraPickerView/PhotoDetailView/CameraCapture 등)
+
+
 ## 🚀 대전환: "얼마나 먹었나" 리디자인 (스펙: REDESIGN_SPEC.md)
 격자(3끼 슬롯) → 순간 컬렉션 + 앱 안 여는 원탭 기록. 핵심 지표는 칼로리가 아닌 "양"(식전/식후 차이 + "다 먹음" 탭).
 - [ ] Phase 1 (앱 본체): capturedAt/ateAll 모델 + MomentsView 피드 + 식후 알림 + AppIntent(액션버튼/단축어) + 격자는 설정 토글로 보존
