@@ -462,7 +462,10 @@ struct HomeHeaderView: View {
                                 .font(.system(size: 12))
                             Text(settingsManager.albumType.rawValue)
                                 .font(.system(size: 13, weight: .semibold))
+                                .lineLimit(1)
+                                .fixedSize()
                         }
+                        .fixedSize()
                         .foregroundColor(.primary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -473,31 +476,24 @@ struct HomeHeaderView: View {
                     .accessibilityHint("두 번 탭하여 \(settingsManager.albumType == .diet ? "운동" : "식단") 모드로 전환")
                 }
 
-                // 통계 버튼
-                Button(action: onStatisticsTap) {
-                    Image(systemName: "chart.bar.fill")
-                        .font(.system(size: 19))
+                // 통계·친구·설정을 하나의 "..." 메뉴로 통합 (헤더 공간 확보)
+                Menu {
+                    Button(action: onStatisticsTap) {
+                        Label("통계", systemImage: "chart.bar.fill")
+                    }
+                    Button(action: onFriendsTap) {
+                        Label("친구", systemImage: "person.2.fill")
+                    }
+                    Button(action: onSettingsTap) {
+                        Label("설정", systemImage: "gearshape.fill")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 21))
                         .foregroundColor(.gray)
                 }
-                .accessibilityLabel("통계")
-                .accessibilityHint("나의 기록 통계를 봅니다")
-
-                // 친구 버튼
-                Button(action: onFriendsTap) {
-                    Image(systemName: "person.2.fill")
-                        .font(.system(size: 19))
-                        .foregroundColor(.gray)
-                }
-                .accessibilityLabel("친구")
-                .accessibilityHint("친구 목록과 친구의 기록을 봅니다")
-
-                // 설정 버튼
-                Button(action: onSettingsTap) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 19))
-                        .foregroundColor(.gray)
-                }
-                .accessibilityLabel("설정")
+                .accessibilityLabel("더 보기")
+                .accessibilityHint("통계, 친구, 설정 메뉴를 엽니다")
             }
 
             // 목표 진행률 (켠 경우에만, 한 줄)
@@ -2240,6 +2236,8 @@ struct PhotoDetailView: View {
     let mealType: MealType
     let mealRecord: MealRecord?
     @ObservedObject var mealStore: MealRecordStore
+    // 모달(sheet)로 열 땐 자체 NavigationView로 감싸고, 네비게이션 스택에 push할 땐 감싸지 않는다.
+    var embedInNavigation: Bool = true
     @Environment(\.dismiss) var dismiss
 
     @State private var currentPage = 0 // 0: 식전, 1: 식후
@@ -2257,8 +2255,8 @@ struct PhotoDetailView: View {
     @State private var sentFeedbacks: [SentFeedback] = [] // 보낸 피드백 목록
     @State private var isLoadingFeedbacks = false // 피드백 로딩 중
 
-    var body: some View {
-        NavigationView {
+    @ViewBuilder
+    private var detailBody: some View {
             VStack(spacing: 0) {
                 if let record = mealRecord {
                     // 사진 영역
@@ -2592,7 +2590,7 @@ struct PhotoDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("닫기") {
+                    Button(embedInNavigation ? "닫기" : "뒤로") {
                         dismiss()
                     }
                 }
@@ -2642,6 +2640,15 @@ struct PhotoDetailView: View {
                     .accessibilityLabel("더 보기")
                     .accessibilityHint("분석, 저장, 사진 추가, 메모, 삭제 메뉴를 엽니다")
                 }
+            }
+    }
+
+    var body: some View {
+        Group {
+            if embedInNavigation {
+                NavigationView { detailBody }
+            } else {
+                detailBody
             }
         }
         .sheet(isPresented: $showingAddPhotoSheet) {
