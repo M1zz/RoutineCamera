@@ -52,26 +52,19 @@ struct CaredMealsPromptView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 22) {
-            Spacer()
-
-            Image(systemName: "heart.text.square.fill")
-                .font(.system(size: 48))
-                .foregroundColor(.pink.opacity(0.8))
-                .accessibilityHidden(true)
-
+        VStack(spacing: 18) {
             VStack(spacing: 8) {
                 Text("어떤 식사를 챙기고 싶어요?")
-                    .font(.title2.weight(.bold))
+                    .font(.title3.weight(.bold))
                     .multilineTextAlignment(.center)
                 Text("고른 식사만 살짝 알려드릴게요.\n나머지는 부담 없이, 기록하고 싶을 때만.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
+            .padding(.top, 8)
 
             MealCareSelector()
-                .padding(.horizontal, 4)
 
             Text(settingsManager.caredMeals.isEmpty
                  ? "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요."
@@ -79,9 +72,8 @@ struct CaredMealsPromptView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
-                .frame(minHeight: 34)
 
-            Spacer()
+            Spacer(minLength: 8)
 
             Button {
                 settingsManager.hasConfiguredCaredMeals = true
