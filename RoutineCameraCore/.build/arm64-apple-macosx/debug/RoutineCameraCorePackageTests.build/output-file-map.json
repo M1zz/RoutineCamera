@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/master.swiftdeps"
+  },
+  "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift": {
+    "dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.d",
+    "object": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.dia"
+  }
+}

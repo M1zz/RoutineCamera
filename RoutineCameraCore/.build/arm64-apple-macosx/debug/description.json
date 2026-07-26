@@ -1,0 +1,733 @@
+{
+  "builtTestProducts" : [
+    {
+      "binaryPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.xctest/Contents/MacOS/RoutineCameraCorePackageTests",
+      "packagePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore",
+      "productName" : "RoutineCameraCorePackageTests"
+    }
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.RoutineCameraCore-arm64-apple-macosx26.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/sources",
+      "importPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealRecord.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealStats.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealType.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/PendingAteAll.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "RoutineCameraCore",
+      "moduleOutputPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCore.swiftmodule",
+      "objects" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.swift.o",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.swift.o",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.swift.o",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx13.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/include/RoutineCameraCore-Swift.h",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "routinecameracore"
+      ],
+      "outputFileMapPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCore.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealRecord.swift",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealStats.swift",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealType.swift",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/PendingAteAll.swift"
+      ],
+      "tempsPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.RoutineCameraCorePackageTests-arm64-apple-macosx26.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/sources",
+      "importPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCoreTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "RoutineCameraCorePackageTests",
+      "moduleOutputPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCorePackageTests.swiftmodule",
+      "objects" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx13.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/include/RoutineCameraCorePackageTests-Swift.h",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "routinecameracore"
+      ],
+      "outputFileMapPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCorePackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.RoutineCameraCoreTests-arm64-apple-macosx26.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/sources",
+      "importPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealRecordTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealStatsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealTypeTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCore.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "RoutineCameraCoreTests",
+      "moduleOutputPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCoreTests.swiftmodule",
+      "objects" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealRecordTests.swift.o",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealStatsTests.swift.o",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealTypeTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "routinecameracore"
+      ],
+      "outputFileMapPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealRecordTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealStatsTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealTypeTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules/RoutineCameraCoreTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealRecordTests.swift",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealStatsTests.swift",
+        "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealTypeTests.swift"
+      ],
+      "tempsPath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "RoutineCameraCore" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "RoutineCameraCore",
+      "-package-name",
+      "routinecameracore",
+      "-c",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealRecord.swift",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealStats.swift",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealType.swift",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/PendingAteAll.swift",
+      "-I",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx13.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/include/RoutineCameraCore-Swift.h",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "routinecameracore",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "RoutineCameraCorePackageTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "RoutineCameraCorePackageTests",
+      "-package-name",
+      "routinecameracore",
+      "-c",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift",
+      "-I",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx13.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/include/RoutineCameraCorePackageTests-Swift.h",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "routinecameracore",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "RoutineCameraCoreTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "RoutineCameraCoreTests",
+      "-package-name",
+      "routinecameracore",
+      "-c",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealRecordTests.swift",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealStatsTests.swift",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealTypeTests.swift",
+      "-I",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "routinecameracore",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "RoutineCameraCore" : [
+
+    ],
+    "RoutineCameraCorePackageTests" : [
+      "RoutineCameraCoreTests",
+      "RoutineCameraCore"
+    ],
+    "RoutineCameraCoreTests" : [
+      "RoutineCameraCore"
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift" : {
+      "inputs" : [
+
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift"
+        }
+      ]
+    }
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealRecord.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealStats.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealType.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/PendingAteAll.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/sources"
+    },
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/sources"
+    },
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealRecordTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealStatsTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/MealTypeTests.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCorePackageTests.product/Objects.LinkFileList"
+    },
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealRecordTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealStatsTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Tests/RoutineCameraCoreTests/MealTypeTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCoreTests.build/sources"
+    },
+    "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}

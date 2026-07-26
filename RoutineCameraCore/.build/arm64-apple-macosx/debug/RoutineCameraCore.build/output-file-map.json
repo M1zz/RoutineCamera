@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/master.swiftdeps"
+  },
+  "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealRecord.swift": {
+    "dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.d",
+    "object": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.swift.o",
+    "swiftmodule": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.swiftdeps",
+    "diagnostics": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealRecord.dia"
+  },
+  "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealStats.swift": {
+    "dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.d",
+    "object": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.swift.o",
+    "swiftmodule": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats~partial.swiftmodule",
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.swiftdeps",
+    "diagnostics": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealStats.dia"
+  },
+  "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/MealType.swift": {
+    "dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.d",
+    "object": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.swift.o",
+    "swiftmodule": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType~partial.swiftmodule",
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.swiftdeps",
+    "diagnostics": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/MealType.dia"
+  },
+  "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/Sources/RoutineCameraCore/PendingAteAll.swift": {
+    "dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.d",
+    "object": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.swift.o",
+    "swiftmodule": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll~partial.swiftmodule",
+    "swift-dependencies": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.swiftdeps",
+    "diagnostics": "/Users/leeo/Documents/workspace/code/RoutineCamera/RoutineCameraCore/.build/arm64-apple-macosx/debug/RoutineCameraCore.build/PendingAteAll.dia"
+  }
+}
