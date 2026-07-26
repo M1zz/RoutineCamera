@@ -191,14 +191,15 @@ struct MomentsView: View {
                         // 운동은 음식 태그 대신 완료 표시
                         tag("완료", system: "checkmark.circle.fill", color: .green)
                     } else {
+                        // 상태는 하나만 — 마감된 식사 / 다 먹음 / 오늘 먹는 중 / 지난 날 미마감
                         if record.hasBeforeAfterComparison {
-                            tag("식전·식후 비교", system: "rectangle.on.rectangle", color: .blue)
-                        }
-                        if record.ateAll {
+                            tag("식사 완료", system: "checkmark.circle.fill", color: .green)
+                        } else if record.ateAll {
                             tag("다 먹음", system: "checkmark.circle.fill", color: .green)
-                        }
-                        if record.isEatingInProgress {
+                        } else if record.isEatingInProgressToday {
                             tag("먹는 중", system: "hourglass", color: .orange)
+                        } else if record.needsRecordCompletion {
+                            tag("기록 필요", system: "pencil.circle", color: .gray)
                         }
                     }
                     if let memo = record.memo, !memo.isEmpty {

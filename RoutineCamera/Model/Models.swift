@@ -243,12 +243,28 @@ struct MealRecord: Identifiable, Codable {
         return capturedAt ?? date
     }
 
-    // 식전만 찍고 아직 식후/다먹음 신호가 없는 "먹는 중" 상태
+    // 식전만 찍고 아직 식후/다먹음 신호가 없는 미마감 상태
     var isEatingInProgress: Bool {
         return beforeImageData != nil && afterImageData == nil && !ateAll && !recordedWithoutPhoto
     }
 
-    // 식전→식후 비교가 가능한 기록 (양 변화 시각화)
+    // "먹는 중"으로 표시할 수 있는 상태 — 당일 기록에만 해당
+    var isEatingInProgressToday: Bool { isEatingInProgress(asOf: Date()) }
+
+    // 식전만 남긴 채 날이 지나간 기록 → "기록 필요"
+    var needsRecordCompletion: Bool { needsRecordCompletion(asOf: Date()) }
+
+    // 기준 시각과 같은 날의 미마감 기록인지
+    func isEatingInProgress(asOf now: Date, calendar: Calendar = .current) -> Bool {
+        return self.isEatingInProgress && calendar.isDate(sortDate, inSameDayAs: now)
+    }
+
+    // 기준 시각보다 이전 날에 남긴 미마감 기록인지
+    func needsRecordCompletion(asOf now: Date, calendar: Calendar = .current) -> Bool {
+        return self.isEatingInProgress && !calendar.isDate(sortDate, inSameDayAs: now)
+    }
+
+    // 식전·식후 둘 다 있어 식사가 마감된 기록
     var hasBeforeAfterComparison: Bool {
         return beforeImageData != nil && afterImageData != nil
     }
@@ -547,9 +563,10 @@ class MealRecordStore: ObservableObject {
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
-    // 가장 최근의 "먹는 중"(식전만 있는) 기록을 찾아 반환 (다먹음 신호를 붙일 대상 추정용)
+    // 가장 최근의 "먹는 중"(오늘 식전만 있는) 기록을 찾아 반환 (다먹음 신호를 붙일 대상 추정용).
+    // 날이 지난 미마감 기록은 "기록 필요" 상태이므로 원탭 다먹음의 대상이 아니다.
     func latestEatingInProgress() -> MealRecord? {
-        return records.filter { $0.isEatingInProgress }.max(by: { $0.sortDate < $1.sortDate })
+        return records.filter { $0.isEatingInProgressToday }.max(by: { $0.sortDate < $1.sortDate })
     }
 
     // 위젯/알림에서 앱 없이 쌓아둔 "다 먹음" 대기열을 실제 기록으로 반영

@@ -21,6 +21,26 @@ final class MealRecordTests: XCTestCase {
         XCTAssertFalse(MealRecord(date: d, mealType: .lunch, beforeImageData: Data([1]), ateAll: true).isEatingInProgress)
     }
 
+    func testEatingInProgress_onlyCountsAsInProgressOnTheSameDay() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let yesterday = now.addingTimeInterval(-24 * 60 * 60)
+
+        // 오늘 남긴 식전만 있는 기록 → "먹는 중"
+        let today = MealRecord(date: now, mealType: .lunch, beforeImageData: Data([1]), capturedAt: now)
+        XCTAssertTrue(today.isEatingInProgress(asOf: now))
+        XCTAssertFalse(today.needsRecordCompletion(asOf: now))
+
+        // 날이 지난 미마감 기록 → "기록 필요"
+        let stale = MealRecord(date: yesterday, mealType: .lunch, beforeImageData: Data([1]), capturedAt: yesterday)
+        XCTAssertFalse(stale.isEatingInProgress(asOf: now))
+        XCTAssertTrue(stale.needsRecordCompletion(asOf: now))
+
+        // 마감된 기록은 날짜와 무관하게 둘 다 아님
+        let done = MealRecord(date: yesterday, mealType: .lunch, beforeImageData: Data([1]), afterImageData: Data([2]), capturedAt: yesterday)
+        XCTAssertFalse(done.isEatingInProgress(asOf: now))
+        XCTAssertFalse(done.needsRecordCompletion(asOf: now))
+    }
+
     func testHasBeforeAfterComparison() {
         let d = Date()
         XCTAssertTrue(MealRecord(date: d, mealType: .lunch, beforeImageData: Data([1]), afterImageData: Data([2])).hasBeforeAfterComparison)

@@ -97,12 +97,28 @@ public struct MealRecord: Identifiable, Codable, Sendable {
     /// 정렬용 시각 (촬영 시각 있으면 그것, 없으면 그날 날짜)
     public var sortDate: Date { capturedAt ?? date }
 
-    /// 식전만 찍고 아직 식후/다먹음 신호가 없는 "먹는 중"
+    /// 식전만 찍고 아직 식후/다먹음 신호가 없는 미마감 기록
     public var isEatingInProgress: Bool {
         beforeImageData != nil && afterImageData == nil && !ateAll && !recordedWithoutPhoto
     }
 
-    /// 식전→식후 비교 가능
+    /// "먹는 중"으로 볼 수 있는 상태 — 당일 기록에만 해당
+    public var isEatingInProgressToday: Bool { isEatingInProgress(asOf: Date()) }
+
+    /// 식전만 남긴 채 날이 지나간 기록 → 마무리 기록이 필요한 상태
+    public var needsRecordCompletion: Bool { needsRecordCompletion(asOf: Date()) }
+
+    /// 기준 시각과 같은 날의 미마감 기록인지
+    public func isEatingInProgress(asOf now: Date, calendar: Calendar = .current) -> Bool {
+        self.isEatingInProgress && calendar.isDate(sortDate, inSameDayAs: now)
+    }
+
+    /// 기준 시각보다 이전 날에 남긴 미마감 기록인지
+    public func needsRecordCompletion(asOf now: Date, calendar: Calendar = .current) -> Bool {
+        self.isEatingInProgress && !calendar.isDate(sortDate, inSameDayAs: now)
+    }
+
+    /// 식전·식후 둘 다 있어 식사가 마감된 기록
     public var hasBeforeAfterComparison: Bool {
         beforeImageData != nil && afterImageData != nil
     }
