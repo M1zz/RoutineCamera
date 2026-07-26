@@ -647,14 +647,11 @@ struct DailySectionView: View {
         let currentMinutes = hour * 60 + minute
 
         let notificationManager = NotificationManager.shared
-        let breakfastHour = calendar.component(.hour, from: notificationManager.breakfastTime)
-        let breakfastMinute = calendar.component(.minute, from: notificationManager.breakfastTime)
         let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
         let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
         let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
         let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
 
-        let breakfastMinutes = breakfastHour * 60 + breakfastMinute
         let lunchMinutes = lunchHour * 60 + lunchMinute
         let dinnerMinutes = dinnerHour * 60 + dinnerMinute
 
@@ -733,7 +730,7 @@ struct DailySectionView: View {
     }
 
     private func calculateLayout(isExerciseMode: Bool, cardCount: Int) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth = UIScreen.appWidth
         let horizontalPadding: CGFloat = 16
         let cardPadding: CGFloat = 12 // 오늘 테두리와 사진 사이 여백 (8은 너무 타이트)
         let spacing: CGFloat = 4
@@ -2922,9 +2919,11 @@ class CameraManager: NSObject, ObservableObject {
                 captureSession.addOutput(photoOutput)
             }
             
-            // 정사각형 출력을 위한 설정
-            photoOutput.isHighResolutionCaptureEnabled = true
-            
+            // 최대 해상도 캡처 (iOS 16+ maxPhotoDimensions)
+            if let maxDim = camera.activeFormat.supportedMaxPhotoDimensions.last {
+                photoOutput.maxPhotoDimensions = maxDim
+            }
+
         } catch {
             print("카메라 설정 오류: \(error)")
         }
@@ -2976,8 +2975,8 @@ class CameraManager: NSObject, ObservableObject {
         captureCompletion = completion
         
         let settings = AVCapturePhotoSettings()
-        settings.isHighResolutionPhotoEnabled = true
-        
+        settings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
 }

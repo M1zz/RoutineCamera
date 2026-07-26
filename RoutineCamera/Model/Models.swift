@@ -328,7 +328,7 @@ class MealRecordStore: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.drainPendingAteAll()
+            Task { @MainActor [weak self] in self?.drainPendingAteAll() }
         }
 
         // 앱 백그라운드 진입 시 대기 중인 업로드 즉시 실행
@@ -337,8 +337,10 @@ class MealRecordStore: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.uploadTimer?.invalidate()
-            self?.uploadDirtyDates()
+            Task { @MainActor [weak self] in
+                self?.uploadTimer?.invalidate()
+                self?.uploadDirtyDates()
+            }
         }
     }
 
@@ -723,7 +725,7 @@ class MealRecordStore: ObservableObject {
 
         // 새 타이머 설정 (5초 후 업로드)
         uploadTimer = Timer.scheduledTimer(withTimeInterval: uploadDelaySeconds, repeats: false) { [weak self] _ in
-            self?.uploadDirtyDates()
+            Task { @MainActor [weak self] in self?.uploadDirtyDates() }
         }
 
         print("⏰ [CloudKit] \(Int(uploadDelaySeconds))초 후 업로드 예정")
@@ -742,7 +744,6 @@ class MealRecordStore: ObservableObject {
         dirtyDates.removeAll()  // 먼저 클리어 (중복 방지)
 
         _Concurrency.Task {
-            let calendar = Calendar.current
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
 

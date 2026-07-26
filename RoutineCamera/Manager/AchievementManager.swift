@@ -177,7 +177,6 @@ class AchievementManager: ObservableObject {
     func checkAndUnlockAchievements(mealStore: MealRecordStore) {
         var newUnlocks: [Achievement] = []
 
-        let currentStreak = mealStore.getCurrentStreak()
         let maxStreak = mealStore.getMaxStreak()
 
         // 연속 기록 업적 체크

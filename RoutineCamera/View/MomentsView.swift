@@ -19,6 +19,11 @@ struct MomentsView: View {
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
 
+    // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
+    private var recordButtonTitle: String {
+        isExercise ? "운동 기록하기" : "\(MealType.inferred().rawValue) 기록하기"
+    }
+
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
     // → 같은 날 안에서도 아침(아래) → 저녁(위) 순으로 시간 흐름대로 정렬된다.
     private func sortValue(_ r: MealRecord) -> Date {
@@ -121,7 +126,7 @@ struct MomentsView: View {
             HStack(spacing: 10) {
                 Image(systemName: isExercise ? "figure.run" : "camera.fill")
                     .font(.system(size: 17, weight: .semibold))
-                Text(isExercise ? "운동 기록하기" : "지금 기록하기")
+                Text(recordButtonTitle)
                     .font(.system(size: 17, weight: .semibold))
                 Spacer()
             }
@@ -132,7 +137,7 @@ struct MomentsView: View {
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isExercise ? "운동 기록하기" : "지금 기록하기")
+        .accessibilityLabel(recordButtonTitle)
         .accessibilityHint("두 번 탭하여 사진으로 기록")
     }
 

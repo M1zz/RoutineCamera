@@ -587,12 +587,12 @@ struct TimelineView: View {
                 let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
                 await MainActor.run {
                     allMeals[date] = meals
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
                 }
             } catch {
                 print("❌ 타임라인 식단 로드 실패 (\(dateString)): \(error)")
                 await MainActor.run {
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
                 }
             }
         }
@@ -687,7 +687,7 @@ struct GridView: View {
                 await MainActor.run {
                     // 결과가 있든 없든 저장 (빈 딕셔너리 = 체크 완료, 데이터 없음)
                     allMeals[date] = meals
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
 
                     if meals.isEmpty {
                         print("ℹ️ [그리드] \(dateString): 데이터 없음")
@@ -700,7 +700,7 @@ struct GridView: View {
                 await MainActor.run {
                     // 에러 발생 시에도 빈 딕셔너리 저장 (재시도 방지)
                     allMeals[date] = [:]
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
                 }
             }
         }
@@ -718,7 +718,7 @@ struct LoadingGridDayView: View {
     }
 
     private var photoSize: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth = UIScreen.appWidth
         let totalPadding: CGFloat = 16 + 16
         let spacing: CGFloat = 4 * 2
         return (screenWidth - totalPadding - spacing) / 3
@@ -775,7 +775,7 @@ struct FriendGridDayView: View {
     }
 
     private var photoSize: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth = UIScreen.appWidth
         let totalPadding: CGFloat = 16 + 16 // 좌우 패딩
         let spacing: CGFloat = 4 * 2 // 3개 사이 간격
         return (screenWidth - totalPadding - spacing) / 3

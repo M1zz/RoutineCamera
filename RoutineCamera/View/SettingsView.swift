@@ -302,7 +302,7 @@ struct AIAnalysisSettingsView: View {
                 } else {
                     Button {
                         Task {
-                            if let product = await SubscriptionManager.shared.monthlyProduct {
+                            if let product = SubscriptionManager.shared.monthlyProduct {
                                 _ = try? await SubscriptionManager.shared.purchase(product)
                             }
                         }

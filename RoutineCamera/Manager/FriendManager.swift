@@ -108,7 +108,7 @@ class FriendManager: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            _Concurrency.Task { @MainActor in
+            _Concurrency.Task { @MainActor [weak self] in
                 self?.checkAccountState()
             }
         }
@@ -234,10 +234,10 @@ class FriendManager: ObservableObject {
         try await deleteMyRecords(ofType: Self.feedbackRecordType, field: "authorId", value: userId)
 
         // 3. 사용자 레코드 삭제
-        try? await database.deleteRecord(withID: CKRecord.ID(recordName: Self.userRecordName(for: userId)))
+        _ = try? await database.deleteRecord(withID: CKRecord.ID(recordName: Self.userRecordName(for: userId)))
 
         // 4. 푸시 구독 해제
-        try? await database.deleteSubscription(withID: "feedback-sub-\(userId)")
+        _ = try? await database.deleteSubscription(withID: "feedback-sub-\(userId)")
         UserDefaults.standard.removeObject(forKey: Self.feedbackSubscriptionSavedKey)
 
         // 5. 로컬 상태 초기화 후 새 계정으로 재시작
