@@ -62,15 +62,13 @@ struct SettingsView: View {
                     ? "빈 칸 없이 남긴 기록만 시간순으로 쌓이는 사진 일기 방식입니다."
                     : "아침·점심·저녁 칸이 있는 기존 격자 방식입니다.")
 
-            Picker("기록 종류", selection: $settingsManager.albumType) {
-                ForEach(AlbumType.allCases, id: \.self) { type in
-                    HStack {
-                        Image(systemName: type.symbolName)
-                        Text(type.rawValue)
-                    }
-                    .tag(type)
-                }
-            }
+            Toggle("운동 모드로 기록", isOn: Binding(
+                get: { settingsManager.albumType == .exercise },
+                set: { settingsManager.albumType = $0 ? .exercise : .diet }
+            ))
+            caption(settingsManager.albumType == .exercise
+                    ? "운동 사진을 기록합니다. 식단과 운동은 별도로 저장돼요."
+                    : "식단 사진을 기록합니다. 켜면 운동 기록으로 전환돼요.")
 
             Toggle("헤더에 종류 전환 버튼", isOn: $settingsManager.showAlbumSwitcher)
         }

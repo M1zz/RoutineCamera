@@ -17,6 +17,8 @@ struct MomentsView: View {
     @State private var recordingMealType: MealType?
     @State private var recordingPhotoType: MealPhotoView.PhotoType = .before
 
+    private var isExercise: Bool { settingsManager.albumType == .exercise }
+
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
     // → 같은 날 안에서도 아침(아래) → 저녁(위) 순으로 시간 흐름대로 정렬된다.
     private func sortValue(_ r: MealRecord) -> Date {
@@ -113,23 +115,24 @@ struct MomentsView: View {
     private var recordButton: some View {
         Button {
             recordingPhotoType = .before
-            recordingMealType = MealType.inferred()
+            // 운동은 1장·하루 단위(대표 슬롯), 식단은 시각으로 끼니 자동 추론
+            recordingMealType = isExercise ? .breakfast : MealType.inferred()
         } label: {
             HStack(spacing: 10) {
-                Image(systemName: "camera.fill")
+                Image(systemName: isExercise ? "figure.run" : "camera.fill")
                     .font(.system(size: 17, weight: .semibold))
-                Text("지금 기록하기")
+                Text(isExercise ? "운동 기록하기" : "지금 기록하기")
                     .font(.system(size: 17, weight: .semibold))
                 Spacer()
             }
             .foregroundColor(.white)
             .padding(.vertical, 16)
             .padding(.horizontal, 18)
-            .background(Color.blue)
+            .background(isExercise ? Color.green : Color.blue)
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("지금 기록하기")
+        .accessibilityLabel(isExercise ? "운동 기록하기" : "지금 기록하기")
         .accessibilityHint("두 번 탭하여 사진으로 기록")
     }
 
@@ -168,10 +171,10 @@ struct MomentsView: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
-                    Image(systemName: record.mealType.symbolName)
+                    Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
                         .font(.system(size: 13))
-                        .foregroundColor(record.mealType.symbolColor)
-                    Text(record.mealType.rawValue)
+                        .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
+                    Text(isExercise ? "운동" : record.mealType.rawValue)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.primary)
                     if let t = record.capturedAt {
@@ -182,14 +185,19 @@ struct MomentsView: View {
                 }
 
                 HStack(spacing: 6) {
-                    if record.hasBeforeAfterComparison {
-                        tag("식전·식후 비교", system: "rectangle.on.rectangle", color: .blue)
-                    }
-                    if record.ateAll {
-                        tag("다 먹음", system: "checkmark.circle.fill", color: .green)
-                    }
-                    if record.isEatingInProgress {
-                        tag("먹는 중", system: "hourglass", color: .orange)
+                    if isExercise {
+                        // 운동은 음식 태그 대신 완료 표시
+                        tag("완료", system: "checkmark.circle.fill", color: .green)
+                    } else {
+                        if record.hasBeforeAfterComparison {
+                            tag("식전·식후 비교", system: "rectangle.on.rectangle", color: .blue)
+                        }
+                        if record.ateAll {
+                            tag("다 먹음", system: "checkmark.circle.fill", color: .green)
+                        }
+                        if record.isEatingInProgress {
+                            tag("먹는 중", system: "hourglass", color: .orange)
+                        }
                     }
                     if let memo = record.memo, !memo.isEmpty {
                         tag("메모", system: "note.text", color: .orange)
@@ -215,9 +223,9 @@ struct MomentsView: View {
                 .fill(Color(.tertiarySystemBackground))
                 .frame(width: size, height: size)
                 .overlay(
-                    Image(systemName: record.ateAll ? "checkmark.circle.fill" : record.mealType.symbolName)
+                    Image(systemName: isExercise ? "figure.run" : (record.ateAll ? "checkmark.circle.fill" : record.mealType.symbolName))
                         .font(.system(size: 26))
-                        .foregroundColor(record.ateAll ? .green : record.mealType.symbolColor.opacity(0.6))
+                        .foregroundColor(isExercise ? .green : (record.ateAll ? .green : record.mealType.symbolColor.opacity(0.6)))
                 )
         }
     }
@@ -248,13 +256,15 @@ struct MomentsView: View {
     private var emptyState: some View {
         VStack(spacing: 20) {
             Spacer()
-            Image(systemName: "fork.knife.circle")
+            Image(systemName: isExercise ? "figure.run.circle" : "fork.knife.circle")
                 .font(.system(size: 56))
                 .foregroundColor(.secondary.opacity(0.5))
             VStack(spacing: 6) {
                 Text("아직 기록이 없어요")
                     .font(.title3.weight(.semibold))
-                Text("먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
+                Text(isExercise
+                     ? "운동한 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요."
+                     : "먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
