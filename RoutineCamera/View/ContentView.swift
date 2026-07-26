@@ -20,6 +20,7 @@ struct ContentView: View {
     @State private var showingFriends = false
     @State private var showingStatistics = false
     @State private var showingGoalAchieved = false
+    @State private var showingCaredMealsPrompt = false // 첫 실행: 챙길 식사 물어보기
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
     @State private var autoOpenPhotoType: MealPhotoView.PhotoType = .before // 자동으로 열 사진 타입
 
@@ -250,6 +251,13 @@ struct ContentView: View {
                             }
                         }
                     }
+
+                    // 첫 실행: "챙길 식사"를 아직 안 골랐으면 물어보기 (삼시세끼 전부 알림 스트레스 완화)
+                    if !settingsManager.hasConfiguredCaredMeals {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                            showingCaredMealsPrompt = true
+                        }
+                    }
                 }
 
                 // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)
@@ -324,6 +332,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
+            }
+            .sheet(isPresented: $showingCaredMealsPrompt) {
+                CaredMealsPromptView()
             }
             .sheet(item: $autoOpenMealType, onDismiss: {
                 // sheet가 닫힐 때 상태 리셋
@@ -768,6 +779,14 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(3)
                         .minimumScaleFactor(0.8)
+                }
+
+                // 챙길 식사 (선택한 식사만 알림)
+                Section(header: Text("챙길 식사"), footer: Text(settingsManager.caredMeals.isEmpty
+                    ? "선택한 식사가 없어 알림을 받지 않아요. 원할 때만 기록하세요."
+                    : "고른 식사만 리마인드 알림을 받아요.")) {
+                    MealCareSelector()
+                        .padding(.vertical, 4)
                 }
 
                 // 표시 설정

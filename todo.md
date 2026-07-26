@@ -5,6 +5,7 @@
 - [ ] Phase 1 (앱 본체): capturedAt/ateAll 모델 + MomentsView 피드 + 식후 알림 + AppIntent(액션버튼/단축어) + 격자는 설정 토글로 보존
 - [~] Phase 2 (Widget): App Group 배관 완료(entitlements+공유 suite+대기열 drain, 앱 빌드 검증). 위젯 코드는 SekkiWidget/ 에 준비됨 → 사용자가 Xcode에서 Widget Extension 타깃 생성 후 연결 필요 (SekkiWidget/README.md)
 - 상세 로직·페르소나·기록 조합표는 REDESIGN_SPEC.md 참조
+- [x] 챙길 식사 선택: 삼시세끼 전부 알림 → "챙기고 싶은 식사"만 알림. 첫 실행 프롬프트("어떤 식사를 챙기고 싶어요?") + 설정 섹션 (CaredMealsView, SettingsManager.caredMeals, NotificationManager 게이팅)
 
 
 ## 진행: 완벽주의/올오어낫씽 완화 (식단 기록 이탈 심리 대응)

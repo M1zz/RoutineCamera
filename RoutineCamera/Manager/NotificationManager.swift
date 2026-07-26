@@ -147,10 +147,12 @@ class NotificationManager: ObservableObject {
         guard notificationsEnabled else { return }
 
         let calendar = Calendar.current
+        // 사용자가 "챙기고 싶은" 식사만 알림 (삼시세끼 전부 알림 스트레스 완화)
+        let cared = SettingsManager.shared.caredMeals
 
         // 아침 리마인드 알림 (식사 시간 2시간 후)
         let breakfastComponents = calendar.dateComponents([.hour, .minute], from: breakfastTime)
-        if let breakfastHour = breakfastComponents.hour, let breakfastMinute = breakfastComponents.minute {
+        if cared.contains(.breakfast), let breakfastHour = breakfastComponents.hour, let breakfastMinute = breakfastComponents.minute {
             let reminderHour = (breakfastHour + 2) % 24
             scheduleReminderNotification(
                 id: "breakfast-reminder",
@@ -163,7 +165,7 @@ class NotificationManager: ObservableObject {
 
         // 점심 리마인드 알림 (식사 시간 2시간 후)
         let lunchComponents = calendar.dateComponents([.hour, .minute], from: lunchTime)
-        if let lunchHour = lunchComponents.hour, let lunchMinute = lunchComponents.minute {
+        if cared.contains(.lunch), let lunchHour = lunchComponents.hour, let lunchMinute = lunchComponents.minute {
             let reminderHour = (lunchHour + 2) % 24
             scheduleReminderNotification(
                 id: "lunch-reminder",
@@ -176,7 +178,7 @@ class NotificationManager: ObservableObject {
 
         // 저녁 리마인드 알림 (식사 시간 2시간 후)
         let dinnerComponents = calendar.dateComponents([.hour, .minute], from: dinnerTime)
-        if let dinnerHour = dinnerComponents.hour, let dinnerMinute = dinnerComponents.minute {
+        if cared.contains(.dinner), let dinnerHour = dinnerComponents.hour, let dinnerMinute = dinnerComponents.minute {
             let reminderHour = (dinnerHour + 2) % 24
             scheduleReminderNotification(
                 id: "dinner-reminder",

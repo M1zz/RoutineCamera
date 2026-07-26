@@ -69,6 +69,23 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    // 사용자가 "챙기고 싶은" 식사 — 이 식사만 리마인드 알림을 받는다.
+    // 삼시세끼 전부 알림으로 인한 스트레스를 줄이기 위함.
+    @Published var caredMeals: Set<MealType> {
+        didSet {
+            UserDefaults.standard.set(caredMeals.map { $0.rawValue }, forKey: "caredMeals")
+            // 변경 즉시 알림 재설정
+            NotificationManager.shared.scheduleMealNotifications()
+        }
+    }
+
+    // "챙길 식사"를 한 번이라도 골랐는지 (첫 실행 프롬프트 노출 판단)
+    @Published var hasConfiguredCaredMeals: Bool {
+        didSet {
+            UserDefaults.standard.set(hasConfiguredCaredMeals, forKey: "hasConfiguredCaredMeals")
+        }
+    }
+
     @Published var shareMealsToCloud: Bool {
         didSet {
             UserDefaults.standard.set(shareMealsToCloud, forKey: "shareMealsToFirebase") // 기존 설정값 유지를 위해 키 이름은 그대로 둠
@@ -144,6 +161,14 @@ class SettingsManager: ObservableObject {
 
         // 무료 식단 분석 횟수 로드 (기본값: 5회)
         self.freeAnalysisCount = UserDefaults.standard.object(forKey: "freeAnalysisCount") as? Int ?? 5
+
+        // 챙길 식사 로드 (기본값: 삼시세끼 — 기존 동작 유지, 프롬프트로 조정 유도)
+        if let raw = UserDefaults.standard.array(forKey: "caredMeals") as? [String] {
+            self.caredMeals = Set(raw.compactMap { MealType(rawValue: $0) })
+        } else {
+            self.caredMeals = [.breakfast, .lunch, .dinner]
+        }
+        self.hasConfiguredCaredMeals = UserDefaults.standard.bool(forKey: "hasConfiguredCaredMeals")
 
         // 닉네임 로드 (기본값: "사용자")
         self.nickname = UserDefaults.standard.string(forKey: "userNickname") ?? "사용자"
