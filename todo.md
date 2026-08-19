@@ -10,10 +10,18 @@
   → STAGE 2(패키지 통합)는 선택 사항 — 앱은 자체 타입으로 정상 동작, 테스트는 swift test로 독립 보장
 
 
+## 완료: 친구 코드 오류 진단 (1.0.6, 빌드 검증 완료 ✅)
+- [x] "존재하지 않는 코드" 안내에 원인 힌트 추가 (친구 앱의 현재 코드 / TestFlight·앱스토어 설치 경로 일치)
+- [x] CloudKit 조회 실패 원인별 문구 분리 (스키마 미준비·인덱스 없음·네트워크·iCloud 미로그인)
+- [x] 내 코드 자가검증(FriendManager.verifyMyCodeRegistered) + 친구 화면 주황 경고 배너 + "다시 확인" 버튼
+- [x] CLOUDKIT_SETUP.md 문제 해결 섹션 (Development/Production DB 분리 확인법)
+- [ ] 사용자 확인 필요: CloudKit Console에서 Development/Production 각각 `RCUser code == BVUPP3` 조회 → 어느 환경에 있는지 확인, 필요 시 스키마 Production 배포
+
 ## 🚀 대전환: "얼마나 먹었나" 리디자인 (스펙: REDESIGN_SPEC.md)
 격자(3끼 슬롯) → 순간 컬렉션 + 앱 안 여는 원탭 기록. 핵심 지표는 칼로리가 아닌 "양"(식전/식후 차이 + "다 먹음" 탭).
 - [ ] Phase 1 (앱 본체): capturedAt/ateAll 모델 + MomentsView 피드 + 식후 알림 + AppIntent(액션버튼/단축어) + 격자는 설정 토글로 보존
-- [~] Phase 2 (Widget): App Group 배관 완료(entitlements+공유 suite+대기열 drain, 앱 빌드 검증). 위젯 코드는 SekkiWidget/ 에 준비됨 → 사용자가 Xcode에서 Widget Extension 타깃 생성 후 연결 필요 (SekkiWidget/README.md)
+- [x] Phase 2 (Widget): 완료 — SekkiWidget 타깃 생성·임베드, 홈/잠금화면 위젯 + 원탭 다먹음 (1.0.6)
+- [~] Phase 2 (구버전 메모): App Group 배관 완료(entitlements+공유 suite+대기열 drain, 앱 빌드 검증). 위젯 코드는 SekkiWidget/ 에 준비됨 → 사용자가 Xcode에서 Widget Extension 타깃 생성 후 연결 필요 (SekkiWidget/README.md)
 - 상세 로직·페르소나·기록 조합표는 REDESIGN_SPEC.md 참조
 - [x] 챙길 식사 선택: 삼시세끼 전부 알림 → "챙기고 싶은 식사"만 알림. 첫 실행 프롬프트("어떤 식사를 챙기고 싶어요?") + 설정 섹션 (CaredMealsView, SettingsManager.caredMeals, NotificationManager 게이팅)
 

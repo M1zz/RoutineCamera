@@ -67,6 +67,8 @@ class FriendManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isSignedIn = false // iCloud 계정 사용 가능 여부
+    /// 내 코드가 서버에서 검색되지 않을 때의 안내 (배포 환경 불일치·인덱스 미반영·레코드 생성 실패 등)
+    @Published var codeStatusWarning: String?
 
     // MARK: - CloudKit
 
@@ -181,6 +183,8 @@ class FriendManager: ObservableObject {
         } catch {
             print("❌ [CloudKit] 사용자 레코드 로드 실패: \(error.localizedDescription)")
         }
+
+        await verifyMyCodeRegistered()
     }
 
     /// 내 RCUser 레코드 저장 (last-writer-wins)
@@ -280,6 +284,71 @@ class FriendManager: ObservableObject {
         return String((0..<6).map { _ in characters.randomElement()! })
     }
 
+    /// 코드로 RCUser 레코드 조회. 일치하는 사용자가 없으면 nil, 조회 자체가 실패하면 원인별 메시지로 throw
+    private func findUserRecord(byCode code: String) async throws -> CKRecord? {
+        let query = CKQuery(recordType: Self.userRecordType,
+                            predicate: NSPredicate(format: "code == %@", code))
+        do {
+            let (results, _) = try await database.records(matching: query, resultsLimit: 1)
+            return try results.first?.1.get()
+        } catch let error as CKError {
+            throw Self.lookupError(from: error)
+        }
+    }
+
+    /// CloudKit 조회 실패를 원인별 안내 문구로 변환 (0건 = 코드 없음과 구분하기 위함)
+    private static func lookupError(from error: CKError) -> NSError {
+        let message: String
+        switch error.code {
+        case .unknownItem:
+            // 이 환경(Development/Production)에 RCUser 스키마가 아직 배포되지 않음
+            message = "친구 코드 저장소가 아직 준비되지 않았어요. 잠시 후 다시 시도해주세요."
+        case .invalidArguments:
+            // code 필드에 Queryable 인덱스가 없을 때
+            message = "친구 코드 검색 설정에 문제가 있어요(검색 인덱스 없음). 앱 업데이트 후 다시 시도해주세요."
+        case .networkUnavailable, .networkFailure, .serviceUnavailable, .requestRateLimited:
+            message = "네트워크 연결을 확인한 뒤 다시 시도해주세요."
+        case .notAuthenticated:
+            message = "iCloud에 로그인한 뒤 다시 시도해주세요."
+        default:
+            message = error.localizedDescription
+        }
+        print("❌ [CloudKit] 코드 조회 실패(\(error.code.rawValue)): \(error.localizedDescription)")
+        return NSError(domain: "FriendManager", code: error.code.rawValue,
+                       userInfo: [NSLocalizedDescriptionKey: message])
+    }
+
+    /// 내 코드가 실제로 서버에서 검색되는지 확인.
+    /// 화면의 코드는 UserDefaults 캐시에서도 나오기 때문에, 레코드가 없거나
+    /// 배포 환경(Development/Production)이 다른 "유령 코드" 상태를 여기서 잡아낸다.
+    /// 새로 만든 레코드는 인덱싱에 몇 초 걸릴 수 있어 몇 번 재시도한 뒤에만 경고한다.
+    func verifyMyCodeRegistered(retries: Int = 2) async {
+        guard !myUserCode.isEmpty else { return }
+        let code = myUserCode
+
+        for attempt in 0...max(0, retries) {
+            do {
+                if try await findUserRecord(byCode: code) != nil {
+                    codeStatusWarning = nil
+                    print("✅ [CloudKit] 내 코드 조회 확인: \(code)")
+                    return
+                }
+            } catch {
+                // 네트워크 등 조회 자체가 실패한 경우는 경고하지 않음 (오탐 방지)
+                print("ℹ️ [CloudKit] 코드 자가검증 건너뜀: \(error.localizedDescription)")
+                return
+            }
+
+            if attempt < max(0, retries) {
+                try? await _Concurrency.Task.sleep(nanoseconds: 3_000_000_000)
+            }
+        }
+
+        guard code == myUserCode else { return } // 검증 중 코드가 바뀌었으면 무시
+        codeStatusWarning = "이 코드가 아직 서버에서 검색되지 않아요. 친구가 추가하면 '존재하지 않는 코드'로 나올 수 있어요."
+        print("⚠️ [CloudKit] 내 코드 \(code)가 쿼리로 조회되지 않음 (레코드 미생성 또는 배포 환경 불일치)")
+    }
+
     /// 끼니를 레코드 이름에 쓸 수 있는 영문 키로 변환 (rawValue는 한글)
     private static func mealKey(_ type: MealType) -> String {
         String(describing: type) // breakfast, lunch, dinner, snack1...
@@ -304,13 +373,9 @@ class FriendManager: ObservableObject {
 
         do {
             // 1. 코드로 친구 찾기
-            let query = CKQuery(recordType: Self.userRecordType,
-                                predicate: NSPredicate(format: "code == %@", code))
-            let (results, _) = try await database.records(matching: query, resultsLimit: 1)
-
-            guard let record = try results.first?.1.get() else {
+            guard let record = try await findUserRecord(byCode: code) else {
                 throw NSError(domain: "FriendManager", code: -3,
-                             userInfo: [NSLocalizedDescriptionKey: "존재하지 않는 코드입니다."])
+                             userInfo: [NSLocalizedDescriptionKey: "존재하지 않는 코드입니다. 친구 앱에 지금 표시된 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요."])
             }
 
             let friendId = String(record.recordID.recordName.dropFirst("user_".count))

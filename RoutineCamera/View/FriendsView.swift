@@ -73,6 +73,34 @@ struct FriendsView: View {
                     Text(friendManager.myUserCode.isEmpty ? "친구 코드 생성 중..." : "이 코드를 친구에게 공유하세요")
                         .font(.caption)
                         .foregroundColor(.secondary)
+
+                    // 내 코드가 서버에서 검색되지 않을 때 안내 (친구 쪽 "존재하지 않는 코드" 예방)
+                    if let warning = friendManager.codeStatusWarning {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .accessibilityHidden(true)
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(warning)
+                                    .font(.caption)
+                                    .foregroundColor(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Button("다시 확인") {
+                                    _Concurrency.Task {
+                                        await friendManager.verifyMyCodeRegistered()
+                                    }
+                                }
+                                .font(.caption.weight(.semibold))
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.orange.opacity(0.12))
+                        .cornerRadius(10)
+                        .accessibilityElement(children: .combine)
+                    }
                 }
                 .padding()
                 .background(Color(.systemBackground))
