@@ -96,18 +96,18 @@ class FriendManager: ObservableObject {
     /// 메모리 캐시 (빠른 접근)
     let memoryCache = NSCache<NSString, CachedMealData>()
 
-    /// 디스크 캐시 디렉토리
-    private let diskCacheURL: URL = {
-        let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        return cacheDir.appendingPathComponent("FriendMealsCache", isDirectory: true)
-    }()
+    /// 영구 디스크 캐시 (Application Support)
+    private var diskCache: FriendMealCache { FriendMealCache.shared }
 
     private init() {
-        // 디스크 캐시 디렉토리 생성
-        try? FileManager.default.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
+        // 메모리 캐시: 개수와 총 바이트 양쪽으로 제한 (사진이 들어 있어 개수만으로는 부족)
+        memoryCache.countLimit = 200
+        memoryCache.totalCostLimit = 80 * 1024 * 1024
 
-        // 메모리 캐시 설정 (최대 50개 항목)
-        memoryCache.countLimit = 50
+        // 디스크 캐시 용량 정리 (상한 초과 시 오래된 것부터). 실행 직후를 피해 뒤로 미룬다.
+        _Concurrency.Task {
+            FriendMealCache.shared.enforceBudget()
+        }
 
         // iCloud 계정 상태 확인 및 변경 감지
         checkAccountState()
@@ -409,7 +409,7 @@ class FriendManager: ObservableObject {
         }
 
         // 2. 디스크 캐시 확인
-        if let diskCachedMeals = loadFromDiskCache(friendId: friendId, dateString: dateString) {
+        if let diskCachedMeals = loadFromDiskCache(friendId: friendId, dateString: dateString, date: date) {
             print("💾 [캐시] 디스크에서 로드: \(cacheKey)")
             memoryCache.setObject(CachedMealData(meals: diskCachedMeals), forKey: cacheKey)
             return diskCachedMeals
@@ -432,12 +432,9 @@ class FriendManager: ObservableObject {
             meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
         }
 
-        // 4. 다운로드한 데이터를 캐시에 저장
-        if !meals.isEmpty {
-            memoryCache.setObject(CachedMealData(meals: meals), forKey: cacheKey)
-            saveToDiskCache(friendId: friendId, dateString: dateString, meals: meals)
-            print("💾 [캐시] 저장 완료: \(cacheKey)")
-        }
+        // 4. 다운로드한 데이터를 캐시에 저장 (기록 없는 날도 저장해 반복 조회를 막는다)
+        cacheMeals(meals, friendId: friendId, dateString: dateString)
+        print("💾 [캐시] 저장 완료: \(cacheKey) (\(meals.count)개)")
 
         return meals
     }
@@ -451,124 +448,36 @@ class FriendManager: ObservableObject {
 
     // MARK: - 캐시 관리
 
-    /// 디스크 캐시에서 로드
-    func loadFromDiskCache(friendId: String, dateString: String) -> [MealType: MealRecord]? {
-        let cacheKey = "\(friendId)_\(dateString)"
-        let cacheFileURL = diskCacheURL.appendingPathComponent("\(cacheKey).json")
-
-        guard FileManager.default.fileExists(atPath: cacheFileURL.path) else {
-            return nil
-        }
-
-        do {
-            let data = try Data(contentsOf: cacheFileURL)
-            let decoder = JSONDecoder()
-
-            let cachedData = try decoder.decode(CachedMealsData.self, from: data)
-
-            // 캐시 유효 기간 확인 (7일)
-            let cacheAge = Date().timeIntervalSince(cachedData.cachedAt)
-            if cacheAge > 7 * 24 * 60 * 60 {
-                try? FileManager.default.removeItem(at: cacheFileURL)
-                return nil
-            }
-
-            // 이미지 데이터 로드
-            var meals: [MealType: MealRecord] = [:]
-            for (mealTypeString, mealInfo) in cachedData.meals {
-                guard let mealType = MealType(rawValue: mealTypeString) else { continue }
-
-                var beforeData: Data?
-                var afterData: Data?
-
-                if let beforeFileName = mealInfo.beforeImageFileName {
-                    let imageURL = diskCacheURL.appendingPathComponent(beforeFileName)
-                    beforeData = try? Data(contentsOf: imageURL)
-                }
-
-                if let afterFileName = mealInfo.afterImageFileName {
-                    let imageURL = diskCacheURL.appendingPathComponent(afterFileName)
-                    afterData = try? Data(contentsOf: imageURL)
-                }
-
-                let record = MealRecord(
-                    date: mealInfo.date,
-                    mealType: mealType,
-                    beforeImageData: beforeData,
-                    afterImageData: afterData,
-                    memo: mealInfo.memo,
-                    recordedWithoutPhoto: false,
-                    hidePhotoCountBadge: false
-                )
-
-                meals[mealType] = record
-            }
-
-            return meals
-        } catch {
-            print("❌ [캐시] 디스크 로드 실패: \(error)")
-            return nil
-        }
+    /// 디스크 캐시에서 로드 (지난 날짜는 만료 없음, 기록 없는 날도 "없음"으로 캐시됨)
+    func loadFromDiskCache(friendId: String, dateString: String, date: Date) -> [MealType: MealRecord]? {
+        diskCache.load(friendId: friendId, dateString: dateString, date: date)
     }
 
-    /// 디스크 캐시에 저장
+    /// 디스크 캐시에 저장 (빈 결과도 저장해 같은 날을 다시 조회하지 않는다)
     func saveToDiskCache(friendId: String, dateString: String, meals: [MealType: MealRecord]) {
-        let cacheKey = "\(friendId)_\(dateString)"
-        let cacheFileURL = diskCacheURL.appendingPathComponent("\(cacheKey).json")
+        diskCache.save(friendId: friendId, dateString: dateString, meals: meals)
+    }
 
-        var mealsInfo: [String: CachedMealInfo] = [:]
+    /// 메모리 + 디스크에 함께 저장. 메모리 비용은 사진 바이트 기준으로 계산한다.
+    func cacheMeals(_ meals: [MealType: MealRecord], friendId: String, dateString: String) {
+        let cost = meals.values.reduce(0) { $0 + ($1.beforeImageData?.count ?? 0) + ($1.afterImageData?.count ?? 0) }
+        memoryCache.setObject(CachedMealData(meals: meals),
+                              forKey: "\(friendId)_\(dateString)" as NSString,
+                              cost: cost)
+        saveToDiskCache(friendId: friendId, dateString: dateString, meals: meals)
+    }
 
-        for (mealType, record) in meals {
-            var beforeImageFileName: String?
-            var afterImageFileName: String?
-
-            if let beforeData = record.beforeImageData {
-                beforeImageFileName = "\(cacheKey)_\(mealType.rawValue)_before.jpg"
-                let imageURL = diskCacheURL.appendingPathComponent(beforeImageFileName!)
-                try? beforeData.write(to: imageURL)
-            }
-
-            if let afterData = record.afterImageData {
-                afterImageFileName = "\(cacheKey)_\(mealType.rawValue)_after.jpg"
-                let imageURL = diskCacheURL.appendingPathComponent(afterImageFileName!)
-                try? afterData.write(to: imageURL)
-            }
-
-            let info = CachedMealInfo(
-                date: record.date,
-                memo: record.memo,
-                beforeImageFileName: beforeImageFileName,
-                afterImageFileName: afterImageFileName
-            )
-
-            mealsInfo[mealType.rawValue] = info
-        }
-
-        let cachedData = CachedMealsData(
-            meals: mealsInfo,
-            cachedAt: Date()
-        )
-
-        do {
-            let encoder = JSONEncoder()
-            let data = try encoder.encode(cachedData)
-            try data.write(to: cacheFileURL)
-        } catch {
-            print("❌ [캐시] 디스크 저장 실패: \(error)")
-        }
+    /// 특정 날짜 캐시 무효화 (강제 새로고침용)
+    func invalidateCache(friendId: String, date: Date) {
+        let dateString = dateFormatter.string(from: date)
+        memoryCache.removeObject(forKey: "\(friendId)_\(dateString)" as NSString)
+        diskCache.invalidate(friendId: friendId, dateString: dateString)
     }
 
     /// 캐시 전체 삭제 (설정에서 호출 가능)
     func clearCache() {
         memoryCache.removeAllObjects()
-
-        if let files = try? FileManager.default.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: nil) {
-            for file in files {
-                try? FileManager.default.removeItem(at: file)
-            }
-        }
-
-        print("🗑️ [캐시] 전체 삭제 완료")
+        diskCache.clearAll()
     }
 
     // MARK: - 업로드용 이미지 축소

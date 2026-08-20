@@ -585,7 +585,8 @@ struct FriendMealsView: View {
                         isLoadingPast: $isLoadingPast,
                         allMeals: $allMeals,
                         currentVisibleDate: $currentVisibleDate,
-                        loadMorePastDates: loadMorePastDates
+                        loadMorePastDates: loadMorePastDates,
+                        onRefresh: refreshLoadedDates
                     )
                 } else {
                     GridView(
@@ -648,6 +649,16 @@ struct FriendMealsView: View {
         }
     }
 
+    /// 당겨서 새로고침: 이미 불러온 날짜의 캐시를 버리고 다시 받아온다.
+    /// (지난 날짜 캐시는 만료되지 않으므로, 친구가 예전 기록을 고쳤을 때의 탈출구)
+    private func refreshLoadedDates() async {
+        let dates = dateList
+        for date in dates {
+            friendManager.invalidateCache(friendId: friend.id, date: date)
+        }
+        await load(dates: dates)
+    }
+
     /// 날짜 묶음을 한 번에 조회. 기록 없는 날도 빈 값으로 남겨 같은 날을 다시 요청하지 않는다.
     private func load(dates: [Date]) async {
         guard !dates.isEmpty else { return }
@@ -676,6 +687,7 @@ struct TimelineView: View {
     @Binding var allMeals: [Date: [MealType: MealRecord]]
     @Binding var currentVisibleDate: Date
     let loadMorePastDates: () -> Void
+    let onRefresh: () async -> Void
 
     /// 기록이 남아 있는 날짜만
     private var recordedDates: [Date] {
@@ -760,6 +772,9 @@ struct TimelineView: View {
             }
         }
         .coordinateSpace(name: "scroll")
+        .refreshable {
+            await onRefresh()
+        }
         .onChange(of: isLoadingPast) { _, loading in
             // 불러온 구간이 통째로 비어 있으면 기록이 나올 때까지 계속 과거로 확장
             if !loading && recordedDates.isEmpty && canLoadMore {
@@ -874,11 +889,18 @@ struct GridView: View {
     }
 
     private func loadInitialGridData() {
-        // 최근 7일만 미리 로드 (나머지는 스크롤 시 onAppear에서)
-        let recentDates = Array(datesForGrid.prefix(7))
-        for date in recentDates {
-            if allMeals[date] == nil {
-                loadMealsForDate(date)
+        // 30일치를 한 번에 배치 조회 (하루씩 왕복하지 않는다. 캐시된 날은 네트워크를 타지 않음)
+        let dates = datesForGrid.filter { allMeals[$0] == nil }
+        guard !dates.isEmpty else { return }
+
+        _Concurrency.Task {
+            do {
+                let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
+                await MainActor.run {
+                    for (date, meals) in loaded { allMeals[date] = meals }
+                }
+            } catch {
+                print("❌ [그리드] 배치 로드 실패: \(error)")
             }
         }
     }

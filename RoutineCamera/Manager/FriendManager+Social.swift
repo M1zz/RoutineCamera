@@ -524,7 +524,7 @@ extension FriendManager {
             let cacheKey = "\(userId)_\(dateString)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[userId] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: userId, dateString: dateString) {
+            } else if let disk = loadFromDiskCache(friendId: userId, dateString: dateString, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[userId] = disk
             } else {
@@ -552,11 +552,7 @@ extension FriendManager {
                 meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
             }
             out[userId] = meals
-
-            if !meals.isEmpty {
-                memoryCache.setObject(CachedMealData(meals: meals), forKey: "\(userId)_\(dateString)" as NSString)
-                saveToDiskCache(friendId: userId, dateString: dateString, meals: meals)
-            }
+            cacheMeals(meals, friendId: userId, dateString: dateString)
         }
 
         print("🌐 [CloudKit] 그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")
@@ -574,7 +570,7 @@ extension FriendManager {
             let cacheKey = "\(friendId)_\(dateString)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[date] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: dateString) {
+            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: dateString, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[date] = disk
             } else {
@@ -602,11 +598,7 @@ extension FriendManager {
                 meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
             }
             out[date] = meals
-
-            if !meals.isEmpty {
-                memoryCache.setObject(CachedMealData(meals: meals), forKey: "\(friendId)_\(dateString)" as NSString)
-                saveToDiskCache(friendId: friendId, dateString: dateString, meals: meals)
-            }
+            cacheMeals(meals, friendId: friendId, dateString: dateString)
         }
 
         print("🌐 [CloudKit] 친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")
