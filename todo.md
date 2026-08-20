@@ -10,6 +10,17 @@
   → STAGE 2(패키지 통합)는 선택 사항 — 앱은 자체 타입으로 정상 동작, 테스트는 swift test로 독립 보장
 
 
+## 완료: 친구 요청/수락 + 그룹 (1.0.6, 빌드 검증 완료 ✅)
+- [x] FriendLink 레코드로 관계 전환 (각자 자기 링크만 생성, 양쪽 존재 = 친구)
+- [x] 요청 보내기 / 수락 / 거절 / 요청 취소 + 맞요청 즉시 성사
+- [x] 구버전 friendsJSON → FriendLink 자동 이관 (isLegacy 플래그로 상대 미업데이트 호환)
+- [x] 친구 요청 푸시 구독 (otherId == 나)
+- [x] 그룹: 만들기/초대코드 참여/나가기, 멤버 전원의 날짜별 피드 (GroupsView)
+- [x] 그룹 식단 배치 조회 (사람×끼니 ID 100개씩, 친구 캐시 공유)
+- [ ] 사용자 확인 필요: CloudKit Console에서 새 레코드 타입 인덱스 생성 + Production 배포
+      (FriendLink.ownerId/otherId, RCGroup.inviteCode/ownerId, GroupMember.groupId/userId)
+- [ ] 실기기 2대로 요청→수락→상호 열람, 그룹 3인 이상 피드 검증 (시뮬레이터는 iCloud 미로그인이라 미검증)
+
 ## 완료: 친구 코드 오류 진단 (1.0.6, 빌드 검증 완료 ✅)
 - [x] "존재하지 않는 코드" 안내에 원인 힌트 추가 (친구 앱의 현재 코드 / TestFlight·앱스토어 설치 경로 일치)
 - [x] CloudKit 조회 실패 원인별 문구 분리 (스키마 미준비·인덱스 없음·네트워크·iCloud 미로그인)

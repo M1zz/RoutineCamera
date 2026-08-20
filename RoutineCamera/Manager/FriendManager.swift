@@ -69,26 +69,32 @@ class FriendManager: ObservableObject {
     @Published var isSignedIn = false // iCloud 계정 사용 가능 여부
     /// 내 코드가 서버에서 검색되지 않을 때의 안내 (배포 환경 불일치·인덱스 미반영·레코드 생성 실패 등)
     @Published var codeStatusWarning: String?
+    /// 내가 받은 친구 요청 (아직 수락/거절 안 함)
+    @Published var incomingRequests: [FriendRequest] = []
+    /// 내가 보낸 요청 (상대 수락 대기 또는 거절됨)
+    @Published var pendingFriends: [PendingFriend] = []
+    /// 내가 속한 그룹
+    @Published var groups: [FriendGroup] = []
 
     // MARK: - CloudKit
 
-    private static let userRecordType = "RCUser"
-    private static let mealRecordType = "Meal"
-    private static let feedbackRecordType = "Feedback"
+    static let userRecordType = "RCUser"
+    static let mealRecordType = "Meal"
+    static let feedbackRecordType = "Feedback"
     private static let feedbackSubscriptionSavedKey = "feedbackSubscriptionUserId"
     private static let readFeedbackIdsKey = "readFeedbackIds"
 
-    private var database: CKDatabase {
+    var database: CKDatabase {
         CKContainer.default().publicCloudDatabase
     }
 
     /// 내 RCUser 레코드 (친구 코드·닉네임·친구 목록 보관)
-    private var myUserRecord: CKRecord?
+    var myUserRecord: CKRecord?
 
     // MARK: - 캐싱 시스템
 
     /// 메모리 캐시 (빠른 접근)
-    private let memoryCache = NSCache<NSString, CachedMealData>()
+    let memoryCache = NSCache<NSString, CachedMealData>()
 
     /// 디스크 캐시 디렉토리
     private let diskCacheURL: URL = {
@@ -141,6 +147,7 @@ class FriendManager: ObservableObject {
 
                 await self.bootstrapMyUserRecord()
                 self.ensureFeedbackSubscription()
+                self.ensureFriendLinkSubscription()
             } catch {
                 self.isSignedIn = false
                 print("❌ [CloudKit] 계정 확인 실패: \(error.localizedDescription)")
@@ -184,6 +191,9 @@ class FriendManager: ObservableObject {
             print("❌ [CloudKit] 사용자 레코드 로드 실패: \(error.localizedDescription)")
         }
 
+        await migrateLegacyFriendsIfNeeded()
+        await refreshSocialGraph()
+        await loadMyGroups()
         await verifyMyCodeRegistered()
     }
 
@@ -201,7 +211,7 @@ class FriendManager: ObservableObject {
         }
     }
 
-    private static func userRecordName(for userId: String) -> String {
+    static func userRecordName(for userId: String) -> String {
         "user_\(userId)"
     }
 
@@ -214,7 +224,7 @@ class FriendManager: ObservableObject {
         return decoded.sorted { $0.addedDate > $1.addedDate }
     }
 
-    private func persistFriends() async throws {
+    func persistFriends() async throws {
         guard let record = myUserRecord else { return }
         let data = try JSONEncoder().encode(friends)
         record["friendsJSON"] = String(data: data, encoding: .utf8)
@@ -237,26 +247,38 @@ class FriendManager: ObservableObject {
         // 2. 내가 작성한 피드백 삭제
         try await deleteMyRecords(ofType: Self.feedbackRecordType, field: "authorId", value: userId)
 
-        // 3. 사용자 레코드 삭제
+        // 3. 친구 링크·그룹 멤버십·내가 만든 그룹 삭제
+        try? await deleteMyRecords(ofType: Self.friendLinkRecordType, field: "ownerId", value: userId)
+        try? await deleteMyRecords(ofType: Self.groupMemberRecordType, field: "userId", value: userId)
+        try? await deleteMyRecords(ofType: Self.groupRecordType, field: "ownerId", value: userId)
+
+        // 4. 사용자 레코드 삭제
         _ = try? await database.deleteRecord(withID: CKRecord.ID(recordName: Self.userRecordName(for: userId)))
 
-        // 4. 푸시 구독 해제
+        // 5. 푸시 구독 해제
         _ = try? await database.deleteSubscription(withID: "feedback-sub-\(userId)")
+        _ = try? await database.deleteSubscription(withID: "friendlink-sub-\(userId)")
         UserDefaults.standard.removeObject(forKey: Self.feedbackSubscriptionSavedKey)
+        UserDefaults.standard.removeObject(forKey: Self.friendLinkSubscriptionKey)
+        UserDefaults.standard.removeObject(forKey: "friendLinkMigrated_\(userId)")
 
-        // 5. 로컬 상태 초기화 후 새 계정으로 재시작
+        // 6. 로컬 상태 초기화 후 새 계정으로 재시작
         UserDefaults.standard.removeObject(forKey: "friendCode_\(userId)")
         myUserRecord = nil
         myUserCode = ""
         friends = []
+        incomingRequests = []
+        pendingFriends = []
+        groups = []
         clearCache()
 
         print("✅ 공유 데이터 삭제 완료 - 새 코드로 재시작")
         await bootstrapMyUserRecord()
         ensureFeedbackSubscription()
+        ensureFriendLinkSubscription()
     }
 
-    private func deleteMyRecords(ofType type: String, field: String, value: String) async throws {
+    func deleteMyRecords(ofType type: String, field: String, value: String) async throws {
         let query = CKQuery(recordType: type, predicate: NSPredicate(format: "\(field) == %@", value))
         var cursor: CKQueryOperation.Cursor?
 
@@ -279,13 +301,13 @@ class FriendManager: ObservableObject {
 
     // MARK: - 친구 코드
 
-    private func generateRandomCode() -> String {
+    func generateRandomCode() -> String {
         let characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // 혼동되는 문자 제외 (I, O, 0, 1)
         return String((0..<6).map { _ in characters.randomElement()! })
     }
 
     /// 코드로 RCUser 레코드 조회. 일치하는 사용자가 없으면 nil, 조회 자체가 실패하면 원인별 메시지로 throw
-    private func findUserRecord(byCode code: String) async throws -> CKRecord? {
+    func findUserRecord(byCode code: String) async throws -> CKRecord? {
         let query = CKQuery(recordType: Self.userRecordType,
                             predicate: NSPredicate(format: "code == %@", code))
         do {
@@ -297,7 +319,7 @@ class FriendManager: ObservableObject {
     }
 
     /// CloudKit 조회 실패를 원인별 안내 문구로 변환 (0건 = 코드 없음과 구분하기 위함)
-    private static func lookupError(from error: CKError) -> NSError {
+    static func lookupError(from error: CKError) -> NSError {
         let message: String
         switch error.code {
         case .unknownItem:
@@ -350,63 +372,27 @@ class FriendManager: ObservableObject {
     }
 
     /// 끼니를 레코드 이름에 쓸 수 있는 영문 키로 변환 (rawValue는 한글)
-    private static func mealKey(_ type: MealType) -> String {
+    static func mealKey(_ type: MealType) -> String {
         String(describing: type) // breakfast, lunch, dinner, snack1...
     }
 
     // MARK: - 친구 관리
 
-    func addFriend(code: String) async throws {
-        guard code.count == 6 else {
-            throw NSError(domain: "FriendManager", code: -1,
-                         userInfo: [NSLocalizedDescriptionKey: "6자리 코드를 입력해주세요."])
-        }
-
-        guard code != myUserCode else {
-            throw NSError(domain: "FriendManager", code: -2,
-                         userInfo: [NSLocalizedDescriptionKey: "자신의 코드는 추가할 수 없습니다."])
-        }
-
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-
-        do {
-            // 1. 코드로 친구 찾기
-            guard let record = try await findUserRecord(byCode: code) else {
-                throw NSError(domain: "FriendManager", code: -3,
-                             userInfo: [NSLocalizedDescriptionKey: "존재하지 않는 코드입니다. 친구 앱에 지금 표시된 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요."])
-            }
-
-            let friendId = String(record.recordID.recordName.dropFirst("user_".count))
-
-            // 2. 이미 친구인지 확인
-            if friends.contains(where: { $0.id == friendId }) {
-                throw NSError(domain: "FriendManager", code: -4,
-                             userInfo: [NSLocalizedDescriptionKey: "이미 추가된 친구입니다."])
-            }
-
-            let friendName = (record["nickname"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "친구"
-
-            // 3. 친구 목록에 추가 후 서버 저장
-            let newFriend = Friend(id: friendId, code: code, name: friendName, addedDate: Date())
-            friends.insert(newFriend, at: 0)
-            try await persistFriends()
-
-            print("✅ 친구 추가 완료: \(friendName) (\(code))")
-        } catch {
-            errorMessage = error.localizedDescription
-            throw error
-        }
-    }
-
+    /// 친구 끊기: 내 쪽 링크를 지운다. (상대 링크는 상대만 지울 수 있어 그대로 남지만,
+    /// 상대 화면에서는 "상대가 끊음"으로 보이고 내 목록에서는 사라진다)
     func removeFriend(friendId: String) async throws {
         isLoading = true
         defer { isLoading = false }
 
-        friends.removeAll { $0.id == friendId }
-        try await persistFriends()
+        try await deleteMyLink(otherId: friendId)
 
+        // 구버전 호환용 friendsJSON에도 남아 있으면 함께 정리
+        if friends.contains(where: { $0.id == friendId }) {
+            friends.removeAll { $0.id == friendId }
+            try? await persistFriends()
+        }
+
+        await refreshSocialGraph()
         print("✅ 친구 삭제 완료: \(friendId)")
     }
 
@@ -443,22 +429,7 @@ class FriendManager: ObservableObject {
             let id = CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))")
             guard case .success(let record)? = results[id] else { continue }
 
-            let beforeData = (record["beforeImage"] as? CKAsset).flatMap { asset in
-                asset.fileURL.flatMap { try? Data(contentsOf: $0) }
-            }
-            let afterData = (record["afterImage"] as? CKAsset).flatMap { asset in
-                asset.fileURL.flatMap { try? Data(contentsOf: $0) }
-            }
-
-            meals[mealType] = MealRecord(
-                date: date,
-                mealType: mealType,
-                beforeImageData: beforeData,
-                afterImageData: afterData,
-                memo: record["memo"] as? String,
-                recordedWithoutPhoto: false,
-                hidePhotoCountBadge: false
-            )
+            meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
         }
 
         // 4. 다운로드한 데이터를 캐시에 저장
@@ -471,7 +442,7 @@ class FriendManager: ObservableObject {
         return meals
     }
 
-    private var dateFormatter: DateFormatter {
+    var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
@@ -481,7 +452,7 @@ class FriendManager: ObservableObject {
     // MARK: - 캐시 관리
 
     /// 디스크 캐시에서 로드
-    private func loadFromDiskCache(friendId: String, dateString: String) -> [MealType: MealRecord]? {
+    func loadFromDiskCache(friendId: String, dateString: String) -> [MealType: MealRecord]? {
         let cacheKey = "\(friendId)_\(dateString)"
         let cacheFileURL = diskCacheURL.appendingPathComponent("\(cacheKey).json")
 
@@ -541,7 +512,7 @@ class FriendManager: ObservableObject {
     }
 
     /// 디스크 캐시에 저장
-    private func saveToDiskCache(friendId: String, dateString: String, meals: [MealType: MealRecord]) {
+    func saveToDiskCache(friendId: String, dateString: String, meals: [MealType: MealRecord]) {
         let cacheKey = "\(friendId)_\(dateString)"
         let cacheFileURL = diskCacheURL.appendingPathComponent("\(cacheKey).json")
 
@@ -715,6 +686,28 @@ class FriendManager: ObservableObject {
             print("   ✅ 샘플 사용자 저장")
         } catch let error as CKError where error.code == .permissionFailure {
             print("   ℹ️ 샘플 사용자가 이미 존재 (다른 계정이 생성)")
+        }
+
+        // 샘플 친구가 나를 수락한 것처럼 역방향 링크도 만들어 둔다 (양방향 판정 통과용)
+        if !myUserId.isEmpty {
+            let link = CKRecord(recordType: Self.friendLinkRecordType,
+                                recordID: CKRecord.ID(recordName: Self.friendLinkName(owner: sampleUserId, other: myUserId)))
+            link["ownerId"] = sampleUserId
+            link["otherId"] = myUserId
+            link["ownerCode"] = sampleCode
+            link["otherCode"] = myUserCode
+            link["ownerNickname"] = sampleName
+            link["otherNickname"] = SettingsManager.shared.nickname
+            link["state"] = FriendLinkState.accepted.rawValue
+            link["isLegacy"] = 0
+            link["createdAtTS"] = Date().timeIntervalSince1970
+
+            do {
+                _ = try await database.modifyRecords(saving: [link], deleting: [], savePolicy: .allKeys, atomically: false)
+                print("   ✅ 샘플 친구 역방향 링크 저장")
+            } catch let error as CKError where error.code == .permissionFailure {
+                print("   ℹ️ 샘플 링크가 이미 존재 (다른 계정이 생성)")
+            }
         }
 
         // 2. 내 실제 식단 데이터 복사 (최근 3일, 사진 포함)

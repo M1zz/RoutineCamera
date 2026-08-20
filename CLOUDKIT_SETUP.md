@@ -16,6 +16,30 @@
 | `RCUser` | `user_<userId>` | `code`(친구 코드, 쿼리 대상), `nickname`, `friendsJSON` | 프로필 + 친구 목록 |
 | `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
 | `Feedback` | 자동 UUID | `recipientId`·`authorId`·`dateString`·`mealType`(쿼리 대상), `authorNickname`, `content`, `createdAtTS` | 피드백/콕 찌르기 |
+| `FriendLink` | `link_<내ID>_<상대ID>` | `ownerId`·`otherId`(쿼리 대상), `ownerCode`, `otherCode`, `ownerNickname`, `otherNickname`, `state`, `isLegacy`, `createdAtTS` | 친구 요청/수락 (양쪽 링크가 있으면 친구) |
+| `RCGroup` | `group_<uuid>` | `inviteCode`·`ownerId`(쿼리 대상), `name`, `createdAtTS` | 그룹 |
+| `GroupMember` | `member_<그룹ID>_<내ID>` | `groupId`·`userId`(쿼리 대상), `nickname`, `joinedAtTS` | 그룹 가입 (셀프 등록) |
+
+### 친구 관계 (요청 → 수락)
+
+공개 DB는 생성자만 수정할 수 있어 남의 레코드에 "수락됨"을 쓸 수 없다.
+그래서 **각자 자기 쪽 링크만 만들고, 양쪽 링크의 존재로 친구를 판정**한다.
+
+- A가 요청: `link_A_B (requested)` 생성 → A 화면엔 "수락 대기 중"
+- B가 수락: `link_B_A (accepted)` 생성 → 양방향 성립, 서로의 기록이 보임
+- B가 거절: `link_B_A (rejected)` → A 화면엔 "거절됨", 같은 요청이 다시 뜨지 않음
+- 친구 끊기: 내 링크만 삭제 (상대 링크는 상대만 지울 수 있음)
+- 푸시: 받는 사람은 `otherId == 내ID` 구독으로 요청·수락 알림을 받는다
+- 구버전 `friendsJSON` 친구는 첫 실행 때 `isLegacy` 링크로 자동 이관되고,
+  상대가 아직 업데이트하지 않았어도 친구로 인정된다
+
+### 그룹
+
+- 방장이 `RCGroup`을 만들면 6자리 초대 코드가 발급된다
+- 참여는 **셀프 등록** — 코드로 그룹을 찾은 뒤 자기 `GroupMember` 레코드만 만든다
+- 그룹 피드는 (멤버 × 끼니) 레코드 ID를 100개씩 묶어 한 번에 조회하므로 인덱스가 필요 없다
+- 방장이 나가면 그룹 레코드를 지운다. 남의 멤버 레코드는 지울 수 없어 남지만, 그룹이 없으면 각 기기에서 정리된다
+- 강퇴는 지원하지 않는다 (남의 레코드를 지울 수 없음)
 
 ### 피드백 푸시
 
@@ -41,8 +65,9 @@
 1. 개발 빌드로 각 기능을 한 번씩 사용 (코드 생성, 친구 추가, 식단 업로드, 피드백 작성) → 스키마 자동 생성
 2. [CloudKit Console](https://icloud.developer.apple.com) → `iCloud.com.ysoup.RoutineCamera` → **Deploy Schema Changes to Production** 실행
 
-쿼리에 쓰이는 필드(`RCUser.code`, `Meal.ownerId`, `Feedback.recipientId`/`authorId`/`dateString`/`mealType`)의
-**Queryable 인덱스**가 Production에 포함되어 있는지 확인하세요.
+쿼리에 쓰이는 필드의 **Queryable 인덱스**가 Production에 포함되어 있는지 확인하세요:
+`RCUser.code`, `Meal.ownerId`, `Feedback.recipientId`/`authorId`/`dateString`/`mealType`,
+`FriendLink.ownerId`/`otherId`, `RCGroup.inviteCode`/`ownerId`, `GroupMember.groupId`/`userId`
 
 ## 20명 이벤트 전 점검 목록
 
@@ -51,6 +76,12 @@
 - [ ] 친구 코드 목록 공유 → 친구 추가 화면에 전체 붙여넣기 (일괄 추가 지원)
 - [ ] 실기기 2대(iCloud 계정 2개)로 콕 찌르기 → 푸시 수신 → 배지 → 기록 루프 검증
 - 사진 업로드는 자동 축소됨(긴 변 1024px, JPEG 0.6) + CKAsset이라 무료 할당량으로 충분
+
+## ⚠️ 수락·그룹은 UX 장치이지 보안이 아님
+
+공개 DB에는 **읽기 제한이 없습니다.** 친구 수락과 그룹 가입은 "앱 화면에 무엇을 보여줄지"를 정할 뿐,
+상대 userId를 아는 사람이 레코드를 직접 읽는 것까지 막지는 못합니다.
+진짜 권한 통제가 필요하면 비공개 DB + CKShare로 옮겨야 합니다 (초대가 iCloud 링크 기반이 되고 6자리 코드 방식은 폐기).
 
 ## 문제 해결: 친구 추가 시 "존재하지 않는 코드입니다"
 
