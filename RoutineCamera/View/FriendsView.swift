@@ -552,6 +552,9 @@ struct FriendMealsView: View {
     @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date())
     @Environment(\.dismiss) var dismiss
 
+    /// 기록 없는 날은 건너뛰며 과거로 확장하되, 여기까지만 거슬러 올라간다
+    static let maxLookbackDays = 365
+
     enum ViewMode {
         case timeline
         case grid
@@ -617,29 +620,20 @@ struct FriendMealsView: View {
     }
 
     private func loadInitialMeals() {
+        isLoadingPast = true
         _Concurrency.Task {
-            for date in dateList {
-                do {
-                    let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                    await MainActor.run {
-                        if !meals.isEmpty {
-                            allMeals[date] = meals
-                        }
-                    }
-                } catch {
-                    print("❌ 식단 로드 실패 (\(date)): \(error)")
-                }
-            }
+            await load(dates: dateList)
+            await MainActor.run { isLoadingPast = false }
         }
     }
 
     private func loadMorePastDates() {
-        guard !isLoadingPast else { return }
+        guard !isLoadingPast, loadedPastDays < Self.maxLookbackDays else { return }
         isLoadingPast = true
 
         let calendar = Calendar.current
-        let newPastDays = loadedPastDays + 7
         let today = calendar.startOfDay(for: Date())
+        let newPastDays = min(loadedPastDays + 14, Self.maxLookbackDays)
 
         let newDates = ((-newPastDays)...(-loadedPastDays - 1)).compactMap { offset in
             calendar.date(byAdding: .day, value: offset, to: today)
@@ -648,28 +642,31 @@ struct FriendMealsView: View {
         dateList.append(contentsOf: newDates)
         loadedPastDays = newPastDays
 
-        // 새 날짜들의 식단 로드
         _Concurrency.Task {
-            for date in newDates {
-                do {
-                    let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                    await MainActor.run {
-                        if !meals.isEmpty {
-                            allMeals[date] = meals
-                        }
-                    }
-                } catch {
-                    print("❌ 식단 로드 실패 (\(date)): \(error)")
-                }
-            }
+            await load(dates: Array(newDates))
+            await MainActor.run { isLoadingPast = false }
+        }
+    }
+
+    /// 날짜 묶음을 한 번에 조회. 기록 없는 날도 빈 값으로 남겨 같은 날을 다시 요청하지 않는다.
+    private func load(dates: [Date]) async {
+        guard !dates.isEmpty else { return }
+
+        do {
+            let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
             await MainActor.run {
-                isLoadingPast = false
+                for (date, meals) in loaded { allMeals[date] = meals }
+            }
+        } catch {
+            print("❌ 식단 로드 실패: \(error)")
+            await MainActor.run {
+                for date in dates where allMeals[date] == nil { allMeals[date] = [:] }
             }
         }
     }
 }
 
-// 타임라인 뷰 (ContentView와 유사)
+// 타임라인 뷰 — 기록이 있는 날만 보여준다 (빈 날은 아예 숨김)
 struct TimelineView: View {
     let friend: Friend
     @ObservedObject var friendManager: FriendManager
@@ -680,104 +677,136 @@ struct TimelineView: View {
     @Binding var currentVisibleDate: Date
     let loadMorePastDates: () -> Void
 
-    @State private var loadingDates: Set<String> = []
+    /// 기록이 남아 있는 날짜만
+    private var recordedDates: [Date] {
+        dateList.filter { !(allMeals[$0]?.isEmpty ?? true) }
+    }
 
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
+    private var canLoadMore: Bool {
+        loadedPastDays < FriendMealsView.maxLookbackDays
+    }
+
+    /// 헤더에 표시할 날짜 (아직 스크롤 전이면 가장 최근 기록일)
+    private var headerDate: Date {
+        recordedDates.contains(currentVisibleDate) ? currentVisibleDate : (recordedDates.first ?? currentVisibleDate)
     }
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                // 현재 보이는 날짜 헤더
-                HStack {
-                    Text(currentVisibleDate, style: .date)
-                        .font(.headline)
-                    Spacer()
-                    Button(action: {
-                        let today = Calendar.current.startOfDay(for: Date())
-                        withAnimation {
-                            proxy.scrollTo(today, anchor: .top)
-                        }
-                    }) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                    }
-                }
-                .padding()
-                .background(Color(.systemBackground))
+                header(proxy: proxy)
 
                 Divider()
 
-                ScrollView {
-                    LazyVStack(spacing: 0, pinnedViews: []) {
-                        ForEach(dateList, id: \.self) { date in
-                            let dateString = dateFormatter.string(from: date)
-                            let isLoading = loadingDates.contains(dateString) && allMeals[date] == nil
-
-                            FriendDailySectionView(
-                                date: date,
-                                friend: friend,
-                                meals: allMeals[date] ?? [:],
-                                isLoading: isLoading
-                            )
-                            .id(date)
-                            .background(
-                                GeometryReader { geometry in
-                                    Color.clear.preference(
-                                        key: DatePositionPreferenceKey.self,
-                                        value: [date: geometry.frame(in: .named("scroll")).minY]
-                                    )
-                                }
-                            )
-                            .onAppear {
-                                // 데이터 없으면 로드
-                                if allMeals[date] == nil && !loadingDates.contains(dateString) {
-                                    loadMealsForDate(date)
-                                }
-
-                                // 마지막 날짜면 더 로드
-                                if date == dateList.last {
-                                    loadMorePastDates()
-                                }
-                            }
-                        }
-                    }
-                    .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
-                        if let topDate = positions.min(by: { abs($0.value) < abs($1.value) })?.key {
-                            if currentVisibleDate != topDate {
-                                currentVisibleDate = topDate
-                            }
-                        }
-                    }
-                }
-                .coordinateSpace(name: "scroll")
+                timeline
             }
         }
     }
 
-    private func loadMealsForDate(_ date: Date) {
-        let dateString = dateFormatter.string(from: date)
-        loadingDates.insert(dateString)
+    private func header(proxy: ScrollViewProxy) -> some View {
+        HStack {
+            Text(headerDate, style: .date)
+                .font(.headline)
 
-        _Concurrency.Task {
-            do {
-                // 캐시에서 먼저 로드 (빠름!)
-                let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                await MainActor.run {
-                    allMeals[date] = meals
-                    _ = loadingDates.remove(dateString)
+            Spacer()
+
+            Button {
+                if let latest = recordedDates.first {
+                    withAnimation { proxy.scrollTo(latest, anchor: .top) }
                 }
-            } catch {
-                print("❌ 타임라인 식단 로드 실패 (\(dateString)): \(error)")
-                await MainActor.run {
-                    _ = loadingDates.remove(dateString)
+            } label: {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+            }
+            .disabled(recordedDates.isEmpty)
+            .accessibilityLabel("최신 기록으로")
+        }
+        .padding()
+        .background(Color(.systemBackground))
+    }
+
+    private var timeline: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                if recordedDates.isEmpty && !isLoadingPast {
+                    emptyState
+                }
+
+                ForEach(recordedDates, id: \.self) { date in
+                    FriendDailySectionView(
+                        date: date,
+                        friend: friend,
+                        meals: allMeals[date] ?? [:]
+                    )
+                    .id(date)
+                    .background(
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: DatePositionPreferenceKey.self,
+                                value: [date: geometry.frame(in: .named("scroll")).minY]
+                            )
+                        }
+                    )
+                }
+
+                footer
+            }
+            .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
+                if let topDate = positions.min(by: { abs($0.value) < abs($1.value) })?.key,
+                   currentVisibleDate != topDate {
+                    currentVisibleDate = topDate
                 }
             }
         }
+        .coordinateSpace(name: "scroll")
+        .onChange(of: isLoadingPast) { _, loading in
+            // 불러온 구간이 통째로 비어 있으면 기록이 나올 때까지 계속 과거로 확장
+            if !loading && recordedDates.isEmpty && canLoadMore {
+                loadMorePastDates()
+            }
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 40))
+                .foregroundColor(.gray)
+                .accessibilityHidden(true)
+
+            Text("아직 기록이 없어요")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
+    }
+
+    @ViewBuilder
+    private var footer: some View {
+        Group {
+            if isLoadingPast {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("이전 기록 불러오는 중...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            } else if canLoadMore {
+                Button("이전 기록 더 보기") {
+                    loadMorePastDates()
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .onAppear { loadMorePastDates() }
+            } else if !recordedDates.isEmpty {
+                Text("더 이상 기록이 없어요")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
     }
 }
 
@@ -1355,7 +1384,6 @@ struct FriendDailySectionView: View {
     let date: Date
     let friend: Friend
     let meals: [MealType: MealRecord]
-    var isLoading: Bool = false
 
     private let calendar = Calendar.current
 
@@ -1367,51 +1395,20 @@ struct FriendDailySectionView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
-
-                // 로딩 인디케이터
-                if isLoading {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(Color(.systemGray6))
 
-            if isLoading {
-                // 로딩 중
-                VStack(spacing: 8) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                    Text("로딩 중...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-            } else if meals.isEmpty {
-                // 데이터 없음
-                VStack(spacing: 8) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                    Text("기록 없음")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-            } else {
-                // 식단 카드들
-                VStack(spacing: 16) {
-                    ForEach(MealType.allCases, id: \.self) { mealType in
-                        if let meal = meals[mealType] {
-                            FriendMealCard(mealType: mealType, meal: meal)
-                        }
+            // 식단 카드들
+            VStack(spacing: 16) {
+                ForEach(MealType.allCases, id: \.self) { mealType in
+                    if let meal = meals[mealType] {
+                        FriendMealCard(mealType: mealType, meal: meal)
                     }
                 }
-                .padding()
             }
+            .padding()
         }
     }
 }

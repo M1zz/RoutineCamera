@@ -541,12 +541,7 @@ extension FriendManager {
             }
         }
 
-        var fetched: [CKRecord.ID: Result<CKRecord, Error>] = [:]
-        for start in stride(from: 0, to: recordIDs.count, by: 100) {
-            let chunk = Array(recordIDs[start..<min(start + 100, recordIDs.count)])
-            let results = try await database.records(for: chunk)
-            fetched.merge(results) { current, _ in current }
-        }
+        let fetched = try await fetchRecordsInChunks(recordIDs)
 
         // 3. 사람별로 정리 + 캐시 저장
         for userId in missing {
@@ -566,6 +561,67 @@ extension FriendManager {
 
         print("🌐 [CloudKit] 그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")
         return out
+    }
+
+    /// 한 친구의 여러 날짜 식단을 한 번에 조회.
+    /// 기록이 없는 날도 빈 값으로 돌려주므로, 화면에서 "없는 날"을 숨기면서도 같은 날을 다시 요청하지 않는다.
+    func loadFriendMealsBatch(friendId: String, dates: [Date]) async throws -> [Date: [MealType: MealRecord]] {
+        var out: [Date: [MealType: MealRecord]] = [:]
+        var missing: [Date] = []
+
+        for date in dates {
+            let dateString = dateFormatter.string(from: date)
+            let cacheKey = "\(friendId)_\(dateString)" as NSString
+            if let cached = memoryCache.object(forKey: cacheKey) {
+                out[date] = cached.meals
+            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: dateString) {
+                memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
+                out[date] = disk
+            } else {
+                missing.append(date)
+            }
+        }
+        guard !missing.isEmpty else { return out }
+
+        var recordIDs: [CKRecord.ID] = []
+        for date in missing {
+            let dateString = dateFormatter.string(from: date)
+            for mealType in MealType.allCases {
+                recordIDs.append(CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))"))
+            }
+        }
+
+        let fetched = try await fetchRecordsInChunks(recordIDs)
+
+        for date in missing {
+            let dateString = dateFormatter.string(from: date)
+            var meals: [MealType: MealRecord] = [:]
+            for mealType in MealType.allCases {
+                let id = CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))")
+                guard case .success(let record)? = fetched[id] else { continue }
+                meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
+            }
+            out[date] = meals
+
+            if !meals.isEmpty {
+                memoryCache.setObject(CachedMealData(meals: meals), forKey: "\(friendId)_\(dateString)" as NSString)
+                saveToDiskCache(friendId: friendId, dateString: dateString, meals: meals)
+            }
+        }
+
+        print("🌐 [CloudKit] 친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")
+        return out
+    }
+
+    /// 레코드 ID를 100개씩 끊어서 조회 (CloudKit 요청 크기 제한 대응)
+    private func fetchRecordsInChunks(_ recordIDs: [CKRecord.ID]) async throws -> [CKRecord.ID: Result<CKRecord, Error>] {
+        var fetched: [CKRecord.ID: Result<CKRecord, Error>] = [:]
+        for start in stride(from: 0, to: recordIDs.count, by: 100) {
+            let chunk = Array(recordIDs[start..<min(start + 100, recordIDs.count)])
+            let results = try await database.records(for: chunk)
+            fetched.merge(results) { current, _ in current }
+        }
+        return fetched
     }
 
     private func saveMyMembership(groupId: String) async throws {
@@ -645,7 +701,7 @@ extension FriendManager {
     }
 
     /// Meal 레코드 → MealRecord (친구 화면·그룹 화면 공용)
-    nonisolated static func mealRecord(from record: CKRecord, date: Date, mealType: MealType) -> MealRecord {
+    static func mealRecord(from record: CKRecord, date: Date, mealType: MealType) -> MealRecord {
         let beforeData = (record["beforeImage"] as? CKAsset).flatMap { asset in
             asset.fileURL.flatMap { try? Data(contentsOf: $0) }
         }

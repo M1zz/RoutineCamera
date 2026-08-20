@@ -354,6 +354,11 @@ struct GroupFeedView: View {
         Calendar.current.isDateInToday(date)
     }
 
+    /// 그 날 기록이 있는 멤버만 (기록 없는 사람은 숨긴다)
+    private var membersWithRecords: [GroupMemberInfo] {
+        members.filter { !(mealsByUser[$0.id]?.isEmpty ?? true) }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -384,10 +389,21 @@ struct GroupFeedView: View {
                 Text("아직 멤버가 없어요")
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if membersWithRecords.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 40))
+                        .foregroundColor(.gray)
+                        .accessibilityHidden(true)
+                    Text("이 날은 아무도 기록하지 않았어요")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(members) { member in
+                        ForEach(membersWithRecords) { member in
                             GroupMemberSection(
                                 member: member,
                                 isMe: member.id == friendManager.myUserId,
@@ -422,7 +438,7 @@ struct GroupFeedView: View {
                 VStack(spacing: 2) {
                     Text(date, format: .dateTime.month().day().weekday(.wide))
                         .font(.system(size: 16, weight: .semibold))
-                    Text("멤버 \(members.count)명")
+                    Text("기록 \(membersWithRecords.count)명 · 멤버 \(members.count)명")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -529,29 +545,20 @@ struct GroupMemberSection: View {
 
                 Spacer()
 
-                Text(meals.isEmpty ? "기록 없음" : "\(meals.count)개")
+                Text("\(meals.count)개")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             .padding(.horizontal)
 
-            if meals.isEmpty {
-                Text("이 날 기록이 없어요")
-                    .font(.system(size: 13))
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.bottom, 4)
-            } else {
-                VStack(spacing: 12) {
-                    ForEach(MealType.allCases, id: \.self) { mealType in
-                        if let meal = meals[mealType] {
-                            FriendMealCard(mealType: mealType, meal: meal)
-                        }
+            VStack(spacing: 12) {
+                ForEach(MealType.allCases, id: \.self) { mealType in
+                    if let meal = meals[mealType] {
+                        FriendMealCard(mealType: mealType, meal: meal)
                     }
                 }
-                .padding(.horizontal)
             }
+            .padding(.horizontal)
         }
         .padding(.vertical, 12)
         .background(Color(.secondarySystemBackground).opacity(0.5))
