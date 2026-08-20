@@ -17,8 +17,6 @@ struct FriendsView: View {
     @State private var showingAccountSettings = false
     @State private var showingDeleteConfirm = false
     @State private var showingGroups = false
-    @State private var infoMessage = ""
-    @State private var showingInfo = false
 
     var body: some View {
         NavigationView {
@@ -128,8 +126,41 @@ struct FriendsView: View {
                         }
                     }
 
+                    if let error = friendManager.socialError {
+                        Section {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .accessibilityHidden(true)
+
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("친구 목록을 새로 고치지 못했어요")
+                                        .font(.system(size: 14, weight: .semibold))
+                                    Text(error)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+
+                                    Button("다시 시도") {
+                                        _Concurrency.Task { await friendManager.refreshSocialGraph() }
+                                    }
+                                    .font(.caption.weight(.semibold))
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+
                     Section("친구") {
-                        if friendManager.friends.isEmpty {
+                        if friendManager.isLoadingSocial && friendManager.friends.isEmpty {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                Text("친구 목록을 불러오는 중...")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 8)
+                        } else if friendManager.friends.isEmpty {
                             emptyFriendsRow
                         } else {
                             ForEach(friendManager.friends) { friend in
@@ -207,50 +238,15 @@ struct FriendsView: View {
                 }
             }
             .sheet(isPresented: $showingAddFriend) {
-                AddFriendSheet(
-                    friendCode: $friendCode,
-                    onAdd: {
-                        _Concurrency.Task {
-                            // 쉼표/공백/줄바꿈으로 구분된 여러 코드 일괄 추가 (이벤트용)
-                            let codes = parseFriendCodes(friendCode)
-                            var addedCount = 0
-                            var failures: [String] = []
-
-                            for code in codes {
-                                do {
-                                    try await friendManager.sendFriendRequest(code: code)
-                                    addedCount += 1
-                                } catch {
-                                    failures.append("\(code): \(error.localizedDescription)")
-                                }
-                            }
-
-                            friendCode = ""
-                            showingAddFriend = false
-
-                            if !failures.isEmpty {
-                                errorMessage = "\(addedCount)명에게 요청 전송, \(failures.count)개 실패\n\n" + failures.joined(separator: "\n")
-                                showingError = true
-                            } else if addedCount > 0 {
-                                infoMessage = addedCount == 1
-                                    ? "친구 요청을 보냈어요. 상대가 수락하면 서로의 기록을 볼 수 있어요."
-                                    : "\(addedCount)명에게 친구 요청을 보냈어요. 상대가 수락하면 서로의 기록을 볼 수 있어요."
-                                showingInfo = true
-                            }
-                        }
-                    }
-                )
+                AddFriendSheet(friendCode: $friendCode) { code in
+                    try await friendManager.sendFriendRequest(code: code)
+                }
             }
             .sheet(item: $selectedFriend) { friend in
                 FriendMealsView(friend: friend)
             }
             .sheet(isPresented: $showingGroups) {
                 GroupsView()
-            }
-            .alert("알림", isPresented: $showingInfo) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(infoMessage)
             }
             .sheet(isPresented: $showingAccountSettings) {
                 AccountSettingsSheet(
@@ -375,8 +371,11 @@ struct FriendRequestRow: View {
     let request: FriendRequest
     @ObservedObject var friendManager = FriendManager.shared
     @State private var isWorking = false
+    @State private var workingLabel = ""
+    @State private var errorText: String?
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
@@ -398,30 +397,51 @@ struct FriendRequestRow: View {
             Spacer()
 
             if isWorking {
-                ProgressView()
+                HStack(spacing: 6) {
+                    ProgressView()
+                    Text(workingLabel)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             } else {
                 Button("수락") {
-                    perform { try await friendManager.acceptFriendRequest(request) }
+                    perform("수락 중...") { try await friendManager.acceptFriendRequest(request) }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
 
                 Button("거절") {
-                    perform { try await friendManager.rejectFriendRequest(request) }
+                    perform("거절 중...") { try await friendManager.rejectFriendRequest(request) }
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             }
+        }
+
+        if let errorText {
+            Label(errorText, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundColor(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+        }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(request.name)님의 친구 요청")
     }
 
-    private func perform(_ work: @escaping () async throws -> Void) {
+    private func perform(_ label: String, _ work: @escaping () async throws -> Void) {
+        guard !isWorking else { return }
         isWorking = true
+        workingLabel = label
+        errorText = nil
+
         _Concurrency.Task {
-            try? await work()
+            do {
+                try await work()
+            } catch {
+                errorText = "처리하지 못했어요. \(error.localizedDescription)"
+            }
             isWorking = false
         }
     }
@@ -431,6 +451,7 @@ struct FriendRequestRow: View {
 struct PendingFriendRow: View {
     let pending: PendingFriend
     @ObservedObject var friendManager = FriendManager.shared
+    @State private var isWorking = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -452,13 +473,19 @@ struct PendingFriendRow: View {
 
             Spacer()
 
-            Button(pending.isRejected ? "지우기" : "요청 취소") {
-                _Concurrency.Task {
-                    try? await friendManager.cancelFriendRequest(pending)
+            if isWorking {
+                ProgressView()
+            } else {
+                Button(pending.isRejected ? "지우기" : "요청 취소") {
+                    isWorking = true
+                    _Concurrency.Task {
+                        try? await friendManager.cancelFriendRequest(pending)
+                        isWorking = false
+                    }
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
@@ -472,11 +499,25 @@ func parseFriendCodes(_ text: String) -> [String] {
     return tokens.filter { $0.count == 6 && seen.insert($0).inserted }
 }
 
-// 친구 추가 시트
+// 친구 요청 시트 — 보내는 중/결과를 시트 안에서 끝까지 보여준다
+// (예전에는 시트를 닫은 뒤 부모에서 알럿을 띄워, 닫히는 도중 알럿이 묻히면 아무 반응도 없어 보였다)
 struct AddFriendSheet: View {
     @Binding var friendCode: String
-    let onAdd: () -> Void
+    let onSend: (String) async throws -> Void
+
+    @State private var phase: Phase = .input
     @Environment(\.dismiss) var dismiss
+
+    enum Phase: Equatable {
+        case input
+        case working(done: Int, total: Int)
+        case finished(sent: Int, failures: [String])
+    }
+
+    private var isWorking: Bool {
+        if case .working = phase { return true }
+        return false
+    }
 
     private var parsedCodes: [String] {
         parseFriendCodes(friendCode)
@@ -484,58 +525,189 @@ struct AddFriendSheet: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    Image(systemName: "person.badge.plus")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-
-                    Text("친구 요청 보내기")
-                        .font(.system(size: 24, weight: .bold))
-
-                    Text("친구가 공유한 6자리 코드를 입력하세요.\n상대가 수락해야 서로의 기록을 볼 수 있어요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 보낼 수 있습니다.")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+            Group {
+                if case .finished(let sent, let failures) = phase {
+                    resultView(sent: sent, failures: failures)
+                } else {
+                    inputView
                 }
-                .padding(.top, 40)
-
-                // 코드 입력 필드 (여러 코드 붙여넣기 가능)
-                TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .multilineTextAlignment(.center)
-                    .textCase(.uppercase)
-                    .autocapitalization(.allCharacters)
-                    .disableAutocorrection(true)
-                    .lineLimit(1...5)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                Button(action: onAdd) {
-                    Text(parsedCodes.count > 1 ? "\(parsedCodes.count)명에게 요청" : "친구 요청 보내기")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(parsedCodes.isEmpty ? Color.gray : Color.blue)
-                        .cornerRadius(12)
-                }
-                .disabled(parsedCodes.isEmpty)
-                .padding(.horizontal)
-
-                Spacer()
             }
             .navigationTitle("친구 요청")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
-                        dismiss()
-                    }
+                    Button("취소") { dismiss() }
+                        .disabled(isWorking)
                 }
             }
+            .interactiveDismissDisabled(isWorking)
+        }
+    }
+
+    private var inputView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 12) {
+                Image(systemName: "person.badge.plus")
+                    .font(.system(size: 60))
+                    .foregroundColor(.blue)
+
+                Text("친구 요청 보내기")
+                    .font(.system(size: 24, weight: .bold))
+
+                Text("친구가 공유한 6자리 코드를 입력하세요.\n상대가 수락해야 서로의 기록을 볼 수 있어요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 보낼 수 있습니다.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 40)
+
+            TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
+                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .multilineTextAlignment(.center)
+                .textCase(.uppercase)
+                .autocapitalization(.allCharacters)
+                .disableAutocorrection(true)
+                .lineLimit(1...5)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .disabled(isWorking)
+
+            Button {
+                send()
+            } label: {
+                HStack(spacing: 8) {
+                    if case .working = phase {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(buttonTitle)
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(parsedCodes.isEmpty || isWorking ? Color.gray : Color.blue)
+                .cornerRadius(12)
+            }
+            .disabled(parsedCodes.isEmpty || isWorking)
+            .padding(.horizontal)
+
+            if isWorking {
+                Text("iCloud에 요청을 등록하고 있어요. 잠시만 기다려주세요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+        }
+    }
+
+    private var buttonTitle: String {
+        switch phase {
+        case .working(let done, let total):
+            return total > 1 ? "요청 보내는 중... (\(done)/\(total))" : "요청 보내는 중..."
+        default:
+            return parsedCodes.count > 1 ? "\(parsedCodes.count)명에게 요청" : "친구 요청 보내기"
+        }
+    }
+
+    private func resultView(sent: Int, failures: [String]) -> some View {
+        VStack(spacing: 18) {
+            Image(systemName: failures.isEmpty ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(failures.isEmpty ? .green : .orange)
+
+            Text(headline(sent: sent, failures: failures))
+                .font(.system(size: 20, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            if sent > 0 {
+                Text("상대가 수락하면 서로의 기록을 볼 수 있어요.\n보낸 요청은 친구 화면에서 확인할 수 있습니다.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+
+            if !failures.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(failures, id: \.self) { failure in
+                            Text(failure)
+                                .font(.system(size: 13))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                }
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .frame(maxHeight: 200)
+            }
+
+            Button {
+                dismiss()
+            } label: {
+                Text("완료")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.blue)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+
+            if !failures.isEmpty {
+                Button("코드 다시 입력") {
+                    phase = .input
+                }
+                .font(.system(size: 15, weight: .semibold))
+            }
+
+            Spacer()
+        }
+        .padding(.top, 32)
+    }
+
+    private func headline(sent: Int, failures: [String]) -> String {
+        if failures.isEmpty {
+            return sent == 1 ? "친구 요청을 보냈어요" : "\(sent)명에게 친구 요청을 보냈어요"
+        }
+        if sent == 0 {
+            return "요청을 보내지 못했어요"
+        }
+        return "\(sent)명 전송, \(failures.count)명 실패"
+    }
+
+    private func send() {
+        let codes = parsedCodes
+        guard !codes.isEmpty, !isWorking else { return }
+
+        phase = .working(done: 0, total: codes.count)
+
+        _Concurrency.Task {
+            var sent = 0
+            var failures: [String] = []
+
+            for (index, code) in codes.enumerated() {
+                phase = .working(done: index, total: codes.count)
+                do {
+                    try await onSend(code)
+                    sent += 1
+                } catch {
+                    failures.append("\(code): \(error.localizedDescription)")
+                }
+            }
+
+            if failures.isEmpty { friendCode = "" }
+            phase = .finished(sent: sent, failures: failures)
         }
     }
 }

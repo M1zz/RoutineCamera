@@ -220,6 +220,9 @@ extension FriendManager {
     func refreshSocialGraph() async {
         guard !myUserId.isEmpty else { return }
 
+        isLoadingSocial = true
+        defer { isLoadingSocial = false }
+
         do {
             let outgoing = try await queryLinks(field: "ownerId", value: myUserId)
             let incoming = try await queryLinks(field: "otherId", value: myUserId)
@@ -264,8 +267,10 @@ extension FriendManager {
             pendingFriends = pending.sorted { $0.sentAt > $1.sentAt }
             incomingRequests = requests.sorted { $0.createdAt > $1.createdAt }
 
+            socialError = nil
             print("✅ [CloudKit] 친구 \(friends.count)명 / 받은 요청 \(incomingRequests.count)건 / 보낸 요청 \(pendingFriends.count)건")
         } catch {
+            socialError = Self.readableMessage(for: error)
             print("❌ [CloudKit] 친구 관계 조회 실패(기존 목록 유지): \(error.localizedDescription)")
         }
     }
@@ -360,6 +365,9 @@ extension FriendManager {
     func loadMyGroups() async {
         guard !myUserId.isEmpty else { return }
 
+        isLoadingGroups = true
+        defer { isLoadingGroups = false }
+
         do {
             let memberRecords = try await fetchAll(
                 query: CKQuery(recordType: Self.groupMemberRecordType,
@@ -368,6 +376,7 @@ extension FriendManager {
             let groupIds = memberRecords.compactMap { $0["groupId"] as? String }
             guard !groupIds.isEmpty else {
                 groups = []
+                groupsError = nil
                 return
             }
 
@@ -387,8 +396,10 @@ extension FriendManager {
             }
 
             groups = loaded.sorted { $0.createdAt > $1.createdAt }
+            groupsError = nil
             print("✅ [CloudKit] 내 그룹 \(groups.count)개")
         } catch {
+            groupsError = Self.readableMessage(for: error)
             print("❌ [CloudKit] 그룹 조회 실패: \(error.localizedDescription)")
         }
     }
@@ -690,6 +701,14 @@ extension FriendManager {
         } while cursor != nil
 
         return out
+    }
+
+    /// 조회 실패를 사용자에게 보여줄 문구로 (CKError는 원인별 안내, 그 외는 원문)
+    static func readableMessage(for error: Error) -> String {
+        if let ckError = error as? CKError {
+            return lookupError(from: ckError).localizedDescription
+        }
+        return error.localizedDescription
     }
 
     /// Meal 레코드 → MealRecord (친구 화면·그룹 화면 공용)

@@ -13,83 +13,149 @@ struct GroupsView: View {
 
     @State private var showingCreate = false
     @State private var showingJoin = false
-    @State private var errorMessage = ""
-    @State private var showingError = false
     @State private var leaveTarget: FriendGroup?
+    @State private var isLeaving = false
+    @State private var leaveError: String?
 
     var body: some View {
         NavigationView {
-            Group {
-                if friendManager.groups.isEmpty {
-                    emptyState
-                } else {
-                    groupList
-                }
-            }
-            .navigationTitle("그룹")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("닫기") { dismiss() }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            showingCreate = true
-                        } label: {
-                            Label("그룹 만들기", systemImage: "plus.circle")
-                        }
-                        Button {
-                            showingJoin = true
-                        } label: {
-                            Label("코드로 참여", systemImage: "person.badge.key")
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 18, weight: .semibold))
+            content
+                .navigationTitle("그룹")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("닫기") { dismiss() }
+                            .disabled(isLeaving)
                     }
-                    .accessibilityLabel("그룹 만들기 또는 참여")
-                }
-            }
-            .sheet(isPresented: $showingCreate) {
-                CreateGroupSheet { name in
-                    await run { _ = try await friendManager.createGroup(name: name) }
-                }
-            }
-            .sheet(isPresented: $showingJoin) {
-                JoinGroupSheet { code in
-                    await run { _ = try await friendManager.joinGroup(inviteCode: code) }
-                }
-            }
-            .alert("오류", isPresented: $showingError) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
-            .alert("그룹 나가기", isPresented: Binding(
-                get: { leaveTarget != nil },
-                set: { if !$0 { leaveTarget = nil } }
-            )) {
-                Button("취소", role: .cancel) { leaveTarget = nil }
-                Button("나가기", role: .destructive) {
-                    if let group = leaveTarget {
-                        _Concurrency.Task {
-                            await run { try await friendManager.leaveGroup(group) }
-                            leaveTarget = nil
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            Button {
+                                showingCreate = true
+                            } label: {
+                                Label("그룹 만들기", systemImage: "plus.circle")
+                            }
+                            Button {
+                                showingJoin = true
+                            } label: {
+                                Label("코드로 참여", systemImage: "person.badge.key")
+                            }
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
                         }
+                        .disabled(isLeaving)
+                        .accessibilityLabel("그룹 만들기 또는 참여")
                     }
                 }
-            } message: {
-                if let group = leaveTarget, group.ownerId == friendManager.myUserId {
-                    Text("내가 만든 그룹이라 나가면 그룹 자체가 삭제되고, 멤버 전원이 볼 수 없게 됩니다.")
-                } else {
-                    Text("그룹에서 나가면 멤버들의 기록을 볼 수 없어요. 초대 코드로 다시 참여할 수 있습니다.")
+                .sheet(isPresented: $showingCreate) {
+                    CreateGroupSheet { name in
+                        try await friendManager.createGroup(name: name)
+                    }
                 }
+                .sheet(isPresented: $showingJoin) {
+                    JoinGroupSheet { code in
+                        try await friendManager.joinGroup(inviteCode: code)
+                    }
+                }
+                .alert("그룹 나가기", isPresented: Binding(
+                    get: { leaveTarget != nil },
+                    set: { if !$0 { leaveTarget = nil } }
+                )) {
+                    Button("취소", role: .cancel) { leaveTarget = nil }
+                    Button("나가기", role: .destructive) {
+                        if let group = leaveTarget {
+                            leave(group)
+                        }
+                    }
+                } message: {
+                    if let group = leaveTarget, group.ownerId == friendManager.myUserId {
+                        Text("내가 만든 그룹이라 나가면 그룹 자체가 삭제되고, 멤버 전원이 볼 수 없게 됩니다.")
+                    } else {
+                        Text("그룹에서 나가면 멤버들의 기록을 볼 수 없어요. 초대 코드로 다시 참여할 수 있습니다.")
+                    }
+                }
+                .alert("나가기 실패", isPresented: Binding(
+                    get: { leaveError != nil },
+                    set: { if !$0 { leaveError = nil } }
+                )) {
+                    Button("확인", role: .cancel) { leaveError = nil }
+                } message: {
+                    Text(leaveError ?? "")
+                }
+                .overlay {
+                    if isLeaving {
+                        StatusOverlay(text: "그룹에서 나가는 중...")
+                    }
+                }
+                .task {
+                    await friendManager.loadMyGroups()
+                }
+        }
+    }
+
+    /// 로딩 중 / 실패 / 비어 있음 / 목록을 분명히 구분해서 보여준다.
+    /// (불러오는 중인데 "그룹이 없어요"가 뜨면 사용자가 실패했다고 오해한다)
+    @ViewBuilder private var content: some View {
+        if friendManager.isLoadingGroups && friendManager.groups.isEmpty {
+            VStack(spacing: 12) {
+                ProgressView()
+                Text("그룹 목록을 불러오는 중...")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
             }
-            .task {
-                await friendManager.loadMyGroups()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let error = friendManager.groupsError, friendManager.groups.isEmpty {
+            failureState(error)
+        } else if friendManager.groups.isEmpty {
+            emptyState
+        } else {
+            VStack(spacing: 0) {
+                if let error = friendManager.groupsError {
+                    warningBanner("목록을 새로 고치지 못했어요. \(error)")
+                }
+                groupList
             }
         }
+    }
+
+    private func failureState(_ message: String) -> some View {
+        VStack(spacing: 14) {
+            Image(systemName: "exclamationmark.icloud")
+                .font(.system(size: 50))
+                .foregroundColor(.orange)
+                .accessibilityHidden(true)
+
+            Text("그룹 목록을 불러오지 못했어요")
+                .font(.system(size: 17, weight: .semibold))
+
+            Text(message)
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            Button("다시 시도") {
+                _Concurrency.Task { await friendManager.loadMyGroups() }
+            }
+            .font(.system(size: 15, weight: .semibold))
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func warningBanner(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.orange)
+                .accessibilityHidden(true)
+            Text(text)
+                .font(.caption)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.12))
     }
 
     private var emptyState: some View {
@@ -184,81 +250,233 @@ struct GroupsView: View {
             }
         }
         .listStyle(.plain)
+        .refreshable {
+            await friendManager.loadMyGroups()
+        }
+        .disabled(isLeaving)
     }
 
-    /// 그룹 작업 공통 실행 (실패 시 알럿)
-    private func run(_ action: () async throws -> Void) async {
-        do {
-            try await action()
-        } catch {
-            errorMessage = error.localizedDescription
-            showingError = true
+    private func leave(_ group: FriendGroup) {
+        isLeaving = true
+        leaveTarget = nil
+
+        _Concurrency.Task {
+            do {
+                try await friendManager.leaveGroup(group)
+            } catch {
+                leaveError = FriendManager.readableMessage(for: error)
+            }
+            isLeaving = false
         }
+    }
+}
+
+/// 화면 전체를 덮는 진행 표시 — 무슨 일이 진행 중인지 문구로 밝힌다
+struct StatusOverlay: View {
+    let text: String
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+
+            VStack(spacing: 12) {
+                ProgressView()
+                Text(text)
+                    .font(.callout)
+                    .foregroundColor(.primary)
+            }
+            .padding(24)
+            .background(.regularMaterial)
+            .cornerRadius(14)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text)
     }
 }
 
 // MARK: - 그룹 만들기
 
 struct CreateGroupSheet: View {
-    let onCreate: (String) async -> Void
+    /// 성공하면 만들어진 그룹을 돌려준다. 실패는 던진다.
+    let onCreate: (String) async throws -> FriendGroup
 
     @State private var name = ""
-    @State private var isWorking = false
+    @State private var phase: Phase = .input
     @Environment(\.dismiss) var dismiss
+
+    enum Phase: Equatable {
+        case input
+        case working
+        case failed(String)
+        case done(FriendGroup)
+    }
+
+    private var isWorking: Bool { phase == .working }
+
+    private var trimmedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    Image(systemName: "person.3.sequence")
-                        .font(.system(size: 56))
-                        .foregroundColor(.purple)
-
-                    Text("그룹 만들기")
-                        .font(.system(size: 24, weight: .bold))
-
-                    Text("그룹을 만들면 6자리 초대 코드가 생겨요.\n코드를 받은 사람은 누구나 참여할 수 있습니다.")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+            Group {
+                if case .done(let group) = phase {
+                    successView(group)
+                } else {
+                    inputView
                 }
-                .padding(.top, 40)
-
-                TextField("예: 우리 회사 점심팀", text: $name)
-                    .font(.system(size: 18))
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                Button {
-                    isWorking = true
-                    _Concurrency.Task {
-                        await onCreate(name)
-                        isWorking = false
-                        dismiss()
-                    }
-                } label: {
-                    Text(isWorking ? "만드는 중..." : "그룹 만들기")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(name.trimmingCharacters(in: .whitespaces).isEmpty ? Color.gray : Color.purple)
-                        .cornerRadius(12)
-                }
-                .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isWorking)
-                .padding(.horizontal)
-
-                Spacer()
             }
             .navigationTitle("그룹 만들기")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("취소") { dismiss() }
+                        .disabled(isWorking)
                 }
+            }
+            .interactiveDismissDisabled(isWorking)
+        }
+    }
+
+    private var inputView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 12) {
+                Image(systemName: "person.3.sequence")
+                    .font(.system(size: 56))
+                    .foregroundColor(.purple)
+
+                Text("그룹 만들기")
+                    .font(.system(size: 24, weight: .bold))
+
+                Text("그룹을 만들면 6자리 초대 코드가 생겨요.\n코드를 받은 사람은 누구나 참여할 수 있습니다.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 40)
+
+            TextField("예: 우리 회사 점심팀", text: $name)
+                .font(.system(size: 18))
+                .multilineTextAlignment(.center)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .disabled(isWorking)
+                .onChange(of: name) { _, _ in
+                    if case .failed = phase { phase = .input }
+                }
+
+            if case .failed(let message) = phase {
+                Label(message, systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 13))
+                    .foregroundColor(.orange)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+            }
+
+            Button {
+                create()
+            } label: {
+                HStack(spacing: 8) {
+                    if isWorking {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(isWorking ? "그룹을 만드는 중..." : (isRetry ? "다시 시도" : "그룹 만들기"))
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(trimmedName.isEmpty || isWorking ? Color.gray : Color.purple)
+                .cornerRadius(12)
+            }
+            .disabled(trimmedName.isEmpty || isWorking)
+            .padding(.horizontal)
+
+            if isWorking {
+                Text("iCloud에 그룹을 등록하고 있어요. 잠시만 기다려주세요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+        }
+    }
+
+    private var isRetry: Bool {
+        if case .failed = phase { return true }
+        return false
+    }
+
+    private func successView(_ group: FriendGroup) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.green)
+
+            Text("'\(group.name)' 그룹을 만들었어요")
+                .font(.system(size: 20, weight: .bold))
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: 8) {
+                Text("초대 코드")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                HStack(spacing: 10) {
+                    Text(group.inviteCode)
+                        .font(.system(size: 30, weight: .bold, design: .monospaced))
+
+                    Button {
+                        UIPasteboard.general.string = group.inviteCode
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(.system(size: 18))
+                    }
+                    .accessibilityLabel("초대 코드 복사")
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+
+            Text("이 코드를 공유하면 상대가 그룹에 참여할 수 있어요.")
+                .font(.system(size: 13))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                dismiss()
+            } label: {
+                Text("완료")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.purple)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+
+            Spacer()
+        }
+        .padding(.top, 40)
+    }
+
+    private func create() {
+        guard !isWorking else { return }
+        phase = .working
+
+        _Concurrency.Task {
+            do {
+                let group = try await onCreate(trimmedName)
+                phase = .done(group)
+            } catch {
+                phase = .failed(error.localizedDescription)
             }
         }
     }
@@ -267,11 +485,21 @@ struct CreateGroupSheet: View {
 // MARK: - 그룹 참여
 
 struct JoinGroupSheet: View {
-    let onJoin: (String) async -> Void
+    /// 성공하면 참여한 그룹을 돌려준다. 실패는 던진다.
+    let onJoin: (String) async throws -> FriendGroup
 
     @State private var code = ""
-    @State private var isWorking = false
+    @State private var phase: Phase = .input
     @Environment(\.dismiss) var dismiss
+
+    enum Phase: Equatable {
+        case input
+        case working
+        case failed(String)
+        case done(FriendGroup)
+    }
+
+    private var isWorking: Bool { phase == .working }
 
     private var trimmedCode: String {
         code.uppercased().filter { $0.isLetter || $0.isNumber }
@@ -279,60 +507,144 @@ struct JoinGroupSheet: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    Image(systemName: "person.badge.key")
-                        .font(.system(size: 56))
-                        .foregroundColor(.purple)
-
-                    Text("그룹 코드 입력")
-                        .font(.system(size: 24, weight: .bold))
-
-                    Text("공유받은 6자리 그룹 코드를 입력하세요.")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+            Group {
+                if case .done(let group) = phase {
+                    successView(group)
+                } else {
+                    inputView
                 }
-                .padding(.top, 40)
-
-                TextField("예: ABC123", text: $code)
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .multilineTextAlignment(.center)
-                    .textCase(.uppercase)
-                    .autocapitalization(.allCharacters)
-                    .disableAutocorrection(true)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                Button {
-                    isWorking = true
-                    _Concurrency.Task {
-                        await onJoin(trimmedCode)
-                        isWorking = false
-                        dismiss()
-                    }
-                } label: {
-                    Text(isWorking ? "참여하는 중..." : "그룹 참여")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(trimmedCode.count == 6 ? Color.purple : Color.gray)
-                        .cornerRadius(12)
-                }
-                .disabled(trimmedCode.count != 6 || isWorking)
-                .padding(.horizontal)
-
-                Spacer()
             }
             .navigationTitle("그룹 참여")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("취소") { dismiss() }
+                        .disabled(isWorking)
                 }
+            }
+            .interactiveDismissDisabled(isWorking)
+        }
+    }
+
+    private var inputView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 12) {
+                Image(systemName: "person.badge.key")
+                    .font(.system(size: 56))
+                    .foregroundColor(.purple)
+
+                Text("그룹 코드 입력")
+                    .font(.system(size: 24, weight: .bold))
+
+                Text("공유받은 6자리 그룹 코드를 입력하세요.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 40)
+
+            TextField("예: ABC123", text: $code)
+                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .multilineTextAlignment(.center)
+                .textCase(.uppercase)
+                .autocapitalization(.allCharacters)
+                .disableAutocorrection(true)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .disabled(isWorking)
+                .onChange(of: code) { _, _ in
+                    if case .failed = phase { phase = .input }
+                }
+
+            if case .failed(let message) = phase {
+                Label(message, systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 13))
+                    .foregroundColor(.orange)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+            }
+
+            Button {
+                join()
+            } label: {
+                HStack(spacing: 8) {
+                    if isWorking {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(isWorking ? "그룹을 찾는 중..." : (isRetry ? "다시 시도" : "그룹 참여"))
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(trimmedCode.count == 6 && !isWorking ? Color.purple : Color.gray)
+                .cornerRadius(12)
+            }
+            .disabled(trimmedCode.count != 6 || isWorking)
+            .padding(.horizontal)
+
+            if isWorking {
+                Text("코드를 확인하고 그룹에 등록하고 있어요. 잠시만 기다려주세요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+        }
+    }
+
+    private var isRetry: Bool {
+        if case .failed = phase { return true }
+        return false
+    }
+
+    private func successView(_ group: FriendGroup) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.green)
+
+            Text("'\(group.name)' 그룹에 참여했어요")
+                .font(.system(size: 20, weight: .bold))
+                .multilineTextAlignment(.center)
+
+            Text("이제 그룹 화면에서 멤버들의 기록을 볼 수 있어요.")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                dismiss()
+            } label: {
+                Text("완료")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.purple)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+
+            Spacer()
+        }
+        .padding(.top, 40)
+    }
+
+    private func join() {
+        guard !isWorking else { return }
+        phase = .working
+
+        _Concurrency.Task {
+            do {
+                let group = try await onJoin(trimmedCode)
+                phase = .done(group)
+            } catch {
+                phase = .failed(error.localizedDescription)
             }
         }
     }

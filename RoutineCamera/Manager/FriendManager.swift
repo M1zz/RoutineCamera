@@ -75,6 +75,14 @@ class FriendManager: ObservableObject {
     @Published var pendingFriends: [PendingFriend] = []
     /// 내가 속한 그룹
     @Published var groups: [FriendGroup] = []
+    /// 그룹 목록을 불러오는 중인지 (빈 목록과 로딩 중을 구분해서 보여주기 위함)
+    @Published var isLoadingGroups = false
+    /// 그룹 목록 조회 실패 사유 (성공 시 nil)
+    @Published var groupsError: String?
+    /// 친구 관계 조회 실패 사유 (성공 시 nil)
+    @Published var socialError: String?
+    /// 친구 관계를 불러오는 중인지 (빈 목록과 로딩 중을 구분)
+    @Published var isLoadingSocial = false
 
     // MARK: - CloudKit
 
