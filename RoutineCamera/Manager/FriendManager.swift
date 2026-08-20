@@ -571,6 +571,45 @@ class FriendManager: ObservableObject {
         print("✅ [CloudKit] 식단 업로드 완료: \(dateString)")
     }
 
+    /// 특정 날짜의 내 식단을 서버에서 삭제 (기록을 모두 지웠을 때 친구 화면에서도 사라지도록)
+    func deleteMyMeals(date: Date) async {
+        guard !myUserId.isEmpty else { return }
+
+        let dateString = dateFormatter.string(from: date)
+        let ids = MealType.allCases.map {
+            CKRecord.ID(recordName: "meal_\(myUserId)_\(dateString)_\(Self.mealKey($0))")
+        }
+        _ = try? await database.modifyRecords(saving: [], deleting: ids, atomically: false)
+    }
+
+    /// 이미 서버에 올라간 끼니 수를 날짜별로 확인.
+    /// `desiredKeys: []` 로 필드를 하나도 받지 않아 사진을 내려받지 않는다.
+    func uploadedMealCounts(dates: [Date]) async throws -> [String: Int] {
+        guard !myUserId.isEmpty, !dates.isEmpty else { return [:] }
+
+        var dateForID: [CKRecord.ID: String] = [:]
+        for date in dates {
+            let dateString = dateFormatter.string(from: date)
+            for mealType in MealType.allCases {
+                let id = CKRecord.ID(recordName: "meal_\(myUserId)_\(dateString)_\(Self.mealKey(mealType))")
+                dateForID[id] = dateString
+            }
+        }
+
+        var counts: [String: Int] = [:]
+        let ids = Array(dateForID.keys)
+
+        for start in stride(from: 0, to: ids.count, by: 100) {
+            let chunk = Array(ids[start..<min(start + 100, ids.count)])
+            let results = try await database.records(for: chunk, desiredKeys: [])
+            for (id, result) in results {
+                guard case .success = result, let dateString = dateForID[id] else { continue }
+                counts[dateString, default: 0] += 1
+            }
+        }
+        return counts
+    }
+
     // MARK: - 샘플 데이터 생성
 
     /// 테스트용 샘플 친구 데이터 생성 (코드: ABCABC)

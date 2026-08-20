@@ -322,6 +322,10 @@ class MealRecordStore: ObservableObject {
 
     // CloudKit 업로드 추적
     private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
+    /// 날짜별 기록 지문. 실제로 바뀐 날짜만 업로드하기 위한 기준값
+    private var dateFingerprints: [String: Int] = [:]
+    private let fingerprintsKey = "dietDateFingerprints_v1"
+    private let fingerprintBaselineKey = "dietFingerprintBaseline_v1"
     private var lastUploadTime: Date?
     private var uploadTimer: Timer?
     private let uploadDelaySeconds: TimeInterval = 5  // 5초 후 업로드
@@ -330,6 +334,7 @@ class MealRecordStore: ObservableObject {
         migrateToAppGroupIfNeeded()
         loadRecords()
         migrateOldDataIfNeeded()
+        establishFingerprintBaselineIfNeeded()
         drainPendingAteAll()
 
         // SettingsManager의 albumType 변경 감지
@@ -748,23 +753,92 @@ class MealRecordStore: ObservableObject {
 
     /// 현재 식단 기록에서 변경된 날짜를 dirty로 표시
     private func markDirtyDatesFromRecords() {
-        let calendar = Calendar.current
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
+        // 저장 시점 기준 최근 며칠이 아니라, **실제로 내용이 바뀐 날짜**만 업로드 대상으로 표시한다.
+        // (예전에는 최근 3일만 표시해서, 오래된 기록을 고쳐도 서버에 반영되지 않았다)
+        let current = currentDateFingerprints()
+        let stored = storedFingerprints()
 
-        // 최근 3일간의 날짜를 dirty로 표시
-        for dayOffset in 0..<3 {
-            if let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) {
-                let dateString = dateFormatter.string(from: date)
-                if !getMeals(for: date).isEmpty {
-                    dirtyDates.insert(dateString)
-                }
-            }
+        for (dateString, hash) in current where stored[dateString] != hash {
+            dirtyDates.insert(dateString)
         }
+        for dateString in stored.keys where current[dateString] == nil {
+            dirtyDates.insert(dateString) // 그 날 기록이 모두 지워짐 → 서버에서도 삭제
+        }
+
+        dateFingerprints = current
+        persistFingerprints()
 
         if !dirtyDates.isEmpty {
             print("📝 [CloudKit] 업로드 대기 날짜: \(dirtyDates.sorted())")
         }
+    }
+
+    /// 업데이트 직후 이력 전체가 "바뀐 것"으로 잡혀 대량 업로드되는 걸 막기 위해,
+    /// 앱 시작 시 한 번 현재 상태를 기준값으로 삼는다.
+    /// (새로 설치한 기기는 기록이 없는 상태가 기준이 되므로 첫 기록부터 정상 업로드된다)
+    private func establishFingerprintBaselineIfNeeded() {
+        guard !userDefaults.bool(forKey: fingerprintBaselineKey) else { return }
+
+        dateFingerprints = currentDateFingerprints()
+        persistFingerprints()
+        userDefaults.set(true, forKey: fingerprintBaselineKey)
+        print("📝 [CloudKit] 변경 감지 기준값 생성 (\(dateFingerprints.count)일) — 예전 기록은 설정의 '예전 기록 공유'로 올릴 수 있음")
+    }
+
+    /// 날짜별 지문. 사진은 바이트 수만 보므로 계산이 가볍다.
+    private func currentDateFingerprints() -> [String: Int] {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+
+        var grouped: [String: [MealRecord]] = [:]
+        for record in dietRecords {
+            grouped[formatter.string(from: record.date), default: []].append(record)
+        }
+
+        var result: [String: Int] = [:]
+        for (dateString, records) in grouped {
+            var hasher = Hasher()
+            for record in records.sorted(by: { $0.mealType.rawValue < $1.mealType.rawValue }) {
+                hasher.combine(record.mealType)
+                hasher.combine(record.memo ?? "")
+                hasher.combine(record.beforeImageData?.count ?? 0)
+                hasher.combine(record.afterImageData?.count ?? 0)
+                hasher.combine(record.ateAll)
+                hasher.combine(record.capturedAt?.timeIntervalSince1970 ?? 0)
+            }
+            result[dateString] = hasher.finalize()
+        }
+        return result
+    }
+
+    private func storedFingerprints() -> [String: Int] {
+        if !dateFingerprints.isEmpty { return dateFingerprints }
+        guard let raw = userDefaults.dictionary(forKey: fingerprintsKey) as? [String: Int] else { return [:] }
+        dateFingerprints = raw
+        return raw
+    }
+
+    private func persistFingerprints() {
+        userDefaults.set(dateFingerprints, forKey: fingerprintsKey)
+    }
+
+    /// 식단 기록 전용 접근자 — 현재 앨범 모드(운동/식단)와 무관하게 항상 식단만 본다.
+    /// 업로드 경로가 `records`(모드 의존)를 쓰면 운동 모드에서 운동 기록이 식단으로 올라간다.
+    func dietMeals(for date: Date) -> [MealType: MealRecord] {
+        let target = Calendar.current.startOfDay(for: date)
+        var meals: [MealType: MealRecord] = [:]
+        for record in dietRecords where Calendar.current.isDate(record.date, inSameDayAs: target) {
+            meals[record.mealType] = record
+        }
+        return meals
+    }
+
+    /// 식단 기록이 있는 모든 날짜 (최신순)
+    var datesWithDietRecords: [Date] {
+        let calendar = Calendar.current
+        let days = Set(dietRecords.map { calendar.startOfDay(for: $0.date) })
+        return days.sorted(by: >)
     }
 
     /// 지연된 업로드 스케줄 (여러 저장이 연속으로 일어날 때 배치 처리)
@@ -800,11 +874,13 @@ class MealRecordStore: ObservableObject {
                 // 날짜 문자열을 Date로 변환
                 guard let date = dateFormatter.date(from: dateString) else { continue }
 
-                let meals = getMeals(for: date)
+                let meals = dietMeals(for: date)
                 print("   📅 \(dateString) - 식단 개수: \(meals.count)")
 
                 if meals.isEmpty {
-                    print("   ⏭️ 식단 없음, 건너뜀")
+                    // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
+                    await FriendManager.shared.deleteMyMeals(date: date)
+                    print("   🗑️ \(dateString) 기록 없음 → 서버에서 삭제")
                     continue
                 }
 

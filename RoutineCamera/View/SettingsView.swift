@@ -179,6 +179,13 @@ struct SettingsView: View {
                     .multilineTextAlignment(.trailing)
                     .foregroundColor(.secondary)
             }
+
+            NavigationLink {
+                MealBackfillView()
+            } label: {
+                Label("예전 기록 공유", systemImage: "icloud.and.arrow.up")
+            }
+            caption("폰에만 있는 지난 기록을 iCloud에 올려 친구도 볼 수 있게 합니다.")
         }
     }
 
