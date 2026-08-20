@@ -7,10 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4C8CC1A526115B7855DF619 /* LeeoKit */; };
 		AA0100000000000000000A08 /* SekkiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000A02 /* SekkiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AA0200000000000000000B03 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0200000000000000000B02 /* RoutineCameraCore */; };
+		D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4C8CC1A526115B7855DF619 /* LeeoKit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA0100000000000000000A0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5857FA062EC244BF00A539D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0100000000000000000A03;
+			remoteInfo = SekkiWidget;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		AA0100000000000000000A07 /* Embed Foundation Extensions */ = {
@@ -36,7 +46,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				SekkiWidget.entitlements,
 			);
 			target = AA0100000000000000000A03 /* SekkiWidget */;
 		};
@@ -188,16 +197,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXContainerItemProxy section */
-		AA0100000000000000000A0A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5857FA062EC244BF00A539D8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AA0100000000000000000A03;
-			remoteInfo = SekkiWidget;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5857FA0C2EC244BF00A539D8 /* Resources */ = {
@@ -553,15 +552,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C4C8CC1A526115B7855DF619 /* LeeoKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 86F525831A64E226403DA3D4 /* XCRemoteSwiftPackageReference "LeeoKit" */;
-			productName = LeeoKit;
-		};
 		AA0200000000000000000B02 /* RoutineCameraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
 			productName = RoutineCameraCore;
+		};
+		C4C8CC1A526115B7855DF619 /* LeeoKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 86F525831A64E226403DA3D4 /* XCRemoteSwiftPackageReference "LeeoKit" */;
+			productName = LeeoKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

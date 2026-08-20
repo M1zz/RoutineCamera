@@ -4,3 +4,6 @@ RoutineCameraCore/.build/
 
 # macOS
 .DS_Store
+
+# Xcode / SwiftPM 사용자 상태
+RoutineCameraCore/.swiftpm/
