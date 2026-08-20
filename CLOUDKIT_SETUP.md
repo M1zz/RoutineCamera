@@ -17,7 +17,7 @@
 | `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
 | `Feedback` | 자동 UUID | `recipientId`·`authorId`·`dateString`·`mealType`(쿼리 대상), `authorNickname`, `content`, `createdAtTS` | 피드백/콕 찌르기 |
 | `FriendLink` | `link_<내ID>_<상대ID>` | `ownerId`·`otherId`(쿼리 대상), `ownerCode`, `otherCode`, `ownerNickname`, `otherNickname`, `state`, `isLegacy`, `createdAtTS` | 친구 요청/수락 (양쪽 링크가 있으면 친구) |
-| `RCGroup` | `group_<uuid>` | `inviteCode`·`ownerId`(쿼리 대상), `name`, `createdAtTS` | 그룹 |
+| `RCGroup` | `group_<uuid>` | `inviteCode`·`ownerId`(쿼리 대상), `name`, `visibility`, `createdAtTS` | 그룹 |
 | `GroupMember` | `member_<그룹ID>_<내ID>` | `groupId`·`userId`(쿼리 대상), `nickname`, `joinedAtTS` | 그룹 가입 (셀프 등록) |
 
 ### 친구 관계 (요청 → 수락)
@@ -40,6 +40,15 @@
 - 그룹 피드는 (멤버 × 끼니) 레코드 ID를 100개씩 묶어 한 번에 조회하므로 인덱스가 필요 없다
 - 방장이 나가면 그룹 레코드를 지운다. 남의 멤버 레코드는 지울 수 없어 남지만, 그룹이 없으면 각 기기에서 정리된다
 - 강퇴는 지원하지 않는다 (남의 레코드를 지울 수 없음)
+
+**공개 범위 (`RCGroup.visibility`)** — 방장만 바꿀 수 있다. 공개 DB가 생성자만 수정을 허용하므로 서버에서도 강제된다.
+
+| 값 | 화면 | 조회 |
+|---|---|---|
+| `record` | 멤버 전원을 기록함/안 함으로 표시 (누가 안 했는지가 핵심이라 전원 노출) | `desiredKeys: ["mealType"]` — **사진을 내려받지 않음** |
+| `full` | 지금까지처럼 사진·메모까지, 기록 있는 멤버만 | 레코드 전체 (CKAsset 포함) |
+
+필드가 없는 예전 그룹은 `full`로 간주한다(기존 동작 유지).
 
 ### 피드백 푸시
 

@@ -48,8 +48,8 @@ struct GroupsView: View {
                     }
                 }
                 .sheet(isPresented: $showingCreate) {
-                    CreateGroupSheet { name in
-                        try await friendManager.createGroup(name: name)
+                    CreateGroupSheet { name, visibility in
+                        try await friendManager.createGroup(name: name, visibility: visibility)
                     }
                 }
                 .sheet(isPresented: $showingJoin) {
@@ -235,6 +235,11 @@ struct GroupsView: View {
                                         .background(Color.purple.opacity(0.12))
                                         .cornerRadius(4)
                                 }
+
+                                Label(group.visibility.title, systemImage: group.visibility.symbolName)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                    .labelStyle(.titleAndIcon)
                             }
                         }
                     }
@@ -299,9 +304,10 @@ struct StatusOverlay: View {
 
 struct CreateGroupSheet: View {
     /// 성공하면 만들어진 그룹을 돌려준다. 실패는 던진다.
-    let onCreate: (String) async throws -> FriendGroup
+    let onCreate: (String, GroupVisibility) async throws -> FriendGroup
 
     @State private var name = ""
+    @State private var visibility: GroupVisibility = .full
     @State private var phase: Phase = .input
     @Environment(\.dismiss) var dismiss
 
@@ -367,6 +373,30 @@ struct CreateGroupSheet: View {
                 .onChange(of: name) { _, _ in
                     if case .failed = phase { phase = .input }
                 }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("서로에게 보여줄 범위")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.secondary)
+
+                Picker("공개 범위", selection: $visibility) {
+                    ForEach(GroupVisibility.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .disabled(isWorking)
+
+                Text(visibility.summary)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("나중에 방장이 언제든 바꿀 수 있어요.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
 
             if case .failed(let message) = phase {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
@@ -444,10 +474,14 @@ struct CreateGroupSheet: View {
             .background(Color(.systemGray6))
             .cornerRadius(12)
 
-            Text("이 코드를 공유하면 상대가 그룹에 참여할 수 있어요.")
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 4) {
+                Label(group.visibility.title, systemImage: group.visibility.symbolName)
+                    .font(.system(size: 13, weight: .semibold))
+                Text("이 코드를 공유하면 상대가 그룹에 참여할 수 있어요.")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+            }
+            .multilineTextAlignment(.center)
 
             Button {
                 dismiss()
@@ -473,7 +507,7 @@ struct CreateGroupSheet: View {
 
         _Concurrency.Task {
             do {
-                let group = try await onCreate(trimmedName)
+                let group = try await onCreate(trimmedName, visibility)
                 phase = .done(group)
             } catch {
                 phase = .failed(error.localizedDescription)
@@ -656,19 +690,37 @@ struct GroupFeedView: View {
     let group: FriendGroup
 
     @ObservedObject var friendManager = FriendManager.shared
+    @State private var current: FriendGroup
     @State private var members: [GroupMemberInfo] = []
     @State private var mealsByUser: [String: [MealType: MealRecord]] = [:]
+    @State private var recordedByUser: [String: Set<MealType>] = [:]
     @State private var date = Calendar.current.startOfDay(for: Date())
     @State private var isLoading = false
     @State private var loadError: String?
+    @State private var visibilityError: String?
+    @State private var isChangingVisibility = false
+
+    init(group: FriendGroup) {
+        self.group = group
+        _current = State(initialValue: group)
+    }
+
+    private var isOwner: Bool { current.ownerId == friendManager.myUserId }
 
     private var isToday: Bool {
         Calendar.current.isDateInToday(date)
     }
 
-    /// 그 날 기록이 있는 멤버만 (기록 없는 사람은 숨긴다)
+    /// 사진까지 보여주는 그룹에서, 그 날 기록이 있는 멤버만
     private var membersWithRecords: [GroupMemberInfo] {
         members.filter { !(mealsByUser[$0.id]?.isEmpty ?? true) }
+    }
+
+    private var recordedCount: Int {
+        switch current.visibility {
+        case .full: return membersWithRecords.count
+        case .record: return members.filter { !(recordedByUser[$0.id]?.isEmpty ?? true) }.count
+        }
     }
 
     var body: some View {
@@ -677,62 +729,72 @@ struct GroupFeedView: View {
 
             Divider()
 
-            if isLoading && mealsByUser.isEmpty {
-                VStack(spacing: 8) {
-                    ProgressView()
-                    Text("불러오는 중...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let loadError {
-                VStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.title)
-                        .foregroundColor(.orange)
-                    Text(loadError)
-                        .font(.callout)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if members.isEmpty {
-                Text("아직 멤버가 없어요")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if membersWithRecords.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 40))
-                        .foregroundColor(.gray)
-                        .accessibilityHidden(true)
-                    Text("이 날은 아무도 기록하지 않았어요")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(membersWithRecords) { member in
-                            GroupMemberSection(
-                                member: member,
-                                isMe: member.id == friendManager.myUserId,
-                                meals: mealsByUser[member.id] ?? [:]
-                            )
-                        }
-                    }
-                    .padding(.vertical, 12)
-                }
+            content
+        }
+        .navigationTitle(current.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                visibilityMenu
             }
         }
-        .navigationTitle(group.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if isChangingVisibility {
+                StatusOverlay(text: "공개 범위를 바꾸는 중...")
+            }
+        }
+        .alert("변경 실패", isPresented: Binding(
+            get: { visibilityError != nil },
+            set: { if !$0 { visibilityError = nil } }
+        )) {
+            Button("확인", role: .cancel) { visibilityError = nil }
+        } message: {
+            Text(visibilityError ?? "")
+        }
         .task {
             await loadMembers()
         }
     }
+
+    // MARK: 공개 범위
+
+    @ViewBuilder private var visibilityMenu: some View {
+        if isOwner {
+            Menu {
+                Picker("공개 범위", selection: Binding(
+                    get: { current.visibility },
+                    set: { change(to: $0) }
+                )) {
+                    ForEach(GroupVisibility.allCases) { option in
+                        Label(option.title, systemImage: option.symbolName).tag(option)
+                    }
+                }
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+            }
+            .disabled(isChangingVisibility)
+            .accessibilityLabel("그룹 공개 범위 설정")
+        }
+    }
+
+    private func change(to visibility: GroupVisibility) {
+        guard visibility != current.visibility, !isChangingVisibility else { return }
+        isChangingVisibility = true
+
+        _Concurrency.Task {
+            do {
+                current = try await friendManager.updateGroupVisibility(current, to: visibility)
+                mealsByUser = [:]
+                recordedByUser = [:]
+                await loadDay()
+            } catch {
+                visibilityError = error.localizedDescription
+            }
+            isChangingVisibility = false
+        }
+    }
+
+    // MARK: 헤더
 
     private var header: some View {
         VStack(spacing: 10) {
@@ -750,7 +812,7 @@ struct GroupFeedView: View {
                 VStack(spacing: 2) {
                     Text(date, format: .dateTime.month().day().weekday(.wide))
                         .font(.system(size: 16, weight: .semibold))
-                    Text("기록 \(membersWithRecords.count)명 · 멤버 \(members.count)명")
+                    Text("기록 \(recordedCount)명 · 멤버 \(members.count)명")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -769,15 +831,19 @@ struct GroupFeedView: View {
             .padding(.horizontal)
 
             HStack(spacing: 8) {
-                Text("초대 코드")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Label(current.visibility.title, systemImage: current.visibility.symbolName)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.purple)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.purple.opacity(0.12))
+                    .cornerRadius(6)
 
-                Text(group.inviteCode)
+                Text(current.inviteCode)
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
 
                 Button {
-                    UIPasteboard.general.string = group.inviteCode
+                    UIPasteboard.general.string = current.inviteCode
                 } label: {
                     Image(systemName: "doc.on.doc")
                         .font(.system(size: 13))
@@ -788,7 +854,7 @@ struct GroupFeedView: View {
                     Spacer()
                     Button("오늘") {
                         date = Calendar.current.startOfDay(for: Date())
-                        _Concurrency.Task { await loadMeals() }
+                        _Concurrency.Task { await loadDay() }
                     }
                     .font(.caption.weight(.semibold))
                 }
@@ -799,12 +865,107 @@ struct GroupFeedView: View {
         .background(Color(.systemBackground))
     }
 
+    // MARK: 본문
+
+    @ViewBuilder private var content: some View {
+        if isLoading && members.isEmpty {
+            VStack(spacing: 8) {
+                ProgressView()
+                Text("불러오는 중...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let loadError {
+            VStack(spacing: 10) {
+                Image(systemName: "exclamationmark.icloud")
+                    .font(.system(size: 44))
+                    .foregroundColor(.orange)
+                    .accessibilityHidden(true)
+
+                Text(loadError)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                Button("다시 시도") {
+                    _Concurrency.Task { await loadMembers() }
+                }
+                .font(.system(size: 15, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if members.isEmpty {
+            Text("아직 멤버가 없어요")
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            switch current.visibility {
+            case .record:
+                statusList
+            case .full:
+                photoFeed
+            }
+        }
+    }
+
+    /// 기록 여부만 공개하는 그룹 — 멤버 전원을 O/X로 보여준다 (누가 안 했는지가 핵심)
+    private var statusList: some View {
+        List {
+            Section {
+                ForEach(members) { member in
+                    GroupStatusRow(
+                        member: member,
+                        isMe: member.id == friendManager.myUserId,
+                        recorded: recordedByUser[member.id] ?? []
+                    )
+                }
+            } footer: {
+                Text("이 그룹은 기록 여부만 공유합니다. 사진과 메모는 서로 보이지 않아요.")
+            }
+        }
+        .listStyle(.plain)
+        .refreshable { await loadDay() }
+    }
+
+    /// 사진까지 공개하는 그룹 — 그 날 기록이 있는 멤버만
+    @ViewBuilder private var photoFeed: some View {
+        if membersWithRecords.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 40))
+                    .foregroundColor(.gray)
+                    .accessibilityHidden(true)
+                Text("이 날은 아무도 기록하지 않았어요")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(membersWithRecords) { member in
+                        GroupMemberSection(
+                            member: member,
+                            isMe: member.id == friendManager.myUserId,
+                            meals: mealsByUser[member.id] ?? [:]
+                        )
+                    }
+                }
+                .padding(.vertical, 12)
+            }
+            .refreshable { await loadDay() }
+        }
+    }
+
+    // MARK: 로딩
+
     private func move(days: Int) {
         guard let moved = Calendar.current.date(byAdding: .day, value: days, to: date) else { return }
         let today = Calendar.current.startOfDay(for: Date())
         guard moved <= today else { return }
         date = moved
-        _Concurrency.Task { await loadMeals() }
+        _Concurrency.Task { await loadDay() }
     }
 
     private func loadMembers() async {
@@ -812,29 +973,89 @@ struct GroupFeedView: View {
         defer { isLoading = false }
 
         do {
-            members = try await friendManager.loadGroupMembers(groupId: group.id)
+            members = try await friendManager.loadGroupMembers(groupId: current.id)
             loadError = nil
-            await loadMeals()
+            await loadDay()
         } catch {
-            loadError = "멤버를 불러오지 못했어요.\n\(error.localizedDescription)"
+            loadError = "멤버를 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
         }
     }
 
-    private func loadMeals() async {
+    private func loadDay() async {
         guard !members.isEmpty else { return }
         isLoading = true
         defer { isLoading = false }
 
+        let ids = members.map(\.id)
+
         do {
-            mealsByUser = try await friendManager.loadGroupMeals(userIds: members.map(\.id), date: date)
+            switch current.visibility {
+            case .record:
+                recordedByUser = try await friendManager.loadGroupMealStatus(userIds: ids, date: date)
+            case .full:
+                mealsByUser = try await friendManager.loadGroupMeals(userIds: ids, date: date)
+            }
             loadError = nil
         } catch {
-            loadError = "기록을 불러오지 못했어요.\n\(error.localizedDescription)"
+            loadError = "기록을 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
         }
     }
 }
 
-/// 그룹 피드에서 멤버 한 명의 하루
+/// 기록 여부만 보여주는 행
+struct GroupStatusRow: View {
+    let member: GroupMemberInfo
+    let isMe: Bool
+    let recorded: Set<MealType>
+
+    private var hasRecord: Bool { !recorded.isEmpty }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(hasRecord ? Color.green.opacity(0.15) : Color.gray.opacity(0.15))
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: hasRecord ? "checkmark" : "minus")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(hasRecord ? .green : .secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(isMe ? "\(member.nickname) (나)" : member.nickname)
+                    .font(.system(size: 16, weight: .semibold))
+
+                if hasRecord {
+                    HStack(spacing: 4) {
+                        ForEach(MealType.allCases.filter { recorded.contains($0) }, id: \.self) { mealType in
+                            Text(mealType.rawValue)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(4)
+                        }
+                    }
+                } else {
+                    Text("아직 기록 없음")
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(hasRecord
+                            ? "\(member.nickname), 기록함, \(recorded.map(\.rawValue).joined(separator: ", "))"
+                            : "\(member.nickname), 아직 기록 없음")
+    }
+}
+
+/// 그룹 피드에서 멤버 한 명의 하루 (사진까지 공개하는 그룹)
 struct GroupMemberSection: View {
     let member: GroupMemberInfo
     let isMe: Bool

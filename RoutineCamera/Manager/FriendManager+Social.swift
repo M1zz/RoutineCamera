@@ -44,12 +44,45 @@ struct PendingFriend: Identifiable, Equatable {
     let isRejected: Bool
 }
 
+/// 그룹에서 서로에게 무엇까지 보여줄지 (방장이 정한다)
+enum GroupVisibility: String, CaseIterable, Identifiable {
+    /// 기록을 올렸는지 여부만 — 사진·메모는 보이지 않는다
+    case record
+    /// 사진·메모까지 전부
+    case full
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .record: return "기록 여부만"
+        case .full: return "먹은 것까지"
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .record: return "누가 어떤 끼니를 기록했는지만 보여줍니다. 사진과 메모는 서로 보이지 않아요."
+        case .full: return "사진과 메모까지 그대로 보여줍니다. 무엇을 얼마나 먹었는지 서로 확인할 수 있어요."
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .record: return "checklist"
+        case .full: return "photo.on.rectangle"
+        }
+    }
+}
+
 struct FriendGroup: Identifiable, Equatable {
     let id: String      // recordName: group_<uuid>
     let name: String
     let ownerId: String
     let inviteCode: String
     let createdAt: Date
+    /// 예전에 만든 그룹에는 이 값이 없다 — 기존 동작(전체 공개)을 유지한다
+    var visibility: GroupVisibility = .full
     var memberCount: Int = 0
 }
 
@@ -406,7 +439,7 @@ extension FriendManager {
 
     /// 그룹 만들기 (만든 사람이 방장, 초대 코드 자동 발급)
     @discardableResult
-    func createGroup(name: String) async throws -> FriendGroup {
+    func createGroup(name: String, visibility: GroupVisibility = .full) async throws -> FriendGroup {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             throw NSError(domain: "FriendManager", code: -1,
@@ -431,15 +464,17 @@ extension FriendManager {
             record["name"] = trimmed
             record["ownerId"] = myUserId
             record["inviteCode"] = inviteCode
+            record["visibility"] = visibility.rawValue
             record["createdAtTS"] = now.timeIntervalSince1970
             _ = try await database.save(record)
 
             try await saveMyMembership(groupId: groupId)
             await loadMyGroups()
 
-            print("✅ 그룹 생성: \(trimmed) (\(inviteCode))")
+            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(visibility.rawValue))")
             return FriendGroup(id: groupId, name: trimmed, ownerId: myUserId,
-                               inviteCode: inviteCode, createdAt: now, memberCount: 1)
+                               inviteCode: inviteCode, createdAt: now,
+                               visibility: visibility, memberCount: 1)
         } catch {
             errorMessage = error.localizedDescription
             throw error
@@ -504,6 +539,71 @@ extension FriendManager {
         }
 
         await loadMyGroups()
+    }
+
+    /// 그룹 공개 범위 변경. 공개 DB는 생성자만 수정할 수 있어 방장 외에는 서버에서도 막힌다.
+    @discardableResult
+    func updateGroupVisibility(_ group: FriendGroup, to visibility: GroupVisibility) async throws -> FriendGroup {
+        guard group.ownerId == myUserId else {
+            throw NSError(domain: "FriendManager", code: -7,
+                          userInfo: [NSLocalizedDescriptionKey: "그룹을 만든 사람만 공개 범위를 바꿀 수 있어요."])
+        }
+        guard group.visibility != visibility else { return group }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            let record = try await database.record(for: CKRecord.ID(recordName: group.id))
+            record["visibility"] = visibility.rawValue
+
+            let (saveResults, _) = try await database.modifyRecords(
+                saving: [record], deleting: [], savePolicy: .changedKeys, atomically: false
+            )
+            for (_, result) in saveResults {
+                _ = try result.get()
+            }
+
+            await loadMyGroups()
+            print("✅ 그룹 공개 범위 변경: \(group.name) → \(visibility.rawValue)")
+
+            var updated = group
+            updated.visibility = visibility
+            return updated
+        } catch let error as CKError {
+            throw Self.lookupError(from: error)
+        }
+    }
+
+    /// 멤버별로 "그 날 어떤 끼니를 기록했는지"만 조회.
+    /// `desiredKeys`에 사진 필드를 넣지 않아 이미지를 내려받지 않는다 (기록 여부만 공개하는 그룹용).
+    func loadGroupMealStatus(userIds: [String], date: Date) async throws -> [String: Set<MealType>] {
+        guard !userIds.isEmpty else { return [:] }
+
+        let dateString = dateFormatter.string(from: date)
+        var owners: [CKRecord.ID: (userId: String, mealType: MealType)] = [:]
+
+        for userId in userIds {
+            for mealType in MealType.allCases {
+                let id = CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))")
+                owners[id] = (userId, mealType)
+            }
+        }
+
+        var result: [String: Set<MealType>] = [:]
+        let ids = Array(owners.keys)
+
+        for start in stride(from: 0, to: ids.count, by: 100) {
+            let chunk = Array(ids[start..<min(start + 100, ids.count)])
+            let fetched = try await database.records(for: chunk, desiredKeys: ["mealType"])
+            for (id, outcome) in fetched {
+                guard case .success = outcome, let owner = owners[id] else { continue }
+                result[owner.userId, default: []].insert(owner.mealType)
+            }
+        }
+
+        print("🌐 [CloudKit] 그룹 기록 여부 조회: \(dateString) — \(userIds.count)명 (사진 미포함)")
+        return result
     }
 
     /// 그룹 멤버 목록 (가입 순)
@@ -678,7 +778,8 @@ extension FriendManager {
             name: name,
             ownerId: ownerId,
             inviteCode: inviteCode,
-            createdAt: Date(timeIntervalSince1970: record["createdAtTS"] as? TimeInterval ?? 0)
+            createdAt: Date(timeIntervalSince1970: record["createdAtTS"] as? TimeInterval ?? 0),
+            visibility: (record["visibility"] as? String).flatMap(GroupVisibility.init(rawValue:)) ?? .full
         )
     }
 
