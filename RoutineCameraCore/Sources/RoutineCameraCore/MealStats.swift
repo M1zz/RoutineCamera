@@ -15,13 +15,10 @@ public enum MealStats {
     }
 
     /// 하루가 "연속 기록에 포함되는 날"인지.
-    /// 식단: 어떤 끼니든 하나라도 완료 / 운동: 대표 슬롯(breakfast) 완료.
+    /// 식단·운동 모두 그날 하나라도 완료된 기록이 있으면 인정한다.
+    /// (운동을 대표 슬롯 breakfast로만 인정하던 탓에 저녁 운동이 통계에서 빠졌다)
     public static func isDayRecorded(_ date: Date, in records: [MealRecord], exerciseMode: Bool = false, calendar: Calendar = .current) -> Bool {
-        let day = self.records(on: date, in: records, calendar: calendar)
-        if exerciseMode {
-            return day.contains { $0.mealType == .breakfast && $0.isComplete }
-        }
-        return day.contains { $0.isComplete }
+        self.records(on: date, in: records, calendar: calendar).contains { $0.isComplete }
     }
 
     /// 현재 연속 기록 일수. 오늘이 아직 미기록이면 '진행 중'으로 보고 끊지 않는다.

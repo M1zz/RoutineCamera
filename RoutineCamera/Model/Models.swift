@@ -51,6 +51,18 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // 타임스탬프가 없는 기록의 정렬·배치용 대표 시각(시)
+    var typicalHour: Int {
+        switch self {
+        case .breakfast: return 8
+        case .snack1:    return 10
+        case .lunch:     return 12
+        case .snack2:    return 15
+        case .dinner:    return 18
+        case .snack3:    return 21
+        }
+    }
+
     // 촬영 시각으로 끼니를 자동 추론 (순간 기록에서 슬롯 선택 없이 바로 기록하기 위함)
     // 아침 05~10시 / 점심 11~15시 / 저녁 16~21시 / 그 외 간식
     static func inferred(at date: Date = Date()) -> MealType {
@@ -268,6 +280,11 @@ struct MealRecord: Identifiable, Codable {
     // 식전·식후 둘 다 있어 식사가 마감된 기록
     var hasBeforeAfterComparison: Bool {
         return beforeImageData != nil && afterImageData != nil
+    }
+
+    // 식후만 남기고 식전 사진이 비어 있는 기록 → 어떤 사진이 필요한지 화면에 그대로 표시하기 위함
+    var needsBeforePhoto: Bool {
+        return afterImageData != nil && beforeImageData == nil && !ateAll && !recordedWithoutPhoto
     }
 }
 
@@ -926,7 +943,8 @@ class MealRecordStore: ObservableObject {
     func isDayComplete(_ date: Date) -> Bool {
         let meals = getMeals(for: date)
         if SettingsManager.shared.albumType == .exercise {
-            return meals[.breakfast]?.isComplete ?? false
+            // 운동은 시각에 맞는 슬롯에 저장되므로 특정 슬롯이 아니라 "그날 기록이 있는가"로 본다
+            return meals.values.contains { $0.isComplete }
         } else {
             // 간식 제외 주요 3끼 모두 완료
             let mainMeals = meals.filter { !$0.key.isSnack }
@@ -940,7 +958,7 @@ class MealRecordStore: ObservableObject {
     func isDayRecorded(_ date: Date) -> Bool {
         let meals = getMeals(for: date)
         if SettingsManager.shared.albumType == .exercise {
-            return meals[.breakfast]?.isComplete ?? false
+            return meals.values.contains { $0.isComplete }
         }
         // 간식 포함 어떤 끼니든 하나라도 완료되면 기록된 날로 인정
         return meals.values.contains { $0.isComplete }

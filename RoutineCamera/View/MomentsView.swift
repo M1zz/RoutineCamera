@@ -117,8 +117,9 @@ struct MomentsView: View {
     private var recordButton: some View {
         Button {
             recordingPhotoType = .before
-            // 운동은 1장·하루 단위(대표 슬롯), 식단은 시각으로 끼니 자동 추론
-            recordingMealType = isExercise ? .breakfast : MealType.inferred()
+            // 식단·운동 모두 "지금 시각"으로 슬롯을 정한다.
+            // (운동을 늘 .breakfast에 넣던 탓에 저녁 운동도 아침 칸에 들어가고 하루 한 번만 기록됐다)
+            recordingMealType = MealType.inferred()
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: isExercise ? "figure.run" : "camera.fill")
@@ -191,15 +192,18 @@ struct MomentsView: View {
                         // 운동은 음식 태그 대신 완료 표시
                         tag("완료", system: "checkmark.circle.fill", color: .green)
                     } else {
-                        // 상태는 하나만 — 마감된 식사 / 다 먹음 / 오늘 먹는 중 / 지난 날 미마감
+                        // 상태는 하나만 — 마감된 식사 / 다 먹음 / 어떤 사진이 비었는지 명시
                         if record.hasBeforeAfterComparison {
                             tag("식사 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.ateAll {
                             tag("다 먹음", system: "checkmark.circle.fill", color: .green)
                         } else if record.isEatingInProgressToday {
-                            tag("먹는 중", system: "hourglass", color: .orange)
+                            // 식전만 찍힌 오늘 기록 — 무엇이 비었는지 그대로 말해준다
+                            tag("식후 사진 기록 필요", system: "hourglass", color: .orange)
                         } else if record.needsRecordCompletion {
-                            tag("기록 필요", system: "pencil.circle", color: .gray)
+                            tag("식후 사진 기록 필요", system: "pencil.circle", color: .gray)
+                        } else if record.needsBeforePhoto {
+                            tag("식전 사진 기록 필요", system: "pencil.circle", color: .gray)
                         }
                     }
                     if let memo = record.memo, !memo.isEmpty {

@@ -821,6 +821,14 @@ extension FriendManager {
             asset.fileURL.flatMap { try? Data(contentsOf: $0) }
         }
 
+        // timestamp에는 상대가 실제로 기록한 시각이 들어있다.
+        // (그 날 안의 시각일 때만 신뢰 — 예전 버전은 업로드 시각을 넣었다)
+        var capturedAt: Date?
+        if let ts = record["timestamp"] as? Double {
+            let t = Date(timeIntervalSince1970: ts)
+            if Calendar.current.isDate(t, inSameDayAs: date) { capturedAt = t }
+        }
+
         return MealRecord(
             date: date,
             mealType: mealType,
@@ -828,7 +836,8 @@ extension FriendManager {
             afterImageData: afterData,
             memo: record["memo"] as? String,
             recordedWithoutPhoto: false,
-            hidePhotoCountBadge: false
+            hidePhotoCountBadge: false,
+            capturedAt: capturedAt
         )
     }
 }

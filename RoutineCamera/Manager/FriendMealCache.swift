@@ -72,7 +72,8 @@ final class FriendMealCache {
                 afterImageData: afterData,
                 memo: info.memo,
                 recordedWithoutPhoto: false,
-                hidePhotoCountBadge: false
+                hidePhotoCountBadge: false,
+                capturedAt: info.capturedAt
             )
         }
         return meals
@@ -104,7 +105,8 @@ final class FriendMealCache {
                 date: record.date,
                 memo: record.memo,
                 beforeImageFileName: beforeImageFileName,
-                afterImageFileName: afterImageFileName
+                afterImageFileName: afterImageFileName,
+                capturedAt: record.capturedAt
             )
         }
 

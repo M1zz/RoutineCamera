@@ -130,19 +130,31 @@ struct PhotoDetailView: View {
 
                     // 정보 영역
                     VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: mealType.symbolName)
-                                .foregroundColor(mealType.symbolColor)
+                        HStack(spacing: 8) {
+                            // 운동 모드에서는 저장 슬롯(아침/점심/…) 대신 "운동"으로 표시
+                            let isExercise = SettingsManager.shared.albumType == .exercise
+                            Image(systemName: isExercise ? "figure.run" : mealType.symbolName)
+                                .foregroundColor(isExercise ? .green : mealType.symbolColor)
                                 .font(.system(size: 24))
-                            Text(mealType.rawValue)
+                            Text(isExercise ? "운동" : mealType.rawValue)
                                 .font(.system(size: 24, weight: .bold))
+                                .lineLimit(1)
                             // 식단 모드일 때만 식전/식후 표시
-                            if SettingsManager.shared.albumType == .diet {
+                            if !isExercise {
                                 Text(currentPage == 0 ? "식전" : "식후")
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.secondary)
                             }
-                            Spacer()
+                            Spacer(minLength: 8)
+
+                            // 실제 기록 시각 (잘리지 않게 고정 폭)
+                            if let captured = record.capturedAt {
+                                Text(timeFormatter.string(from: captured))
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
                         }
 
                         if let memo = record.memo, !memo.isEmpty {
@@ -695,6 +707,13 @@ struct PhotoDetailView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M월 d일 (E)"
+        return formatter
+    }
+
+    private var timeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "a h:mm"
         return formatter
     }
 

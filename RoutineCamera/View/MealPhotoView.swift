@@ -27,6 +27,12 @@ struct MealPhotoView: View {
         case after  // 식후
     }
 
+    // 운동 모드에서는 슬롯(아침/점심/…)이 저장 위치일 뿐이므로 화면에는 "운동"으로 보여준다
+    private var isExerciseMode: Bool { SettingsManager.shared.albumType == .exercise }
+    private var slotLabel: String { isExerciseMode ? "운동" : mealType.rawValue }
+    private var slotSymbolName: String { isExerciseMode ? "figure.run" : mealType.symbolName }
+    private var slotSymbolColor: Color { isExerciseMode ? .green : mealType.symbolColor }
+
     // 미래 날짜 확인
     private var isFutureDate: Bool {
         let calendar = Calendar.current
@@ -38,8 +44,8 @@ struct MealPhotoView: View {
     // 과거 날짜이면서 기록하지 않은 경우 (실패)
     // 간식은 선택사항이므로 제외
     private var isPastDateMissed: Bool {
-        // 간식은 안 먹어도 괜찮음
-        if mealType.isSnack {
+        // 간식은 안 먹어도 괜찮음 (운동 모드에서는 슬롯 구분이 의미 없으므로 건너뜀)
+        if !isExerciseMode && mealType.isSnack {
             return false
         }
 
@@ -48,7 +54,13 @@ struct MealPhotoView: View {
         let targetDate = calendar.startOfDay(for: date)
         // 시작일(첫 실행/최오래 기록) 이전 날짜는 "설치 전"이므로 실패로 판정하지 않음
         let startDay = calendar.startOfDay(for: mealStore.startDate)
-        return targetDate < today && targetDate >= startDay && mealRecord == nil
+        guard targetDate < today, targetDate >= startDay, mealRecord == nil else { return false }
+
+        // 운동은 그날 어느 시간대든 한 번 했으면 거른 날이 아니다
+        if isExerciseMode {
+            return !mealStore.getMeals(for: date).values.contains { $0.isComplete }
+        }
+        return true
     }
 
     // 시작 직후 유예 기간(첫 3일). 이 기간의 미기록은 "실패"로 강조하지 않고 부드럽게 안내
@@ -90,6 +102,9 @@ struct MealPhotoView: View {
     // 현재 시간대에 맞는 식사인지 확인
     private var isCurrentMeal: Bool {
         guard isToday, mealRecord == nil else { return false }
+
+        // 운동은 "지금 시각의 슬롯"이 곧 기록할 칸
+        if isExerciseMode { return mealType == MealType.inferred() }
 
         let now = Date()
         let calendar = Calendar.current
@@ -258,9 +273,9 @@ struct MealPhotoView: View {
     // 미래·과거 미기록은 옅은 회색, 유예·일반은 초대하는 식사 색
     private var symbolColor: Color {
         if isFutureDate { return .gray }
-        if isWithinGracePeriod && isPastDateMissed { return mealType.symbolColor }  // 유예는 초대 톤 유지
+        if isWithinGracePeriod && isPastDateMissed { return slotSymbolColor }  // 유예는 초대 톤 유지
         if isSoftMissed || isStreakBreakDay { return Color.gray.opacity(0.35) }     // 과거 미기록은 더 옅게 물러남
-        return mealType.symbolColor
+        return slotSymbolColor
     }
 
     // 메인 심볼 뷰 (누적 빨간 숫자 제거, 상태별 톤만 조절)
@@ -268,12 +283,12 @@ struct MealPhotoView: View {
     private var mainSymbolView: some View {
         if isCurrentMeal {
             PulsingSymbolView(
-                symbolName: mealType.symbolName,
-                color: mealType.symbolColor,
+                symbolName: slotSymbolName,
+                color: slotSymbolColor,
                 size: min(photoSize * 0.4, 36)
             )
         } else {
-            Image(systemName: mealType.symbolName)
+            Image(systemName: slotSymbolName)
                 .font(.system(size: min(photoSize * 0.4, 36)))
                 .foregroundColor(symbolColor)
         }
@@ -408,7 +423,7 @@ struct MealPhotoView: View {
                 handleTap()
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(mealType.rawValue)
+            .accessibilityLabel(slotLabel)
             .accessibilityValue(accessibilityStatus)
             .accessibilityHint(accessibilityActionHint)
             .accessibilityAddTraits(isFutureDate ? [] : .isButton)

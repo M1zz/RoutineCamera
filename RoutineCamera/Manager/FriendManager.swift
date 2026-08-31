@@ -55,6 +55,8 @@ struct CachedMealInfo: Codable {
     let memo: String?
     let beforeImageFileName: String?
     let afterImageFileName: String?
+    // 실제로 먹은(찍은) 시각. 옵셔널이라 이 키가 없는 예전 캐시도 그대로 읽힌다.
+    var capturedAt: Date?
 }
 
 @MainActor
@@ -535,7 +537,8 @@ class FriendManager: ObservableObject {
             record["ownerId"] = myUserId
             record["dateString"] = dateString
             record["mealType"] = Self.mealKey(mealType)
-            record["timestamp"] = Date().timeIntervalSince1970
+            // 친구 화면에서 "몇 시에 먹었는지"를 보여주려면 업로드 시각이 아니라 기록 시각이어야 한다
+            record["timestamp"] = (mealRecord.capturedAt ?? mealRecord.date).timeIntervalSince1970
             record["memo"] = mealRecord.memo
 
             // 사진은 CKAsset으로 업로드 (전송량 절감을 위해 긴 변 1024px로 축소)
@@ -687,7 +690,7 @@ class FriendManager: ObservableObject {
                 record["ownerId"] = sampleUserId
                 record["dateString"] = dateString
                 record["mealType"] = Self.mealKey(mealType)
-                record["timestamp"] = date.timeIntervalSince1970
+                record["timestamp"] = (mealRecord.capturedAt ?? date).timeIntervalSince1970
                 record["memo"] = mealRecord.memo
 
                 if let beforeData = mealRecord.beforeImageData {

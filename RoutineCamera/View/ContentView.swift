@@ -53,7 +53,8 @@ struct ContentView: View {
             guard date < startOfToday, date >= startDay else { return false }
             let meals = mealStore.getMeals(for: date)
             if isExerciseMode {
-                return meals[.breakfast] == nil
+                // 운동은 어느 시간대에 했든 그날 기록이 하나라도 있으면 거른 날이 아니다
+                return !meals.values.contains { $0.isComplete }
             } else {
                 return MealType.allCases.contains { !$0.isSnack && meals[$0] == nil }
             }

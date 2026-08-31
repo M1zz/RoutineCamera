@@ -122,4 +122,9 @@ public struct MealRecord: Identifiable, Codable, Sendable {
     public var hasBeforeAfterComparison: Bool {
         beforeImageData != nil && afterImageData != nil
     }
+
+    /// 식후만 남기고 식전 사진이 비어 있는 기록 → 어떤 사진이 필요한지 화면에 그대로 표시하기 위함
+    public var needsBeforePhoto: Bool {
+        afterImageData != nil && beforeImageData == nil && !ateAll && !recordedWithoutPhoto
+    }
 }

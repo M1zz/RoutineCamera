@@ -24,10 +24,11 @@ final class MealStatsTests: XCTestCase {
         XCTAssertFalse(MealStats.isDayRecorded(today, in: recs))
     }
 
-    func testIsDayRecorded_exerciseNeedsBreakfastSlot() {
-        // 운동 모드: 대표 슬롯(breakfast)만 인정
+    func testIsDayRecorded_exerciseCountsAnySlot() {
+        // 운동은 시각에 맞는 슬롯에 저장되므로 아침이든 저녁이든 그날 기록이면 인정
         XCTAssertTrue(MealStats.isDayRecorded(today, in: [rec(today, .breakfast)], exerciseMode: true))
-        XCTAssertFalse(MealStats.isDayRecorded(today, in: [rec(today, .lunch)], exerciseMode: true))
+        XCTAssertTrue(MealStats.isDayRecorded(today, in: [rec(today, .dinner)], exerciseMode: true))
+        XCTAssertFalse(MealStats.isDayRecorded(today, in: [rec(today, .dinner, complete: false)], exerciseMode: true))
     }
 
     // MARK: currentStreak

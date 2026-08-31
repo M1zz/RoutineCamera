@@ -1598,7 +1598,7 @@ struct FriendDailySectionView: View {
             VStack(spacing: 16) {
                 ForEach(MealType.allCases, id: \.self) { mealType in
                     if let meal = meals[mealType] {
-                        FriendMealCard(mealType: mealType, meal: meal)
+                        FriendMealCard(mealType: mealType, meal: meal, friend: friend, date: date)
                     }
                 }
             }
@@ -1607,35 +1607,58 @@ struct FriendDailySectionView: View {
     }
 }
 
-// 친구 식단 카드 (읽기 전용)
+// 친구 식단 카드 (사진 원본 비율 유지 + 응원 남기기)
 struct FriendMealCard: View {
     let mealType: MealType
     let meal: MealRecord
+    // 그룹 피드에서도 같은 카드를 쓰는데 거기엔 대상 친구·날짜가 없다 →
+    // 둘 다 있을 때만 응원 버튼을 붙인다
+    var friend: Friend? = nil
+    var date: Date? = nil
+
+    @State private var showingFeedback = false
+
+    // 친구가 실제로 기록한 시각. 없으면(예전 데이터) 시간 줄 자체를 감춘다.
+    private var capturedTimeText: String? {
+        guard let captured = meal.capturedAt else { return nil }
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "ko_KR")
+        fmt.dateFormat = "a h:mm"
+        return fmt.string(from: captured)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 헤더
-            HStack {
+            // 헤더 — 끼니 이름이 길어져도 시간이 밀려 잘리지 않도록 시간에 고정 폭을 준다
+            HStack(spacing: 8) {
                 Image(systemName: mealType.symbolName)
                     .foregroundColor(mealType.symbolColor)
                     .font(.system(size: 20))
                 Text(mealType.rawValue)
                     .font(.system(size: 20, weight: .bold))
-                Spacer()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                // 식사 시간
-                Text(meal.date, style: .time)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Spacer(minLength: 8)
+
+                // 식사 시간 (절대 잘리지 않게)
+                if let timeText = capturedTimeText {
+                    Text(timeText)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .accessibilityLabel("기록 시각 \(timeText)")
+                }
             }
 
-            // 이미지
+            // 이미지 — 원본 비율 그대로(잘라내지 않음)
             if let beforeData = meal.beforeImageData, let image = UIImage(data: beforeData) {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .clipped()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: 360)
                     .cornerRadius(12)
             } else {
                 // 이미지 없을 때 플레이스홀더
@@ -1655,7 +1678,7 @@ struct FriendMealCard: View {
                 }
             }
 
-            // 메모
+            // 메모 (길어도 잘리지 않고 전부 보이게)
             if let memo = meal.memo, !memo.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("메모")
@@ -1664,6 +1687,8 @@ struct FriendMealCard: View {
                     Text(memo)
                         .font(.system(size: 14))
                         .foregroundColor(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             } else {
                 Text("메모 없음")
@@ -1671,11 +1696,36 @@ struct FriendMealCard: View {
                     .foregroundColor(.secondary)
             }
 
+            // 응원 남기기 (타임라인에서도 바로 피드백 가능)
+            if let friend {
+                Button {
+                    showingFeedback = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bubble.left.fill")
+                        Text("응원 남기기")
+                    }
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.orange)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("응원 남기기")
+                .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
+            }
         }
         .padding()
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .sheet(isPresented: $showingFeedback) {
+            if let friend, let date {
+                QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+            }
+        }
     }
 }
 

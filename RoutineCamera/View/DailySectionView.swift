@@ -38,7 +38,10 @@ struct DailySectionView: View {
         let meals = mealStore.getMeals(for: date)
         let isPastDate = date < Calendar.current.startOfDay(for: Date())
         let isExerciseMode = SettingsManager.shared.albumType == .exercise
-        let layout = calculateLayout(isExerciseMode: isExerciseMode, cardCount: getMealsToShow(meals: meals).count)
+        let visibleCount = isExerciseMode
+            ? getExerciseSlotsToShow(meals: meals).count
+            : getMealsToShow(meals: meals).count
+        let layout = calculateLayout(isExerciseMode: isExerciseMode, cardCount: visibleCount)
 
         VStack(spacing: 4) {
             mealPhotosRow(
@@ -120,6 +123,26 @@ struct DailySectionView: View {
         return snacks
     }
 
+    // 운동 모드에서 보여줄 칸: 그날 기록된 슬롯(시간순) + 지금 기록할 빈 칸 하나
+    // (예전엔 항상 .breakfast 한 칸만 그려서 저녁에 운동해도 "아침" 칸에 들어갔다)
+    private func getExerciseSlotsToShow(meals: [MealType: MealRecord]) -> [MealType] {
+        let byTime = MealType.allCases.sorted { $0.typicalHour < $1.typicalHour }
+        let recorded = byTime.filter { meals[$0]?.isComplete == true }
+
+        // 지난 날에 이미 기록이 있으면 빈 칸을 덧붙이지 않는다 (못 채운 칸을 쌓지 않기 위함)
+        guard isToday || recorded.isEmpty else { return recorded }
+
+        // 새 기록을 받을 빈 칸 하나: 지금 시각의 슬롯, 이미 찼으면 그 뒤의 빈 슬롯
+        let candidate = isToday ? MealType.inferred() : MealType.breakfast
+        let emptySlot = recorded.contains(candidate)
+            ? (byTime.first { $0.typicalHour > candidate.typicalHour && !recorded.contains($0) }
+               ?? byTime.first { !recorded.contains($0) })
+            : candidate
+
+        guard let emptySlot else { return recorded }
+        return (recorded + [emptySlot]).sorted { $0.typicalHour < $1.typicalHour }
+    }
+
     // 표시할 식사 타입 배열 반환
     private func getMealsToShow(meals: [MealType: MealRecord]) -> [MealType] {
         if isToday {
@@ -172,7 +195,8 @@ struct DailySectionView: View {
         // (가로로 더 스크롤할 수 있음을 시각적으로 암시)
         let photoCount: CGFloat
         if isExerciseMode {
-            photoCount = 1
+            // 운동은 하루 1회가 보통이라 한 칸이면 크게, 여러 번 했으면 식단과 같은 규칙으로
+            photoCount = cardCount <= 1 ? 1 : (cardCount > 3 ? 3.35 : CGFloat(cardCount))
         } else if cardCount > 3 {
             photoCount = 3.35
         } else {
@@ -196,8 +220,8 @@ struct DailySectionView: View {
         cellHeight: CGFloat
     ) -> some View {
         // 표시할 칸이 3개보다 많으면 ScrollView 사용 (과거 날짜 포함)
-        let mealsToShow = getMealsToShow(meals: meals)
-        let shouldUseScrollView = !isExerciseMode && mealsToShow.count > 3
+        let visibleSlots = isExerciseMode ? getExerciseSlotsToShow(meals: meals) : getMealsToShow(meals: meals)
+        let shouldUseScrollView = visibleSlots.count > 3
 
         Group {
             if shouldUseScrollView {
@@ -205,7 +229,11 @@ struct DailySectionView: View {
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: spacing) {
-                            dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                            if isExerciseMode {
+                                exerciseModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
+                            } else {
+                                dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
+                            }
                         }
                         // 세로 패딩이 없으면 카드가 오늘 테두리 위아래에 딱 붙음
                         .padding(.horizontal, cardPadding)
@@ -214,7 +242,7 @@ struct DailySectionView: View {
                     .onAppear {
                         // 오늘 날짜인 경우에만 자동 스크롤
                         if isToday {
-                            let currentMeal = getCurrentPrimaryMeal()
+                            let currentMeal = isExerciseMode ? MealType.inferred() : getCurrentPrimaryMeal()
                             // 약간의 딜레이를 주어 레이아웃이 완료된 후 스크롤
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 withAnimation {
@@ -228,7 +256,7 @@ struct DailySectionView: View {
                 // 운동 모드 또는 3칸 이하 (3칸 고정)
                 HStack(spacing: spacing) {
                     if isExerciseMode {
-                        exerciseModePhoto(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
+                        exerciseModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize)
                     } else {
                         dietModePhotos(meals: meals, isPastDate: isPastDate, photoSize: photoSize, spacing: spacing)
                     }
@@ -248,16 +276,19 @@ struct DailySectionView: View {
     }
 
     @ViewBuilder
-    private func exerciseModePhoto(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat) -> some View {
-        MealPhotoView(
-            date: date,
-            mealType: .breakfast,
-            mealRecord: meals[.breakfast],
-            mealStore: mealStore,
-            isToday: isToday,
-            photoSize: photoSize
-        )
-        .frame(width: photoSize, height: photoSize)
+    private func exerciseModePhotos(meals: [MealType: MealRecord], isPastDate: Bool, photoSize: CGFloat) -> some View {
+        ForEach(getExerciseSlotsToShow(meals: meals), id: \.self) { slot in
+            MealPhotoView(
+                date: date,
+                mealType: slot,
+                mealRecord: meals[slot],
+                mealStore: mealStore,
+                isToday: isToday,
+                photoSize: photoSize
+            )
+            .frame(width: photoSize, height: photoSize)
+            .id(slot)
+        }
     }
 
     @ViewBuilder
