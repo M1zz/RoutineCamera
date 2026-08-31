@@ -1,5 +1,71 @@
 # RoutineCamera 접근성(VoiceOver) 개선
 
+## 진행: 코드 구조화 · 리팩터 · 테스트
+- [x] 기능 목록 문서화 (FEATURES.md)
+- [x] 핵심 순수 로직을 RoutineCameraCore 로컬 패키지로 추출 (MealType/MealRecord/MealStats/PendingAteAll)
+- [x] 단위 테스트 23개 작성 + `swift test` 통과 (스트릭·기록일·추론·정렬·Codable 호환)
+- [x] 프로젝트 경고 0건 정리
+- [ ] STAGE 2: 앱이 RoutineCameraCore를 import하도록 통합 (중복 타입 제거) — Xcode에서 로컬 패키지 추가 필요(안전) 또는 pbxproj 배선(위험)
+- [x] STAGE 3: ContentView.swift 3232줄 → 429줄, 7개 파일로 분리 (빌드+실행 검증)
+  → STAGE 2(패키지 통합)는 선택 사항 — 앱은 자체 타입으로 정상 동작, 테스트는 swift test로 독립 보장
+
+
+## 완료: 그룹 공개 범위 + 진행 상태 표시 (1.0.6, 빌드 검증 완료 ✅)
+- [x] RCGroup.visibility(record/full), 방장만 변경 (공개 DB 생성자 제한으로 서버에서도 강제)
+- [x] 기록 여부만 공유 모드: desiredKeys로 사진 미다운로드 + 멤버 전원 O/X 표시
+- [x] 생성 시 선택 + 피드 상단 배지 + 방장용 변경 메뉴
+- [x] 시트가 진행/결과를 끝까지 표시 (친구 요청·그룹 생성·참여), 중복 실행 차단
+- [x] 목록의 로딩/실패/빈 상태 구분 + 실패 사유·다시 시도
+- [ ] 실기기 확인: 범위 전환이 다른 멤버 화면에 반영되는지
+
+## 완료: 예전 기록 백필 + 업로드 판정 수정 (1.0.6, 빌드 검증 완료 ✅)
+- [x] dirty 판정: 최근 3일 → 날짜별 지문 비교로 실제 변경 날짜만
+- [x] 앱 시작 시 기준값 1회 생성 (업데이트 직후 대량 업로드 방지, 새 설치는 첫 기록부터 업로드)
+- [x] 기록을 모두 지운 날은 서버에서도 삭제 (deleteMyMeals)
+- [x] MealBackfillManager + 설정 화면: 범위 선택·예상 용량·진행률·중단/재개
+- [x] 이미 올라간 날짜는 desiredKeys:[] 로 사진 없이 존재만 확인해 건너뜀
+- [x] 운동 모드에서 운동 기록이 식단으로 업로드되던 경로 차단 (dietMeals 전용 접근자)
+- [ ] 실기기 확인: 백필 실행 → 친구 화면에서 과거 날짜 노출되는지
+- 결론: Firebase 이관 로직은 불필요 (SDK 제거됨 + Firebase 데이터는 로컬 기록의 사본)
+
+## 완료: 친구 요청/수락 + 그룹 (1.0.6, 빌드 검증 완료 ✅)
+- [x] FriendLink 레코드로 관계 전환 (각자 자기 링크만 생성, 양쪽 존재 = 친구)
+- [x] 요청 보내기 / 수락 / 거절 / 요청 취소 + 맞요청 즉시 성사
+- [x] 구버전 friendsJSON → FriendLink 자동 이관 (isLegacy 플래그로 상대 미업데이트 호환)
+- [x] 친구 요청 푸시 구독 (otherId == 나)
+- [x] 그룹: 만들기/초대코드 참여/나가기, 멤버 전원의 날짜별 피드 (GroupsView)
+- [x] 그룹 식단 배치 조회 (사람×끼니 ID 100개씩, 친구 캐시 공유)
+- [ ] 사용자 확인 필요: CloudKit Console에서 새 레코드 타입 인덱스 생성 + Production 배포
+      (FriendLink.ownerId/otherId, RCGroup.inviteCode/ownerId, GroupMember.groupId/userId)
+- [ ] 실기기 2대로 요청→수락→상호 열람, 그룹 3인 이상 피드 검증 (시뮬레이터는 iCloud 미로그인이라 미검증)
+
+## 완료: 친구 코드 오류 진단 (1.0.6, 빌드 검증 완료 ✅)
+- [x] "존재하지 않는 코드" 안내에 원인 힌트 추가 (친구 앱의 현재 코드 / TestFlight·앱스토어 설치 경로 일치)
+- [x] CloudKit 조회 실패 원인별 문구 분리 (스키마 미준비·인덱스 없음·네트워크·iCloud 미로그인)
+- [x] 내 코드 자가검증(FriendManager.verifyMyCodeRegistered) + 친구 화면 주황 경고 배너 + "다시 확인" 버튼
+- [x] CLOUDKIT_SETUP.md 문제 해결 섹션 (Development/Production DB 분리 확인법)
+- [ ] 사용자 확인 필요: CloudKit Console에서 Development/Production 각각 `RCUser code == BVUPP3` 조회 → 어느 환경에 있는지 확인, 필요 시 스키마 Production 배포
+
+## 🚀 대전환: "얼마나 먹었나" 리디자인 (스펙: REDESIGN_SPEC.md)
+격자(3끼 슬롯) → 순간 컬렉션 + 앱 안 여는 원탭 기록. 핵심 지표는 칼로리가 아닌 "양"(식전/식후 차이 + "다 먹음" 탭).
+- [ ] Phase 1 (앱 본체): capturedAt/ateAll 모델 + MomentsView 피드 + 식후 알림 + AppIntent(액션버튼/단축어) + 격자는 설정 토글로 보존
+- [x] Phase 2 (Widget): 완료 — SekkiWidget 타깃 생성·임베드, 홈/잠금화면 위젯 + 원탭 다먹음 (1.0.6)
+- [~] Phase 2 (구버전 메모): App Group 배관 완료(entitlements+공유 suite+대기열 drain, 앱 빌드 검증). 위젯 코드는 SekkiWidget/ 에 준비됨 → 사용자가 Xcode에서 Widget Extension 타깃 생성 후 연결 필요 (SekkiWidget/README.md)
+- 상세 로직·페르소나·기록 조합표는 REDESIGN_SPEC.md 참조
+- [x] 챙길 식사 선택: 삼시세끼 전부 알림 → "챙기고 싶은 식사"만 알림. 첫 실행 프롬프트("어떤 식사를 챙기고 싶어요?") + 설정 섹션 (CaredMealsView, SettingsManager.caredMeals, NotificationManager 게이팅)
+
+
+## 진행: 완벽주의/올오어낫씽 완화 (식단 기록 이탈 심리 대응)
+리서치 근거: 추적 피로 + "나쁜 날 회피"가 식단 기록 이탈의 핵심 심리
+- [x] ① 하루 완료 기준 완화: 스트릭이 "주요 3끼 전부"가 아니라 "최소 한 끼라도"면 이어짐 (Models.isDayRecorded, getCurrentStreak/getMaxStreak)
+- [x] ② 회복 프레임: 통계의 "🏆 최고 연속"(경쟁·리셋) → "📸 기록한 날"(절대 안 줄어드는 누적) + 격려 한 줄 (StatisticsView.StreakAndGoalView, Models.getTotalRecordedDays)
+- [x] ③ 끊김 빨강 '박제' 제거: 끊긴 날 빨간 배경/실선 테두리 → 미기록과 동일한 회색 점선, "끊겼어요" → "다음 기록부터 다시 이어져요" (ContentView backgroundColor/stateBorderOverlay/accessibilityStatus)
+- [x] LeeoKit 미구현 API 구현 (블로커 해소): LeeoEngagement(참여도 추적) + .leeoSatisfactionCheck(2갈래 만족도 체크: 만족→앱스토어 리뷰 / 불만족→피드백) — LeeoKit/Sources/LeeoKit/Engagement/
+- [x] 앱 전체 빌드 성공 (BUILD SUCCEEDED) + LeeoKit 패키지 단독 빌드 성공
+- [x] 제안 3 시뮬레이터 시각 확인: 과거 미기록 칸 전부 빨강 없이 균일한 회색 점선
+- [ ] 제안 1·2 시뮬레이터 확인 남음: 통계 화면(🔥 현재 연속 / 📸 기록한 날 + 격려 문구) — System Events 접근성 권한 게이트로 탭 자동화 불가, 수동 확인 필요
+
+
 ## 완료: 접근성 코드 적용 (빌드 검증 완료 ✅)
 - [x] ① 헤더 아이콘 버튼 라벨 (통계/친구/설정) - ContentView StreakHeaderView
 - [x] ② 목표 진행률 값 번역 + 버튼 트레잇 - ContentView StreakHeaderView
@@ -94,6 +160,11 @@
 - [x] CLOUDKIT_SETUP.md 작성 (스키마·Production 배포 절차·이벤트 점검 목록)
 - [ ] 실기기에서 CloudKit 흐름 검증 (코드 생성 → 친구 추가 → 식단 업로드 → 피드백 푸시)
 - [ ] TestFlight 배포 전 CloudKit Console에서 스키마 Production 배포 + Queryable 인덱스 확인
+
+## 완료: "간식 보이기" 설정 강화 (빌드 검증 완료 ✅)
+- [x] 꺼져 있으면 과거 날짜의 **기록된 간식도** 화면에서 숨김 (기존엔 빈 칸만 숨겨짐, 오늘 행과 동작 통일) - getSnacksToShow
+- [x] 토글을 "사진 저장" 섹션 → "표시 설정" 섹션으로 이동 + 상태별 설명 문구 추가 (기록은 삭제되지 않음을 명시)
+- [x] DailySectionView가 SettingsManager를 관찰하도록 해 토글 즉시 반영
 
 ## 향후(선택) 개선 아이디어
 - [ ] 로터에 "안 읽은 피드백" 추가 (피드백 개수 비동기 집계 데이터 소스 필요)

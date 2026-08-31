@@ -71,85 +71,74 @@ struct StatisticsView: View {
 struct WeeklyStatsView: View {
     @ObservedObject var mealStore: MealRecordStore
 
-    private var weeklyStats: (recorded: Int, total: Int, percentage: Double) {
+    // "3끼 기준 달성률" 대신 "며칠 기록했나 / 몇 번 남겼나"를 긍정적으로 센다.
+    // days = 이번 주 한 번이라도 기록한 날, meals = 총 기록 수, daysSoFar = 오늘까지 지난 날 수
+    private var weeklyStats: (days: Int, meals: Int, daysSoFar: Int) {
         let calendar = Calendar.current
-        let today = Date()
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
-
-        var recorded = 0
-        var total = 0
-
+        let today = calendar.startOfDay(for: Date())
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))!
         let isExerciseMode = SettingsManager.shared.albumType == .exercise
 
+        var days = 0, meals = 0, daysSoFar = 0
         for day in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: day, to: startOfWeek) {
-                let meals = mealStore.getMeals(for: date)
-                if isExerciseMode {
-                    // 운동 모드: 하루 1회
-                    if meals[.breakfast]?.isComplete ?? false {
-                        recorded += 1
-                    }
-                    total += 1
-                } else {
-                    // 식단 모드: 하루 3끼
-                    recorded += meals.values.filter { $0.isComplete }.count
-                    total += 3
-                }
-            }
+            guard let date = calendar.date(byAdding: .day, value: day, to: startOfWeek) else { continue }
+            if calendar.startOfDay(for: date) <= today { daysSoFar += 1 }
+            let dayMeals = mealStore.getMeals(for: date)
+            let count = isExerciseMode
+                ? ((dayMeals[.breakfast]?.isComplete ?? false) ? 1 : 0)
+                : dayMeals.values.filter { $0.isComplete }.count
+            meals += count
+            if count > 0 { days += 1 }
         }
-
-        let percentage = total > 0 ? Double(recorded) / Double(total) * 100 : 0
-        return (recorded, total, percentage)
+        return (days, meals, max(daysSoFar, 1))
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let stats = weeklyStats
+        return VStack(alignment: .leading, spacing: 12) {
             Text("이번 주 기록")
                 .font(.title3)
                 .fontWeight(.bold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
-            HStack {
-                // 진행 바
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("\(weeklyStats.recorded)/\(weeklyStats.total)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                        Text(SettingsManager.shared.albumType == .exercise ? "운동 기록" : "식사 기록")
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(.systemGray5))
-                                .frame(height: 12)
-
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.blue)
-                                .frame(width: geometry.size.width * CGFloat(weeklyStats.percentage / 100), height: 12)
-                        }
-                    }
-                    .frame(height: 12)
-
-                    Text("\(Int(weeklyStats.percentage))% 달성")
-                        .font(.caption)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(stats.days)일")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Text("기록")
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(SettingsManager.shared.albumType == .exercise ? "이번 주 운동 기록" : "이번 주 식사 기록")
-                .accessibilityValue("\(weeklyStats.total)회 중 \(weeklyStats.recorded)회 기록, \(Int(weeklyStats.percentage))퍼센트 달성")
 
-                Spacer()
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(.systemGray5))
+                            .frame(height: 12)
+
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.blue)
+                            .frame(width: geometry.size.width * CGFloat(Double(stats.days) / Double(stats.daysSoFar)), height: 12)
+                    }
+                }
+                .frame(height: 12)
+
+                Text(SettingsManager.shared.albumType == .exercise
+                     ? "이번 주 \(stats.meals)번 기록했어요"
+                     : "이번 주 \(stats.meals)끼 기록했어요")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("이번 주 기록")
+            .accessibilityValue("\(stats.days)일 기록, 총 \(stats.meals)회")
         }
         .padding(16)
         .background(Color(.systemBackground))
@@ -162,85 +151,74 @@ struct WeeklyStatsView: View {
 struct MonthlyStatsView: View {
     @ObservedObject var mealStore: MealRecordStore
 
-    private var monthlyStats: (recorded: Int, total: Int, percentage: Double) {
+    // 주간과 동일 철학: 달성률(%)이 아니라 "이번 달 며칠·몇 번 기록"을 센다.
+    private var monthlyStats: (days: Int, meals: Int, daysSoFar: Int) {
         let calendar = Calendar.current
-        let today = Date()
-        let range = calendar.range(of: .day, in: .month, for: today)!
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
-
-        var recorded = 0
-        var total = 0
-
+        let today = calendar.startOfDay(for: Date())
+        let range = calendar.range(of: .day, in: .month, for: Date())!
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!
         let isExerciseMode = SettingsManager.shared.albumType == .exercise
 
+        var days = 0, meals = 0, daysSoFar = 0
         for day in 0..<range.count {
-            if let date = calendar.date(byAdding: .day, value: day, to: startOfMonth) {
-                let meals = mealStore.getMeals(for: date)
-                if isExerciseMode {
-                    // 운동 모드: 하루 1회
-                    if meals[.breakfast]?.isComplete ?? false {
-                        recorded += 1
-                    }
-                    total += 1
-                } else {
-                    // 식단 모드: 하루 3끼
-                    recorded += meals.values.filter { $0.isComplete }.count
-                    total += 3
-                }
-            }
+            guard let date = calendar.date(byAdding: .day, value: day, to: startOfMonth) else { continue }
+            if calendar.startOfDay(for: date) <= today { daysSoFar += 1 }
+            let dayMeals = mealStore.getMeals(for: date)
+            let count = isExerciseMode
+                ? ((dayMeals[.breakfast]?.isComplete ?? false) ? 1 : 0)
+                : dayMeals.values.filter { $0.isComplete }.count
+            meals += count
+            if count > 0 { days += 1 }
         }
-
-        let percentage = total > 0 ? Double(recorded) / Double(total) * 100 : 0
-        return (recorded, total, percentage)
+        return (days, meals, max(daysSoFar, 1))
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let stats = monthlyStats
+        return VStack(alignment: .leading, spacing: 12) {
             Text("이번 달 기록")
                 .font(.title3)
                 .fontWeight(.bold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("\(monthlyStats.recorded)/\(monthlyStats.total)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                        Text(SettingsManager.shared.albumType == .exercise ? "운동 기록" : "식사 기록")
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(.systemGray5))
-                                .frame(height: 12)
-
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.green)
-                                .frame(width: geometry.size.width * CGFloat(monthlyStats.percentage / 100), height: 12)
-                        }
-                    }
-                    .frame(height: 12)
-
-                    Text("\(Int(monthlyStats.percentage))% 달성")
-                        .font(.caption)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(stats.days)일")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    Text("기록")
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(SettingsManager.shared.albumType == .exercise ? "이번 달 운동 기록" : "이번 달 식사 기록")
-                .accessibilityValue("\(monthlyStats.total)회 중 \(monthlyStats.recorded)회 기록, \(Int(monthlyStats.percentage))퍼센트 달성")
 
-                Spacer()
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(.systemGray5))
+                            .frame(height: 12)
+
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.green)
+                            .frame(width: geometry.size.width * CGFloat(Double(stats.days) / Double(stats.daysSoFar)), height: 12)
+                    }
+                }
+                .frame(height: 12)
+
+                Text(SettingsManager.shared.albumType == .exercise
+                     ? "이번 달 \(stats.meals)번 기록했어요"
+                     : "이번 달 \(stats.meals)끼 기록했어요")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("이번 달 기록")
+            .accessibilityValue("\(stats.days)일 기록, 총 \(stats.meals)회")
         }
         .padding(16)
         .background(Color(.systemBackground))
@@ -253,31 +231,29 @@ struct MonthlyStatsView: View {
 struct MealTypeStatsView: View {
     @ObservedObject var mealStore: MealRecordStore
 
-    private func getMealTypeStats(mealType: MealType) -> (recorded: Int, total: Int, percentage: Double) {
+    // 기록률(%)·신호등 색을 없애고 "이번 달 몇 번 남겼나"만 센다.
+    // ratio는 막대 길이용(오늘까지 지난 날 기준)이지 사용자에게 %로 보여주지 않는다.
+    private func getMealTypeStats(mealType: MealType) -> (recorded: Int, daysSoFar: Int, ratio: Double) {
         let calendar = Calendar.current
-        let today = Date()
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
-        let range = calendar.range(of: .day, in: .month, for: today)!
+        let today = calendar.startOfDay(for: Date())
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!
+        let range = calendar.range(of: .day, in: .month, for: Date())!
 
-        var recorded = 0
-        let total = range.count
-
+        var recorded = 0, daysSoFar = 0
         for day in 0..<range.count {
-            if let date = calendar.date(byAdding: .day, value: day, to: startOfMonth) {
-                let meals = mealStore.getMeals(for: date)
-                if let meal = meals[mealType], meal.isComplete {
-                    recorded += 1
-                }
+            guard let date = calendar.date(byAdding: .day, value: day, to: startOfMonth) else { continue }
+            if calendar.startOfDay(for: date) <= today { daysSoFar += 1 }
+            if let meal = mealStore.getMeals(for: date)[mealType], meal.isComplete {
+                recorded += 1
             }
         }
-
-        let percentage = total > 0 ? Double(recorded) / Double(total) * 100 : 0
-        return (recorded, total, percentage)
+        let denom = max(daysSoFar, 1)
+        return (recorded, denom, min(Double(recorded) / Double(denom), 1.0))
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("식사별 기록률 (이번 달)")
+            Text("식사별 기록 (이번 달)")
                 .font(.title3)
                 .fontWeight(.bold)
                 .lineLimit(1)
@@ -295,13 +271,9 @@ struct MealTypeStatsView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         Spacer()
-                        Text("\(stats.recorded)/\(stats.total)")
+                        Text("\(stats.recorded)번")
+                            .fontWeight(.semibold)
                             .foregroundColor(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Text("\(Int(stats.percentage))%")
-                            .fontWeight(.bold)
-                            .foregroundColor(stats.percentage >= 80 ? .green : stats.percentage >= 50 ? .orange : .red)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
@@ -312,16 +284,17 @@ struct MealTypeStatsView: View {
                                 .fill(Color(.systemGray5))
                                 .frame(height: 8)
 
+                            // 신호등(빨강/주황/초록) 대신 식사 고유색으로 중립 표시
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(stats.percentage >= 80 ? Color.green : stats.percentage >= 50 ? Color.orange : Color.red)
-                                .frame(width: geometry.size.width * CGFloat(stats.percentage / 100), height: 8)
+                                .fill(mealType.symbolColor.opacity(0.7))
+                                .frame(width: geometry.size.width * CGFloat(stats.ratio), height: 8)
                         }
                     }
                     .frame(height: 8)
                 }
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(mealType.rawValue)
-                .accessibilityValue("\(stats.total)회 중 \(stats.recorded)회 기록, \(Int(stats.percentage))퍼센트")
+                .accessibilityValue("이번 달 \(stats.recorded)번 기록")
             }
         }
         .padding(16)
@@ -335,15 +308,31 @@ struct MealTypeStatsView: View {
 struct StreakAndGoalView: View {
     @ObservedObject var mealStore: MealRecordStore
 
+    private var currentStreak: Int { mealStore.getCurrentStreak() }
+    private var totalDays: Int { mealStore.getTotalRecordedDays() }
+
+    // 회복 프레임: 끊김을 실패로 두지 않고 '다시 시작'을 격려하는 한 줄
+    private var encouragement: String {
+        if totalDays == 0 {
+            return "오늘 한 끼만 남겨도 시작이에요 🌱"
+        } else if currentStreak == 0 {
+            return "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱"
+        } else if currentStreak < 3 {
+            return "좋아요, 다시 이어가는 중이에요"
+        } else {
+            return "\(currentStreak)일째 이어가는 중이에요 🔥"
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 16) {
-            // 연속 기록
+        VStack(spacing: 14) {
+            // 연속 기록 + 누적 기록일
             HStack(spacing: 20) {
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Text("🔥")
                             .font(.title)
-                        Text("\(mealStore.getCurrentStreak())")
+                        Text("\(currentStreak)")
                             .font(.system(size: 36, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
@@ -355,29 +344,38 @@ struct StreakAndGoalView: View {
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("현재 연속 기록")
-                .accessibilityValue("\(mealStore.getCurrentStreak())일")
+                .accessibilityValue("\(currentStreak)일")
 
                 Divider()
                     .frame(height: 60)
 
+                // '최고 연속'(경쟁·리셋되는 숫자) 대신 절대 줄지 않는 누적 기록일
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Text("🏆")
+                        Text("📸")
                             .font(.title)
-                        Text("\(mealStore.getMaxStreak())")
+                        Text("\(totalDays)")
                             .font(.system(size: 36, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
                     }
-                    Text("최고 연속")
+                    Text("기록한 날")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("최고 연속 기록")
-                .accessibilityValue("\(mealStore.getMaxStreak())일")
+                .accessibilityLabel("지금까지 기록한 날")
+                .accessibilityValue("\(totalDays)일")
             }
+
+            // 회복 프레임: 끊겨도 자책 없이 다시 시작하도록 격려
+            Text(encouragement)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .accessibilityLabel(encouragement)
         }
         .padding(16)
         .background(Color(.systemBackground))

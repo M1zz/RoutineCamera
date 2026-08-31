@@ -16,6 +16,7 @@ struct FriendsView: View {
     @State private var selectedFriend: Friend?
     @State private var showingAccountSettings = false
     @State private var showingDeleteConfirm = false
+    @State private var showingGroups = false
 
     var body: some View {
         NavigationView {
@@ -73,98 +74,105 @@ struct FriendsView: View {
                     Text(friendManager.myUserCode.isEmpty ? "친구 코드 생성 중..." : "이 코드를 친구에게 공유하세요")
                         .font(.caption)
                         .foregroundColor(.secondary)
+
+                    // 내 코드가 서버에서 검색되지 않을 때 안내 (친구 쪽 "존재하지 않는 코드" 예방)
+                    if let warning = friendManager.codeStatusWarning {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .accessibilityHidden(true)
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(warning)
+                                    .font(.caption)
+                                    .foregroundColor(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Button("다시 확인") {
+                                    _Concurrency.Task {
+                                        await friendManager.verifyMyCodeRegistered()
+                                    }
+                                }
+                                .font(.caption.weight(.semibold))
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.orange.opacity(0.12))
+                        .cornerRadius(10)
+                        .accessibilityElement(children: .combine)
+                    }
                 }
                 .padding()
                 .background(Color(.systemBackground))
 
                 Divider()
 
-                // 친구 목록
-                if friendManager.friends.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.2.slash")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                            .accessibilityHidden(true)
-
-                        Text("아직 친구가 없어요")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.secondary)
-
-                        Text("친구 코드를 입력해서\n친구를 추가해보세요!")
-                            .font(.system(size: 14))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-
-                        Button(action: {
-                            showingAddFriend = true
-                        }) {
-                            HStack {
-                                Image(systemName: "person.badge.plus")
-                                Text("친구 추가")
+                // 받은 요청 · 보낸 요청 · 친구
+                List {
+                    if !friendManager.incomingRequests.isEmpty {
+                        Section("받은 친구 요청") {
+                            ForEach(friendManager.incomingRequests) { request in
+                                FriendRequestRow(request: request)
                             }
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .cornerRadius(10)
                         }
-                        .padding(.top, 8)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
-                        ForEach(friendManager.friends) { friend in
-                            Button(action: {
-                                selectedFriend = friend
-                            }) {
-                                HStack(spacing: 12) {
-                                    // 친구 아이콘
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.blue.opacity(0.1))
-                                            .frame(width: 50, height: 50)
 
-                                        Text(String(friend.name.prefix(1)))
-                                            .font(.system(size: 24, weight: .bold))
-                                            .foregroundColor(.blue)
-                                    }
+                    if !friendManager.pendingFriends.isEmpty {
+                        Section("보낸 요청") {
+                            ForEach(friendManager.pendingFriends) { pending in
+                                PendingFriendRow(pending: pending)
+                            }
+                        }
+                    }
 
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(friend.name)
-                                            .font(.system(size: 17, weight: .semibold))
-                                            .foregroundColor(.primary)
+                    if let error = friendManager.socialError {
+                        Section {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .accessibilityHidden(true)
 
-                                        Text(friend.code)
-                                            .font(.system(size: 14, design: .monospaced))
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14))
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("친구 목록을 새로 고치지 못했어요")
+                                        .font(.system(size: 14, weight: .semibold))
+                                    Text(error)
+                                        .font(.caption)
                                         .foregroundColor(.secondary)
-                                        .accessibilityHidden(true)
-                                }
-                                .padding(.vertical, 8)
-                            }
-                            .accessibilityElement(children: .combine)
-                            .accessibilityLabel("\(friend.name)")
-                            .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    _Concurrency.Task {
-                                        try? await friendManager.removeFriend(friendId: friend.id)
+                                        .fixedSize(horizontal: false, vertical: true)
+
+                                    Button("다시 시도") {
+                                        _Concurrency.Task { await friendManager.refreshSocialGraph() }
                                     }
-                                } label: {
-                                    Label("삭제", systemImage: "trash")
+                                    .font(.caption.weight(.semibold))
                                 }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+
+                    Section("친구") {
+                        if friendManager.isLoadingSocial && friendManager.friends.isEmpty {
+                            HStack(spacing: 10) {
+                                ProgressView()
+                                Text("친구 목록을 불러오는 중...")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 8)
+                        } else if friendManager.friends.isEmpty {
+                            emptyFriendsRow
+                        } else {
+                            ForEach(friendManager.friends) { friend in
+                                friendRow(friend)
                             }
                         }
                     }
-                    .listStyle(.plain)
+                }
+                .listStyle(.insetGrouped)
+                .refreshable {
+                    await friendManager.refreshSocialGraph()
+                    await friendManager.loadMyGroups()
                 }
             }
             .navigationTitle("친구")
@@ -210,47 +218,35 @@ struct FriendsView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingAddFriend = true
-                    }) {
-                        Image(systemName: "person.badge.plus")
-                            .font(.system(size: 20))
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            showingGroups = true
+                        }) {
+                            Image(systemName: "person.3")
+                                .font(.system(size: 20))
+                        }
+                        .accessibilityLabel("그룹")
+
+                        Button(action: {
+                            showingAddFriend = true
+                        }) {
+                            Image(systemName: "person.badge.plus")
+                                .font(.system(size: 20))
+                        }
+                        .accessibilityLabel("친구 요청 보내기")
                     }
-                    .accessibilityLabel("친구 추가")
                 }
             }
             .sheet(isPresented: $showingAddFriend) {
-                AddFriendSheet(
-                    friendCode: $friendCode,
-                    onAdd: {
-                        _Concurrency.Task {
-                            // 쉼표/공백/줄바꿈으로 구분된 여러 코드 일괄 추가 (이벤트용)
-                            let codes = parseFriendCodes(friendCode)
-                            var addedCount = 0
-                            var failures: [String] = []
-
-                            for code in codes {
-                                do {
-                                    try await friendManager.addFriend(code: code)
-                                    addedCount += 1
-                                } catch {
-                                    failures.append("\(code): \(error.localizedDescription)")
-                                }
-                            }
-
-                            friendCode = ""
-                            showingAddFriend = false
-
-                            if !failures.isEmpty {
-                                errorMessage = "\(addedCount)명 추가 성공, \(failures.count)개 실패\n\n" + failures.joined(separator: "\n")
-                                showingError = true
-                            }
-                        }
-                    }
-                )
+                AddFriendSheet(friendCode: $friendCode) { code in
+                    try await friendManager.sendFriendRequest(code: code)
+                }
             }
             .sheet(item: $selectedFriend) { friend in
                 FriendMealsView(friend: friend)
+            }
+            .sheet(isPresented: $showingGroups) {
+                GroupsView()
             }
             .sheet(isPresented: $showingAccountSettings) {
                 AccountSettingsSheet(
@@ -280,8 +276,221 @@ struct FriendsView: View {
             } message: {
                 Text(errorMessage)
             }
+            .task {
+                // 화면 진입 시 받은 요청·수락 여부를 최신으로 (푸시를 탭해 들어온 경우 포함)
+                await friendManager.refreshSocialGraph()
+            }
+        }
+
+    /// 친구가 없을 때 보여줄 안내 행
+    private var emptyFriendsRow: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.2.slash")
+                .font(.system(size: 44))
+                .foregroundColor(.gray)
+                .accessibilityHidden(true)
+
+            Text("아직 친구가 없어요")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.secondary)
+
+            Text("친구 코드로 요청을 보내면\n상대가 수락한 뒤 서로의 기록을 볼 수 있어요")
+                .font(.system(size: 13))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button(action: { showingAddFriend = true }) {
+                Label("친구 요청 보내기", systemImage: "person.badge.plus")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .listRowSeparator(.hidden)
+    }
+
+    /// 친구 한 명 행
+    private func friendRow(_ friend: Friend) -> some View {
+        Button(action: {
+            selectedFriend = friend
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.blue.opacity(0.1))
+                        .frame(width: 50, height: 50)
+
+                    Text(String(friend.name.prefix(1)))
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.blue)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(friend.name)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.primary)
+
+                    Text(friend.code)
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.vertical, 8)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(friend.name)")
+        .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                _Concurrency.Task {
+                    try? await friendManager.removeFriend(friendId: friend.id)
+                }
+            } label: {
+                Label("삭제", systemImage: "trash")
+            }
         }
     }
+    }
+
+// 받은 친구 요청 행 (수락/거절)
+struct FriendRequestRow: View {
+    let request: FriendRequest
+    @ObservedObject var friendManager = FriendManager.shared
+    @State private var isWorking = false
+    @State private var workingLabel = ""
+    @State private var errorText: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.12))
+                    .frame(width: 44, height: 44)
+                Text(String(request.name.prefix(1)))
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.orange)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(request.name)
+                    .font(.system(size: 16, weight: .semibold))
+                Text(request.code)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            if isWorking {
+                HStack(spacing: 6) {
+                    ProgressView()
+                    Text(workingLabel)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                Button("수락") {
+                    perform("수락 중...") { try await friendManager.acceptFriendRequest(request) }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+
+                Button("거절") {
+                    perform("거절 중...") { try await friendManager.rejectFriendRequest(request) }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+
+        if let errorText {
+            Label(errorText, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundColor(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(request.name)님의 친구 요청")
+    }
+
+    private func perform(_ label: String, _ work: @escaping () async throws -> Void) {
+        guard !isWorking else { return }
+        isWorking = true
+        workingLabel = label
+        errorText = nil
+
+        _Concurrency.Task {
+            do {
+                try await work()
+            } catch {
+                errorText = "처리하지 못했어요. \(error.localizedDescription)"
+            }
+            isWorking = false
+        }
+    }
+}
+
+// 내가 보낸 요청 행 (대기 중 / 거절됨)
+struct PendingFriendRow: View {
+    let pending: PendingFriend
+    @ObservedObject var friendManager = FriendManager.shared
+    @State private var isWorking = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.gray.opacity(0.15))
+                    .frame(width: 44, height: 44)
+                Image(systemName: pending.isRejected ? "person.badge.minus" : "clock")
+                    .foregroundColor(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(pending.name)
+                    .font(.system(size: 16, weight: .semibold))
+                Text(pending.isRejected ? "요청이 거절됐어요" : "수락 대기 중 · \(pending.code)")
+                    .font(.system(size: 13))
+                    .foregroundColor(pending.isRejected ? .red : .secondary)
+            }
+
+            Spacer()
+
+            if isWorking {
+                ProgressView()
+            } else {
+                Button(pending.isRejected ? "지우기" : "요청 취소") {
+                    isWorking = true
+                    _Concurrency.Task {
+                        try? await friendManager.cancelFriendRequest(pending)
+                        isWorking = false
+                    }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+    }
+}
 
 // 쉼표/공백/줄바꿈으로 구분된 여러 친구 코드 파싱 (6자리 영숫자, 중복 제거)
 func parseFriendCodes(_ text: String) -> [String] {
@@ -290,11 +499,25 @@ func parseFriendCodes(_ text: String) -> [String] {
     return tokens.filter { $0.count == 6 && seen.insert($0).inserted }
 }
 
-// 친구 추가 시트
+// 친구 요청 시트 — 보내는 중/결과를 시트 안에서 끝까지 보여준다
+// (예전에는 시트를 닫은 뒤 부모에서 알럿을 띄워, 닫히는 도중 알럿이 묻히면 아무 반응도 없어 보였다)
 struct AddFriendSheet: View {
     @Binding var friendCode: String
-    let onAdd: () -> Void
+    let onSend: (String) async throws -> Void
+
+    @State private var phase: Phase = .input
     @Environment(\.dismiss) var dismiss
+
+    enum Phase: Equatable {
+        case input
+        case working(done: Int, total: Int)
+        case finished(sent: Int, failures: [String])
+    }
+
+    private var isWorking: Bool {
+        if case .working = phase { return true }
+        return false
+    }
 
     private var parsedCodes: [String] {
         parseFriendCodes(friendCode)
@@ -302,58 +525,189 @@ struct AddFriendSheet: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
-                    Image(systemName: "person.badge.plus")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-
-                    Text("친구 코드 입력")
-                        .font(.system(size: 24, weight: .bold))
-
-                    Text("친구가 공유한 6자리 코드를 입력하세요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 추가할 수 있어요.")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+            Group {
+                if case .finished(let sent, let failures) = phase {
+                    resultView(sent: sent, failures: failures)
+                } else {
+                    inputView
                 }
-                .padding(.top, 40)
-
-                // 코드 입력 필드 (여러 코드 붙여넣기 가능)
-                TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .multilineTextAlignment(.center)
-                    .textCase(.uppercase)
-                    .autocapitalization(.allCharacters)
-                    .disableAutocorrection(true)
-                    .lineLimit(1...5)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-
-                Button(action: onAdd) {
-                    Text(parsedCodes.count > 1 ? "\(parsedCodes.count)명 추가" : "친구 추가")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(parsedCodes.isEmpty ? Color.gray : Color.blue)
-                        .cornerRadius(12)
-                }
-                .disabled(parsedCodes.isEmpty)
-                .padding(.horizontal)
-
-                Spacer()
             }
-            .navigationTitle("친구 추가")
+            .navigationTitle("친구 요청")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
-                        dismiss()
-                    }
+                    Button("취소") { dismiss() }
+                        .disabled(isWorking)
                 }
             }
+            .interactiveDismissDisabled(isWorking)
+        }
+    }
+
+    private var inputView: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 12) {
+                Image(systemName: "person.badge.plus")
+                    .font(.system(size: 60))
+                    .foregroundColor(.blue)
+
+                Text("친구 요청 보내기")
+                    .font(.system(size: 24, weight: .bold))
+
+                Text("친구가 공유한 6자리 코드를 입력하세요.\n상대가 수락해야 서로의 기록을 볼 수 있어요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 보낼 수 있습니다.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 40)
+
+            TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
+                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .multilineTextAlignment(.center)
+                .textCase(.uppercase)
+                .autocapitalization(.allCharacters)
+                .disableAutocorrection(true)
+                .lineLimit(1...5)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .disabled(isWorking)
+
+            Button {
+                send()
+            } label: {
+                HStack(spacing: 8) {
+                    if case .working = phase {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                    Text(buttonTitle)
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(parsedCodes.isEmpty || isWorking ? Color.gray : Color.blue)
+                .cornerRadius(12)
+            }
+            .disabled(parsedCodes.isEmpty || isWorking)
+            .padding(.horizontal)
+
+            if isWorking {
+                Text("iCloud에 요청을 등록하고 있어요. 잠시만 기다려주세요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+        }
+    }
+
+    private var buttonTitle: String {
+        switch phase {
+        case .working(let done, let total):
+            return total > 1 ? "요청 보내는 중... (\(done)/\(total))" : "요청 보내는 중..."
+        default:
+            return parsedCodes.count > 1 ? "\(parsedCodes.count)명에게 요청" : "친구 요청 보내기"
+        }
+    }
+
+    private func resultView(sent: Int, failures: [String]) -> some View {
+        VStack(spacing: 18) {
+            Image(systemName: failures.isEmpty ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(failures.isEmpty ? .green : .orange)
+
+            Text(headline(sent: sent, failures: failures))
+                .font(.system(size: 20, weight: .bold))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            if sent > 0 {
+                Text("상대가 수락하면 서로의 기록을 볼 수 있어요.\n보낸 요청은 친구 화면에서 확인할 수 있습니다.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+
+            if !failures.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(failures, id: \.self) { failure in
+                            Text(failure)
+                                .font(.system(size: 13))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                }
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
+                .frame(maxHeight: 200)
+            }
+
+            Button {
+                dismiss()
+            } label: {
+                Text("완료")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.blue)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+
+            if !failures.isEmpty {
+                Button("코드 다시 입력") {
+                    phase = .input
+                }
+                .font(.system(size: 15, weight: .semibold))
+            }
+
+            Spacer()
+        }
+        .padding(.top, 32)
+    }
+
+    private func headline(sent: Int, failures: [String]) -> String {
+        if failures.isEmpty {
+            return sent == 1 ? "친구 요청을 보냈어요" : "\(sent)명에게 친구 요청을 보냈어요"
+        }
+        if sent == 0 {
+            return "요청을 보내지 못했어요"
+        }
+        return "\(sent)명 전송, \(failures.count)명 실패"
+    }
+
+    private func send() {
+        let codes = parsedCodes
+        guard !codes.isEmpty, !isWorking else { return }
+
+        phase = .working(done: 0, total: codes.count)
+
+        _Concurrency.Task {
+            var sent = 0
+            var failures: [String] = []
+
+            for (index, code) in codes.enumerated() {
+                phase = .working(done: index, total: codes.count)
+                do {
+                    try await onSend(code)
+                    sent += 1
+                } catch {
+                    failures.append("\(code): \(error.localizedDescription)")
+                }
+            }
+
+            if failures.isEmpty { friendCode = "" }
+            phase = .finished(sent: sent, failures: failures)
         }
     }
 }
@@ -369,6 +723,9 @@ struct FriendMealsView: View {
     @State private var allMeals: [Date: [MealType: MealRecord]] = [:]
     @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date())
     @Environment(\.dismiss) var dismiss
+
+    /// 기록 없는 날은 건너뛰며 과거로 확장하되, 여기까지만 거슬러 올라간다
+    static let maxLookbackDays = 365
 
     enum ViewMode {
         case timeline
@@ -400,7 +757,8 @@ struct FriendMealsView: View {
                         isLoadingPast: $isLoadingPast,
                         allMeals: $allMeals,
                         currentVisibleDate: $currentVisibleDate,
-                        loadMorePastDates: loadMorePastDates
+                        loadMorePastDates: loadMorePastDates,
+                        onRefresh: refreshLoadedDates
                     )
                 } else {
                     GridView(
@@ -435,29 +793,20 @@ struct FriendMealsView: View {
     }
 
     private func loadInitialMeals() {
+        isLoadingPast = true
         _Concurrency.Task {
-            for date in dateList {
-                do {
-                    let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                    await MainActor.run {
-                        if !meals.isEmpty {
-                            allMeals[date] = meals
-                        }
-                    }
-                } catch {
-                    print("❌ 식단 로드 실패 (\(date)): \(error)")
-                }
-            }
+            await load(dates: dateList)
+            await MainActor.run { isLoadingPast = false }
         }
     }
 
     private func loadMorePastDates() {
-        guard !isLoadingPast else { return }
+        guard !isLoadingPast, loadedPastDays < Self.maxLookbackDays else { return }
         isLoadingPast = true
 
         let calendar = Calendar.current
-        let newPastDays = loadedPastDays + 7
         let today = calendar.startOfDay(for: Date())
+        let newPastDays = min(loadedPastDays + 14, Self.maxLookbackDays)
 
         let newDates = ((-newPastDays)...(-loadedPastDays - 1)).compactMap { offset in
             calendar.date(byAdding: .day, value: offset, to: today)
@@ -466,28 +815,41 @@ struct FriendMealsView: View {
         dateList.append(contentsOf: newDates)
         loadedPastDays = newPastDays
 
-        // 새 날짜들의 식단 로드
         _Concurrency.Task {
-            for date in newDates {
-                do {
-                    let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                    await MainActor.run {
-                        if !meals.isEmpty {
-                            allMeals[date] = meals
-                        }
-                    }
-                } catch {
-                    print("❌ 식단 로드 실패 (\(date)): \(error)")
-                }
-            }
+            await load(dates: Array(newDates))
+            await MainActor.run { isLoadingPast = false }
+        }
+    }
+
+    /// 당겨서 새로고침: 이미 불러온 날짜의 캐시를 버리고 다시 받아온다.
+    /// (지난 날짜 캐시는 만료되지 않으므로, 친구가 예전 기록을 고쳤을 때의 탈출구)
+    private func refreshLoadedDates() async {
+        let dates = dateList
+        for date in dates {
+            friendManager.invalidateCache(friendId: friend.id, date: date)
+        }
+        await load(dates: dates)
+    }
+
+    /// 날짜 묶음을 한 번에 조회. 기록 없는 날도 빈 값으로 남겨 같은 날을 다시 요청하지 않는다.
+    private func load(dates: [Date]) async {
+        guard !dates.isEmpty else { return }
+
+        do {
+            let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
             await MainActor.run {
-                isLoadingPast = false
+                for (date, meals) in loaded { allMeals[date] = meals }
+            }
+        } catch {
+            print("❌ 식단 로드 실패: \(error)")
+            await MainActor.run {
+                for date in dates where allMeals[date] == nil { allMeals[date] = [:] }
             }
         }
     }
 }
 
-// 타임라인 뷰 (ContentView와 유사)
+// 타임라인 뷰 — 기록이 있는 날만 보여준다 (빈 날은 아예 숨김)
 struct TimelineView: View {
     let friend: Friend
     @ObservedObject var friendManager: FriendManager
@@ -497,105 +859,141 @@ struct TimelineView: View {
     @Binding var allMeals: [Date: [MealType: MealRecord]]
     @Binding var currentVisibleDate: Date
     let loadMorePastDates: () -> Void
+    let onRefresh: () async -> Void
 
-    @State private var loadingDates: Set<String> = []
+    /// 기록이 남아 있는 날짜만
+    private var recordedDates: [Date] {
+        dateList.filter { !(allMeals[$0]?.isEmpty ?? true) }
+    }
 
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
+    private var canLoadMore: Bool {
+        loadedPastDays < FriendMealsView.maxLookbackDays
+    }
+
+    /// 헤더에 표시할 날짜 (아직 스크롤 전이면 가장 최근 기록일)
+    private var headerDate: Date {
+        recordedDates.contains(currentVisibleDate) ? currentVisibleDate : (recordedDates.first ?? currentVisibleDate)
     }
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                // 현재 보이는 날짜 헤더
-                HStack {
-                    Text(currentVisibleDate, style: .date)
-                        .font(.headline)
-                    Spacer()
-                    Button(action: {
-                        let today = Calendar.current.startOfDay(for: Date())
-                        withAnimation {
-                            proxy.scrollTo(today, anchor: .top)
-                        }
-                    }) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                    }
-                }
-                .padding()
-                .background(Color(.systemBackground))
+                header(proxy: proxy)
 
                 Divider()
 
-                ScrollView {
-                    LazyVStack(spacing: 0, pinnedViews: []) {
-                        ForEach(dateList, id: \.self) { date in
-                            let dateString = dateFormatter.string(from: date)
-                            let isLoading = loadingDates.contains(dateString) && allMeals[date] == nil
-
-                            FriendDailySectionView(
-                                date: date,
-                                friend: friend,
-                                meals: allMeals[date] ?? [:],
-                                isLoading: isLoading
-                            )
-                            .id(date)
-                            .background(
-                                GeometryReader { geometry in
-                                    Color.clear.preference(
-                                        key: DatePositionPreferenceKey.self,
-                                        value: [date: geometry.frame(in: .named("scroll")).minY]
-                                    )
-                                }
-                            )
-                            .onAppear {
-                                // 데이터 없으면 로드
-                                if allMeals[date] == nil && !loadingDates.contains(dateString) {
-                                    loadMealsForDate(date)
-                                }
-
-                                // 마지막 날짜면 더 로드
-                                if date == dateList.last {
-                                    loadMorePastDates()
-                                }
-                            }
-                        }
-                    }
-                    .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
-                        if let topDate = positions.min(by: { abs($0.value) < abs($1.value) })?.key {
-                            if currentVisibleDate != topDate {
-                                currentVisibleDate = topDate
-                            }
-                        }
-                    }
-                }
-                .coordinateSpace(name: "scroll")
+                timeline
             }
         }
     }
 
-    private func loadMealsForDate(_ date: Date) {
-        let dateString = dateFormatter.string(from: date)
-        loadingDates.insert(dateString)
+    private func header(proxy: ScrollViewProxy) -> some View {
+        HStack {
+            Text(headerDate, style: .date)
+                .font(.headline)
 
-        _Concurrency.Task {
-            do {
-                // 캐시에서 먼저 로드 (빠름!)
-                let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                await MainActor.run {
-                    allMeals[date] = meals
-                    loadingDates.remove(dateString)
+            Spacer()
+
+            Button {
+                if let latest = recordedDates.first {
+                    withAnimation { proxy.scrollTo(latest, anchor: .top) }
                 }
-            } catch {
-                print("❌ 타임라인 식단 로드 실패 (\(dateString)): \(error)")
-                await MainActor.run {
-                    loadingDates.remove(dateString)
+            } label: {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+            }
+            .disabled(recordedDates.isEmpty)
+            .accessibilityLabel("최신 기록으로")
+        }
+        .padding()
+        .background(Color(.systemBackground))
+    }
+
+    private var timeline: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                if recordedDates.isEmpty && !isLoadingPast {
+                    emptyState
+                }
+
+                ForEach(recordedDates, id: \.self) { date in
+                    FriendDailySectionView(
+                        date: date,
+                        friend: friend,
+                        meals: allMeals[date] ?? [:]
+                    )
+                    .id(date)
+                    .background(
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: DatePositionPreferenceKey.self,
+                                value: [date: geometry.frame(in: .named("scroll")).minY]
+                            )
+                        }
+                    )
+                }
+
+                footer
+            }
+            .onPreferenceChange(DatePositionPreferenceKey.self) { positions in
+                if let topDate = positions.min(by: { abs($0.value) < abs($1.value) })?.key,
+                   currentVisibleDate != topDate {
+                    currentVisibleDate = topDate
                 }
             }
         }
+        .coordinateSpace(name: "scroll")
+        .refreshable {
+            await onRefresh()
+        }
+        .onChange(of: isLoadingPast) { _, loading in
+            // 불러온 구간이 통째로 비어 있으면 기록이 나올 때까지 계속 과거로 확장
+            if !loading && recordedDates.isEmpty && canLoadMore {
+                loadMorePastDates()
+            }
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 40))
+                .foregroundColor(.gray)
+                .accessibilityHidden(true)
+
+            Text("아직 기록이 없어요")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
+    }
+
+    @ViewBuilder
+    private var footer: some View {
+        Group {
+            if isLoadingPast {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("이전 기록 불러오는 중...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            } else if canLoadMore {
+                Button("이전 기록 더 보기") {
+                    loadMorePastDates()
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .onAppear { loadMorePastDates() }
+            } else if !recordedDates.isEmpty {
+                Text("더 이상 기록이 없어요")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
     }
 }
 
@@ -663,11 +1061,18 @@ struct GridView: View {
     }
 
     private func loadInitialGridData() {
-        // 최근 7일만 미리 로드 (나머지는 스크롤 시 onAppear에서)
-        let recentDates = Array(datesForGrid.prefix(7))
-        for date in recentDates {
-            if allMeals[date] == nil {
-                loadMealsForDate(date)
+        // 30일치를 한 번에 배치 조회 (하루씩 왕복하지 않는다. 캐시된 날은 네트워크를 타지 않음)
+        let dates = datesForGrid.filter { allMeals[$0] == nil }
+        guard !dates.isEmpty else { return }
+
+        _Concurrency.Task {
+            do {
+                let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
+                await MainActor.run {
+                    for (date, meals) in loaded { allMeals[date] = meals }
+                }
+            } catch {
+                print("❌ [그리드] 배치 로드 실패: \(error)")
             }
         }
     }
@@ -687,7 +1092,7 @@ struct GridView: View {
                 await MainActor.run {
                     // 결과가 있든 없든 저장 (빈 딕셔너리 = 체크 완료, 데이터 없음)
                     allMeals[date] = meals
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
 
                     if meals.isEmpty {
                         print("ℹ️ [그리드] \(dateString): 데이터 없음")
@@ -700,7 +1105,7 @@ struct GridView: View {
                 await MainActor.run {
                     // 에러 발생 시에도 빈 딕셔너리 저장 (재시도 방지)
                     allMeals[date] = [:]
-                    loadingDates.remove(dateString)
+                    _ = loadingDates.remove(dateString)
                 }
             }
         }
@@ -718,7 +1123,7 @@ struct LoadingGridDayView: View {
     }
 
     private var photoSize: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth = UIScreen.appWidth
         let totalPadding: CGFloat = 16 + 16
         let spacing: CGFloat = 4 * 2
         return (screenWidth - totalPadding - spacing) / 3
@@ -775,7 +1180,7 @@ struct FriendGridDayView: View {
     }
 
     private var photoSize: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth = UIScreen.appWidth
         let totalPadding: CGFloat = 16 + 16 // 좌우 패딩
         let spacing: CGFloat = 4 * 2 // 3개 사이 간격
         return (screenWidth - totalPadding - spacing) / 3
@@ -1173,7 +1578,6 @@ struct FriendDailySectionView: View {
     let date: Date
     let friend: Friend
     let meals: [MealType: MealRecord]
-    var isLoading: Bool = false
 
     private let calendar = Calendar.current
 
@@ -1185,84 +1589,76 @@ struct FriendDailySectionView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 Spacer()
-
-                // 로딩 인디케이터
-                if isLoading {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
             .background(Color(.systemGray6))
 
-            if isLoading {
-                // 로딩 중
-                VStack(spacing: 8) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                    Text("로딩 중...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-            } else if meals.isEmpty {
-                // 데이터 없음
-                VStack(spacing: 8) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                    Text("기록 없음")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-            } else {
-                // 식단 카드들
-                VStack(spacing: 16) {
-                    ForEach(MealType.allCases, id: \.self) { mealType in
-                        if let meal = meals[mealType] {
-                            FriendMealCard(mealType: mealType, meal: meal)
-                        }
+            // 식단 카드들
+            VStack(spacing: 16) {
+                ForEach(MealType.allCases, id: \.self) { mealType in
+                    if let meal = meals[mealType] {
+                        FriendMealCard(mealType: mealType, meal: meal, friend: friend, date: date)
                     }
                 }
-                .padding()
             }
+            .padding()
         }
     }
 }
 
-// 친구 식단 카드 (읽기 전용)
+// 친구 식단 카드 (사진 원본 비율 유지 + 응원 남기기)
 struct FriendMealCard: View {
     let mealType: MealType
     let meal: MealRecord
+    // 그룹 피드에서도 같은 카드를 쓰는데 거기엔 대상 친구·날짜가 없다 →
+    // 둘 다 있을 때만 응원 버튼을 붙인다
+    var friend: Friend? = nil
+    var date: Date? = nil
+
+    @State private var showingFeedback = false
+
+    // 친구가 실제로 기록한 시각. 없으면(예전 데이터) 시간 줄 자체를 감춘다.
+    private var capturedTimeText: String? {
+        guard let captured = meal.capturedAt else { return nil }
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "ko_KR")
+        fmt.dateFormat = "a h:mm"
+        return fmt.string(from: captured)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 헤더
-            HStack {
+            // 헤더 — 끼니 이름이 길어져도 시간이 밀려 잘리지 않도록 시간에 고정 폭을 준다
+            HStack(spacing: 8) {
                 Image(systemName: mealType.symbolName)
                     .foregroundColor(mealType.symbolColor)
                     .font(.system(size: 20))
                 Text(mealType.rawValue)
                     .font(.system(size: 20, weight: .bold))
-                Spacer()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                // 식사 시간
-                Text(meal.date, style: .time)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Spacer(minLength: 8)
+
+                // 식사 시간 (절대 잘리지 않게)
+                if let timeText = capturedTimeText {
+                    Text(timeText)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .accessibilityLabel("기록 시각 \(timeText)")
+                }
             }
 
-            // 이미지
+            // 이미지 — 원본 비율 그대로(잘라내지 않음)
             if let beforeData = meal.beforeImageData, let image = UIImage(data: beforeData) {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .clipped()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: 360)
                     .cornerRadius(12)
             } else {
                 // 이미지 없을 때 플레이스홀더
@@ -1282,7 +1678,7 @@ struct FriendMealCard: View {
                 }
             }
 
-            // 메모
+            // 메모 (길어도 잘리지 않고 전부 보이게)
             if let memo = meal.memo, !memo.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("메모")
@@ -1291,6 +1687,8 @@ struct FriendMealCard: View {
                     Text(memo)
                         .font(.system(size: 14))
                         .foregroundColor(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             } else {
                 Text("메모 없음")
@@ -1298,11 +1696,36 @@ struct FriendMealCard: View {
                     .foregroundColor(.secondary)
             }
 
+            // 응원 남기기 (타임라인에서도 바로 피드백 가능)
+            if let friend {
+                Button {
+                    showingFeedback = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bubble.left.fill")
+                        Text("응원 남기기")
+                    }
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.orange)
+                    .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("응원 남기기")
+                .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
+            }
         }
         .padding()
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .sheet(isPresented: $showingFeedback) {
+            if let friend, let date {
+                QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+            }
+        }
     }
 }
 
