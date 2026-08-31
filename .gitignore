@@ -7,3 +7,6 @@ RoutineCameraCore/.build/
 
 # Xcode / SwiftPM 사용자 상태
 RoutineCameraCore/.swiftpm/
+
+# Xcode 사용자별 상태 (스킴 순서 등) — 사람마다 달라 커밋할 이유가 없다
+xcuserdata/
