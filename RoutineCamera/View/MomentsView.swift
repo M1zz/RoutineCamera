@@ -8,16 +8,57 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MomentsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject private var settingsManager = SettingsManager.shared
+    @ObservedObject private var notificationManager = NotificationManager.shared
 
     // 기록(카메라) 시트
     @State private var recordingMealType: MealType?
     @State private var recordingPhotoType: MealPhotoView.PhotoType = .before
 
+    // 고스트 셀이 시간이 지나면 스스로 사라지도록 주기적으로 현재 시각을 갱신한다
+    @State private var now: Date = Date()
+    private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
     private var isExercise: Bool { settingsManager.albumType == .exercise }
+
+    // 고스트 셀이 떠 있는 구간: 식사 시각 1시간 전 ~ 2시간 후.
+    // 지나가면 사라진다 — 기록 안 한 과거를 빈 칸으로 남겨 압박하지 않기 위함.
+    private let ghostLeadTime: TimeInterval = -60 * 60
+    private let ghostGraceTime: TimeInterval = 2 * 60 * 60
+
+    /// 오늘 곧 다가오는(또는 진행 중인) 끼니. 이미 기록했거나 시간대가 아니면 nil.
+    private var ghost: (mealType: MealType, at: Date)? {
+        guard !isExercise else { return nil }   // 운동은 정해진 시각이 없다
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: now)
+        let recordedToday = Set(
+            mealStore.records
+                .filter { $0.isComplete && cal.isDate(sortValue($0), inSameDayAs: now) }
+                .map(\.mealType)
+        )
+
+        let schedule: [(MealType, Date)] = [
+            (.breakfast, notificationManager.breakfastTime),
+            (.lunch, notificationManager.lunchTime),
+            (.dinner, notificationManager.dinnerTime)
+        ]
+
+        // 창이 열려 있는 끼니 중 가장 이른 것 하나만 (한 번에 하나의 고스트)
+        return schedule.compactMap { meal, time -> (MealType, Date)? in
+            guard !recordedToday.contains(meal) else { return nil }
+            let comps = cal.dateComponents([.hour, .minute], from: time)
+            guard let at = cal.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: 0, of: today) else { return nil }
+            let elapsed = now.timeIntervalSince(at)
+            guard elapsed >= ghostLeadTime, elapsed <= ghostGraceTime else { return nil }
+            return (meal, at)
+        }
+        .min { $0.1 < $1.1 }
+        .map { (mealType: $0.0, at: $0.1) }
+    }
 
     // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
@@ -48,52 +89,85 @@ struct MomentsView: View {
             .sorted { sortValue($0) > sortValue($1) }
     }
 
-    // 일자별 그룹 (최신 날 먼저), 각 날 안에서도 최신순
-    private var dayGroups: [(day: Date, records: [MealRecord])] {
+    /// 피드 한 줄 — 남긴 기록, 또는 곧 다가올 끼니의 자리를 미리 잡아두는 고스트
+    private enum FeedRow: Identifiable {
+        case record(MealRecord)
+        case ghost(MealType, Date)
+
+        var id: String {
+            switch self {
+            case .record(let r): return r.id.uuidString
+            case .ghost(let meal, _): return "ghost-\(meal.rawValue)"
+            }
+        }
+    }
+
+    // 일자별 그룹 (최신 날 먼저), 각 날 안에서도 최신순.
+    // 오늘 그룹에는 고스트 셀을 "기록되면 생길 그 자리"에 끼워 넣는다.
+    private var dayGroups: [(day: Date, rows: [FeedRow], recordCount: Int)] {
         let cal = Calendar.current
-        let grouped = Dictionary(grouping: moments) { cal.startOfDay(for: sortValue($0)) }
+        var grouped = Dictionary(grouping: moments) { cal.startOfDay(for: sortValue($0)) }
+
+        let today = cal.startOfDay(for: now)
+        if ghost != nil, grouped[today] == nil { grouped[today] = [] }
+
         return grouped
-            .map { (day: $0.key, records: $0.value.sorted { sortValue($0) > sortValue($1) }) }
+            .map { day, records -> (day: Date, rows: [FeedRow], recordCount: Int) in
+                var rows: [(sort: Date, row: FeedRow)] = records.map { (sortValue($0), .record($0)) }
+                if let ghost, cal.isDate(day, inSameDayAs: today) {
+                    rows.append((ghost.at, .ghost(ghost.mealType, ghost.at)))
+                }
+                return (day: day,
+                        rows: rows.sorted { $0.sort > $1.sort }.map(\.row),
+                        recordCount: records.count)
+            }
             .sorted { $0.day > $1.day }
     }
 
     var body: some View {
         Group {
-            if moments.isEmpty {
+            if moments.isEmpty && ghost == nil {
                 emptyState
             } else {
                 List {
                     ForEach(dayGroups, id: \.day) { group in
                         Section {
-                            ForEach(group.records) { record in
-                                NavigationLink {
-                                    PhotoDetailView(
-                                        date: record.date,
-                                        mealType: record.mealType,
-                                        mealRecord: record,
-                                        mealStore: mealStore,
-                                        embedInNavigation: false
-                                    )
-                                } label: {
-                                    momentRow(record)
-                                }
-                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                            ForEach(group.rows) { row in
+                                switch row {
+                                case .record(let record):
+                                    NavigationLink {
+                                        PhotoDetailView(
+                                            date: record.date,
+                                            mealType: record.mealType,
+                                            mealRecord: record,
+                                            mealStore: mealStore,
+                                            embedInNavigation: false
+                                        )
                                     } label: {
-                                        Label("삭제", systemImage: "trash")
+                                        momentRow(record)
                                     }
+                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                    .swipeActions(edge: .trailing) {
+                                        Button(role: .destructive) {
+                                            mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                                        } label: {
+                                            Label("삭제", systemImage: "trash")
+                                        }
+                                    }
+                                case .ghost(let meal, let at):
+                                    ghostRow(meal, at: at)
+                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                                 }
                             }
                         } header: {
-                            dayHeader(group.day, count: group.records.count)
+                            dayHeader(group.day, count: group.recordCount)
                         }
                     }
                 }
                 .listStyle(.plain)
             }
         }
+        .onReceive(clock) { now = $0 }
         // 기록 버튼은 하단 고정 (스크롤해도 항상 보임)
         .safeAreaInset(edge: .bottom) {
             recordButton
@@ -214,6 +288,53 @@ struct MomentsView: View {
             Spacer(minLength: 0)
         }
         .contentShape(Rectangle())
+    }
+
+    // MARK: - 고스트 셀 (곧 다가올 끼니의 자리)
+
+    // 기록하면 셀이 생길 바로 그 자리에 미리 자리를 잡아둔다.
+    // 실제 기록 행과 같은 레이아웃(썸네일 + 제목 + 시각)이라 기록되면 그대로 채워지는 느낌.
+    private func ghostRow(_ meal: MealType, at: Date) -> some View {
+        Button {
+            recordingPhotoType = .before
+            recordingMealType = meal
+        } label: {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                    .foregroundColor(meal.symbolColor.opacity(0.45))
+                    .frame(width: 72, height: 72)
+                    .overlay(
+                        Image(systemName: "camera")
+                            .font(.system(size: 22))
+                            .foregroundColor(meal.symbolColor.opacity(0.5))
+                    )
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: meal.symbolName)
+                            .font(.system(size: 13))
+                            .foregroundColor(meal.symbolColor.opacity(0.6))
+                        Text(meal.rawValue)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.secondary)
+                        Text(timeLabel(at))
+                            .font(.caption)
+                            .foregroundColor(.secondary.opacity(0.7))
+                    }
+
+                    Text(now < at ? "곧 \(meal.rawValue) 시간이에요" : "지금 남기면 여기에 들어가요")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary.opacity(0.8))
+                }
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(meal.rawValue), 아직 기록 전")
+        .accessibilityHint("두 번 탭하여 지금 기록")
     }
 
     @ViewBuilder
