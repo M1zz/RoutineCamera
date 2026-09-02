@@ -39,6 +39,7 @@
 /* Begin PBXFileReference section */
 		5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0100000000000000000A02 /* SekkiWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SekkiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0300000000000000000C01 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -90,10 +91,19 @@
 		5857FA052EC244BF00A539D8 = {
 			isa = PBXGroup;
 			children = (
+				AA0300000000000000000C02 /* Config */,
 				5857FA102EC244BF00A539D8 /* RoutineCamera */,
 				AA0100000000000000000A01 /* SekkiWidget */,
 				5857FA0F2EC244BF00A539D8 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		AA0300000000000000000C02 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AA0300000000000000000C01 /* Version.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		5857FA0F2EC244BF00A539D8 /* Products */ = {
@@ -243,6 +253,7 @@
 /* Begin XCBuildConfiguration section */
 		5857FA172EC244C000A539D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0300000000000000000C01 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -307,6 +318,7 @@
 		};
 		5857FA182EC244C000A539D8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0300000000000000000C01 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -369,7 +381,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -387,7 +398,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -409,7 +419,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -427,7 +436,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -447,7 +455,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -459,7 +466,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -477,7 +483,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SekkiWidget/Info.plist;
@@ -488,7 +493,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
