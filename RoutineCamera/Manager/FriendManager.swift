@@ -795,7 +795,12 @@ class FriendManager: ObservableObject {
         record["mealType"] = Self.mealKey(mealType)
         record["createdAtTS"] = Date().timeIntervalSince1970
 
-        _ = try await database.save(record)
+        do {
+            _ = try await database.save(record)
+        } catch {
+            throw NSError(domain: "FriendManager", code: -9,
+                          userInfo: [NSLocalizedDescriptionKey: Self.readableMessage(for: error)])
+        }
         print("✅ [FriendManager] 피드백 작성 완료: \(friendId) / \(dateString) / \(mealType.rawValue)")
     }
 

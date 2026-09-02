@@ -309,6 +309,7 @@ struct CreateGroupSheet: View {
     @State private var name = ""
     @State private var visibility: GroupVisibility = .full
     @State private var phase: Phase = .input
+    @FocusState private var isNameFocused: Bool
     @Environment(\.dismiss) var dismiss
 
     enum Phase: Equatable {
@@ -340,12 +341,27 @@ struct CreateGroupSheet: View {
                     Button("취소") { dismiss() }
                         .disabled(isWorking)
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") { isNameFocused = false }
+                }
             }
             .interactiveDismissDisabled(isWorking)
         }
     }
 
     private var inputView: some View {
+        ScrollView {
+            inputContent
+        }
+        .scrollDismissesKeyboard(.interactively)
+        // 빈 곳을 누르면 키보드가 내려가도록 (스크롤 제스처와 충돌하지 않는 탭 제스처)
+        .simultaneousGesture(
+            TapGesture().onEnded { isNameFocused = false }
+        )
+    }
+
+    private var inputContent: some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Image(systemName: "person.3.sequence")
@@ -365,6 +381,9 @@ struct CreateGroupSheet: View {
             TextField("예: 우리 회사 점심팀", text: $name)
                 .font(.system(size: 18))
                 .multilineTextAlignment(.center)
+                .focused($isNameFocused)
+                .submitLabel(.done)
+                .onSubmit { isNameFocused = false }
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
@@ -503,6 +522,7 @@ struct CreateGroupSheet: View {
 
     private func create() {
         guard !isWorking else { return }
+        isNameFocused = false
         phase = .working
 
         _Concurrency.Task {
@@ -524,6 +544,7 @@ struct JoinGroupSheet: View {
 
     @State private var code = ""
     @State private var phase: Phase = .input
+    @FocusState private var isCodeFocused: Bool
     @Environment(\.dismiss) var dismiss
 
     enum Phase: Equatable {
@@ -555,12 +576,26 @@ struct JoinGroupSheet: View {
                     Button("취소") { dismiss() }
                         .disabled(isWorking)
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") { isCodeFocused = false }
+                }
             }
             .interactiveDismissDisabled(isWorking)
         }
     }
 
     private var inputView: some View {
+        ScrollView {
+            inputContent
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { isCodeFocused = false }
+        )
+    }
+
+    private var inputContent: some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Image(systemName: "person.badge.key")
@@ -583,6 +618,9 @@ struct JoinGroupSheet: View {
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)
                 .disableAutocorrection(true)
+                .focused($isCodeFocused)
+                .submitLabel(.done)
+                .onSubmit { isCodeFocused = false }
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
@@ -671,6 +709,7 @@ struct JoinGroupSheet: View {
 
     private func join() {
         guard !isWorking else { return }
+        isCodeFocused = false
         phase = .working
 
         _Concurrency.Task {

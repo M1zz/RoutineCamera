@@ -459,25 +459,46 @@ extension FriendManager {
             let groupId = "group_\(UUID().uuidString)"
             let now = Date()
 
-            let record = CKRecord(recordType: Self.groupRecordType,
-                                  recordID: CKRecord.ID(recordName: groupId))
-            record["name"] = trimmed
-            record["ownerId"] = myUserId
-            record["inviteCode"] = inviteCode
-            record["visibility"] = visibility.rawValue
-            record["createdAtTS"] = now.timeIntervalSince1970
-            _ = try await database.save(record)
+            func makeRecord(includeVisibility: Bool) -> CKRecord {
+                let record = CKRecord(recordType: Self.groupRecordType,
+                                      recordID: CKRecord.ID(recordName: groupId))
+                record["name"] = trimmed
+                record["ownerId"] = myUserId
+                record["inviteCode"] = inviteCode
+                record["createdAtTS"] = now.timeIntervalSince1970
+                if includeVisibility { record["visibility"] = visibility.rawValue }
+                return record
+            }
+
+            var savedVisibility = visibility
+            do {
+                _ = try await database.save(makeRecord(includeVisibility: true))
+            } catch where Self.isUnknownField(error, named: "visibility") {
+                // 운영 스키마에 visibility 필드가 아직 배포되지 않은 경우.
+                // 값이 없는 그룹은 전체 공개로 읽히므로, 사용자가 "기록 여부만"을 골랐다면
+                // 조용히 더 많이 공개해버리는 대신 만들지 않고 알린다.
+                guard visibility == .full else {
+                    throw NSError(domain: "FriendManager", code: -8, userInfo: [
+                        NSLocalizedDescriptionKey: "지금은 '기록 여부만' 그룹을 만들 수 없어요. iCloud 설정이 업데이트될 때까지 '먹은 것까지'로 만들어주세요."
+                    ])
+                }
+                _ = try await database.save(makeRecord(includeVisibility: false))
+                savedVisibility = .full
+                print("⚠️ visibility 필드가 운영 스키마에 없어 전체 공개로 저장")
+            }
 
             try await saveMyMembership(groupId: groupId)
             await loadMyGroups()
 
-            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(visibility.rawValue))")
+            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(savedVisibility.rawValue))")
             return FriendGroup(id: groupId, name: trimmed, ownerId: myUserId,
                                inviteCode: inviteCode, createdAt: now,
-                               visibility: visibility, memberCount: 1)
+                               visibility: savedVisibility, memberCount: 1)
         } catch {
-            errorMessage = error.localizedDescription
-            throw error
+            let message = Self.readableMessage(for: error)
+            errorMessage = message
+            throw NSError(domain: "FriendManager", code: -9,
+                          userInfo: [NSLocalizedDescriptionKey: message])
         }
     }
 
@@ -570,6 +591,10 @@ extension FriendManager {
             var updated = group
             updated.visibility = visibility
             return updated
+        } catch where Self.isUnknownField(error, named: "visibility") {
+            throw NSError(domain: "FriendManager", code: -8, userInfo: [
+                NSLocalizedDescriptionKey: "아직 공개 범위를 바꿀 수 없어요. iCloud 설정이 업데이트된 뒤 다시 시도해주세요."
+            ])
         } catch let error as CKError {
             throw Self.lookupError(from: error)
         }
@@ -804,8 +829,34 @@ extension FriendManager {
         return out
     }
 
+    /// 운영(Production) 스키마에 아직 배포되지 않은 필드 때문에 저장이 막혔는지.
+    /// CloudKit은 개발 환경에서만 필드를 자동으로 만들어 준다.
+    static func isUnknownField(_ error: Error, named field: String) -> Bool {
+        var messages = [error.localizedDescription]
+        if let partials = (error as? CKError)?.partialErrorsByItemID {
+            messages.append(contentsOf: partials.values.map { $0.localizedDescription })
+        }
+        return messages.contains { $0.contains("'\(field)'") && $0.contains("schema") }
+    }
+
+
+    /// 운영 스키마에 레코드 타입·필드가 아직 배포되지 않아 저장이 막힌 경우인지.
+    /// (Development 환경에서만 스키마가 자동 생성된다)
+    static func isProductionSchemaError(_ error: Error) -> Bool {
+        var messages = [error.localizedDescription]
+        if let partials = (error as? CKError)?.partialErrorsByItemID {
+            messages.append(contentsOf: partials.values.map { $0.localizedDescription })
+        }
+        return messages.contains { $0.contains("production schema") }
+    }
+
     /// 조회 실패를 사용자에게 보여줄 문구로 (CKError는 원인별 안내, 그 외는 원문)
     static func readableMessage(for error: Error) -> String {
+        if isProductionSchemaError(error) {
+            // 사용자가 할 수 있는 일이 없다 — 원문 대신 상황만 알리고 로그에 원인을 남긴다
+            print("❌ [CloudKit] 운영 스키마 미배포: \(error.localizedDescription)")
+            return "iCloud 저장소 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해주세요."
+        }
         if let ckError = error as? CKError {
             return lookupError(from: ckError).localizedDescription
         }

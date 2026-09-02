@@ -50,6 +50,12 @@
 
 필드가 없는 예전 그룹은 `full`로 간주한다(기존 동작 유지).
 
+> ⚠️ `visibility`는 **Production 스키마에 배포해야** 쓸 수 있다. 배포 전 앱스토어/TestFlight 빌드에서는
+> `Cannot create or modify field 'visibility' in record 'RCGroup' in production schema` 오류가 난다.
+> 앱은 이 경우 `visibility` 없이 그룹을 만들어 넘어가고(= `full`), 사용자가 "기록 여부만"을 골랐을 때는
+> 의도보다 많이 공개하지 않도록 그룹을 만들지 않고 안내한다.
+> CloudKit Console → Schema → **Deploy Schema Changes**로 Development 스키마를 Production에 반영할 것.
+
 ### 피드백 푸시
 
 받는 사람이 로그인 시 `recipientId == 내 ID` 조건의 `CKQuerySubscription`을 자동 등록합니다.
@@ -77,6 +83,33 @@
 쿼리에 쓰이는 필드의 **Queryable 인덱스**가 Production에 포함되어 있는지 확인하세요:
 `RCUser.code`, `Meal.ownerId`, `Feedback.recipientId`/`authorId`/`dateString`/`mealType`,
 `FriendLink.ownerId`/`otherId`, `RCGroup.inviteCode`/`ownerId`, `GroupMember.groupId`/`userId`
+
+## Production 스키마가 비어 있을 때 (배포할 변경사항이 없다고 나오는 경우)
+
+`Cannot create new type Feedback in production schema` / `Cannot create or modify field 'visibility' ...`
+= **운영 스키마에 그 타입·필드가 없다**는 뜻이다.
+
+"Deploy Schema Changes"에 아무것도 안 뜨면, Development 스키마에도 없는 것이다
+(Development에서 **한 번이라도 저장이 일어나야** 자동 생성되기 때문).
+해결은 둘 중 하나:
+
+1. **디버그 빌드로 한 번 써 본다** — Xcode 실행(= Development) → 피드백 남기기·그룹 만들기 →
+   Development 스키마에 자동 생성 → 콘솔에서 Deploy Schema Changes
+2. **콘솔에서 직접 만든다** — 환경을 **Development**로 바꾼 뒤 Record Type 추가 (Production은 읽기 전용)
+
+`Feedback` 타입을 손으로 만들 때의 필드:
+
+| 필드 | 타입 | 인덱스 |
+|---|---|---|
+| `recipientId` | String | **Queryable** (푸시 구독도 이 필드를 쓴다) |
+| `authorId` | String | **Queryable** |
+| `dateString` | String | **Queryable** |
+| `mealType` | String | **Queryable** |
+| `authorNickname` | String | — |
+| `content` | String | — |
+| `createdAtTS` | Double | — |
+
+`RCGroup`에는 `visibility` (String, 인덱스 불필요) 하나만 추가하면 된다.
 
 ## 20명 이벤트 전 점검 목록
 
