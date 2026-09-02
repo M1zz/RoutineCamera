@@ -755,11 +755,17 @@ struct GroupFeedView: View {
         members.filter { !(mealsByUser[$0.id]?.isEmpty ?? true) }
     }
 
-    private var recordedCount: Int {
+    /// 공개 범위와 무관하게 "이 사람이 그 날 기록했나"를 하나로 본다.
+    /// 사진까지 공개하는 그룹은 기록 여부를 따로 안 불러오므로 사진 목록에서 끌어낸다.
+    private var recordedMeals: [String: Set<MealType>] {
         switch current.visibility {
-        case .full: return membersWithRecords.count
-        case .record: return members.filter { !(recordedByUser[$0.id]?.isEmpty ?? true) }.count
+        case .record: return recordedByUser
+        case .full: return mealsByUser.mapValues { Set($0.keys) }
         }
+    }
+
+    private var recordedCount: Int {
+        members.filter { !(recordedMeals[$0.id]?.isEmpty ?? true) }.count
     }
 
     var body: some View {
@@ -948,41 +954,57 @@ struct GroupFeedView: View {
         }
     }
 
-    /// 기록 여부만 공개하는 그룹 — 멤버 전원을 O/X로 보여준다 (누가 안 했는지가 핵심)
+    /// 멤버 그리드 — 올린 사람은 초록, 안 올린 사람은 회색.
+    /// 두 공개 범위 모두 맨 위에 둔다. "오늘 누가 아직 안 했나"가 그룹의 핵심이라
+    /// 사진을 공개하는 그룹에서도 기록 없는 멤버가 화면에서 사라지면 안 된다.
+    private var memberGrid: some View {
+        GroupMemberGrid(
+            members: members,
+            myUserId: friendManager.myUserId,
+            recordedByUser: recordedMeals
+        )
+        .padding(.horizontal)
+        .padding(.vertical, 14)
+    }
+
+    /// 기록 여부만 공개하는 그룹 — 그리드가 화면 전부다
     private var statusList: some View {
-        List {
-            Section {
-                ForEach(members) { member in
-                    GroupStatusRow(
-                        member: member,
-                        isMe: member.id == friendManager.myUserId,
-                        recorded: recordedByUser[member.id] ?? []
-                    )
-                }
-            } footer: {
+        ScrollView {
+            VStack(spacing: 12) {
+                memberGrid
+
                 Text("이 그룹은 기록 여부만 공유합니다. 사진과 메모는 서로 보이지 않아요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
             }
         }
-        .listStyle(.plain)
         .refreshable { await loadDay() }
     }
 
-    /// 사진까지 공개하는 그룹 — 그 날 기록이 있는 멤버만
+    /// 사진까지 공개하는 그룹 — 위에 멤버 그리드, 아래에 기록이 있는 멤버의 사진
     @ViewBuilder private var photoFeed: some View {
-        if membersWithRecords.isEmpty {
-            VStack(spacing: 8) {
-                Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 40))
-                    .foregroundColor(.gray)
-                    .accessibilityHidden(true)
-                Text("이 날은 아무도 기록하지 않았어요")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                memberGrid
+
+                Divider()
+                    .padding(.horizontal)
+
+                if membersWithRecords.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 36))
+                            .foregroundColor(.gray)
+                            .accessibilityHidden(true)
+                        Text("이 날은 아무도 기록하지 않았어요")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 40)
+                } else {
                     ForEach(membersWithRecords) { member in
                         GroupMemberSection(
                             member: member,
@@ -991,10 +1013,10 @@ struct GroupFeedView: View {
                         )
                     }
                 }
-                .padding(.vertical, 12)
             }
-            .refreshable { await loadDay() }
+            .padding(.vertical, 12)
         }
+        .refreshable { await loadDay() }
     }
 
     // MARK: 로딩
@@ -1041,56 +1063,109 @@ struct GroupFeedView: View {
     }
 }
 
-/// 기록 여부만 보여주는 행
-struct GroupStatusRow: View {
+/// 멤버 한 명 타일 — 그 날 기록했는지를 색으로 보여준다
+struct GroupMemberTile: View {
     let member: GroupMemberInfo
     let isMe: Bool
+    /// 그 날 기록한 끼니들 (비어 있으면 안 올림)
     let recorded: Set<MealType>
 
     private var hasRecord: Bool { !recorded.isEmpty }
 
+    private var tint: Color { hasRecord ? .green : .gray }
+
     var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
+        VStack(spacing: 6) {
+            ZStack(alignment: .bottomTrailing) {
                 Circle()
-                    .fill(hasRecord ? Color.green.opacity(0.15) : Color.gray.opacity(0.15))
-                    .frame(width: 40, height: 40)
+                    .fill(tint.opacity(hasRecord ? 0.18 : 0.12))
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle().stroke(hasRecord ? Color.green.opacity(0.7) : Color.clear,
+                                        lineWidth: 2)
+                    )
+                    .overlay(
+                        Text(String(member.nickname.prefix(1)))
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(hasRecord ? .green : .secondary)
+                    )
 
-                Image(systemName: hasRecord ? "checkmark" : "minus")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(hasRecord ? .green : .secondary)
+                // 색만으로 구분하지 않는다 — 색각 이상에서도 읽히도록 기호를 함께 둔다
+                Image(systemName: hasRecord ? "checkmark.circle.fill" : "minus.circle.fill")
+                    .font(.system(size: 17))
+                    .foregroundStyle(.white, hasRecord ? Color.green : Color.gray)
+                    .offset(x: 2, y: 2)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(isMe ? "\(member.nickname) (나)" : member.nickname)
-                    .font(.system(size: 16, weight: .semibold))
+            Text(isMe ? "\(member.nickname) (나)" : member.nickname)
+                .font(.system(size: 12, weight: hasRecord ? .semibold : .regular))
+                .foregroundColor(hasRecord ? .primary : .secondary)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-                if hasRecord {
-                    HStack(spacing: 4) {
-                        ForEach(MealType.allCases.filter { recorded.contains($0) }, id: \.self) { mealType in
-                            Text(mealType.rawValue)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(4)
-                        }
-                    }
-                } else {
-                    Text("아직 기록 없음")
-                        .font(.system(size: 13))
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            Spacer()
+            Text(hasRecord ? "\(recorded.count)끼" : "미기록")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
         }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .combine)
+        .frame(maxWidth: .infinity)
+        .opacity(hasRecord ? 1 : 0.65)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(hasRecord
-                            ? "\(member.nickname), 기록함, \(recorded.map(\.rawValue).joined(separator: ", "))"
-                            : "\(member.nickname), 아직 기록 없음")
+                            ? "\(member.nickname)\(isMe ? ", 나" : ""), 기록함, \(recorded.map(\.rawValue).joined(separator: ", "))"
+                            : "\(member.nickname)\(isMe ? ", 나" : ""), 아직 기록 없음")
+    }
+}
+
+/// 구성원 전체를 한눈에 — 올린 사람은 초록, 안 올린 사람은 회색
+struct GroupMemberGrid: View {
+    let members: [GroupMemberInfo]
+    let myUserId: String
+    /// 멤버별 그 날 기록한 끼니
+    let recordedByUser: [String: Set<MealType>]
+
+    private let columns = [GridItem(.adaptive(minimum: 76), spacing: 12)]
+
+    /// 안 올린 사람이 뒤로 가지 않게 — 올린 사람 먼저, 그 안에서는 이름순.
+    /// "누가 아직 안 했나"를 보는 화면이라 미기록도 같은 화면에 남아 있어야 한다.
+    private var sorted: [GroupMemberInfo] {
+        members.sorted { lhs, rhs in
+            let lhsHas = !(recordedByUser[lhs.id]?.isEmpty ?? true)
+            let rhsHas = !(recordedByUser[rhs.id]?.isEmpty ?? true)
+            if lhsHas != rhsHas { return lhsHas }
+            return lhs.nickname.localizedCaseInsensitiveCompare(rhs.nickname) == .orderedAscending
+        }
+    }
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 14) {
+            ForEach(sorted) { member in
+                GroupMemberTile(
+                    member: member,
+                    isMe: member.id == myUserId,
+                    recorded: recordedByUser[member.id] ?? []
+                )
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+}
+
+#Preview("멤버 그리드") {
+    let members = ["지우", "현호", "민서", "태윤", "서연", "준"].enumerated().map { index, name in
+        GroupMemberInfo(id: "u\(index)", nickname: name, joinedAt: Date())
+    }
+    return ScrollView {
+        GroupMemberGrid(
+            members: members,
+            myUserId: "u1",
+            recordedByUser: [
+                "u0": [.breakfast, .lunch, .dinner],
+                "u1": [.lunch],
+                "u3": [.breakfast, .dinner],
+                // u2, u4, u5 는 미기록 — 회색으로 뒤에 모인다
+            ]
+        )
+        .padding()
     }
 }
 
