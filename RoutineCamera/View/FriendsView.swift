@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
@@ -1471,9 +1472,6 @@ struct FriendMealDetailView: View {
     let friend: Friend
     let date: Date
     @Environment(\.dismiss) var dismiss
-    @State private var feedbackText: String = ""
-    @State private var isSubmitting: Bool = false
-    @State private var showSuccessAlert: Bool = false
 
     var body: some View {
         NavigationView {
@@ -1527,45 +1525,10 @@ struct FriendMealDetailView: View {
                         }
                     }
 
-                    // 피드백 작성
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("피드백 남기기")
-                            .font(.headline)
-                            .padding(.horizontal)
-
-                        VStack(spacing: 12) {
-                            TextEditor(text: $feedbackText)
-                                .frame(height: 100)
-                                .padding(8)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                )
-
-                            Button(action: submitFeedback) {
-                                HStack {
-                                    if isSubmitting {
-                                        ProgressView()
-                                            .scaleEffect(0.8)
-                                            .tint(.white)
-                                    } else {
-                                        Image(systemName: "paperplane.fill")
-                                        Text("피드백 보내기")
-                                    }
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                            .disabled(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
-                        }
+                    // 응원 — 이모지 반응 + 지금까지의 대화 + 글 쓰기
+                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType)
                         .padding(.horizontal)
-                    }
-                    .padding(.vertical)
+                        .padding(.vertical)
                 }
                 .padding(.vertical)
             }
@@ -1576,41 +1539,6 @@ struct FriendMealDetailView: View {
                     Button("닫기") {
                         dismiss()
                     }
-                }
-            }
-            .alert("피드백 전송 완료", isPresented: $showSuccessAlert) {
-                Button("확인", role: .cancel) {
-                    feedbackText = ""
-                }
-            } message: {
-                Text("친구에게 피드백을 전송했습니다.")
-            }
-        }
-    }
-
-    private func submitFeedback() {
-        let content = feedbackText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !content.isEmpty else { return }
-
-        isSubmitting = true
-
-        Task {
-            do {
-                try await FriendManager.shared.addFeedback(
-                    to: friend.id,
-                    date: date,
-                    mealType: mealType,
-                    content: content
-                )
-
-                await MainActor.run {
-                    isSubmitting = false
-                    showSuccessAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isSubmitting = false
-                    print("❌ [FriendMealDetailView] 피드백 전송 실패: \(error)")
                 }
             }
         }
@@ -1953,112 +1881,31 @@ struct QuickFeedbackView: View {
     let mealType: MealType
 
     @Environment(\.dismiss) private var dismiss
-    @State private var feedbackText: String = ""
-    @State private var isSubmitting: Bool = false
-    @State private var showSuccessAlert: Bool = false
-    @State private var showErrorAlert: Bool = false
-    @State private var errorMessage: String = ""
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                // 헤더
-                VStack(spacing: 8) {
-                    Text("\(friend.name)님의 \(mealType.rawValue)")
-                        .font(.headline)
-                    Text(date, style: .date)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.top)
-
-                // 피드백 입력
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("피드백")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    TextEditor(text: $feedbackText)
-                        .frame(height: 150)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                        )
-                }
-
-                // 전송 버튼
-                Button(action: submitFeedback) {
-                    HStack {
-                        if isSubmitting {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        } else {
-                            Image(systemName: "paperplane.fill")
-                            Text("피드백 보내기")
-                        }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    VStack(spacing: 8) {
+                        Text("\(friend.name)님의 \(mealType.rawValue)")
+                            .font(.headline)
+                        Text(date, style: .date)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.orange)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                }
-                .disabled(feedbackText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
+                    .padding(.top)
 
-                Spacer()
+                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType)
+                }
+                .padding()
             }
-            .padding()
-            .navigationTitle("빠른 피드백")
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("응원하기")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
-                        dismiss()
-                    }
-                }
-            }
-            .alert("전송 완료", isPresented: $showSuccessAlert) {
-                Button("확인", role: .cancel) {
-                    dismiss()
-                }
-            } message: {
-                Text("피드백을 성공적으로 보냈습니다!")
-            }
-            .alert("전송 실패", isPresented: $showErrorAlert) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
-        }
-    }
-
-    private func submitFeedback() {
-        let content = feedbackText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !content.isEmpty else { return }
-
-        isSubmitting = true
-
-        Task {
-            do {
-                try await FriendManager.shared.addFeedback(
-                    to: friend.id,
-                    date: date,
-                    mealType: mealType,
-                    content: content
-                )
-
-                await MainActor.run {
-                    isSubmitting = false
-                    showSuccessAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isSubmitting = false
-                    errorMessage = error.localizedDescription
-                    showErrorAlert = true
+                    Button("닫기") { dismiss() }
                 }
             }
         }

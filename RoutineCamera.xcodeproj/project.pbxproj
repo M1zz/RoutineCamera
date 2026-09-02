@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AA0100000000000000000A08 /* SekkiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000A02 /* SekkiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AA0200000000000000000B03 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0200000000000000000B02 /* RoutineCameraCore */; };
+		AA0300000000000000000D02 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0300000000000000000D01 /* RoutineCameraCore */; };
 		D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4C8CC1A526115B7855DF619 /* LeeoKit */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0300000000000000000D02 /* RoutineCameraCore in Frameworks */,
 				D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,14 +100,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		AA0300000000000000000C02 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				AA0300000000000000000C01 /* Version.xcconfig */,
-			);
-			path = Config;
-			sourceTree = "<group>";
-		};
 		5857FA0F2EC244BF00A539D8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -113,6 +107,14 @@
 				AA0100000000000000000A02 /* SekkiWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0300000000000000000C02 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AA0300000000000000000C01 /* Version.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +140,7 @@
 			name = RoutineCamera;
 			packageProductDependencies = (
 				C4C8CC1A526115B7855DF619 /* LeeoKit */,
+				AA0300000000000000000D01 /* RoutineCameraCore */,
 			);
 			productName = RoutineCamera;
 			productReference = 5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */;
@@ -557,6 +560,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		AA0200000000000000000B02 /* RoutineCameraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
+			productName = RoutineCameraCore;
+		};
+		AA0300000000000000000D01 /* RoutineCameraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
 			productName = RoutineCameraCore;

@@ -56,11 +56,34 @@
 > 의도보다 많이 공개하지 않도록 그룹을 만들지 않고 안내한다.
 > CloudKit Console → Schema → **Deploy Schema Changes**로 Development 스키마를 Production에 반영할 것.
 
+### 이모지 반응 (1.0.8)
+
+반응은 **별도 레코드 타입도, 새 필드도 아니다.** `Feedback.content` 에 이모지만 담아 저장한다.
+
+- 운영 스키마를 건드리지 않아도 되고,
+- 아직 업데이트하지 않은 친구의 앱에서는 `🎉` 가 짧은 메시지로 읽혀 깨지지 않는다.
+
+"이 글이 반응인가 글인가"를 가르는 규칙은 `RoutineCameraCore.FeedbackContent` 에 있다
+(이모지 클러스터로만 이뤄져 있고 3개 이하). 테스트는 `FeedbackContentTests`.
+같은 이모지를 다시 누르면 내 레코드를 지워 취소한다 — 공개 DB는 만든 사람만 지울 수 있으므로
+남의 반응에는 쓸 수 없다.
+
 ### 피드백 푸시
 
 받는 사람이 로그인 시 `recipientId == 내 ID` 조건의 `CKQuerySubscription`을 자동 등록합니다.
 친구가 `Feedback` 레코드를 저장하면 Apple이 곧바로 푸시를 배달합니다.
 (예전 FCM·FeedbackPing 핑 채널은 모두 제거됨 — Feedback 레코드 하나로 저장+푸시 통합)
+
+> ⚠️ **1.0.7까지 푸시가 오지 않던 원인**
+> 등록 실패를 성공으로 삼켰다. `.serverRejectedRequest` 를 무조건 "이미 있음"으로 보고
+> UserDefaults 에 도장을 찍었는데, 운영 스키마에 `Feedback.recipientId` 쿼리 인덱스가 없을 때도
+> 같은 코드가 날아온다. 한 번 도장이 찍히면 다시는 재시도하지 않아 푸시가 영원히 오지 않았다.
+>
+> 1.0.8부터는 **서버에 구독이 실제로 있는지 확인한 뒤에만** 도장을 찍고, 아니면 다음 실행에 다시 시도한다.
+> 도장 키도 `feedbackSubscriptionUserId.v2` 로 올려 기존 기기가 한 번씩 재등록하게 했다.
+> 상태는 설정 → 알림 → "친구 응원 알림" 에서 확인하고 "다시 등록"할 수 있다.
+>
+> 여기가 계속 "꺼짐"이면 `Feedback.recipientId` 의 Queryable 인덱스가 Production 에 있는지 확인할 것.
 
 ### 읽음 상태
 

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 import AVFoundation
 import Photos
 
@@ -28,7 +29,6 @@ struct PhotoDetailView: View {
     @State private var showingAnalysisResult = false // 결과 표시
     @State private var showFullAnalysis = false // 전체 분석 보기
     @State private var feedbacks: [MealFeedback] = [] // 받은 피드백 목록
-    @State private var sentFeedbacks: [SentFeedback] = [] // 보낸 피드백 목록
     @State private var isLoadingFeedbacks = false // 피드백 로딩 중
 
     @ViewBuilder
@@ -323,78 +323,13 @@ struct PhotoDetailView: View {
                                 }
                             }
 
-                            // 받은 피드백
-                            if !feedbacks.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("받은 피드백")
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundColor(.blue)
-
-                                    ForEach(feedbacks) { feedback in
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            HStack {
-                                                Text(feedback.authorNickname)
-                                                    .font(.system(size: 14, weight: .semibold))
-                                                    .foregroundColor(.blue)
-                                                Spacer()
-                                                Text(feedback.createdAt, style: .relative)
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.secondary)
-                                                if !feedback.isRead {
-                                                    Circle()
-                                                        .fill(Color.red)
-                                                        .frame(width: 6, height: 6)
-                                                }
-                                            }
-                                            Text(feedback.content)
-                                                .font(.system(size: 14))
-                                                .padding(12)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .background(Color.blue.opacity(0.1))
-                                                .cornerRadius(8)
-                                        }
-                                        .padding(.vertical, 4)
-                                    }
-                                }
-                            }
-
-                            // 보낸 피드백
-                            if !sentFeedbacks.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("내가 보낸 피드백")
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundColor(.green)
-
-                                    ForEach(sentFeedbacks) { feedback in
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            HStack {
-                                                Text("나")
-                                                    .font(.system(size: 14, weight: .semibold))
-                                                    .foregroundColor(.green)
-                                                Spacer()
-                                                Text(feedback.createdAt, style: .relative)
-                                                    .font(.system(size: 12))
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            Text(feedback.content)
-                                                .font(.system(size: 14))
-                                                .padding(12)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .background(Color.green.opacity(0.1))
-                                                .cornerRadius(8)
-                                        }
-                                        .padding(.vertical, 4)
-                                    }
-                                }
-                            }
-
-                            // 피드백이 하나도 없을 때
-                            if feedbacks.isEmpty && sentFeedbacks.isEmpty && !isLoadingFeedbacks {
-                                Text("아직 피드백이 없습니다")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
-                                    .padding(.vertical, 8)
-                            }
+                            // 이 끼니에 달린 응원 전부 — 이모지 반응은 위에 모이고 글은 시간순으로 쌓인다
+                            FeedbackThreadView(
+                                feedbacks: feedbacks,
+                                myUserId: FriendManager.shared.myUserId,
+                                isLoading: isLoadingFeedbacks,
+                                emptyText: "아직 받은 응원이 없습니다"
+                            )
                         }
                     }
                     .padding()
@@ -658,27 +593,22 @@ struct PhotoDetailView: View {
         isLoadingFeedbacks = true
 
         Task {
-            do {
-                // 받은 피드백과 보낸 피드백 동시에 로드
-                async let receivedFeedbacks = FriendManager.shared.getMyFeedbacks(date: date, mealType: mealType)
-                async let sentFeedbacks = FriendManager.shared.getMySentFeedbacks(date: date, mealType: mealType)
+            // 내 식단에 달린 대화 전체를 시간순으로 가져온다.
+            //
+            // 예전에는 "받은 피드백"과 "내가 보낸 피드백"을 따로 불러왔는데, 뒤엣것은
+            // `authorId == 나 AND 같은 날짜·끼니` 라서 **내가 그날 그 끼니에 남 아무에게나 보낸 글**이
+            // 내 식단 밑에 딸려 나왔다. 이 식사와 아무 상관 없는 글이었다.
+            let loaded = (try? await FriendManager.shared.getFeedbackThread(
+                ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType
+            )) ?? []
 
-                let (loadedReceived, loadedSent) = try await (receivedFeedbacks, sentFeedbacks)
+            await MainActor.run {
+                self.feedbacks = loaded
+                self.isLoadingFeedbacks = false
+                print("✅ [PhotoDetailView] 피드백 로드 완료: \(loaded.count)개")
 
-                await MainActor.run {
-                    self.feedbacks = loadedReceived
-                    self.sentFeedbacks = loadedSent
-                    self.isLoadingFeedbacks = false
-                    print("✅ [PhotoDetailView] 피드백 로드 완료: 받음 \(loadedReceived.count)개, 보냄 \(loadedSent.count)개")
-
-                    // 자동으로 읽음 처리
-                    markAllFeedbacksAsRead()
-                }
-            } catch {
-                await MainActor.run {
-                    self.isLoadingFeedbacks = false
-                    print("❌ [PhotoDetailView] 피드백 로드 실패: \(error)")
-                }
+                // 자동으로 읽음 처리
+                markAllFeedbacksAsRead()
             }
         }
     }

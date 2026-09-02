@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 import AVFoundation
 import Photos
 
@@ -506,35 +507,16 @@ struct EmptyMealFeedbackSheet: View {
 
     var body: some View {
         NavigationView {
-            Group {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if feedbacks.isEmpty {
-                    Text("받은 피드백이 없습니다")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(feedbacks) { feedback in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(feedback.authorNickname)
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(feedback.createdAt, style: .relative)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            }
-                            Text(feedback.content)
-                                .font(.system(size: 15))
-                        }
-                        .padding(.vertical, 4)
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(feedback.authorNickname)님의 피드백: \(feedback.content)")
-                    }
-                    .listStyle(.plain)
-                }
+            ScrollView {
+                // 이모지 반응은 위에 모아 세고, 글은 시간순으로 쌓는다
+                FeedbackThreadView(
+                    feedbacks: feedbacks,
+                    myUserId: FriendManager.shared.myUserId,
+                    isLoading: isLoading,
+                    emptyText: "받은 응원이 없습니다"
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
             }
             .navigationTitle("\(dateString) \(mealType.rawValue)")
             .navigationBarTitleDisplayMode(.inline)
@@ -563,7 +545,9 @@ struct EmptyMealFeedbackSheet: View {
                 .background(Color(.systemBackground))
             }
             .task {
-                feedbacks = (try? await FriendManager.shared.getMyFeedbacks(date: date, mealType: mealType)) ?? []
+                feedbacks = (try? await FriendManager.shared.getFeedbackThread(
+                    ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType
+                )) ?? []
                 isLoading = false
                 // 열람했으므로 읽음 처리 (배지 해제)
                 try? await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)

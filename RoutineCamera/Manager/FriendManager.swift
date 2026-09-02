@@ -17,6 +17,7 @@ import Foundation
 import UIKit
 import CloudKit
 import Combine
+import RoutineCameraCore
 
 // 친구 모델
 struct Friend: Identifiable, Codable {
@@ -85,13 +86,17 @@ class FriendManager: ObservableObject {
     @Published var socialError: String?
     /// 친구 관계를 불러오는 중인지 (빈 목록과 로딩 중을 구분)
     @Published var isLoadingSocial = false
+    /// 피드백 푸시 구독 상태 (설정 화면에서 확인·재시도)
+    @Published var pushSubscriptionState: PushSubscriptionState = .unknown
 
     // MARK: - CloudKit
 
     static let userRecordType = "RCUser"
     static let mealRecordType = "Meal"
     static let feedbackRecordType = "Feedback"
-    private static let feedbackSubscriptionSavedKey = "feedbackSubscriptionUserId"
+    // v2: 1.0.8 에서 키를 올려 모든 기기가 한 번씩 재등록하도록 한다.
+    // 예전 구현이 등록 실패를 성공으로 찍어 둔 기기는 이 도장이 없어야만 되살아난다.
+    private static let feedbackSubscriptionSavedKey = "feedbackSubscriptionUserId.v2"
     private static let readFeedbackIdsKey = "readFeedbackIds"
 
     var database: CKDatabase {
@@ -838,6 +843,74 @@ class FriendManager: ObservableObject {
         }
     }
 
+    /// 한 끼니에 달린 피드백 **전부** 가져오기 (누가 남겼든)
+    ///
+    /// `getMyFeedbacks` 는 받는 사람이 나일 때만 쓸 수 있어서, 친구 식단을 보고 있을 때는
+    /// 내가 방금 남긴 응원조차 다시 볼 수 없었다. 여기서는 주인(`ownerId`)을 받아
+    /// 그 끼니의 대화 전체를 시간순(오래된 것 → 최근)으로 돌려준다.
+    /// 내 것인지는 `authorId == myUserId` 로 가른다.
+    func getFeedbackThread(ownerId: String, date: Date, mealType: MealType) async throws -> [MealFeedback] {
+        guard !ownerId.isEmpty else { return [] }
+
+        do {
+            let records = try await queryFeedbacks(field: "recipientId", value: ownerId,
+                                                   date: date, mealType: mealType)
+            let readIds = Self.readFeedbackIds()
+
+            let thread: [MealFeedback] = records.compactMap { record in
+                guard let authorId = record["authorId"] as? String,
+                      let content = record["content"] as? String,
+                      let createdAtTS = record["createdAtTS"] as? TimeInterval else {
+                    return nil
+                }
+
+                return MealFeedback(
+                    id: record.recordID.recordName,
+                    authorId: authorId,
+                    authorNickname: record["authorNickname"] as? String ?? "친구",
+                    content: content,
+                    createdAt: Date(timeIntervalSince1970: createdAtTS),
+                    // 내가 쓴 글은 언제나 읽은 것으로 둔다 (내 글에 안읽음 점이 붙으면 이상하다)
+                    isRead: authorId == myUserId || readIds.contains(record.recordID.recordName)
+                )
+            }
+
+            // 대화 순서 — 위에서 아래로 시간이 흐르게
+            return thread.sorted { $0.createdAt < $1.createdAt }
+        } catch {
+            print("❌ [FriendManager] 피드백 스레드 조회 실패: \(error.localizedDescription)")
+            throw NSError(domain: "FriendManager", code: -10,
+                          userInfo: [NSLocalizedDescriptionKey: Self.readableMessage(for: error)])
+        }
+    }
+
+    /// 이모지 반응 남기기.
+    ///
+    /// 반응도 Feedback 레코드다 — 저장·조회·푸시 경로를 글과 나눌 이유가 없고,
+    /// 무엇보다 운영 스키마를 건드리지 않아도 된다. 아직 업데이트하지 않은 친구의
+    /// 앱에서는 그냥 짧은 메시지로 읽힌다.
+    func addReaction(to friendId: String, date: Date, mealType: MealType, emoji: String) async throws {
+        guard FeedbackContent.isReaction(emoji) else {
+            throw NSError(domain: "FriendManager", code: -11,
+                          userInfo: [NSLocalizedDescriptionKey: "이모지가 아닙니다"])
+        }
+        try await addFeedback(to: friendId, date: date, mealType: mealType, content: emoji)
+    }
+
+    /// 내가 남긴 피드백 지우기.
+    ///
+    /// 공개 DB는 만든 사람만 지울 수 있으므로 남의 글에는 쓸 수 없다 —
+    /// 이모지 반응을 다시 눌러 취소할 때 쓴다.
+    func removeMyFeedback(id: String) async throws {
+        guard !id.isEmpty else { return }
+        do {
+            try await database.deleteRecord(withID: CKRecord.ID(recordName: id))
+        } catch {
+            throw NSError(domain: "FriendManager", code: -12,
+                          userInfo: [NSLocalizedDescriptionKey: Self.readableMessage(for: error)])
+        }
+    }
+
     /// 내가 보낸 피드백 목록 가져오기
     func getMySentFeedbacks(date: Date, mealType: MealType) async throws -> [SentFeedback] {
         guard !myUserId.isEmpty else { return [] }
@@ -929,42 +1002,77 @@ class FriendManager: ObservableObject {
 
     // MARK: - 피드백 푸시 구독
 
-    /// 내 앞으로 온 피드백에 대한 푸시 구독 등록. 같은 계정으로 이미 등록했으면 스킵.
-    /// CloudKit 구독 푸시는 서버·APNs 키 없이 Apple이 배달한다.
-    private func ensureFeedbackSubscription() {
+    /// 피드백 푸시 구독의 현재 상태 (설정 화면에서 보여 주고 다시 시도할 수 있게)
+    enum PushSubscriptionState: Equatable {
+        case unknown          // 아직 확인 전
+        case registering      // 등록 중
+        case ready            // 서버에 구독이 있음
+        case failed(String)   // 등록 실패 — 사유
+    }
+
+    static let feedbackSubscriptionID = "feedback-sub-"
+
+    /// 내 앞으로 온 피드백에 대한 푸시 구독 등록.
+    ///
+    /// ⚠️ 예전 구현은 등록 실패를 조용히 성공으로 삼켰다.
+    ///    `.serverRejectedRequest` 를 무조건 "이미 있음"으로 보고 UserDefaults 에 도장을 찍었는데,
+    ///    운영 스키마에 `Feedback.recipientId` 쿼리 인덱스가 없을 때도 같은 코드가 날아온다.
+    ///    한 번 그렇게 도장이 찍히면 다시는 재시도하지 않아 푸시가 영원히 오지 않았다.
+    ///    이제는 **서버에 실제로 구독이 있는지 확인한 뒤에만** 도장을 찍고,
+    ///    아니면 상태를 남겨 다음 실행에 다시 시도한다.
+    func ensureFeedbackSubscription(force: Bool = false) {
         guard !myUserId.isEmpty else { return }
 
-        if UserDefaults.standard.string(forKey: Self.feedbackSubscriptionSavedKey) == myUserId {
+        if !force, UserDefaults.standard.string(forKey: Self.feedbackSubscriptionSavedKey) == myUserId {
+            pushSubscriptionState = .ready
             return
         }
 
         let userId = myUserId
+        let subscriptionID = Self.feedbackSubscriptionID + userId
+        pushSubscriptionState = .registering
+
         _Concurrency.Task {
             do {
                 let predicate = NSPredicate(format: "recipientId == %@", userId)
                 let subscription = CKQuerySubscription(
                     recordType: Self.feedbackRecordType,
                     predicate: predicate,
-                    subscriptionID: "feedback-sub-\(userId)",
+                    subscriptionID: subscriptionID,
                     options: [.firesOnRecordCreation]
                 )
 
                 let info = CKSubscription.NotificationInfo()
-                info.title = "새 피드백이 도착했어요 💬"
-                info.alertBody = "친구가 내 식단에 메시지를 남겼어요. 확인해 보세요!"
+                info.title = "세끼"
+                info.alertBody = "친구가 내 식단에 응원을 남겼어요"
                 info.soundName = "default"
+                // 배지가 아니라 배너로 알린다 — 숫자만 늘면 무엇이 왔는지 알 수 없다
                 subscription.notificationInfo = info
 
                 _ = try await database.save(subscription)
                 UserDefaults.standard.set(userId, forKey: Self.feedbackSubscriptionSavedKey)
+                pushSubscriptionState = .ready
                 print("📡 [CloudKit] 피드백 푸시 구독 등록 완료")
-            } catch let error as CKError where error.code == .serverRejectedRequest {
-                // 동일 ID 구독이 이미 서버에 존재 - 등록된 것으로 간주
-                UserDefaults.standard.set(userId, forKey: Self.feedbackSubscriptionSavedKey)
-                print("📡 [CloudKit] 구독이 이미 존재함 - 스킵")
             } catch {
-                print("❌ [CloudKit] 구독 등록 실패: \(error.localizedDescription)")
+                // 저장이 거절됐다 — 정말 이미 있는 건지 서버에 물어본다.
+                // 있으면 성공, 없으면 실패로 남겨 다음에 다시 시도한다.
+                if (try? await database.subscription(for: subscriptionID)) != nil {
+                    UserDefaults.standard.set(userId, forKey: Self.feedbackSubscriptionSavedKey)
+                    pushSubscriptionState = .ready
+                    print("📡 [CloudKit] 구독이 이미 서버에 있음")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: Self.feedbackSubscriptionSavedKey)
+                    let reason = Self.readableMessage(for: error)
+                    pushSubscriptionState = .failed(reason)
+                    print("❌ [CloudKit] 구독 등록 실패: \(reason)")
+                }
             }
         }
+    }
+
+    /// 설정 화면의 "알림 다시 등록" — 도장을 지우고 처음부터 다시 시도한다
+    func retryFeedbackSubscription() {
+        UserDefaults.standard.removeObject(forKey: Self.feedbackSubscriptionSavedKey)
+        ensureFeedbackSubscription(force: true)
     }
 }

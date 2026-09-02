@@ -14,6 +14,7 @@ struct SettingsView: View {
     @ObservedObject var goalManager: GoalManager
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var settingsManager: SettingsManager
+    @ObservedObject private var friendManager = FriendManager.shared
     @Environment(\.dismiss) var dismiss
 
     @State private var showingSampleDataAlert = false
@@ -151,7 +152,52 @@ struct SettingsView: View {
             }
 
             Toggle("기록 시간 배너 표시", isOn: $settingsManager.autoOpenCamera)
+
+            friendPushRow
         }
+    }
+
+    /// 친구 응원 푸시가 실제로 걸려 있는지 보여 주고, 안 걸렸으면 다시 시도하게 한다.
+    ///
+    /// 이 알림은 CloudKit 구독이 배달하는데, 등록이 실패해도 예전에는 아무 표시가 없어
+    /// "왜 알림이 안 오지"를 확인할 방법이 없었다.
+    @ViewBuilder private var friendPushRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("친구 응원 알림")
+                Spacer()
+                switch friendManager.pushSubscriptionState {
+                case .ready:
+                    Label("켜짐", systemImage: "checkmark.circle.fill")
+                        .labelStyle(.titleAndIcon)
+                        .font(.system(size: 14))
+                        .foregroundColor(.green)
+                case .registering:
+                    ProgressView().scaleEffect(0.7)
+                case .failed:
+                    Label("꺼짐", systemImage: "exclamationmark.triangle.fill")
+                        .labelStyle(.titleAndIcon)
+                        .font(.system(size: 14))
+                        .foregroundColor(.orange)
+                case .unknown:
+                    Text("확인 중")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            if case .failed(let reason) = friendManager.pushSubscriptionState {
+                Text(reason)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("다시 등록") {
+                    friendManager.retryFeedbackSubscription()
+                }
+                .font(.system(size: 14))
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private func mealTimeRow(_ label: String, _ time: Binding<Date>) -> some View {
