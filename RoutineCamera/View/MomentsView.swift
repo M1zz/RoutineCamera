@@ -267,10 +267,13 @@ struct MomentsView: View {
                         tag("완료", system: "checkmark.circle.fill", color: .green)
                     } else {
                         // 상태는 하나만 — 마감된 식사 / 다 먹음 / 어떤 사진이 비었는지 명시
+                        // 식후 사진을 쓰지 않는 설정에서는 사진 한 장이 곧 마감이라 미마감 상태가 없다
                         if record.hasBeforeAfterComparison {
                             tag("식사 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.ateAll {
                             tag("다 먹음", system: "checkmark.circle.fill", color: .green)
+                        } else if !SettingsManager.shared.useAfterPhoto {
+                            tag("기록 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.isEatingInProgressToday {
                             // 식전만 찍힌 오늘 기록 — 무엇이 비었는지 그대로 말해준다
                             tag("식후 사진 기록 필요", system: "hourglass", color: .orange)

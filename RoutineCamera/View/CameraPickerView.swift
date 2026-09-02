@@ -24,10 +24,13 @@ struct CameraPickerView: View {
         self.mealStore = mealStore
         self._selectedPhotoType = selectedPhotoType
 
-        // 운동 모드일 때는 항상 before로 설정 (1장만 저장)
+        // 운동 모드이거나 식후 사진을 쓰지 않을 때는 항상 before로 (1장만 저장)
         if SettingsManager.shared.albumType == .exercise {
             self._localPhotoType = State(initialValue: .before)
             print("📸 [CameraPickerView] 운동 모드 - 사진 1장만 저장")
+        } else if !SettingsManager.shared.useAfterPhoto {
+            self._localPhotoType = State(initialValue: .before)
+            print("📸 [CameraPickerView] 식후 사진 사용 안 함 - 사진 1장만 저장")
         } else {
             // 식단 모드: 식전 사진이 이미 있으면 자동으로 식후 선택
             let meals = mealStore.getMeals(for: date)
@@ -46,8 +49,8 @@ struct CameraPickerView: View {
             // 상단 헤더 (ZStack으로 픽커를 정중앙에 고정)
             VStack(spacing: 0) {
                 ZStack {
-                    // 중앙: 식전/식후 선택 (식단 모드일 때만)
-                    if SettingsManager.shared.albumType == .diet {
+                    // 중앙: 식전/식후 선택 (식단 모드 + 식후 사진 사용 시에만)
+                    if SettingsManager.shared.albumType == .diet && SettingsManager.shared.useAfterPhoto {
                         Picker("", selection: $localPhotoType) {
                             Text("식전").tag(MealPhotoView.PhotoType.before)
                             Text("식후").tag(MealPhotoView.PhotoType.after)
@@ -134,7 +137,8 @@ struct CameraPickerView: View {
                 }
 
                 // 식전만 남긴 "먹는 중" 상태면 잠시 후 "다 드셨어요?" 알림 예약 (앱 안 열고 원탭)
-                if SettingsManager.shared.albumType == .diet, let saved = mealStore.getMeals(for: date)[mealType] {
+                if SettingsManager.shared.albumType == .diet, SettingsManager.shared.useAfterPhoto,
+                   let saved = mealStore.getMeals(for: date)[mealType] {
                     // 지난 날짜에 뒤늦게 남긴 기록에는 리마인더를 걸지 않는다
                     if saved.isEatingInProgressToday {
                         NotificationManager.shared.scheduleAteAllReminder(date: date, mealType: mealType)

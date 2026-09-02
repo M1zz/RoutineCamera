@@ -74,6 +74,8 @@ class NotificationManager: ObservableObject {
     // 식전만 찍었을 때, 잠시 후 "다 드셨어요?" 알림 → 알림에서 바로 '다 먹음' 원탭
     func scheduleAteAllReminder(date: Date, mealType: MealType, afterMinutes: Double = 90) {
         guard notificationsEnabled else { return }
+        // 식후 기록을 쓰지 않는 사용자에게는 마감을 재촉하지 않는다
+        guard SettingsManager.shared.useAfterPhoto else { return }
         let content = UNMutableNotificationContent()
         content.title = "🍽️ 다 드셨어요?"
         content.body = "\(mealType.rawValue), 다 먹었으면 여기서 바로 남겨요."
@@ -99,6 +101,17 @@ class NotificationManager: ObservableObject {
         let dayKey = Calendar.current.startOfDay(for: date).timeIntervalSince1970
         let id = "ateall-\(mealType.rawValue)-\(dayKey)"
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+    }
+
+    // 예약돼 있는 "다 드셨어요?" 알림 전부 취소 (식후 기록을 끌 때)
+    func cancelAllAteAllReminders() {
+        let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { requests in
+            let ids = requests.map(\.identifier).filter { $0.hasPrefix("ateall-") }
+            guard !ids.isEmpty else { return }
+            center.removePendingNotificationRequests(withIdentifiers: ids)
+            print("🔕 [알림] 다먹음 리마인더 \(ids.count)건 취소")
+        }
     }
 
     private static func createTime(hour: Int, minute: Int) -> Date {

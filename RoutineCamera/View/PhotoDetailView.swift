@@ -63,6 +63,33 @@ struct PhotoDetailView: View {
                                 showingAddPhotoSheet = true
                             }
                         }
+                    } else if !SettingsManager.shared.useAfterPhoto {
+                        // 식후 사진을 쓰지 않는 설정: 식전 한 장만 보여준다
+                        if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
+                            Image(uiImage: beforeImage)
+                                .resizable()
+                                .scaledToFit()
+                                .accessibilityLabel("\(mealType.rawValue) 기록 사진")
+                        } else {
+                            VStack(spacing: 12) {
+                                Image(systemName: "photo")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.gray)
+                                    .accessibilityHidden(true)
+                                Text("사진 없음")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.secondary)
+                                Text("탭하여 사진 추가")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.blue)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color(.systemGray6))
+                            .onTapGesture {
+                                selectedPhotoType = .before
+                                showingAddPhotoSheet = true
+                            }
+                        }
                     } else {
                         // 식단 모드: 식전/식후 TabView
                         TabView(selection: $currentPage) {
@@ -139,8 +166,8 @@ struct PhotoDetailView: View {
                             Text(isExercise ? "운동" : mealType.rawValue)
                                 .font(.system(size: 24, weight: .bold))
                                 .lineLimit(1)
-                            // 식단 모드일 때만 식전/식후 표시
-                            if !isExercise {
+                            // 식단 모드 + 식후 사진을 쓸 때만 식전/식후 표시
+                            if !isExercise && SettingsManager.shared.useAfterPhoto {
                                 Text(currentPage == 0 ? "식전" : "식후")
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.secondary)
@@ -259,8 +286,8 @@ struct PhotoDetailView: View {
                             }
                         }
 
-                        // 식단 모드이고 사진이 1장만 있을 때 토글 표시
-                        if SettingsManager.shared.albumType == .diet {
+                        // 식단 모드이고 사진이 1장만 있을 때 토글 표시 (식후를 쓸 때만 의미가 있다)
+                        if SettingsManager.shared.albumType == .diet && SettingsManager.shared.useAfterPhoto {
                             let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
                             if photoCount == 1 {
                                 Divider()

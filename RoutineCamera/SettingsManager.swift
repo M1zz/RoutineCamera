@@ -44,6 +44,18 @@ class SettingsManager: ObservableObject {
     }
     
 
+    // 식후 사진을 남길지. 끄면 식전 한 장으로 기록이 끝나고,
+    // 식후 촬영 안내·"다 드셨어요?" 알림·남은 사진 뱃지가 모두 사라진다.
+    @Published var useAfterPhoto: Bool {
+        didSet {
+            UserDefaults.standard.set(useAfterPhoto, forKey: "useAfterPhoto")
+            if !useAfterPhoto {
+                // 이미 예약된 "다 드셨어요?" 알림도 정리한다
+                NotificationManager.shared.cancelAllAteAllReminders()
+            }
+        }
+    }
+
     @Published var showRemainingPhotoCount: Bool {
         didSet {
             UserDefaults.standard.set(showRemainingPhotoCount, forKey: "showRemainingPhotoCount")
@@ -111,12 +123,26 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    // 친구·그룹 화면에서 상대에게 보이는 이름
     @Published var nickname: String = "사용자" {
         didSet {
+            guard nickname != oldValue else { return }
             UserDefaults.standard.set(nickname, forKey: "userNickname")
-            // CloudKit에도 저장
-            saveNicknameToCloud()
+            // CloudKit에도 저장 (한 글자마다 올리지 않도록 잠시 모았다가)
+            scheduleNicknameSync()
         }
+    }
+
+    /// 화면에 표시할 이름. 공백만 남았거나 비어 있으면 기본값으로 보여준다.
+    var displayNickname: String {
+        let trimmed = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "사용자" : trimmed
+    }
+
+    /// 편집을 마쳤을 때 부르는 커밋. 앞뒤 공백을 정리하고, 빈 이름은 기본값으로 되돌린다.
+    func commitNickname(_ raw: String) {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        nickname = trimmed.isEmpty ? "사용자" : String(trimmed.prefix(20))
     }
 
     // 앱을 처음 실행한 날 (이 날 이전의 과거 날짜는 "거른 끼니"로 판정하지 않음)
@@ -144,6 +170,8 @@ class SettingsManager: ObservableObject {
         // 기본값은 true (기존 동작 유지)
         self.autoSaveToPhotoLibrary = UserDefaults.standard.object(forKey: "autoSaveToPhotoLibrary") as? Bool ?? true
         self.writeSnack = UserDefaults.standard.object(forKey: "writeSnack") as? Bool ?? true
+        // 기본값 true (기존 식전·식후 흐름 유지)
+        self.useAfterPhoto = UserDefaults.standard.object(forKey: "useAfterPhoto") as? Bool ?? true
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
         self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
         self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
@@ -179,6 +207,18 @@ class SettingsManager: ObservableObject {
         print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
         print("   - 무료 분석 잔여: \(self.freeAnalysisCount)회")
         print("   - 닉네임: \(self.nickname)")
+    }
+
+    // 타이핑 중에는 CloudKit 왕복을 하지 않는다 — 마지막 입력에서 1초 쉬면 그때 한 번만 올린다
+    private var nicknameSyncTask: Task<Void, Never>?
+
+    private func scheduleNicknameSync() {
+        nicknameSyncTask?.cancel()
+        nicknameSyncTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            guard !Task.isCancelled, let self else { return }
+            self.saveNicknameToCloud()
+        }
     }
 
     // CloudKit에 닉네임 저장

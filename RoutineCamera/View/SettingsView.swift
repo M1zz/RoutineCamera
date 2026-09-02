@@ -18,6 +18,9 @@ struct SettingsView: View {
 
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
+    // 타이핑 중에는 로컬 값만 바꾸고 편집을 마칠 때 반영 (한 글자마다 iCloud에 올리지 않도록)
+    @State private var nicknameDraft = ""
+    @FocusState private var isNicknameFocused: Bool
 
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
@@ -47,10 +50,27 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") { dismiss() }
+                    Button("완료") {
+                        commitNickname()
+                        dismiss()
+                    }
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") {
+                        commitNickname()
+                        isNicknameFocused = false
+                    }
                 }
             }
+            .onAppear { nicknameDraft = settingsManager.displayNickname }
+            .onDisappear { commitNickname() }
         }
+    }
+
+    private func commitNickname() {
+        settingsManager.commitNickname(nicknameDraft)
+        nicknameDraft = settingsManager.displayNickname
     }
 
     // MARK: - 화면 & 기록 종류
@@ -70,6 +90,13 @@ struct SettingsView: View {
                     ? "운동 사진을 기록합니다. 식단과 운동은 별도로 저장돼요."
                     : "식단 사진을 기록합니다. 켜면 운동 기록으로 전환돼요.")
 
+            if settingsManager.albumType == .diet {
+                Toggle("식후 사진 남기기", isOn: $settingsManager.useAfterPhoto)
+                caption(settingsManager.useAfterPhoto
+                        ? "식전·식후 두 장으로 기록합니다. 다 먹은 뒤 \"다 드셨어요?\" 알림을 받아요."
+                        : "식전 사진 한 장으로 기록이 끝납니다. 식후 촬영 안내와 알림을 받지 않아요.")
+            }
+
             Toggle("헤더에 종류 전환 버튼", isOn: $settingsManager.showAlbumSwitcher)
         }
     }
@@ -80,7 +107,9 @@ struct SettingsView: View {
         Section(header: Text("표시")) {
             if settingsManager.albumType == .diet {
                 Toggle("간식 보이기", isOn: $settingsManager.writeSnack)
-                Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)
+                if settingsManager.useAfterPhoto {
+                    Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)
+                }
             }
             Toggle("메모 아이콘 표시", isOn: $settingsManager.showMemoIcon)
         }
@@ -173,12 +202,16 @@ struct SettingsView: View {
             caption("켜면 내 식단이 iCloud에 업로드되어 친구가 볼 수 있습니다.")
 
             HStack {
-                Text("닉네임")
+                Text("친구에게 보이는 이름")
                 Spacer()
-                TextField("닉네임 입력", text: $settingsManager.nickname)
+                TextField("이름 입력", text: $nicknameDraft)
                     .multilineTextAlignment(.trailing)
                     .foregroundColor(.secondary)
+                    .focused($isNicknameFocused)
+                    .submitLabel(.done)
+                    .onSubmit { commitNickname() }
             }
+            caption("친구·그룹 화면에서 상대에게 이 이름으로 보입니다.")
 
             NavigationLink {
                 MealBackfillView()

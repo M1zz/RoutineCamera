@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
+    @ObservedObject var settingsManager = SettingsManager.shared
     @State private var showingAddFriend = false
     @State private var friendCode = ""
     @State private var showingError = false
@@ -30,10 +31,53 @@ struct FriendsView: View {
         }
     }
 
+    // 친구에게 보이는 내 이름. 이 화면을 열면 바로 확인되고, 수정은 계정 설정에서 한다.
+    private var myNicknameRow: some View {
+        Button {
+            showingAccountSettings = true
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundColor(.blue)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("친구에게 보이는 이름")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                    Text(settingsManager.displayNickname)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Text("변경")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.blue)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("친구에게 보이는 이름, \(settingsManager.displayNickname)")
+        .accessibilityHint("두 번 탭하여 이름 변경")
+    }
+
     private var friendsContentView: some View {
         VStack(spacing: 0) {
                 // 내 코드 섹션
                 VStack(spacing: 12) {
+                    myNicknameRow
+
                     Text("내 친구 코드")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.secondary)
@@ -1734,6 +1778,11 @@ struct AccountSettingsSheet: View {
     let onDeleteAccount: () -> Void
     @Environment(\.dismiss) var dismiss
     @ObservedObject var friendManager = FriendManager.shared
+    @ObservedObject var settingsManager = SettingsManager.shared
+
+    // 타이핑하는 동안은 로컬 값만 바꾸고, 편집을 마칠 때 한 번 반영한다
+    @State private var nicknameDraft = ""
+    @FocusState private var isNicknameFocused: Bool
 
     var body: some View {
         NavigationView {
@@ -1756,6 +1805,23 @@ struct AccountSettingsSheet: View {
                         .padding(.leading, 8)
                     }
                     .padding(.vertical, 8)
+                }
+
+                // 친구에게 보이는 이름
+                Section {
+                    HStack {
+                        Text("이름")
+                        Spacer()
+                        TextField("이름 입력", text: $nicknameDraft)
+                            .multilineTextAlignment(.trailing)
+                            .focused($isNicknameFocused)
+                            .submitLabel(.done)
+                            .onSubmit { commitNickname() }
+                    }
+                } header: {
+                    Text("친구에게 보이는 이름")
+                } footer: {
+                    Text("친구·그룹 화면에서 상대에게 이 이름으로 보입니다. 최대 20자.")
                 }
 
                 // 내 친구 코드
@@ -1808,11 +1874,26 @@ struct AccountSettingsSheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("완료") {
+                        commitNickname()
                         dismiss()
                     }
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") {
+                        commitNickname()
+                        isNicknameFocused = false
+                    }
+                }
             }
+            .onAppear { nicknameDraft = settingsManager.displayNickname }
+            .onDisappear { commitNickname() }
         }
+    }
+
+    private func commitNickname() {
+        settingsManager.commitNickname(nicknameDraft)
+        nicknameDraft = settingsManager.displayNickname
     }
 }
 
