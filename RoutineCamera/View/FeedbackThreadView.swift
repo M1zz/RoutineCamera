@@ -241,6 +241,9 @@ struct FriendFeedbackSection: View {
     let friendId: String
     let date: Date
     let mealType: MealType
+    /// 음식 기록에 남기는 응원인지 운동 기록에 남기는 응원인지.
+    /// 같은 날 같은 끼니라도 둘은 별개의 대화다.
+    var album: AlbumType = .diet
 
     @StateObject private var friendManager = FriendManager.shared
     @State private var feedbackText: String = ""
@@ -380,7 +383,7 @@ struct FriendFeedbackSection: View {
         Task {
             do {
                 try await friendManager.addFeedback(
-                    to: friendId, date: date, mealType: mealType, content: trimmed
+                    to: friendId, date: date, mealType: mealType, content: trimmed, album: album
                 )
                 if trimmed == trimmedText { feedbackText = "" }
                 await loadThread()
@@ -396,7 +399,7 @@ struct FriendFeedbackSection: View {
         threadError = nil
         do {
             feedbacks = try await friendManager.getFeedbackThread(
-                ownerId: friendId, date: date, mealType: mealType
+                ownerId: friendId, date: date, mealType: mealType, album: album
             )
         } catch {
             threadError = error.localizedDescription

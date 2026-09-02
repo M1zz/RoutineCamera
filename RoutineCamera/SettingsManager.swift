@@ -19,6 +19,27 @@ enum AlbumType: String, CaseIterable, Codable {
         case .exercise: return "figure.run"
         }
     }
+
+    /// 친구 화면에서 쓰는 이름 ("식단"보다 "음식"이 운동과 나란히 놓였을 때 읽기 쉽다)
+    var shareTitle: String {
+        switch self {
+        case .diet: return "음식"
+        case .exercise: return "운동"
+        }
+    }
+
+    /// CloudKit `Meal` 레코드 이름의 접미사.
+    ///
+    /// 식단은 **접미사가 없다** — 1.0.7까지 올라간 레코드가 그 이름이라 그대로 둬야
+    /// 아직 업데이트하지 않은 친구의 앱에서도 계속 보인다.
+    /// 운동은 `_ex` 를 붙여 같은 날 같은 끼니라도 식단과 겹치지 않게 한다.
+    /// (레코드는 쿼리가 아니라 이름으로 직접 가져오므로 운영 스키마를 건드릴 필요가 없다)
+    var recordSuffix: String {
+        switch self {
+        case .diet: return ""
+        case .exercise: return "_ex"
+        }
+    }
 }
 
 class SettingsManager: ObservableObject {

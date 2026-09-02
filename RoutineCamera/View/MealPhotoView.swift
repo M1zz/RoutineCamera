@@ -331,7 +331,8 @@ struct MealPhotoView: View {
     private func loadUnreadFeedbackCount() {
         Task {
             do {
-                let count = try await FriendManager.shared.getUnreadFeedbackCount(date: date, mealType: mealType)
+                let count = try await FriendManager.shared.getUnreadFeedbackCount(
+                    date: date, mealType: mealType, album: SettingsManager.shared.albumType)
                 await MainActor.run {
                     self.unreadFeedbackCount = count
                 }
@@ -546,11 +547,13 @@ struct EmptyMealFeedbackSheet: View {
             }
             .task {
                 feedbacks = (try? await FriendManager.shared.getFeedbackThread(
-                    ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType
+                    ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType,
+                    album: SettingsManager.shared.albumType
                 )) ?? []
                 isLoading = false
                 // 열람했으므로 읽음 처리 (배지 해제)
-                try? await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)
+                try? await FriendManager.shared.markAllFeedbacksAsRead(
+                    date: date, mealType: mealType, album: SettingsManager.shared.albumType)
             }
         }
     }

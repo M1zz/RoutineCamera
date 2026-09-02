@@ -608,10 +608,15 @@ extension FriendManager {
         let dateString = dateFormatter.string(from: date)
         var owners: [CKRecord.ID: (userId: String, mealType: MealType)] = [:]
 
+        // 음식과 운동 둘 다 센다. 운동만 하는 멤버가 "미기록"으로 보이면 안 된다 —
+        // 그룹 화면이 답해야 하는 건 "오늘 뭐라도 남겼나"이지 "밥을 먹었나"가 아니다.
         for userId in userIds {
-            for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))")
-                owners[id] = (userId, mealType)
+            for album in AlbumType.allCases {
+                for mealType in MealType.allCases {
+                    let id = CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album))
+                    owners[id] = (userId, mealType)
+                }
             }
         }
 
@@ -669,23 +674,31 @@ extension FriendManager {
         }
         guard !missing.isEmpty else { return out }
 
-        // 2. 남은 사람들의 레코드 ID를 100개씩 묶어 조회
+        // 2. 남은 사람들의 레코드 ID를 100개씩 묶어 조회 (음식·운동 모두)
         var recordIDs: [CKRecord.ID] = []
         for userId in missing {
-            for mealType in MealType.allCases {
-                recordIDs.append(CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))"))
+            for album in AlbumType.allCases {
+                for mealType in MealType.allCases {
+                    recordIDs.append(CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album)))
+                }
             }
         }
 
         let fetched = try await fetchRecordsInChunks(recordIDs)
 
         // 3. 사람별로 정리 + 캐시 저장
+        //    한 끼니 자리에는 하나만 담을 수 있어 음식을 우선하고, 없으면 운동으로 채운다.
+        //    (운동만 하는 멤버의 하루가 통째로 비어 보이지 않게)
         for userId in missing {
             var meals: [MealType: MealRecord] = [:]
-            for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))")
-                guard case .success(let record)? = fetched[id] else { continue }
-                meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
+            for album in [AlbumType.diet, .exercise] {
+                for mealType in MealType.allCases where meals[mealType] == nil {
+                    let id = CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album))
+                    guard case .success(let record)? = fetched[id] else { continue }
+                    meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
+                }
             }
             out[userId] = meals
             cacheMeals(meals, friendId: userId, dateString: dateString)
@@ -697,16 +710,18 @@ extension FriendManager {
 
     /// 한 친구의 여러 날짜 식단을 한 번에 조회.
     /// 기록이 없는 날도 빈 값으로 돌려주므로, 화면에서 "없는 날"을 숨기면서도 같은 날을 다시 요청하지 않는다.
-    func loadFriendMealsBatch(friendId: String, dates: [Date]) async throws -> [Date: [MealType: MealRecord]] {
+    func loadFriendMealsBatch(friendId: String, dates: [Date],
+                              album: AlbumType = .diet) async throws -> [Date: [MealType: MealRecord]] {
         var out: [Date: [MealType: MealRecord]] = [:]
         var missing: [Date] = []
 
         for date in dates {
-            let dateString = dateFormatter.string(from: date)
-            let cacheKey = "\(friendId)_\(dateString)" as NSString
+            // 캐시 키에 앨범을 섞는다 — 음식 탭이 받아 둔 것을 운동 탭이 쓰면 안 된다
+            let cacheDateKey = dateFormatter.string(from: date) + album.recordSuffix
+            let cacheKey = "\(friendId)_\(cacheDateKey)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[date] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: dateString, date: date) {
+            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: cacheDateKey, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[date] = disk
             } else {
@@ -719,7 +734,8 @@ extension FriendManager {
         for date in missing {
             let dateString = dateFormatter.string(from: date)
             for mealType in MealType.allCases {
-                recordIDs.append(CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))"))
+                recordIDs.append(CKRecord.ID(recordName: Self.mealRecordName(
+                    userId: friendId, dateString: dateString, mealType: mealType, album: album)))
             }
         }
 
@@ -729,12 +745,13 @@ extension FriendManager {
             let dateString = dateFormatter.string(from: date)
             var meals: [MealType: MealRecord] = [:]
             for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))")
+                let id = CKRecord.ID(recordName: Self.mealRecordName(
+                    userId: friendId, dateString: dateString, mealType: mealType, album: album))
                 guard case .success(let record)? = fetched[id] else { continue }
                 meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
             }
             out[date] = meals
-            cacheMeals(meals, friendId: friendId, dateString: dateString)
+            cacheMeals(meals, friendId: friendId, dateString: dateString + album.recordSuffix)
         }
 
         print("🌐 [CloudKit] 친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")

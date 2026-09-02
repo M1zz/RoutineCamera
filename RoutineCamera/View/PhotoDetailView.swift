@@ -598,8 +598,9 @@ struct PhotoDetailView: View {
             // 예전에는 "받은 피드백"과 "내가 보낸 피드백"을 따로 불러왔는데, 뒤엣것은
             // `authorId == 나 AND 같은 날짜·끼니` 라서 **내가 그날 그 끼니에 남 아무에게나 보낸 글**이
             // 내 식단 밑에 딸려 나왔다. 이 식사와 아무 상관 없는 글이었다.
+            let album = SettingsManager.shared.albumType
             let loaded = (try? await FriendManager.shared.getFeedbackThread(
-                ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType
+                ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType, album: album
             )) ?? []
 
             await MainActor.run {
@@ -617,7 +618,8 @@ struct PhotoDetailView: View {
     private func markAllFeedbacksAsRead() {
         Task {
             do {
-                try await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)
+                try await FriendManager.shared.markAllFeedbacksAsRead(
+                    date: date, mealType: mealType, album: SettingsManager.shared.albumType)
                 print("✅ [PhotoDetailView] 피드백 읽음 처리 완료")
 
                 // 읽음 상태 업데이트

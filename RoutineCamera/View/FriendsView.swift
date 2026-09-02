@@ -757,11 +757,13 @@ struct AddFriendSheet: View {
     }
 }
 
-// 친구 식단 보기 뷰
+// 친구 기록 보기 뷰 (음식 / 운동)
 struct FriendMealsView: View {
     let friend: Friend
     @ObservedObject var friendManager = FriendManager.shared
-    @State private var viewMode: ViewMode = .timeline
+    /// 음식 / 운동 — 무엇을 보여줄지. 예전에는 타임라인/그리드(보기 방식)였는데,
+    /// 보기 방식보다 "무엇을 보는지"가 먼저 정해져야 할 선택이라 바꿨다.
+    @State private var album: AlbumType = .diet
     @State private var dateList: [Date] = []
     @State private var loadedPastDays = 7
     @State private var isLoadingPast = false
@@ -772,48 +774,35 @@ struct FriendMealsView: View {
     /// 기록 없는 날은 건너뛰며 과거로 확장하되, 여기까지만 거슬러 올라간다
     static let maxLookbackDays = 365
 
-    enum ViewMode {
-        case timeline
-        case grid
-    }
-
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 뷰 모드 선택 탭
-                Picker("보기 모드", selection: $viewMode) {
-                    Label("타임라인", systemImage: "list.bullet")
-                        .tag(ViewMode.timeline)
-                    Label("그리드", systemImage: "square.grid.2x2")
-                        .tag(ViewMode.grid)
+                // 무엇을 볼지 — 음식 / 운동
+                Picker("보기", selection: $album) {
+                    ForEach(AlbumType.allCases, id: \.self) { type in
+                        Label(type.shareTitle, systemImage: type.symbolName)
+                            .tag(type)
+                    }
                 }
                 .pickerStyle(.segmented)
                 .padding()
 
                 Divider()
 
-                // 선택된 모드에 따라 다른 뷰 표시
-                if viewMode == .timeline {
-                    TimelineView(
-                        friend: friend,
-                        friendManager: friendManager,
-                        dateList: $dateList,
-                        loadedPastDays: $loadedPastDays,
-                        isLoadingPast: $isLoadingPast,
-                        allMeals: $allMeals,
-                        currentVisibleDate: $currentVisibleDate,
-                        loadMorePastDates: loadMorePastDates,
-                        onRefresh: refreshLoadedDates
-                    )
-                } else {
-                    GridView(
-                        friend: friend,
-                        friendManager: friendManager,
-                        allMeals: $allMeals
-                    )
-                }
+                TimelineView(
+                    friend: friend,
+                    album: album,
+                    friendManager: friendManager,
+                    dateList: $dateList,
+                    loadedPastDays: $loadedPastDays,
+                    isLoadingPast: $isLoadingPast,
+                    allMeals: $allMeals,
+                    currentVisibleDate: $currentVisibleDate,
+                    loadMorePastDates: loadMorePastDates,
+                    onRefresh: refreshLoadedDates
+                )
             }
-            .navigationTitle("\(friend.name)의 식단")
+            .navigationTitle("\(friend.name)의 \(album.shareTitle)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -824,6 +813,11 @@ struct FriendMealsView: View {
             }
             .onAppear {
                 initializeDateList()
+                loadInitialMeals()
+            }
+            .onChange(of: album) { _, _ in
+                // 앨범이 바뀌면 보여줄 것이 통째로 달라진다 — 쌓아 둔 것을 비우고 다시 받는다
+                allMeals = [:]
                 loadInitialMeals()
             }
         }
@@ -881,12 +875,13 @@ struct FriendMealsView: View {
         guard !dates.isEmpty else { return }
 
         do {
-            let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
+            let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates,
+                                                                      album: album)
             await MainActor.run {
                 for (date, meals) in loaded { allMeals[date] = meals }
             }
         } catch {
-            print("❌ 식단 로드 실패: \(error)")
+            print("❌ 기록 로드 실패: \(error)")
             await MainActor.run {
                 for date in dates where allMeals[date] == nil { allMeals[date] = [:] }
             }
@@ -897,6 +892,8 @@ struct FriendMealsView: View {
 // 타임라인 뷰 — 기록이 있는 날만 보여준다 (빈 날은 아예 숨김)
 struct TimelineView: View {
     let friend: Friend
+    /// 지금 보고 있는 탭 (음식/운동). 응원이 엉뚱한 기록에 달리지 않도록 끝까지 따라간다.
+    var album: AlbumType = .diet
     @ObservedObject var friendManager: FriendManager
     @Binding var dateList: [Date]
     @Binding var loadedPastDays: Int
@@ -905,6 +902,12 @@ struct TimelineView: View {
     @Binding var currentVisibleDate: Date
     let loadMorePastDates: () -> Void
     let onRefresh: () async -> Void
+
+    /// 오늘 기록이 아직 하나도 없는지
+    private var todayIsEmpty: Bool {
+        let today = Calendar.current.startOfDay(for: Date())
+        return (allMeals[today]?.isEmpty ?? true)
+    }
 
     /// 기록이 남아 있는 날짜만
     private var recordedDates: [Date] {
@@ -958,6 +961,13 @@ struct TimelineView: View {
     private var timeline: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
+                // 오늘 아직 아무것도 안 올렸으면 콕 찌를 자리를 준다.
+                // 타임라인은 기록이 있는 날만 보여주므로, 이 줄이 없으면 "안 한 사람"을
+                // 재촉할 방법이 아예 사라진다 (예전에는 그리드의 빈 칸이 그 역할을 했다).
+                if todayIsEmpty && !isLoadingPast {
+                    NudgeTodayRow(friend: friend, album: album)
+                }
+
                 if recordedDates.isEmpty && !isLoadingPast {
                     emptyState
                 }
@@ -1007,7 +1017,7 @@ struct TimelineView: View {
                 .foregroundColor(.gray)
                 .accessibilityHidden(true)
 
-            Text("아직 기록이 없어요")
+            Text("아직 \(album.shareTitle) 기록이 없어요")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.secondary)
         }
@@ -1042,435 +1052,111 @@ struct TimelineView: View {
     }
 }
 
-// 그리드 뷰 (ContentView 스타일)
-struct GridView: View {
+/// 오늘 아직 기록이 없는 친구를 재촉하는 줄.
+///
+/// 예전에는 그리드의 빈 칸을 눌러 콕 찌르거나 응원을 남겼는데, 그리드를 없애면서
+/// 그 길이 사라졌다. 타임라인은 기록이 있는 날만 그리기 때문이다.
+struct NudgeTodayRow: View {
     let friend: Friend
-    @ObservedObject var friendManager: FriendManager
-    @Binding var allMeals: [Date: [MealType: MealRecord]]
+    var album: AlbumType = .diet
 
-    @State private var loadingDates: Set<String> = []
-    private let calendar = Calendar.current
+    @State private var showingMealPicker = false
+    @State private var commentTarget: MealType?
+    @State private var pokingMeal: MealType?
+    @State private var pokedMeals: Set<MealType> = []
 
-    var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 4) {
-                // 최근 30일간의 식단 표시 (최신순 - 위에서부터 오늘, 어제, 그제...)
-                ForEach(datesForGrid, id: \.self) { date in
-                    let dateString = dateFormatter.string(from: date)
-                    let meals = allMeals[date] ?? [:]
-                    let isLoading = loadingDates.contains(dateString)
+    private var today: Date { Calendar.current.startOfDay(for: Date()) }
 
-                    if isLoading {
-                        // 로딩 중
-                        LoadingGridDayView(date: date)
-                    } else if !meals.isEmpty {
-                        // 데이터 있을 때만 표시
-                        FriendGridDayView(
-                            date: date,
-                            meals: meals,
-                            friend: friend
-                        )
-                    } else {
-                        // 데이터 없음 - 한 번만 로드 시도
-                        Color.clear
-                            .frame(height: 1)
-                            .onAppear {
-                                // 한 번도 로드 안 했으면 시도
-                                if allMeals[date] == nil && !loadingDates.contains(dateString) {
-                                    loadMealsForDate(date)
-                                }
-                            }
-                    }
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 2)
-        }
-        .onAppear {
-            // 초기 로드 (캐시된 데이터 우선)
-            loadInitialGridData()
-        }
-    }
-
-    private var datesForGrid: [Date] {
-        let today = calendar.startOfDay(for: Date())
-        return (0..<30).compactMap { offset in
-            calendar.date(byAdding: .day, value: -offset, to: today)
-        }
-    }
-
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }
-
-    private func loadInitialGridData() {
-        // 30일치를 한 번에 배치 조회 (하루씩 왕복하지 않는다. 캐시된 날은 네트워크를 타지 않음)
-        let dates = datesForGrid.filter { allMeals[$0] == nil }
-        guard !dates.isEmpty else { return }
-
-        _Concurrency.Task {
-            do {
-                let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: dates)
-                await MainActor.run {
-                    for (date, meals) in loaded { allMeals[date] = meals }
-                }
-            } catch {
-                print("❌ [그리드] 배치 로드 실패: \(error)")
-            }
-        }
-    }
-
-    private func loadMealsForDate(_ date: Date) {
-        let dateString = dateFormatter.string(from: date)
-
-        // 이미 로딩 중이거나 체크 완료면 스킵
-        guard !loadingDates.contains(dateString), allMeals[date] == nil else { return }
-
-        loadingDates.insert(dateString)
-
-        _Concurrency.Task {
-            do {
-                // 캐시에서 먼저 로드 시도 (빠름!)
-                let meals = try await friendManager.loadFriendMeals(friendId: friend.id, date: date)
-                await MainActor.run {
-                    // 결과가 있든 없든 저장 (빈 딕셔너리 = 체크 완료, 데이터 없음)
-                    allMeals[date] = meals
-                    _ = loadingDates.remove(dateString)
-
-                    if meals.isEmpty {
-                        print("ℹ️ [그리드] \(dateString): 데이터 없음")
-                    } else {
-                        print("✅ [그리드] \(dateString): \(meals.count)개 식단")
-                    }
-                }
-            } catch {
-                print("❌ 식단 로드 실패 (\(dateString)): \(error)")
-                await MainActor.run {
-                    // 에러 발생 시에도 빈 딕셔너리 저장 (재시도 방지)
-                    allMeals[date] = [:]
-                    _ = loadingDates.remove(dateString)
-                }
-            }
-        }
-    }
-}
-
-// 로딩 중 그리드 뷰
-struct LoadingGridDayView: View {
-    let date: Date
-
-    private let calendar = Calendar.current
-
-    private var isToday: Bool {
-        calendar.isDateInToday(date)
-    }
-
-    private var photoSize: CGFloat {
-        let screenWidth = UIScreen.appWidth
-        let totalPadding: CGFloat = 16 + 16
-        let spacing: CGFloat = 4 * 2
-        return (screenWidth - totalPadding - spacing) / 3
-    }
+    /// 재촉할 끼니 — 운동은 끼니 개념이 흐리므로 정규 세 끼만 고르게 한다
+    private var pokeTargets: [MealType] { [.breakfast, .lunch, .dinner] }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 날짜 헤더
-            HStack {
-                Text(date, format: .dateTime.month().day().weekday(.wide))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-
-                ProgressView()
-                    .scaleEffect(0.7)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "hand.point.right.fill")
+                    .foregroundColor(.orange)
+                    .accessibilityHidden(true)
+                Text("\(friend.name)님이 오늘 아직 \(album.shareTitle) 기록이 없어요")
+                    .font(.system(size: 14, weight: .semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color(.systemGray6))
 
-            // 로딩 셀들
-            HStack(spacing: 4) {
-                ForEach(0..<3, id: \.self) { _ in
-                    ZStack {
-                        Color(.systemGray6)
-
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
-                    .frame(width: photoSize, height: photoSize)
-                    .cornerRadius(8)
+            HStack(spacing: 8) {
+                Button {
+                    showingMealPicker = true
+                } label: {
+                    Label("콕 찌르기", systemImage: "hand.point.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(Color.orange.opacity(0.15)))
+                        .foregroundColor(.orange)
                 }
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemBackground))
-            )
-        }
-        .padding(.vertical, 2)
-    }
-}
+                .disabled(pokingMeal != nil)
 
-// 그리드용 날짜별 뷰 (ContentView의 DailySectionView 스타일)
-struct FriendGridDayView: View {
-    let date: Date
-    let meals: [MealType: MealRecord]
-    let friend: Friend
-
-    private let calendar = Calendar.current
-
-    private var isToday: Bool {
-        calendar.isDateInToday(date)
-    }
-
-    private var photoSize: CGFloat {
-        let screenWidth = UIScreen.appWidth
-        let totalPadding: CGFloat = 16 + 16 // 좌우 패딩
-        let spacing: CGFloat = 4 * 2 // 3개 사이 간격
-        return (screenWidth - totalPadding - spacing) / 3
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            // 날짜 헤더
-            HStack {
-                Text(date, format: .dateTime.month().day().weekday(.wide))
-                    .font(.subheadline)
-                    .foregroundColor(isToday ? .blue : .secondary)
-                    .fontWeight(isToday ? .semibold : .regular)
-                Spacer()
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color(.systemGray6))
-
-            // 식단 사진 행
-            HStack(spacing: 4) {
-                ForEach([MealType.breakfast, .lunch, .dinner], id: \.self) { mealType in
-                    if let meal = meals[mealType] {
-                        FriendMealPhotoCell(meal: meal, mealType: mealType, friend: friend, date: date)
-                            .frame(width: photoSize, height: photoSize)
-                    } else {
-                        EmptyMealPhotoCell(mealType: mealType, friend: friend, date: date)
-                            .frame(width: photoSize, height: photoSize)
-                    }
-                }
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isToday ? Color.blue.opacity(0.05) : Color(.systemBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isToday ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 2)
-            )
-        }
-        .padding(.vertical, 2)
-    }
-}
-
-// 친구 식단 사진 셀
-struct FriendMealPhotoCell: View {
-    let meal: MealRecord
-    let mealType: MealType
-    let friend: Friend
-    let date: Date
-
-    @State private var showingDetail = false
-    @State private var showingQuickFeedback = false
-
-    var body: some View {
-        Button(action: {
-            showingDetail = true
-        }) {
-            ZStack {
-                // 썸네일 이미지
-                if let imageData = meal.thumbnailImageData,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .clipped()
-                } else {
-                    Color(.systemGray5)
-                }
-
-                // 좌상단 식사 타입 아이콘
-                VStack {
-                    HStack {
-                        Image(systemName: mealType.symbolName)
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .background(mealType.symbolColor.opacity(0.8))
-                            .clipShape(Circle())
-                            .padding(4)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-
-                // 우하단 피드백 버튼
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Button(action: {
-                            showingQuickFeedback = true
-                        }) {
-                            Image(systemName: "bubble.left.fill")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(6)
-                                .background(Color.orange.opacity(0.8))
-                                .clipShape(Circle())
-                                .shadow(radius: 2)
-                        }
-                        .padding(4)
-                        .accessibilityLabel("응원 남기기")
-                        .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
-                    }
-                }
-            }
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
-        }
-        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue) 기록")
-        .accessibilityHint("두 번 탭하여 상세 보기")
-        .sheet(isPresented: $showingDetail) {
-            FriendMealDetailView(meal: meal, mealType: mealType, friend: friend, date: date)
-        }
-        .sheet(isPresented: $showingQuickFeedback) {
-            QuickFeedbackView(friend: friend, date: date, mealType: mealType)
-        }
-    }
-}
-
-// 빈 식단 셀 (탭하면 콕 찌르기 / 댓글 남기기)
-struct EmptyMealPhotoCell: View {
-    let mealType: MealType
-    let friend: Friend
-    let date: Date
-
-    @State private var showingActions = false
-    @State private var showingComment = false
-    @State private var isPoking = false
-    @State private var pokeSent = false
-
-    var body: some View {
-        Button(action: {
-            showingActions = true
-        }) {
-            ZStack {
-                Color(.systemGray6)
-
-                // 기본 이미지
-                VStack(spacing: 8) {
-                    Image(systemName: defaultImageName)
-                        .font(.system(size: 36))
-                        .foregroundColor(mealType.symbolColor.opacity(0.35))
-
-                    Text(mealType.rawValue)
-                        .font(.caption2)
+                if !pokedMeals.isEmpty {
+                    Text("보냈어요")
+                        .font(.system(size: 13))
                         .foregroundColor(.secondary)
                 }
 
-                // 콕 찌른 후 표시
-                if pokeSent {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Text("👉 콕!")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 3)
-                                .background(Capsule().fill(Color.orange))
-                                .padding(4)
-                        }
-                    }
-                } else if isPoking {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                                .scaleEffect(0.7)
-                                .padding(6)
-                        }
-                    }
+                if pokingMeal != nil {
+                    ProgressView().scaleEffect(0.7)
                 }
+
+                Spacer(minLength: 0)
             }
-            .cornerRadius(8)
         }
-        .confirmationDialog(
-            "\(friend.name)님이 아직 \(mealType.rawValue)을 기록하지 않았어요",
-            isPresented: $showingActions,
-            titleVisibility: .visible
-        ) {
-            Button("👉 콕 찌르기") {
-                sendPoke()
-            }
-            Button("댓글 남기기") {
-                showingComment = true
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.07))
+        .cornerRadius(12)
+        .padding(.horizontal)
+        .padding(.top, 12)
+        .confirmationDialog("어느 \(album.shareTitle)을 재촉할까요?",
+                            isPresented: $showingMealPicker, titleVisibility: .visible) {
+            ForEach(pokeTargets, id: \.self) { mealType in
+                Button("👉 \(mealType.rawValue) 콕 찌르기") { sendPoke(mealType) }
+                Button("\(mealType.rawValue)에 응원 남기기") { commentTarget = mealType }
             }
             Button("취소", role: .cancel) { }
         }
-        .sheet(isPresented: $showingComment) {
-            QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+        .sheet(item: $commentTarget) { mealType in
+            QuickFeedbackView(friend: friend, date: today, mealType: mealType, album: album)
         }
-        .accessibilityLabel("\(friend.name)님의 \(mealType.rawValue), 아직 기록 없음")
-        .accessibilityHint("두 번 탭하여 콕 찌르기 또는 댓글 남기기")
+        .accessibilityElement(children: .contain)
     }
 
-    private func sendPoke() {
-        guard !isPoking, !pokeSent else { return }
-        isPoking = true
+    private func sendPoke(_ mealType: MealType) {
+        guard pokingMeal == nil else { return }
+        pokingMeal = mealType
 
-        Task {
+        _Concurrency.Task {
             do {
                 try await FriendManager.shared.addFeedback(
                     to: friend.id,
-                    date: date,
+                    date: today,
                     mealType: mealType,
-                    content: "👉 콕! \(mealType.rawValue) 기록을 기다리고 있어요"
+                    content: "👉 콕! \(mealType.rawValue) 기록을 기다리고 있어요",
+                    album: album
                 )
-                await MainActor.run {
-                    isPoking = false
-                    pokeSent = true
-                }
+                pokedMeals.insert(mealType)
             } catch {
-                await MainActor.run {
-                    isPoking = false
-                }
-                print("❌ [EmptyMealPhotoCell] 콕 찌르기 실패: \(error)")
+                print("❌ [NudgeTodayRow] 콕 찌르기 실패: \(error)")
             }
-        }
-    }
-
-    private var defaultImageName: String {
-        switch mealType {
-        case .breakfast:
-            return "cup.and.saucer.fill"
-        case .lunch:
-            return "fork.knife"
-        case .dinner:
-            return "takeoutbag.and.cup.and.straw.fill"
-        default:
-            return "birthday.cake.fill"
+            pokingMeal = nil
         }
     }
 }
-
 // 친구 식단 상세 보기 (사진 크게 보기)
 struct FriendMealDetailView: View {
     let meal: MealRecord
     let mealType: MealType
     let friend: Friend
     let date: Date
+    /// 지금 보고 있는 탭 (음식/운동). 응원이 엉뚱한 기록에 달리지 않도록 끝까지 따라간다.
+    var album: AlbumType = .diet
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -1526,7 +1212,7 @@ struct FriendMealDetailView: View {
                     }
 
                     // 응원 — 이모지 반응 + 지금까지의 대화 + 글 쓰기
-                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType)
+                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType, album: album)
                         .padding(.horizontal)
                         .padding(.vertical)
                 }
@@ -1550,6 +1236,8 @@ struct FriendDailySectionView: View {
     let date: Date
     let friend: Friend
     let meals: [MealType: MealRecord]
+    /// 지금 보고 있는 탭 (음식/운동). 응원이 엉뚱한 기록에 달리지 않도록 끝까지 따라간다.
+    var album: AlbumType = .diet
 
     private let calendar = Calendar.current
 
@@ -1570,7 +1258,7 @@ struct FriendDailySectionView: View {
             VStack(spacing: 16) {
                 ForEach(MealType.allCases, id: \.self) { mealType in
                     if let meal = meals[mealType] {
-                        FriendMealCard(mealType: mealType, meal: meal, friend: friend, date: date)
+                        FriendMealCard(mealType: mealType, meal: meal, friend: friend, date: date, album: album)
                     }
                 }
             }
@@ -1587,6 +1275,8 @@ struct FriendMealCard: View {
     // 둘 다 있을 때만 응원 버튼을 붙인다
     var friend: Friend? = nil
     var date: Date? = nil
+    /// 지금 보고 있는 탭 (음식/운동). 응원이 엉뚱한 기록에 달리지 않도록 끝까지 따라간다.
+    var album: AlbumType = .diet
 
     @State private var showingFeedback = false
 
@@ -1695,7 +1385,7 @@ struct FriendMealCard: View {
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .sheet(isPresented: $showingFeedback) {
             if let friend, let date {
-                QuickFeedbackView(friend: friend, date: date, mealType: mealType)
+                QuickFeedbackView(friend: friend, date: date, mealType: mealType, album: album)
             }
         }
     }
@@ -1879,6 +1569,8 @@ struct QuickFeedbackView: View {
     let friend: Friend
     let date: Date
     let mealType: MealType
+    /// 지금 보고 있는 탭 (음식/운동). 응원이 엉뚱한 기록에 달리지 않도록 끝까지 따라간다.
+    var album: AlbumType = .diet
 
     @Environment(\.dismiss) private var dismiss
 
@@ -1896,7 +1588,7 @@ struct QuickFeedbackView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top)
 
-                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType)
+                    FriendFeedbackSection(friendId: friend.id, date: date, mealType: mealType, album: album)
                 }
                 .padding()
             }

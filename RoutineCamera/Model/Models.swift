@@ -343,6 +343,11 @@ class MealRecordStore: ObservableObject {
     private var dateFingerprints: [String: Int] = [:]
     private let fingerprintsKey = "dietDateFingerprints_v1"
     private let fingerprintBaselineKey = "dietFingerprintBaseline_v1"
+    // 운동은 지문을 따로 둔다. 기존 식단 해시에 운동을 섞으면 모든 날짜가 "바뀐 것"으로 잡혀
+    // 1.0.8 첫 실행에 전체 이력이 한꺼번에 재업로드된다.
+    private var exerciseDateFingerprints: [String: Int] = [:]
+    private let exerciseFingerprintsKey = "exerciseDateFingerprints_v1"
+    private let exerciseFingerprintBaselineKey = "exerciseFingerprintBaseline_v1"
     private var lastUploadTime: Date?
     private var uploadTimer: Timer?
     private let uploadDelaySeconds: TimeInterval = 5  // 5초 후 업로드
@@ -731,6 +736,16 @@ class MealRecordStore: ObservableObject {
             if let encoded = try? JSONEncoder().encode(exerciseRecords) {
                 userDefaults.set(encoded, forKey: exerciseRecordsKey)
                 print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
+
+                // 1.0.8부터 운동도 친구에게 공유된다 (친구 화면의 "운동" 탭)
+                if !FriendManager.shared.isSignedIn {
+                    print("⚠️ [CloudKit] iCloud 미로그인이라 업로드 건너뜀")
+                } else if SettingsManager.shared.shareMealsToCloud {
+                    markDirtyDatesFromRecords()
+                    scheduleDelayedUpload()
+                } else {
+                    print("⚠️ [CloudKit] 기록 공유 비활성화됨 - 설정에서 활성화 필요")
+                }
             }
         }
 
@@ -785,6 +800,20 @@ class MealRecordStore: ObservableObject {
         dateFingerprints = current
         persistFingerprints()
 
+        // 운동도 같은 방식으로. 업로드는 날짜 단위라 어느 쪽이 바뀌든 그 날을 올리면 된다.
+        let currentExercise = currentExerciseFingerprints()
+        let storedExercise = storedExerciseFingerprints()
+
+        for (dateString, hash) in currentExercise where storedExercise[dateString] != hash {
+            dirtyDates.insert(dateString)
+        }
+        for dateString in storedExercise.keys where currentExercise[dateString] == nil {
+            dirtyDates.insert(dateString)
+        }
+
+        exerciseDateFingerprints = currentExercise
+        persistExerciseFingerprints()
+
         if !dirtyDates.isEmpty {
             print("📝 [CloudKit] 업로드 대기 날짜: \(dirtyDates.sorted())")
         }
@@ -794,22 +823,39 @@ class MealRecordStore: ObservableObject {
     /// 앱 시작 시 한 번 현재 상태를 기준값으로 삼는다.
     /// (새로 설치한 기기는 기록이 없는 상태가 기준이 되므로 첫 기록부터 정상 업로드된다)
     private func establishFingerprintBaselineIfNeeded() {
-        guard !userDefaults.bool(forKey: fingerprintBaselineKey) else { return }
+        if !userDefaults.bool(forKey: fingerprintBaselineKey) {
+            dateFingerprints = currentDateFingerprints()
+            persistFingerprints()
+            userDefaults.set(true, forKey: fingerprintBaselineKey)
+            print("📝 [CloudKit] 변경 감지 기준값 생성 (\(dateFingerprints.count)일) — 예전 기록은 설정의 '예전 기록 공유'로 올릴 수 있음")
+        }
 
-        dateFingerprints = currentDateFingerprints()
-        persistFingerprints()
-        userDefaults.set(true, forKey: fingerprintBaselineKey)
-        print("📝 [CloudKit] 변경 감지 기준값 생성 (\(dateFingerprints.count)일) — 예전 기록은 설정의 '예전 기록 공유'로 올릴 수 있음")
+        // 1.0.8에서 운동 공유가 생겼다. 기준값을 지금 상태로 잡아 두지 않으면
+        // 첫 실행에 운동 이력 전체가 한꺼번에 올라간다.
+        if !userDefaults.bool(forKey: exerciseFingerprintBaselineKey) {
+            exerciseDateFingerprints = currentExerciseFingerprints()
+            persistExerciseFingerprints()
+            userDefaults.set(true, forKey: exerciseFingerprintBaselineKey)
+            print("📝 [CloudKit] 운동 변경 감지 기준값 생성 (\(exerciseDateFingerprints.count)일)")
+        }
     }
 
     /// 날짜별 지문. 사진은 바이트 수만 보므로 계산이 가볍다.
     private func currentDateFingerprints() -> [String: Int] {
+        fingerprints(of: dietRecords)
+    }
+
+    private func currentExerciseFingerprints() -> [String: Int] {
+        fingerprints(of: exerciseRecords)
+    }
+
+    private func fingerprints(of records: [MealRecord]) -> [String: Int] {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
 
         var grouped: [String: [MealRecord]] = [:]
-        for record in dietRecords {
+        for record in records {
             grouped[formatter.string(from: record.date), default: []].append(record)
         }
 
@@ -836,6 +882,17 @@ class MealRecordStore: ObservableObject {
         return raw
     }
 
+    private func storedExerciseFingerprints() -> [String: Int] {
+        if !exerciseDateFingerprints.isEmpty { return exerciseDateFingerprints }
+        guard let raw = userDefaults.dictionary(forKey: exerciseFingerprintsKey) as? [String: Int] else { return [:] }
+        exerciseDateFingerprints = raw
+        return raw
+    }
+
+    private func persistExerciseFingerprints() {
+        userDefaults.set(exerciseDateFingerprints, forKey: exerciseFingerprintsKey)
+    }
+
     private func persistFingerprints() {
         userDefaults.set(dateFingerprints, forKey: fingerprintsKey)
     }
@@ -846,6 +903,16 @@ class MealRecordStore: ObservableObject {
         let target = Calendar.current.startOfDay(for: date)
         var meals: [MealType: MealRecord] = [:]
         for record in dietRecords where Calendar.current.isDate(record.date, inSameDayAs: target) {
+            meals[record.mealType] = record
+        }
+        return meals
+    }
+
+    /// 그 날의 운동 기록 (친구 화면의 "운동" 탭으로 올라간다)
+    func exerciseMeals(for date: Date) -> [MealType: MealRecord] {
+        let target = Calendar.current.startOfDay(for: date)
+        var meals: [MealType: MealRecord] = [:]
+        for record in exerciseRecords where Calendar.current.isDate(record.date, inSameDayAs: target) {
             meals[record.mealType] = record
         }
         return meals
@@ -891,22 +958,25 @@ class MealRecordStore: ObservableObject {
                 // 날짜 문자열을 Date로 변환
                 guard let date = dateFormatter.date(from: dateString) else { continue }
 
-                let meals = dietMeals(for: date)
-                print("   📅 \(dateString) - 식단 개수: \(meals.count)")
+                // 음식과 운동을 각각 올린다. 서버에서는 레코드 이름이 달라 서로 덮어쓰지 않는다.
+                for album in AlbumType.allCases {
+                    let meals = album == .diet ? dietMeals(for: date) : exerciseMeals(for: date)
+                    print("   📅 \(dateString) - \(album.rawValue) 개수: \(meals.count)")
 
-                if meals.isEmpty {
-                    // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
-                    await FriendManager.shared.deleteMyMeals(date: date)
-                    print("   🗑️ \(dateString) 기록 없음 → 서버에서 삭제")
-                    continue
-                }
+                    if meals.isEmpty {
+                        // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
+                        await FriendManager.shared.deleteMyMeals(date: date, album: album)
+                        print("   🗑️ \(dateString) \(album.rawValue) 기록 없음 → 서버에서 삭제")
+                        continue
+                    }
 
-                // dirty로 표시된 날짜는 무조건 업로드 (중복 방지는 dirty 클리어로 처리)
-                do {
-                    try await FriendManager.shared.uploadMyMeals(date: date, meals: meals)
-                    print("   ✅ \(dateString) 업로드 완료 (\(meals.count)개 식단)")
-                } catch {
-                    print("   ❌ \(dateString) 업로드 실패: \(error)")
+                    // dirty로 표시된 날짜는 무조건 업로드 (중복 방지는 dirty 클리어로 처리)
+                    do {
+                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals, album: album)
+                        print("   ✅ \(dateString) \(album.rawValue) 업로드 완료 (\(meals.count)개)")
+                    } catch {
+                        print("   ❌ \(dateString) \(album.rawValue) 업로드 실패: \(error)")
+                    }
                 }
             }
 

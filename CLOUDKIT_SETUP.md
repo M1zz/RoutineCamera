@@ -14,7 +14,7 @@
 | 타입 | recordName | 필드 | 용도 |
 |---|---|---|---|
 | `RCUser` | `user_<userId>` | `code`(친구 코드, 쿼리 대상), `nickname`, `friendsJSON` | 프로필 + 친구 목록 |
-| `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
+| `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` (운동은 `_ex` 접미사) | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
 | `Feedback` | 자동 UUID | `recipientId`·`authorId`·`dateString`·`mealType`(쿼리 대상), `authorNickname`, `content`, `createdAtTS` | 피드백/콕 찌르기 |
 | `FriendLink` | `link_<내ID>_<상대ID>` | `ownerId`·`otherId`(쿼리 대상), `ownerCode`, `otherCode`, `ownerNickname`, `otherNickname`, `state`, `isLegacy`, `createdAtTS` | 친구 요청/수락 (양쪽 링크가 있으면 친구) |
 | `RCGroup` | `group_<uuid>` | `inviteCode`·`ownerId`(쿼리 대상), `name`, `visibility`, `createdAtTS` | 그룹 |
@@ -55,6 +55,31 @@
 > 앱은 이 경우 `visibility` 없이 그룹을 만들어 넘어가고(= `full`), 사용자가 "기록 여부만"을 골랐을 때는
 > 의도보다 많이 공개하지 않도록 그룹을 만들지 않고 안내한다.
 > CloudKit Console → Schema → **Deploy Schema Changes**로 Development 스키마를 Production에 반영할 것.
+
+### 음식 / 운동 (1.0.8)
+
+앱은 음식(`식단`)과 운동을 **완전히 별개로** 저장한다. 1.0.7까지는 음식만 친구에게 올라갔다.
+1.0.8부터 운동도 올라가고, 친구 화면 상단 탭에서 갈라 본다.
+
+구분은 **레코드 이름**이 담는다. 새 필드가 없으니 운영 스키마를 건드릴 필요가 없다.
+
+| 앨범 | Meal 레코드 이름 | Feedback 의 `mealType` 값 |
+| --- | --- | --- |
+| 음식 | `meal_<uid>_<날짜>_<끼니키>` | `lunch` |
+| 운동 | `meal_<uid>_<날짜>_<끼니키>_ex` | `lunch_ex` |
+
+음식에 접미사가 없는 것은 **1.0.7까지 쌓인 레코드가 그 이름이기 때문**이다.
+그대로 둬야 아직 업데이트하지 않은 친구의 앱에서도 계속 보인다.
+반대로 운동 레코드는 구버전 앱이 이름을 만들지 않으므로 아예 조회되지 않는다 — 깨지지 않고 안 보일 뿐이다.
+
+- 레코드는 쿼리가 아니라 **이름으로 직접** 가져오므로 (`records(for:)`) 새 인덱스도 필요 없다
+- `Feedback` 은 `mealType` 으로 쿼리하는데, 이 필드는 이미 있으므로 값만 바뀐다.
+  덕분에 같은 날 같은 끼니라도 음식 응원과 운동 응원이 섞이지 않는다
+- 그룹의 "오늘 기록함" 판정은 **두 앨범을 합쳐** 센다. 운동만 하는 멤버가 미기록으로 보이면 안 된다
+- 그룹 사진 피드는 한 끼니 자리에 하나만 담을 수 있어 음식을 우선하고, 없으면 운동으로 채운다
+
+> ⚠️ 운동 **이력**은 자동으로 올라가지 않는다. 변경 감지 기준값을 1.0.8 첫 실행에 지금 상태로 잡기 때문이다
+> (안 그러면 전체 이력이 한꺼번에 업로드된다). 설정의 "예전 기록 공유"도 아직 음식만 올린다.
 
 ### 이모지 반응 (1.0.8)
 
