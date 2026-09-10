@@ -204,8 +204,8 @@ struct MealPhotoView: View {
     private func photoCountBadge(for record: MealRecord) -> some View {
         // 사진 없이 기록한 경우에는 뱃지를 표시하지 않음
         // 개별 식사의 숨기기 설정이나 전역 설정이 꺼져있으면 표시하지 않음
-        // 이 뱃지는 "식후 사진이 아직 없다"는 뜻이므로, 식후를 쓰지 않으면 표시하지 않는다
-        if !record.recordedWithoutPhoto && !record.hidePhotoCountBadge && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount && SettingsManager.shared.useAfterPhoto {
+        // 이 뱃지는 "식후 사진이 아직 없다"는 뜻이므로, 식후를 쓰지 않거나 "다 먹음"으로 마친 식사에는 표시하지 않는다
+        if !record.recordedWithoutPhoto && !record.ateAll && !record.hidePhotoCountBadge && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount && SettingsManager.shared.useAfterPhoto {
             let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
             if photoCount == 1 {
                 Text("1")
@@ -367,7 +367,8 @@ struct MealPhotoView: View {
     @ViewBuilder
     private var overlayContent: some View {
         if let record = mealRecord {
-            if let imageData = record.thumbnailImageData, let uiImage = UIImage(data: imageData) {
+            // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게 푼다 (한 화면에 칸이 여러 개라 메모리가 치솟는다)
+            if let imageData = record.thumbnailImageData, let uiImage = MealImageResizer.downsampledImage(from: imageData, maxPixel: 600) {
                 // 사진이 있는 경우
                 photoContentView(record: record, image: uiImage)
             } else if record.recordedWithoutPhoto {

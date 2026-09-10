@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 import WidgetKit
+import RoutineCameraCore
 
 // 식사 타입 정의
 enum MealType: String, CaseIterable, Codable, Identifiable {
@@ -221,6 +222,26 @@ struct MealRecord: Identifiable, Codable {
         self.ateAll = ateAll
     }
 
+    // id 까지 그대로 옮기는 init (사진만 바꿔 끼운 사본용)
+    private init(id: UUID, date: Date, mealType: MealType, beforeImageData: Data?, afterImageData: Data?, memo: String?, recordedWithoutPhoto: Bool, hidePhotoCountBadge: Bool, visionAnalysis: VisionAnalysisData?, capturedAt: Date?, ateAll: Bool) {
+        self.id = id
+        self.date = date
+        self.mealType = mealType
+        self.beforeImageData = beforeImageData
+        self.afterImageData = afterImageData
+        self.memo = memo
+        self.recordedWithoutPhoto = recordedWithoutPhoto
+        self.hidePhotoCountBadge = hidePhotoCountBadge
+        self.visionAnalysis = visionAnalysis
+        self.capturedAt = capturedAt
+        self.ateAll = ateAll
+    }
+
+    /// 같은 기록(id 유지)에 사진만 바꿔 끼운 사본 — 사진을 파일로 빼서 저장하고 다시 붙일 때 쓴다
+    func replacingImages(before: Data?, after: Data?) -> MealRecord {
+        MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo, recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge, visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll)
+    }
+
     // 기존 데이터 호환성을 위한 커스텀 디코딩
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -356,6 +377,8 @@ class MealRecordStore: ObservableObject {
         migrateToAppGroupIfNeeded()
         loadRecords()
         migrateOldDataIfNeeded()
+        movePhotosOutOfDefaultsIfNeeded()
+        removeStaleStandardCopiesIfNeeded()
         establishFingerprintBaselineIfNeeded()
         drainPendingAteAll()
 
@@ -438,8 +461,7 @@ class MealRecordStore: ObservableObject {
         if let oldData = userDefaults.data(forKey: oldKey),
            let oldRecords = try? JSONDecoder().decode([MealRecord].self, from: oldData) {
             dietRecords = oldRecords
-            if let encoded = try? JSONEncoder().encode(dietRecords) {
-                userDefaults.set(encoded, forKey: dietRecordsKey)
+            if persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet) {
                 print("📦 [Migration] 기존 \(oldRecords.count)개 기록을 식단으로 마이그레이션 완료")
             }
 
@@ -717,8 +739,7 @@ class MealRecordStore: ObservableObject {
         switch SettingsManager.shared.albumType {
         case .diet:
             print("   - 식단 모드로 저장 시작")
-            if let encoded = try? JSONEncoder().encode(dietRecords) {
-                userDefaults.set(encoded, forKey: dietRecordsKey)
+            if persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet) {
                 print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
 
                 // CloudKit 동기화 (식단 공유가 활성화된 경우)
@@ -733,8 +754,7 @@ class MealRecordStore: ObservableObject {
                 }
             }
         case .exercise:
-            if let encoded = try? JSONEncoder().encode(exerciseRecords) {
-                userDefaults.set(encoded, forKey: exerciseRecordsKey)
+            if persistRecords(exerciseRecords, forKey: exerciseRecordsKey, album: .exercise) {
                 print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
 
                 // 1.0.8부터 운동도 친구에게 공유된다 (친구 화면의 "운동" 탭)
@@ -987,19 +1007,222 @@ class MealRecordStore: ObservableObject {
         }
     }
 
+    // MARK: - 사진 파일 보관
+
+    /// UserDefaults 에 저장하는 기록 한 건. 사진 바이트 대신 파일 이름을 담는다.
+    /// 예전 형식(사진 바이트가 든 기록)도 그대로 읽히고, 파일로 못 옮긴 사진은 바이트로 남겨 잃지 않는다.
+    /// 위젯은 같은 키에서 날짜·끼니·촬영 시각만 읽으므로 형식이 바뀌어도 영향이 없다.
+    private struct StoredMealRecord: Codable {
+        let record: MealRecord
+        let beforeImageFile: String?
+        let afterImageFile: String?
+
+        private enum FileKeys: String, CodingKey {
+            case beforeImageFile
+            case afterImageFile
+        }
+
+        init(record: MealRecord, beforeImageFile: String?, afterImageFile: String?) {
+            self.record = record
+            self.beforeImageFile = beforeImageFile
+            self.afterImageFile = afterImageFile
+        }
+
+        init(from decoder: Decoder) throws {
+            record = try MealRecord(from: decoder)
+            let container = try decoder.container(keyedBy: FileKeys.self)
+            beforeImageFile = try container.decodeIfPresent(String.self, forKey: .beforeImageFile)
+            afterImageFile = try container.decodeIfPresent(String.self, forKey: .afterImageFile)
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try record.encode(to: encoder)
+            var container = encoder.container(keyedBy: FileKeys.self)
+            try container.encodeIfPresent(beforeImageFile, forKey: .beforeImageFile)
+            try container.encodeIfPresent(afterImageFile, forKey: .afterImageFile)
+        }
+    }
+
+    private lazy var dietImageStore: MealImageFileStore? = Self.makeImageStore(folder: "diet")
+    private lazy var exerciseImageStore: MealImageFileStore? = Self.makeImageStore(folder: "exercise")
+
+    /// 불러올 때 사진 바이트가 기록 안에 들어 있던 앨범 (파일로 옮겨야 함)
+    private var albumsWithInlinePhotos: Set<AlbumType> = []
+
+    /// 파일을 읽지 못한 사진 — "앨범/끼니 칸 이름" → 실제 파일 이름.
+    /// 화면엔 비어 보여도 지운 사진이 아니므로, 저장할 때 참조를 버리지 않고 파일도 지우지 않는다.
+    private var unreadableImageFiles: [String: String] = [:]
+
+    private static let imageFileDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    private static func makeImageStore(folder: String) -> MealImageFileStore? {
+        let fileManager = FileManager.default
+        // 기록(UserDefaults)이 App Group 에 있으니 사진도 같은 곳에 둔다
+        guard let base = fileManager.containerURL(forSecurityApplicationGroupIdentifier: AppGroup.identifier)
+                ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let directory = base
+            .appendingPathComponent("MealImages", isDirectory: true)
+            .appendingPathComponent(folder, isDirectory: true)
+        return MealImageFileStore(directory: directory)
+    }
+
+    private func imageStore(for album: AlbumType) -> MealImageFileStore? {
+        album == .diet ? dietImageStore : exerciseImageStore
+    }
+
+    /// 끼니 칸 하나의 기본 파일 이름 (예: 2026-09-10_lunch_before.jpg)
+    private func imageSlotName(for record: MealRecord, kind: String) -> String {
+        MealImageFileStore.fileName(day: Self.imageFileDayFormatter.string(from: record.date),
+                                    slot: "\(record.mealType)",
+                                    kind: kind)
+    }
+
+    /// 기록을 저장한다 — 사진은 파일로, 나머지는 UserDefaults 의 가벼운 JSON 으로.
+    /// 순서: 사진 파일 쓰기 → JSON 교체 → 더는 가리키지 않는 파일 정리.
+    /// 어느 단계에서 앱이 종료돼도 UserDefaults 의 JSON 이 가리키는 사진은 디스크에 남아 있다.
+    @discardableResult
+    private func persistRecords(_ records: [MealRecord], forKey key: String, album: AlbumType) -> Bool {
+        let store = imageStore(for: album)
+        var referenced = Set<String>()
+        var entries: [StoredMealRecord] = []
+        entries.reserveCapacity(records.count)
+
+        for record in records {
+            let beforeFile = storeImage(record.beforeImageData, kind: "before", of: record, album: album, store: store, referenced: &referenced)
+            let afterFile = storeImage(record.afterImageData, kind: "after", of: record, album: album, store: store, referenced: &referenced)
+            // 파일로 옮긴 사진만 JSON 에서 뺀다. 못 옮긴 사진은 바이트 그대로 남는다.
+            let slim = record.replacingImages(before: beforeFile == nil ? record.beforeImageData : nil,
+                                              after: afterFile == nil ? record.afterImageData : nil)
+            entries.append(StoredMealRecord(record: slim, beforeImageFile: beforeFile, afterImageFile: afterFile))
+        }
+
+        guard let encoded = try? JSONEncoder().encode(entries) else {
+            print("❌ [MealRecordStore] 기록 인코딩 실패 - 저장하지 않음")
+            return false
+        }
+        userDefaults.set(encoded, forKey: key)
+
+        if let store {
+            let removed = store.removeFiles(keeping: referenced)
+            if removed > 0 {
+                print("🧹 [MealRecordStore] 기록에서 빠진 사진 파일 \(removed)개 정리")
+            }
+        }
+        let prefix = "\(album.rawValue)/"
+        unreadableImageFiles = unreadableImageFiles.filter { !$0.key.hasPrefix(prefix) || referenced.contains($0.value) }
+        return true
+    }
+
+    /// 사진 한 장을 파일로 쓰고 JSON 에 담을 파일 이름을 돌려준다. 파일로 못 쓰면 nil (바이트로 남긴다).
+    private func storeImage(_ data: Data?, kind: String, of record: MealRecord, album: AlbumType, store: MealImageFileStore?, referenced: inout Set<String>) -> String? {
+        guard let store else { return nil }
+        let slotName = imageSlotName(for: record, kind: kind)
+
+        guard let data else {
+            // 읽지 못했던 사진이면 참조를 그대로 두고 다음 실행에 다시 읽는다
+            guard let unreadable = unreadableImageFiles["\(album.rawValue)/\(slotName)"] else { return nil }
+            referenced.insert(unreadable)
+            return unreadable
+        }
+
+        // 같은 날 같은 끼니 기록이 둘이면 서로 덮어쓰지 않게 기록 id 를 붙인다
+        var name = slotName
+        if referenced.contains(name) {
+            name = MealImageFileStore.fileName(day: Self.imageFileDayFormatter.string(from: record.date),
+                                               slot: "\(record.mealType)-\(record.id.uuidString)",
+                                               kind: kind)
+        }
+
+        do {
+            try store.write(data, named: name)
+            referenced.insert(name)
+            return name
+        } catch {
+            print("⚠️ [MealRecordStore] 사진 파일 저장 실패, 기록 안에 그대로 둠: \(error)")
+            return nil
+        }
+    }
+
+    /// 저장된 기록을 읽고 사진을 다시 붙인다. 사진 바이트가 기록 안에 들어 있던 예전 형식이면 hasInlinePhotos 가 true.
+    private func loadStoredRecords(forKey key: String, album: AlbumType) -> (records: [MealRecord], hasInlinePhotos: Bool)? {
+        guard let data = userDefaults.data(forKey: key),
+              let entries = try? JSONDecoder().decode([StoredMealRecord].self, from: data) else { return nil }
+
+        let store = imageStore(for: album)
+        var hasInlinePhotos = false
+        let records = entries.map { entry -> MealRecord in
+            let record = entry.record
+            if record.beforeImageData != nil || record.afterImageData != nil {
+                hasInlinePhotos = true
+            }
+            let before = record.beforeImageData
+                ?? loadImage(named: entry.beforeImageFile, kind: "before", of: record, album: album, store: store)
+            let after = record.afterImageData
+                ?? loadImage(named: entry.afterImageFile, kind: "after", of: record, album: album, store: store)
+            return record.replacingImages(before: before, after: after)
+        }
+        return (records, hasInlinePhotos)
+    }
+
+    private func loadImage(named name: String?, kind: String, of record: MealRecord, album: AlbumType, store: MealImageFileStore?) -> Data? {
+        guard let name else { return nil }
+        if let data = store?.load(named: name) { return data }
+        print("⚠️ [MealRecordStore] 사진 파일을 읽지 못함: \(name)")
+        unreadableImageFiles["\(album.rawValue)/\(imageSlotName(for: record, kind: kind))"] = name
+        return nil
+    }
+
+    /// 예전 형식(사진 바이트가 UserDefaults 안에 든 기록)을 사진 파일 + 가벼운 JSON 으로 옮긴다.
+    /// 사진이 쌓이면 이 값이 수백 MB 가 되어, 저장할 때마다 메모리가 치솟아 앱이 종료되던 원인이다.
+    /// 바이트를 그대로 옮기므로 화질 손실은 없다.
+    private func movePhotosOutOfDefaultsIfNeeded() {
+        for album in albumsWithInlinePhotos {
+            let records = album == .diet ? dietRecords : exerciseRecords
+            let key = album == .diet ? dietRecordsKey : exerciseRecordsKey
+            if persistRecords(records, forKey: key, album: album) {
+                print("📦 [MealRecordStore] \(album.rawValue) 기록 \(records.count)개의 사진을 파일로 옮김")
+            }
+        }
+        albumsWithInlinePhotos.removeAll()
+    }
+
+    /// 기록을 제대로 읽어 들인 앨범 (표준 저장소의 옛 사본을 지워도 되는지 판단용)
+    private var loadedAlbums: Set<AlbumType> = []
+
+    /// App Group 으로 옮기기 전 표준 UserDefaults 에 남아 있던 기록 사본을 지운다.
+    /// 옮긴 뒤로 한 번도 갱신되지 않은 사본인데 사진이 든 채 수백 MB 로 남아, 설정 하나만 읽어도
+    /// 통째로 메모리에 올라왔다. App Group 쪽 기록을 제대로 읽었을 때만 지운다.
+    private func removeStaleStandardCopiesIfNeeded() {
+        let standard = UserDefaults.standard
+        guard userDefaults != standard, userDefaults.bool(forKey: "migratedToAppGroup_v1") else { return }
+        for (album, key) in [(AlbumType.diet, dietRecordsKey), (AlbumType.exercise, exerciseRecordsKey)]
+        where loadedAlbums.contains(album) && standard.object(forKey: key) != nil {
+            standard.removeObject(forKey: key)
+            print("🧹 [AppGroup] 표준 저장소에 남은 옛 \(album.rawValue) 기록 사본 삭제")
+        }
+    }
+
     // 기록 불러오기 (식단과 운동 모두 로드)
     private func loadRecords() {
         // 식단 기록 로드
-        if let data = userDefaults.data(forKey: dietRecordsKey),
-           let decoded = try? JSONDecoder().decode([MealRecord].self, from: data) {
-            dietRecords = decoded
+        if let loaded = loadStoredRecords(forKey: dietRecordsKey, album: .diet) {
+            dietRecords = loaded.records
+            loadedAlbums.insert(.diet)
+            if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.diet) }
             print("📂 [MealRecordStore] 식단 기록 로드: \(dietRecords.count)개")
         }
 
         // 운동 기록 로드
-        if let data = userDefaults.data(forKey: exerciseRecordsKey),
-           let decoded = try? JSONDecoder().decode([MealRecord].self, from: data) {
-            exerciseRecords = decoded
+        if let loaded = loadStoredRecords(forKey: exerciseRecordsKey, album: .exercise) {
+            exerciseRecords = loaded.records
+            loadedAlbums.insert(.exercise)
+            if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.exercise) }
             print("📂 [MealRecordStore] 운동 기록 로드: \(exerciseRecords.count)개")
         }
 

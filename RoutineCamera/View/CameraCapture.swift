@@ -6,37 +6,110 @@
 import SwiftUI
 import AVFoundation
 import Photos
+import ImageIO
+
+// MARK: - 사진 크기 줄이기
+
+/// 기록에 담는 사진 크기와, 화면에 그릴 때 원본보다 작게 푸는 도구.
+/// 48MP 원본을 그대로 담으면 한 장이 10MB 가까이 되고, 찍고·저장하고·그릴 때마다
+/// 메모리가 수백 MB 씩 치솟아 앱이 종료됐다.
+/// 카메라 콜백(백그라운드 큐)에서도 부르므로 메인 액터에 묶지 않는다.
+nonisolated enum MealImageResizer {
+    /// 기록에 저장하는 정사각형 사진의 한 변 (px)
+    static let storedSide: CGFloat = 2048
+
+    /// JPEG/HEIC 바이트를 긴 변이 maxPixel 이하인 이미지로 바로 푼다 (원본 크기로 풀지 않음)
+    static func downsampledImage(from data: Data, maxPixel: CGFloat) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary) else {
+            return nil
+        }
+        return downsampledImage(from: source, maxPixel: maxPixel)
+    }
+
+    /// 촬영 원본 바이트 → 가운데를 자른 정사각형, 한 변 storedSide 이하
+    static func storedSquareImage(from data: Data) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary) else {
+            return nil
+        }
+        // 짧은 변이 storedSide 가 되도록 긴 변 한도를 잡는다
+        var maxPixel = storedSide
+        if let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+           let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.doubleValue,
+           let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.doubleValue,
+           min(width, height) > 0 {
+            maxPixel = (storedSide * CGFloat(max(width, height) / min(width, height))).rounded(.up)
+        }
+        guard let image = downsampledImage(from: source, maxPixel: maxPixel) else { return nil }
+        return squareImage(image)
+    }
+
+    /// 가운데를 정사각형으로 자르고 한 변을 storedSide 이하로 줄인다 (사진 방향 반영)
+    static func squareImage(_ image: UIImage) -> UIImage {
+        let side = min(image.size.width, image.size.height)
+        guard side > 0 else { return image }
+
+        // 사진앨범의 큰 원본은 먼저 작게 풀어 두고 그린다
+        var source = image
+        let sidePixels = side * image.scale
+        if sidePixels > storedSide {
+            let ratio = storedSide / sidePixels
+            let thumbnailSize = CGSize(width: image.size.width * image.scale * ratio,
+                                       height: image.size.height * image.scale * ratio)
+            source = image.preparingThumbnail(of: thumbnailSize) ?? image
+        }
+
+        let sourceSide = min(source.size.width, source.size.height)
+        let targetSide = min(sourceSide * source.scale, storedSide)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: targetSide, height: targetSide), format: format)
+        return renderer.image { _ in
+            let scale = targetSide / sourceSide
+            let drawSize = CGSize(width: source.size.width * scale, height: source.size.height * scale)
+            let origin = CGPoint(x: (targetSide - drawSize.width) / 2, y: (targetSide - drawSize.height) / 2)
+            source.draw(in: CGRect(origin: origin, size: drawSize))
+        }
+    }
+
+    private static func downsampledImage(from source: CGImageSource, maxPixel: CGFloat) -> UIImage? {
+        let options = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel
+        ] as CFDictionary
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return nil }
+        return UIImage(cgImage: cgImage)
+    }
+}
 
 struct CustomCameraView: View {
     @Binding var selectedImage: UIImage?
     let isActive: Bool
-    @Environment(\.dismiss) var dismiss
     @State private var capturedImage: UIImage?
-    @State private var showingPreview = false
     @StateObject private var cameraManager = CameraManager()
     @State private var currentDateTime = Date()
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        if showingPreview, let image = capturedImage {
+        if let image = capturedImage {
             // 미리보기 화면
             PreviewView(
                 image: image,
                 onRetake: {
-                    showingPreview = false
                     capturedImage = nil
                 },
                 onConfirm: {
-                    // 이미 날짜/시간이 추가된 이미지 사용
+                    // 이미 날짜/시간이 추가된 이미지 사용.
+                    // 시트는 CameraPickerView 가 selectedImage 변화를 받아 한 번만 닫는다.
                     selectedImage = image
 
                     // 설정에 따라 사진을 "세끼" 앨범에 저장
                     if SettingsManager.shared.autoSaveToPhotoLibrary {
                         saveImageToAlbum(image)
                     }
-
-                    dismiss()
                 }
             )
         } else {
@@ -45,34 +118,38 @@ struct CustomCameraView: View {
                 VStack(spacing: 0) {
                     // 상단 정사각형 카메라 프리뷰
                     ZStack {
-                        CameraPreview(cameraManager: cameraManager)
+                        if cameraManager.isAccessDenied {
+                            CameraPermissionNotice()
+                        } else {
+                            CameraPreview(cameraManager: cameraManager)
 
-                        // 날짜/시간 오버레이
-                        VStack {
-                            Spacer()
-
-                            HStack {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(dateString)
-                                        .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
-                                        .foregroundColor(.white)
-                                        .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                        .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.5)
-
-                                    Text(timeString)
-                                        .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
-                                        .foregroundColor(.white)
-                                        .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                        .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.5)
-                                }
-                                .padding(.leading, min(geometry.size.width * 0.08, 30))
-                                .padding(.bottom, min(geometry.size.width * 0.08, 30))
-
+                            // 날짜/시간 오버레이
+                            VStack {
                                 Spacer()
+
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(dateString)
+                                            .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.5)
+
+                                        Text(timeString)
+                                            .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.5)
+                                    }
+                                    .padding(.leading, min(geometry.size.width * 0.08, 30))
+                                    .padding(.bottom, min(geometry.size.width * 0.08, 30))
+
+                                    Spacer()
+                                }
                             }
                         }
                     }
@@ -99,6 +176,9 @@ struct CustomCameraView: View {
                                 .frame(width: shutterSize(geometry) - 14, height: shutterSize(geometry) - 14)
                         }
                     }
+                    // 권한이 없거나 찍는 중에는 누르지 못하게 (연속 탭으로 촬영이 겹치지 않도록)
+                    .disabled(cameraManager.isAccessDenied || cameraManager.isCapturing)
+                    .opacity(cameraManager.isAccessDenied ? 0.3 : 1)
                     .accessibilityLabel("사진 촬영")
 
                     Spacer()
@@ -151,20 +231,16 @@ struct CustomCameraView: View {
         formatter.dateFormat = "HH:mm:ss"
         return formatter.string(from: currentDateTime)
     }
-    
+
     private func capturePhoto() {
         // 카메라에서 사진 캡처
         cameraManager.capturePhoto { image in
-            DispatchQueue.main.async {
-                // 캡처 즉시 날짜/시간 추가
-                if let image = image {
-                    self.capturedImage = self.addDateTimeToImage(image)
-                }
-                self.showingPreview = true
-            }
+            // 캡처 즉시 날짜/시간 추가 (촬영에 실패하면 카메라 화면에 그대로 머문다)
+            guard let image = image else { return }
+            self.capturedImage = self.addDateTimeToImage(image)
         }
     }
-    
+
     // 이미지를 앨범에 저장
     private func saveImageToAlbum(_ image: UIImage) {
         // 현재 앨범 타입에 따른 앨범 이름
@@ -187,13 +263,14 @@ struct CustomCameraView: View {
             let fetchOptions = PHFetchOptions()
             fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
             let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-            
+
             if let album = collection.firstObject {
                 // 기존 앨범에 이미지 추가
                 PHPhotoLibrary.shared().performChanges({
                     let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                    guard let placeholder = assetRequest.placeholderForCreatedAsset else { return }
                     let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                    albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
+                    albumChangeRequest?.addAssets([placeholder] as NSArray)
                 }) { success, error in
                     if success {
                         print("이미지가 \(albumName) 앨범에 저장되었습니다.")
@@ -214,8 +291,9 @@ struct CustomCameraView: View {
                         if let album = fetchResult.firstObject {
                             PHPhotoLibrary.shared().performChanges({
                                 let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                                guard let assetPlaceholder = assetRequest.placeholderForCreatedAsset else { return }
                                 let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                                albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
+                                albumChangeRequest?.addAssets([assetPlaceholder] as NSArray)
                             }) { success, error in
                                 if success {
                                     print("이미지가 새로 생성된 \(albumName) 앨범에 저장되었습니다.")
@@ -231,7 +309,7 @@ struct CustomCameraView: View {
             }
         }
     }
-    
+
     // 이미지에 날짜와 시간을 추가하는 함수
     private func addDateTimeToImage(_ image: UIImage) -> UIImage {
         let now = Date()
@@ -245,12 +323,6 @@ struct CustomCameraView: View {
         // 시간 포맷
         dateFormatter.dateFormat = "HH:mm:ss"
         let timeString = dateFormatter.string(from: now)
-
-        // 이미지에 텍스트 추가
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-
-        // 원본 이미지 그리기
-        image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
 
         // 텍스트 속성 설정 (프리뷰와 동일하게)
         let fontSize = min(image.size.width, image.size.height) * 0.06
@@ -282,25 +354,63 @@ struct CustomCameraView: View {
             height: timeSize.height
         )
 
-        // Context의 그림자 설정 (프리뷰와 동일한 shadow 효과)
-        guard let context = UIGraphicsGetCurrentContext() else {
-            return image
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
+
+        return renderer.image { rendererContext in
+            // 원본 이미지 그리기
+            image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
+
+            // 그림자 효과 적용 (프리뷰의 두 번 shadow와 동일)
+            let context = rendererContext.cgContext
+            context.setShadow(offset: CGSize(width: 0, height: 0), blur: 3, color: UIColor.black.cgColor)
+            context.setAllowsAntialiasing(true)
+            context.setShouldAntialias(true)
+
+            // 흰색 텍스트 그리기
+            dateString.draw(in: dateRect, withAttributes: textAttributes)
+            timeString.draw(in: timeRect, withAttributes: textAttributes)
         }
+    }
+}
 
-        // 그림자 효과 적용 (프리뷰의 두 번 shadow와 동일)
-        context.setShadow(offset: CGSize(width: 0, height: 0), blur: 3, color: UIColor.black.cgColor)
-        context.setAllowsAntialiasing(true)
-        context.setShouldAntialias(true)
+// 카메라 권한이 꺼져 있을 때 — 까만 화면 대신 이유와 해결 방법을 보여준다
+private struct CameraPermissionNotice: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 36))
+                .foregroundColor(.white.opacity(0.7))
+                .accessibilityHidden(true)
 
-        // 흰색 텍스트 그리기
-        dateString.draw(in: dateRect, withAttributes: textAttributes)
-        timeString.draw(in: timeRect, withAttributes: textAttributes)
+            Text("카메라 권한이 꺼져 있어요")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(.white)
 
-        // 최종 이미지 생성
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
+            Text("설정에서 카메라를 켜면 바로 찍을 수 있어요.\n사진앨범에서 고르거나 사진 없이 기록할 수도 있어요.")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.75))
+                .multilineTextAlignment(.center)
 
-        return newImage ?? image
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Text("설정 열기")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Capsule().fill(Color.blue))
+            }
+            .accessibilityHint("두 번 탭하면 설정 앱에서 카메라 권한을 켤 수 있습니다")
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black)
     }
 }
 
@@ -309,11 +419,11 @@ struct PreviewView: View {
     let image: UIImage
     let onRetake: () -> Void
     let onConfirm: () -> Void
-    
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 // 이미지 미리보기
                 Image(uiImage: image)
@@ -360,134 +470,151 @@ struct PreviewView: View {
 import Combine
 
 // 카메라 매니저
+// 세션 설정·시작·중지·촬영은 전용 직렬 큐에서만 한다.
+// 여러 스레드에서 startRunning/stopRunning 이 겹치거나, 카메라 입력이 붙지 않은 출력(권한 거부·시작 전)으로
+// 촬영을 요청하면 AVFoundation 이 예외를 던져 앱이 종료된다.
+// 화면 상태(@Published)는 메인에서만, AVFoundation 객체는 sessionQueue 에서만 만진다.
 class CameraManager: NSObject, ObservableObject {
-    let captureSession = AVCaptureSession()
-    private let photoOutput = AVCapturePhotoOutput()
-    private var captureCompletion: ((UIImage?) -> Void)?
-    private var isSessionRunning = false
+    nonisolated(unsafe) let captureSession = AVCaptureSession()
+    nonisolated(unsafe) private let photoOutput = AVCapturePhotoOutput()
+    nonisolated private let sessionQueue = DispatchQueue(label: "com.ysoup.RoutineCamera.camera-session")
+    nonisolated(unsafe) private var captureCompletion: ((UIImage?) -> Void)?  // sessionQueue → 델리게이트
+    nonisolated(unsafe) private var isConfigured = false                     // sessionQueue 에서만 접근
+    private var wantsRunning = false  // 권한 응답이 늦게 와도 이미 닫힌 화면에서 켜지지 않게
 
-    override init() {
-        super.init()
-        setupCamera()
-    }
-    
-    private func setupCamera() {
-        captureSession.sessionPreset = .photo
-        
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
-            print("카메라를 찾을 수 없습니다.")
-            return
-        }
-        
-        do {
-            let cameraInput = try AVCaptureDeviceInput(device: camera)
-            
-            if captureSession.canAddInput(cameraInput) {
-                captureSession.addInput(cameraInput)
-            }
-            
-            if captureSession.canAddOutput(photoOutput) {
-                captureSession.addOutput(photoOutput)
-            }
-            
-            // 최대 해상도 캡처 (iOS 16+ maxPhotoDimensions)
-            if let maxDim = camera.activeFormat.supportedMaxPhotoDimensions.last {
-                photoOutput.maxPhotoDimensions = maxDim
-            }
+    @Published private(set) var authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @Published private(set) var isCapturing = false
 
-        } catch {
-            print("카메라 설정 오류: \(error)")
-        }
+    var isAccessDenied: Bool {
+        authorizationStatus == .denied || authorizationStatus == .restricted
     }
-    
+
     func startSession() {
-        guard !isSessionRunning else {
-            print("📸 [CameraManager] 세션이 이미 실행 중 - 시작 요청 무시")
-            return
-        }
+        wantsRunning = true
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        authorizationStatus = status
 
-        print("📸 [CameraManager] 세션 시작 요청")
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-
-            if !self.captureSession.isRunning {
-                self.captureSession.startRunning()
-                print("📸 [CameraManager] 세션 시작 완료")
+        switch status {
+        case .authorized:
+            print("📸 [CameraManager] 세션 시작 요청")
+            sessionQueue.async { [weak self] in
+                guard let self = self else { return }
+                self.configureIfNeeded()
+                if self.isConfigured && !self.captureSession.isRunning {
+                    self.captureSession.startRunning()
+                    print("📸 [CameraManager] 세션 시작 완료")
+                }
             }
-
-            DispatchQueue.main.async {
-                self.isSessionRunning = true
+        case .notDetermined:
+            print("📸 [CameraManager] 카메라 권한 요청")
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                    if granted && self.wantsRunning {
+                        self.startSession()
+                    }
+                }
             }
+        default:
+            print("⚠️ [CameraManager] 카메라 권한 없음 - 세션을 시작하지 않음")
         }
     }
 
     func stopSession() {
-        guard isSessionRunning else {
-            print("📸 [CameraManager] 세션이 이미 중지됨 - 중지 요청 무시")
+        wantsRunning = false
+        sessionQueue.async { [weak self] in
+            guard let self = self, self.captureSession.isRunning else { return }
+            self.captureSession.stopRunning()
+            print("📸 [CameraManager] 세션 중지 완료")
+        }
+    }
+
+    /// 촬영. 세션이 돌고 있지 않거나(권한 없음·시작 전) 이미 찍는 중이면 찍지 않는다.
+    /// 완료 콜백은 메인에서 불리고, 실패하면 nil 이 온다.
+    func capturePhoto(completion: @escaping (UIImage?) -> Void) {
+        guard !isCapturing else { return }
+        isCapturing = true
+
+        sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            guard self.captureSession.isRunning,
+                  let connection = self.photoOutput.connection(with: .video),
+                  connection.isEnabled, connection.isActive else {
+                print("⚠️ [CameraManager] 카메라 연결이 없어 촬영하지 않음")
+                DispatchQueue.main.async {
+                    self.isCapturing = false
+                    completion(nil)
+                }
+                return
+            }
+
+            let settings = AVCapturePhotoSettings()
+            settings.maxPhotoDimensions = self.photoOutput.maxPhotoDimensions
+            self.captureCompletion = completion
+            self.photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+    }
+
+    // sessionQueue 에서만 호출
+    nonisolated private func configureIfNeeded() {
+        guard !isConfigured else { return }
+
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            print("카메라를 찾을 수 없습니다.")
             return
         }
 
-        print("📸 [CameraManager] 세션 중지 요청")
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
+        do {
+            let cameraInput = try AVCaptureDeviceInput(device: camera)
 
-            if self.captureSession.isRunning {
-                self.captureSession.stopRunning()
-                print("📸 [CameraManager] 세션 중지 완료")
+            captureSession.beginConfiguration()
+            captureSession.sessionPreset = .photo
+            let canAttach = captureSession.canAddInput(cameraInput) && captureSession.canAddOutput(photoOutput)
+            if canAttach {
+                captureSession.addInput(cameraInput)
+                captureSession.addOutput(photoOutput)
+            }
+            captureSession.commitConfiguration()
+
+            guard canAttach else {
+                print("카메라 설정 오류: 입력/출력을 연결할 수 없습니다.")
+                return
             }
 
-            DispatchQueue.main.async {
-                self.isSessionRunning = false
+            // 저장할 크기(한 변 2048px)를 만들 수 있는 가장 작은 해상도로 찍는다.
+            // 48MP 로 찍으면 한 장을 푸는 데만 수백 MB 가 든다.
+            if let dimensions = Self.preferredPhotoDimensions(camera.activeFormat.supportedMaxPhotoDimensions) {
+                photoOutput.maxPhotoDimensions = dimensions
             }
+            isConfigured = true
+        } catch {
+            print("카메라 설정 오류: \(error)")
         }
     }
-    
-    func capturePhoto(completion: @escaping (UIImage?) -> Void) {
-        captureCompletion = completion
-        
-        let settings = AVCapturePhotoSettings()
-        settings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
 
-        photoOutput.capturePhoto(with: settings, delegate: self)
+    nonisolated private static func preferredPhotoDimensions(_ supported: [CMVideoDimensions]) -> CMVideoDimensions? {
+        let sorted = supported.sorted { Int($0.width) * Int($0.height) < Int($1.width) * Int($1.height) }
+        let needed = Int32(MealImageResizer.storedSide)
+        return sorted.first { min($0.width, $0.height) >= needed } ?? sorted.last
     }
 }
 
-extension CameraManager: AVCapturePhotoCaptureDelegate {
+// AVFoundation 이 백그라운드 큐에서 부르므로 메인 액터에 묶지 않는다
+nonisolated extension CameraManager: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let imageData = photo.fileDataRepresentation(),
-              let image = UIImage(data: imageData) else {
-            captureCompletion?(nil)
-            return
+        // 원본 크기로 풀지 않고, 1:1 로 자른 저장용 크기로 바로 만든다
+        let image = photo.fileDataRepresentation().flatMap { MealImageResizer.storedSquareImage(from: $0) }
+        if image == nil {
+            print("❌ [CameraManager] 촬영 실패: \(error?.localizedDescription ?? "이미지 데이터 없음")")
         }
-        
-        // 1:1 비율로 크롭
-        let croppedImage = cropToSquare(image: image)
-        captureCompletion?(croppedImage)
-    }
-    
-    private func cropToSquare(image: UIImage) -> UIImage {
-        // CGImage를 사용하여 정확하게 크롭
-        guard let cgImage = image.cgImage else { return image }
 
-        let width = CGFloat(cgImage.width)
-        let height = CGFloat(cgImage.height)
-        let minDimension = min(width, height)
-
-        // 중앙에서 정사각형 크롭
-        let cropRect = CGRect(
-            x: (width - minDimension) / 2,
-            y: (height - minDimension) / 2,
-            width: minDimension,
-            height: minDimension
-        )
-
-        // CGImage로 크롭
-        guard let croppedCGImage = cgImage.cropping(to: cropRect) else { return image }
-
-        // 원본 이미지의 orientation을 유지하여 UIImage 생성
-        let croppedImage = UIImage(cgImage: croppedCGImage, scale: image.scale, orientation: image.imageOrientation)
-
-        return croppedImage
+        let completion = captureCompletion
+        captureCompletion = nil
+        DispatchQueue.main.async {
+            self.isCapturing = false
+            completion?(image)
+        }
     }
 }
 
@@ -552,40 +679,14 @@ struct ImagePicker: UIViewControllerRepresentable {
 
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let originalImage = info[.originalImage] as? UIImage {
-                // 정사각형으로 크롭
-                parent.selectedImage = cropToSquare(image: originalImage)
+                // 정사각형으로 자르고 저장용 크기로 줄인다.
+                // 시트는 CameraPickerView 가 selectedImage 변화를 받아 한 번만 닫는다.
+                parent.selectedImage = MealImageResizer.squareImage(originalImage)
             }
-
-            parent.presentationMode.wrappedValue.dismiss()
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.presentationMode.wrappedValue.dismiss()
-        }
-
-        // 이미지를 정사각형으로 크롭
-        private func cropToSquare(image: UIImage) -> UIImage {
-            guard let cgImage = image.cgImage else { return image }
-
-            let width = CGFloat(cgImage.width)
-            let height = CGFloat(cgImage.height)
-            let minDimension = min(width, height)
-
-            // 중앙에서 정사각형 크롭
-            let cropRect = CGRect(
-                x: (width - minDimension) / 2,
-                y: (height - minDimension) / 2,
-                width: minDimension,
-                height: minDimension
-            )
-
-            // CGImage로 크롭
-            guard let croppedCGImage = cgImage.cropping(to: cropRect) else { return image }
-
-            // 원본 이미지의 orientation을 유지하여 UIImage 생성
-            let croppedImage = UIImage(cgImage: croppedCGImage, scale: image.scale, orientation: image.imageOrientation)
-
-            return croppedImage
         }
     }
 }

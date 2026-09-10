@@ -31,14 +31,22 @@ struct PhotoDetailView: View {
     @State private var feedbacks: [MealFeedback] = [] // 받은 피드백 목록
     @State private var isLoadingFeedbacks = false // 피드백 로딩 중
 
+    // 화면에 그릴 때 푸는 사진의 긴 변 (예전에 저장된 48MP 사진을 원본 크기로 풀면 한 장에 수백 MB)
+    static let displayMaxPixel: CGFloat = 1600
+
+    // "식후 사진 없이 마치기"처럼 이 화면에서 기록을 바꾸면 바로 보이도록, 넘겨받은 값보다 저장소의 최신 기록을 우선한다
+    private var currentRecord: MealRecord? {
+        mealStore.getMeals(for: date)[mealType] ?? mealRecord
+    }
+
     @ViewBuilder
     private var detailBody: some View {
             VStack(spacing: 0) {
-                if let record = mealRecord {
+                if let record = currentRecord {
                     // 사진 영역
                     if SettingsManager.shared.albumType == .exercise {
                         // 운동 모드: 사진 1장만 표시
-                        if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
+                        if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
@@ -65,7 +73,7 @@ struct PhotoDetailView: View {
                         }
                     } else if !SettingsManager.shared.useAfterPhoto {
                         // 식후 사진을 쓰지 않는 설정: 식전 한 장만 보여준다
-                        if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
+                        if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
@@ -94,7 +102,7 @@ struct PhotoDetailView: View {
                         // 식단 모드: 식전/식후 TabView
                         TabView(selection: $currentPage) {
                             // 식전 사진
-                            if let beforeData = record.beforeImageData, let beforeImage = UIImage(data: beforeData) {
+                            if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
                                 Image(uiImage: beforeImage)
                                     .resizable()
                                     .scaledToFit()
@@ -123,12 +131,33 @@ struct PhotoDetailView: View {
                             }
 
                             // 식후 사진
-                            if let afterData = record.afterImageData, let afterImage = UIImage(data: afterData) {
+                            if let afterData = record.afterImageData, let afterImage = MealImageResizer.downsampledImage(from: afterData, maxPixel: Self.displayMaxPixel) {
                                 Image(uiImage: afterImage)
                                     .resizable()
                                     .scaledToFit()
                                     .tag(1)
                                     .accessibilityLabel("식후 사진")
+                            } else if record.ateAll {
+                                // 식후 사진 없이 "다 먹음"으로 마친 식사 — 비어 있다고 재촉하지 않는다
+                                VStack(spacing: 12) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.green)
+                                        .accessibilityHidden(true)
+                                    Text("식후 사진 없이 마쳤어요")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                    Text("탭하여 식후 사진 추가")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.blue)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(Color(.systemGray6))
+                                .tag(1)
+                                .onTapGesture {
+                                    selectedPhotoType = .after
+                                    showingAddPhotoSheet = true
+                                }
                             } else {
                                 VStack(spacing: 12) {
                                     Image(systemName: "photo")
@@ -141,6 +170,22 @@ struct PhotoDetailView: View {
                                     Text("탭하여 사진 추가")
                                         .font(.system(size: 14))
                                         .foregroundColor(.blue)
+
+                                    // 식후는 찍지 않고 이 식사를 마치고 싶을 때
+                                    if record.beforeImageData != nil {
+                                        Button {
+                                            mealStore.recordAteAll(date: date, mealType: mealType)
+                                            NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
+                                        } label: {
+                                            Label("식후 사진 없이 마치기", systemImage: "checkmark.circle")
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 10)
+                                                .background(Capsule().fill(Color(.systemBackground)))
+                                        }
+                                        .padding(.top, 8)
+                                        .accessibilityHint("두 번 탭하면 식후 사진 없이 이 식사를 다 먹음으로 기록합니다")
+                                    }
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(Color(.systemGray6))
@@ -289,7 +334,8 @@ struct PhotoDetailView: View {
                         // 식단 모드이고 사진이 1장만 있을 때 토글 표시 (식후를 쓸 때만 의미가 있다)
                         if SettingsManager.shared.albumType == .diet && SettingsManager.shared.useAfterPhoto {
                             let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
-                            if photoCount == 1 {
+                            // "다 먹음"으로 마친 식사엔 알림 뱃지 자체가 없으므로 토글도 필요 없다
+                            if photoCount == 1 && !record.ateAll {
                                 Divider()
                                     .padding(.vertical, 8)
 
@@ -477,7 +523,8 @@ struct PhotoDetailView: View {
             imageData = currentPage == 0 ? record.beforeImageData : record.afterImageData
         }
 
-        guard let data = imageData, let image = UIImage(data: data) else {
+        // 분석에는 저장 크기면 충분하다 (예전 48MP 사진을 원본 크기로 풀지 않도록)
+        guard let data = imageData, let image = MealImageResizer.downsampledImage(from: data, maxPixel: MealImageResizer.storedSide) else {
             return
         }
 

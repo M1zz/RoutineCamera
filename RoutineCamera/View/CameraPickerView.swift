@@ -44,6 +44,20 @@ struct CameraPickerView: View {
         }
     }
 
+    // 이 끼니에 이미 남긴 기록 (없으면 nil)
+    private var existingRecord: MealRecord? {
+        mealStore.getMeals(for: date)[mealType]
+    }
+
+    // 식전만 찍힌 끼니에서 식후를 찍으려는 중인지 — 이때는 식후 사진 없이 끝낼 수 있게 한다
+    private var canFinishWithoutAfterPhoto: Bool {
+        guard SettingsManager.shared.albumType == .diet,
+              SettingsManager.shared.useAfterPhoto,
+              localPhotoType == .after,
+              let record = existingRecord else { return false }
+        return record.beforeImageData != nil && record.afterImageData == nil && !record.ateAll
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 상단 헤더 (ZStack으로 픽커를 정중앙에 고정)
@@ -71,8 +85,13 @@ struct CameraPickerView: View {
                 }
                 .frame(height: 52)
 
-                // 사진 없이 기록 — 한 번 탭하면 바로 기록되고 닫힌다
-                recordWithoutPhotoButton
+                // 사진 없이 끝내기 — 한 번 탭하면 바로 기록되고 닫힌다.
+                // 이미 기록이 있는 끼니에서 "사진 없이 기록"은 아무 일도 하지 않으므로 보여주지 않는다.
+                if canFinishWithoutAfterPhoto {
+                    finishWithoutAfterPhotoButton
+                } else if existingRecord == nil {
+                    recordWithoutPhotoButton
+                }
             }
             .background(Color(.systemBackground))
 
@@ -155,7 +174,7 @@ struct CameraPickerView: View {
         }
     }
 
-    // MARK: - 사진 없이 기록 버튼
+    // MARK: - 사진 없이 끝내기 버튼
 
     // 사진을 남기고 싶지 않은 순간을 위한 한 탭 기록. 토글 없이 바로 저장하고 닫는다.
     private var recordWithoutPhotoButton: some View {
@@ -165,20 +184,38 @@ struct CameraPickerView: View {
             NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
             dismiss()
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "square.and.pencil")
-                    .font(.system(size: 16, weight: .semibold))
-                Text("사진 없이 기록")
-                    .font(.system(size: 16, weight: .semibold))
-            }
-            .foregroundColor(.blue)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(Color(.systemGroupedBackground))
+            headerActionLabel("사진 없이 기록", systemImage: "square.and.pencil")
         }
         .buttonStyle(.plain)
         .accessibilityLabel("사진 없이 기록")
         .accessibilityHint("두 번 탭하면 사진 없이 \(mealType.rawValue)을 기록하고 닫습니다")
+    }
+
+    // 식전 사진은 남겼고 식후는 찍고 싶지 않을 때 — "다 먹음"으로 이 식사를 마친다
+    private var finishWithoutAfterPhotoButton: some View {
+        Button {
+            mealStore.recordAteAll(date: date, mealType: mealType)
+            NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
+            dismiss()
+        } label: {
+            headerActionLabel("식후 사진 없이 마치기", systemImage: "checkmark.circle")
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("식후 사진 없이 마치기")
+        .accessibilityHint("두 번 탭하면 식후 사진 없이 \(mealType.rawValue)을 다 먹음으로 기록하고 닫습니다")
+    }
+
+    private func headerActionLabel(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 16, weight: .semibold))
+            Text(title)
+                .font(.system(size: 16, weight: .semibold))
+        }
+        .foregroundColor(.blue)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(Color(.systemGroupedBackground))
     }
 
     // 자동 음식 분석 (무료 분석 우선, 소진 시 OpenAI 사용)

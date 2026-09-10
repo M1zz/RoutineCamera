@@ -672,7 +672,7 @@ struct ComparisonDayView: View {
                 ForEach(MealType.allCases, id: \.self) { mealType in
                     VStack(spacing: 8) {
                         if let meal = meals[mealType], meal.isComplete {
-                            if let photoData = meal.thumbnailImageData, let uiImage = UIImage(data: photoData) {
+                            if let photoData = meal.thumbnailImageData, let uiImage = MealImageResizer.downsampledImage(from: photoData, maxPixel: 300) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFit()
