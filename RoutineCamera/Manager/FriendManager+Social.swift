@@ -302,6 +302,8 @@ extension FriendManager {
 
             socialError = nil
             print("✅ [CloudKit] 친구 \(friends.count)명 / 받은 요청 \(incomingRequests.count)건 / 보낸 요청 \(pendingFriends.count)건")
+            // 친구가 늘거나 줄면 친구 기록 알림 구독도 따라간다
+            syncFriendMealSubscriptions()
         } catch {
             socialError = Self.readableMessage(for: error)
             print("❌ [CloudKit] 친구 관계 조회 실패(기존 목록 유지): \(error.localizedDescription)")
@@ -390,6 +392,92 @@ extension FriendManager {
                 print("❌ [CloudKit] 친구 요청 구독 등록 실패: \(error.localizedDescription)")
             }
         }
+    }
+
+    // MARK: - 친구 기록 알림
+
+    nonisolated static let friendMealSubscriptionPrefix = "friendmeal-sub-"
+    nonisolated static let notifyFriendMealsKey = "notifyFriendMeals"
+
+    /// 친구가 기록을 올리면 오는 푸시 구독을 지금 친구 목록·설정에 맞춘다.
+    ///
+    /// 친구마다 구독 하나(`ownerId == 친구`)를 둔다 — 알림 제목에 친구 이름을 넣을 수 있고,
+    /// 이미 Queryable 인 `Meal.ownerId` 만 써서 운영 스키마를 건드리지 않는다.
+    /// 로컬 도장 대신 서버의 구독 목록을 직접 읽어 맞추므로, 한 번 실패해도 다음 호출에 되살아난다.
+    func syncFriendMealSubscriptions() {
+        let previous = friendMealSyncTask
+        friendMealSyncTask = _Concurrency.Task {
+            await previous?.value
+            await performFriendMealSubscriptionSync()
+        }
+    }
+
+    private func performFriendMealSubscriptionSync() async {
+        guard !myUserId.isEmpty else { return }
+
+        let enabled = notifyFriendMeals
+        let targets = enabled ? friends : []
+        let prefix = "\(Self.friendMealSubscriptionPrefix)\(myUserId)-"
+        if enabled { friendMealPushState = .registering }
+
+        do {
+            var existingTitles: [CKSubscription.ID: String] = [:]
+            for subscription in try await database.allSubscriptions() where subscription.subscriptionID.hasPrefix(prefix) {
+                existingTitles[subscription.subscriptionID] = subscription.notificationInfo?.title ?? ""
+            }
+
+            var toSave: [CKSubscription] = []
+            var wantedIDs = Set<CKSubscription.ID>()
+            for friend in targets {
+                let subscription = Self.friendMealSubscription(id: prefix + friend.id, friend: friend)
+                wantedIDs.insert(subscription.subscriptionID)
+                // 이미 같은 제목(=같은 이름)으로 걸려 있으면 그대로 둔다
+                if existingTitles[subscription.subscriptionID] != subscription.notificationInfo?.title {
+                    toSave.append(subscription)
+                }
+            }
+
+            // 친구에서 빠진 사람 + 이름이 바뀌어 다시 만들 구독은 먼저 지운다
+            let savingIDs = Set(toSave.map(\.subscriptionID))
+            let toDelete = existingTitles.keys.filter { !wantedIDs.contains($0) || savingIDs.contains($0) }
+
+            if !toDelete.isEmpty {
+                let (_, deleteResults) = try await database.modifySubscriptions(saving: [], deleting: Array(toDelete))
+                for (_, result) in deleteResults {
+                    if case .failure(let error) = result { throw error }
+                }
+            }
+            if !toSave.isEmpty {
+                let (saveResults, _) = try await database.modifySubscriptions(saving: toSave, deleting: [])
+                for (_, result) in saveResults {
+                    if case .failure(let error) = result { throw error }
+                }
+            }
+
+            friendMealPushState = enabled ? .ready : .unknown
+            print("📡 [CloudKit] 친구 기록 알림 구독 맞춤: 등록 \(toSave.count) / 삭제 \(toDelete.count) / 대상 \(targets.count)명")
+        } catch {
+            friendMealPushState = enabled ? .failed(Self.readableMessage(for: error)) : .unknown
+            print("❌ [CloudKit] 친구 기록 알림 구독 실패: \(error.localizedDescription)")
+        }
+    }
+
+    private static func friendMealSubscription(id: CKSubscription.ID, friend: Friend) -> CKQuerySubscription {
+        let subscription = CKQuerySubscription(
+            recordType: mealRecordType,
+            predicate: NSPredicate(format: "ownerId == %@", friend.id),
+            subscriptionID: id,
+            options: [.firesOnRecordCreation]
+        )
+
+        let info = CKSubscription.NotificationInfo()
+        info.title = "\(friend.name)님이 새 기록을 올렸어요 📸"
+        info.alertBody = "친구 화면에서 사진을 보고 응원해 보세요"
+        info.soundName = "default"
+        // 예전 기록을 한꺼번에 올려도 알림이 줄줄이 쌓이지 않게, 같은 친구의 알림은 하나로 합친다
+        info.collapseIDKey = "ownerId"
+        subscription.notificationInfo = info
+        return subscription
     }
 
     // MARK: - 그룹

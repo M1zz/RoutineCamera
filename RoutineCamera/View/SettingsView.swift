@@ -132,28 +132,64 @@ struct SettingsView: View {
 
     @ViewBuilder private var notificationSection: some View {
         Section(header: Text("알림")) {
-            Toggle("식사 기록 리마인드", isOn: Binding(
-                get: { notificationManager.notificationsEnabled },
+            Toggle("식사 전 촬영 알림", isOn: Binding(
+                get: { notificationManager.notificationsEnabled && notificationManager.mealRemindersEnabled },
                 set: { newValue in
                     if newValue {
                         notificationManager.requestAuthorization { granted in
-                            if granted { notificationManager.scheduleMealNotifications() }
+                            guard granted else { return }
+                            notificationManager.mealRemindersEnabled = true
+                            notificationManager.scheduleMealNotifications()
                         }
                     } else {
-                        notificationManager.disableNotifications()
+                        notificationManager.mealRemindersEnabled = false
                     }
                 }
             ))
 
-            if notificationManager.notificationsEnabled {
+            if notificationManager.notificationsEnabled && notificationManager.mealRemindersEnabled {
+                Picker("알림 시점", selection: $notificationManager.reminderLeadMinutes) {
+                    ForEach(NotificationManager.leadMinuteOptions, id: \.self) { minutes in
+                        Text(minutes == 0 ? "식사 시간 정각" : "\(minutes)분 전").tag(minutes)
+                    }
+                }
                 mealTimeRow("🌅 아침", $notificationManager.breakfastTime)
                 mealTimeRow("☀️ 점심", $notificationManager.lunchTime)
                 mealTimeRow("🌙 저녁", $notificationManager.dinnerTime)
+                caption("챙길 식사로 고른 끼니만, 먹기 전에 사진을 찍으라고 알려요. 이미 기록한 끼니는 알리지 않아요.")
+            } else if !notificationManager.notificationsEnabled {
+                caption("알림 권한이 꺼져 있어요. 설정 앱 → 세끼 → 알림에서 허용하면 켤 수 있어요.")
             }
 
             Toggle("기록 시간 배너 표시", isOn: $settingsManager.autoOpenCamera)
 
             friendPushRow
+
+            friendMealPushRow
+        }
+    }
+
+    /// 친구가 기록을 올리면 알림을 받을지. 켜면 친구마다 CloudKit 구독을 건다.
+    @ViewBuilder private var friendMealPushRow: some View {
+        Toggle("친구 기록 알림", isOn: $friendManager.notifyFriendMeals)
+        if friendManager.notifyFriendMeals {
+            switch friendManager.friendMealPushState {
+            case .registering:
+                HStack(spacing: 8) {
+                    ProgressView().scaleEffect(0.7)
+                    caption("친구마다 알림을 등록하는 중...")
+                }
+            case .failed(let reason):
+                VStack(alignment: .leading, spacing: 6) {
+                    caption(reason)
+                    Button("다시 등록") {
+                        friendManager.syncFriendMealSubscriptions()
+                    }
+                    .font(.system(size: 14))
+                }
+            case .ready, .unknown:
+                caption("친구가 사진을 올리면 알려 드려요. 한 친구가 여러 끼를 한꺼번에 올려도 알림은 하나로 모아요.")
+            }
         }
     }
 

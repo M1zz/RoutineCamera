@@ -282,23 +282,13 @@ struct ContentView: View {
                             proxy.scrollTo(todayDate, anchor: .top)
                         }
 
-                        // 알림 상태 갱신 (dateList 초기화와 스크롤이 완료된 후)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            // 날짜 변경 확인 및 알림 재설정
-                            self.notificationManager.checkAndRescheduleIfNeeded()
-
-                            // 오늘 식사 기록 확인 후 알림 업데이트
-                            let todayMeals = self.mealStore.getMeals(for: self.todayDate)
-                            self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
-                        }
                     }
 
-                    // 알림 권한 요청
-                    if !notificationManager.notificationsEnabled {
-                        notificationManager.requestAuthorization { granted in
-                            if granted {
-                                notificationManager.scheduleMealNotifications()
-                            }
+                    // 알림 권한 요청 — 이미 정해졌으면 묻지 않고 바로 답이 온다.
+                    // 허용돼 있으면 식사 전 알림을 앞으로 며칠 치 새로 건다.
+                    notificationManager.requestAuthorization { granted in
+                        if granted {
+                            notificationManager.scheduleMealNotifications()
                         }
                     }
 
@@ -308,6 +298,24 @@ struct ContentView: View {
                             showingCaredMealsPrompt = true
                         }
                     }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    // 앱으로 돌아올 때마다 권한·오늘 기록을 다시 보고 식사 전 알림을 새로 건다
+                    notificationManager.checkNotificationStatus()
+                }
+                .onReceive(notificationManager.$requestedCameraMeal) { meal in
+                    // 식사 전 알림을 눌러 들어오면 그 끼니 카메라를 바로 연다
+                    guard let meal else { return }
+                    notificationManager.requestedCameraMeal = nil
+                    guard settingsManager.albumType == .diet else { return }
+                    autoOpenPhotoType = .before
+                    autoOpenMealType = meal
+                }
+                .onReceive(notificationManager.$requestedFriendsScreen) { requested in
+                    // 친구 기록 알림을 눌러 들어오면 친구 화면을 연다
+                    guard requested else { return }
+                    notificationManager.requestedFriendsScreen = false
+                    showingFriends = true
                 }
 
                 // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)

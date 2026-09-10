@@ -19,6 +19,9 @@ struct FriendsView: View {
     @State private var showingAccountSettings = false
     @State private var showingDeleteConfirm = false
     @State private var showingGroups = false
+    /// 오늘 친구들이 올린 식사 (친구 id → 끼니별 기록)
+    @State private var todayMeals: [String: [MealType: MealRecord]] = [:]
+    @State private var isLoadingTodayMeals = false
 
     var body: some View {
         NavigationView {
@@ -155,6 +158,20 @@ struct FriendsView: View {
 
                 // 받은 요청 · 보낸 요청 · 친구
                 List {
+                    // 오늘 친구들이 무엇을 올렸는지 사진으로 한눈에
+                    if !friendManager.friends.isEmpty {
+                        Section {
+                            FriendsTodayStrip(
+                                friends: friendManager.friends,
+                                mealsByFriend: todayMeals,
+                                isLoading: isLoadingTodayMeals,
+                                notifyFriendMeals: $friendManager.notifyFriendMeals,
+                                onSelect: { selectedFriend = $0 }
+                            )
+                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                        }
+                    }
+
                     if !friendManager.incomingRequests.isEmpty {
                         Section("받은 친구 요청") {
                             ForEach(friendManager.incomingRequests) { request in
@@ -218,6 +235,7 @@ struct FriendsView: View {
                 .refreshable {
                     await friendManager.refreshSocialGraph()
                     await friendManager.loadMyGroups()
+                    await loadTodayMeals()
                 }
             }
             .navigationTitle("친구")
@@ -324,6 +342,7 @@ struct FriendsView: View {
             .task {
                 // 화면 진입 시 받은 요청·수락 여부를 최신으로 (푸시를 탭해 들어온 경우 포함)
                 await friendManager.refreshSocialGraph()
+                await loadTodayMeals()
             }
         }
 
@@ -382,9 +401,13 @@ struct FriendsView: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.primary)
 
-                    Text(friend.code)
-                        .font(.system(size: 14, design: .monospaced))
-                        .foregroundColor(.secondary)
+                    // 오늘 어떤 끼니를 올렸는지 + 친구 코드
+                    HStack(spacing: 8) {
+                        MealDotsView(recorded: Set((todayMeals[friend.id] ?? [:]).keys))
+                        Text(friend.code)
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()
@@ -397,7 +420,7 @@ struct FriendsView: View {
             .padding(.vertical, 8)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(friend.name)")
+        .accessibilityLabel("\(friend.name), 오늘 \((todayMeals[friend.id] ?? [:]).count)끼 기록")
         .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
@@ -409,7 +432,322 @@ struct FriendsView: View {
             }
         }
     }
+
+    /// 친구마다 오늘 식단(음식)을 받아 온다. 오늘 기록은 계속 늘어나므로 캐시를 버리고 새로 받는다.
+    /// 한 명씩 받는 대로 화면에 채워, 친구가 많아도 첫 카드가 금방 뜬다.
+    private func loadTodayMeals() async {
+        let friends = friendManager.friends
+        guard !friends.isEmpty else { return }
+        let today = Calendar.current.startOfDay(for: Date())
+
+        isLoadingTodayMeals = true
+        defer { isLoadingTodayMeals = false }
+
+        for friend in friends {
+            friendManager.invalidateCache(friendId: friend.id, date: today)
+            do {
+                let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: [today], album: .diet)
+                todayMeals[friend.id] = loaded[today] ?? [:]
+            } catch {
+                print("❌ [FriendsView] \(friend.name) 오늘 식단 조회 실패: \(error.localizedDescription)")
+            }
+        }
     }
+    }
+
+/// 아침·점심·저녁 세 칸 — 기록한 끼니는 끼니 색으로 채우고, 안 한 끼니는 빈 원. 간식은 개수로 덧붙인다.
+struct MealDotsView: View {
+    let recorded: Set<MealType>
+
+    private let mainMeals: [MealType] = [.breakfast, .lunch, .dinner]
+    private var snackCount: Int { recorded.filter { !mainMeals.contains($0) }.count }
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(mainMeals, id: \.self) { meal in
+                let done = recorded.contains(meal)
+                Circle()
+                    .fill(done ? meal.symbolColor : Color.clear)
+                    .overlay(Circle().stroke(done ? meal.symbolColor : Color(.systemGray3), lineWidth: 1.2))
+                    .frame(width: 8, height: 8)
+            }
+            if snackCount > 0 {
+                Text("+\(snackCount)")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(recorded.isEmpty
+                            ? "오늘 기록 없음"
+                            : "오늘 기록: " + MealType.allCases.filter { recorded.contains($0) }.map(\.rawValue).joined(separator: ", "))
+    }
+}
+
+/// 친구 목록 맨 위 — 오늘 누가 무엇을 올렸는지 사진으로 한눈에
+struct FriendsTodayStrip: View {
+    let friends: [Friend]
+    let mealsByFriend: [String: [MealType: MealRecord]]
+    let isLoading: Bool
+    @Binding var notifyFriendMeals: Bool
+    let onSelect: (Friend) -> Void
+
+    /// 오늘 가장 최근에 올린 기록
+    private func latest(_ friend: Friend) -> MealRecord? {
+        mealsByFriend[friend.id]?.values.max { ($0.capturedAt ?? $0.date) < ($1.capturedAt ?? $1.date) }
+    }
+
+    /// 올린 사람 먼저(최근 순), 아직 안 올린 사람은 이름순으로 뒤에
+    private var sortedFriends: [Friend] {
+        friends.sorted { lhs, rhs in
+            let lhsTime = latest(lhs).map { $0.capturedAt ?? $0.date }
+            let rhsTime = latest(rhs).map { $0.capturedAt ?? $0.date }
+            switch (lhsTime, rhsTime) {
+            case let (l?, r?): return l > r
+            case (.some, nil): return true
+            case (nil, .some): return false
+            case (nil, nil): return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+            }
+        }
+    }
+
+    private var recordedCount: Int {
+        friends.filter { !(mealsByFriend[$0.id]?.isEmpty ?? true) }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Text("오늘 친구들")
+                    .font(.system(size: 17, weight: .bold))
+                Text("\(recordedCount)/\(friends.count)명 기록")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                if isLoading {
+                    ProgressView().scaleEffect(0.7)
+                }
+                Spacer()
+                Button {
+                    notifyFriendMeals.toggle()
+                } label: {
+                    Image(systemName: notifyFriendMeals ? "bell.fill" : "bell.slash")
+                        .font(.system(size: 17))
+                        .foregroundColor(notifyFriendMeals ? .orange : .secondary)
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("친구 기록 알림")
+                .accessibilityValue(notifyFriendMeals ? "켜짐" : "꺼짐")
+                .accessibilityHint("두 번 탭하면 친구가 기록을 올릴 때 알림을 받을지 바꿉니다")
+            }
+            .padding(.horizontal, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 12) {
+                    ForEach(sortedFriends) { friend in
+                        Button {
+                            onSelect(friend)
+                        } label: {
+                            FriendTodayCard(friend: friend,
+                                            meals: mealsByFriend[friend.id] ?? [:],
+                                            latest: latest(friend))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+    }
+}
+
+/// 친구 한 명의 오늘 — 가장 최근 사진, 올린 끼니, 마지막 기록 시각
+struct FriendTodayCard: View {
+    let friend: Friend
+    let meals: [MealType: MealRecord]
+    let latest: MealRecord?
+
+    private let size: CGFloat = 112
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "a h:mm"
+        return formatter
+    }()
+
+    private var hasRecord: Bool { latest != nil }
+
+    private var timeText: String? {
+        latest?.capturedAt.map { Self.timeFormatter.string(from: $0) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ZStack(alignment: .bottomLeading) {
+                if let data = latest?.afterImageData ?? latest?.beforeImageData,
+                   let image = MealImageResizer.downsampledImage(from: data, maxPixel: size * 3) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size, height: size)
+                        .clipped()
+                } else {
+                    Rectangle()
+                        .fill(hasRecord ? Color.green.opacity(0.15) : Color(.systemGray6))
+                        .frame(width: size, height: size)
+                        .overlay(
+                            VStack(spacing: 4) {
+                                Text(String(friend.name.prefix(1)))
+                                    .font(.system(size: 30, weight: .bold))
+                                    .foregroundColor(hasRecord ? .green : .secondary)
+                                Text(hasRecord ? "사진 없이 기록" : "아직 기록 전")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                            }
+                        )
+                }
+
+                // 가장 최근 끼니
+                if let latest {
+                    HStack(spacing: 3) {
+                        Image(systemName: latest.mealType.symbolName)
+                        Text(latest.mealType.rawValue)
+                    }
+                        .font(.system(size: 11, weight: .semibold))
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(6)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(hasRecord ? Color.green.opacity(0.6) : Color.clear, lineWidth: 2)
+            )
+
+            Text(friend.name)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.primary)
+                .lineLimit(1)
+
+            HStack(spacing: 6) {
+                MealDotsView(recorded: Set(meals.keys))
+                Spacer(minLength: 0)
+                Text(timeText ?? " ")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .frame(width: size)
+        .opacity(hasRecord ? 1 : 0.7)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(hasRecord
+                            ? "\(friend.name), 오늘 \(meals.count)끼 기록\(timeText.map { ", 마지막 \($0)" } ?? "")"
+                            : "\(friend.name), 오늘 아직 기록 없음")
+        .accessibilityHint("두 번 탭하여 \(friend.name)님의 기록 보기")
+    }
+}
+
+/// 최근 7일 × 끼니 — 친구가 언제 무엇을 올렸는지 한 장으로. 기록 있는 날을 누르면 그 날로 이동한다.
+struct FriendWeekOverview: View {
+    let allMeals: [Date: [MealType: MealRecord]]
+    let onSelectDay: (Date) -> Void
+
+    private let rows: [MealType] = [.breakfast, .lunch, .dinner]
+
+    private var days: [Date] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        return (0..<7).reversed().compactMap { calendar.date(byAdding: .day, value: -$0, to: today) }
+    }
+
+    private static let weekdayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "E"
+        return formatter
+    }()
+
+    private static let accessibilityDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일 EEEE"
+        return formatter
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("최근 7일")
+                    .font(.system(size: 14, weight: .semibold))
+                Spacer()
+                Text("\(days.filter { !(allMeals[$0]?.isEmpty ?? true) }.count)일 기록")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+
+            HStack(spacing: 0) {
+                ForEach(days, id: \.self) { day in
+                    dayColumn(day)
+                }
+            }
+
+            // 색만으로 구분하지 않도록 칸의 줄마다 끼니 이름을 범례로 둔다
+            HStack(spacing: 12) {
+                ForEach(rows, id: \.self) { meal in
+                    HStack(spacing: 4) {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(meal.symbolColor)
+                            .frame(width: 10, height: 8)
+                        Text(meal.rawValue)
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                Spacer()
+            }
+            .accessibilityHidden(true)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+    }
+
+    private func dayColumn(_ day: Date) -> some View {
+        let meals = allMeals[day] ?? [:]
+        let isToday = Calendar.current.isDateInToday(day)
+        let recordedNames = MealType.allCases.filter { meals[$0] != nil }.map(\.rawValue)
+
+        return Button {
+            onSelectDay(day)
+        } label: {
+            VStack(spacing: 5) {
+                Text(Self.weekdayFormatter.string(from: day))
+                    .font(.system(size: 11, weight: isToday ? .bold : .regular))
+                    .foregroundColor(isToday ? .primary : .secondary)
+                ForEach(rows, id: \.self) { meal in
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(meals[meal] != nil ? meal.symbolColor : Color(.systemGray5))
+                        .frame(width: 22, height: 14)
+                }
+                Text("\(Calendar.current.component(.day, from: day))")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 8).fill(isToday ? Color.blue.opacity(0.08) : Color.clear))
+        }
+        .buttonStyle(.plain)
+        .disabled(meals.isEmpty)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(Self.accessibilityDayFormatter.string(from: day)), "
+                            + (recordedNames.isEmpty ? "기록 없음" : recordedNames.joined(separator: ", ") + " 기록"))
+        .accessibilityHint(meals.isEmpty ? "" : "두 번 탭하여 이 날 기록으로 이동")
+    }
+}
 
 // 받은 친구 요청 행 (수락/거절)
 struct FriendRequestRow: View {
@@ -927,6 +1265,11 @@ struct TimelineView: View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
                 header(proxy: proxy)
+
+                // 최근 일주일을 한 장으로 — 누르면 그 날로 이동
+                FriendWeekOverview(allMeals: allMeals) { day in
+                    withAnimation { proxy.scrollTo(day, anchor: .top) }
+                }
 
                 Divider()
 

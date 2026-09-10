@@ -88,6 +88,18 @@ class FriendManager: ObservableObject {
     @Published var isLoadingSocial = false
     /// 피드백 푸시 구독 상태 (설정 화면에서 확인·재시도)
     @Published var pushSubscriptionState: PushSubscriptionState = .unknown
+    /// 친구가 기록을 올리면 알림을 받을지 (기본 꺼짐 — 친구가 많으면 알림이 잦아진다)
+    @Published var notifyFriendMeals: Bool = UserDefaults.standard.bool(forKey: FriendManager.notifyFriendMealsKey) {
+        didSet {
+            guard notifyFriendMeals != oldValue else { return }
+            UserDefaults.standard.set(notifyFriendMeals, forKey: Self.notifyFriendMealsKey)
+            syncFriendMealSubscriptions()
+        }
+    }
+    /// 친구 기록 알림 구독 상태 (설정 화면에서 확인·재시도)
+    @Published var friendMealPushState: PushSubscriptionState = .unknown
+    /// 친구 기록 알림 구독 맞추기를 한 줄로 세운다 (겹치면 같은 구독을 두 번 만들다 실패한다)
+    var friendMealSyncTask: _Concurrency.Task<Void, Never>?
 
     // MARK: - CloudKit
 

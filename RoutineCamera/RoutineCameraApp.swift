@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UserNotifications
+import CloudKit
 import LeeoKit
 
 @main
@@ -59,11 +60,28 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     return [.banner, .sound, .badge]
   }
 
-  // 알림의 "다 먹음" 액션 처리 — 앱을 열지 않고 기록만 남긴다
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                               didReceive response: UNNotificationResponse) async {
-    guard response.actionIdentifier == NotificationManager.ateAllActionID else { return }
     let info = response.notification.request.content.userInfo
+
+    if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+      // 친구 기록 알림(CloudKit 푸시)을 누르면 친구 화면으로
+      if let notification = CKNotification(fromRemoteNotificationDictionary: info),
+         notification.subscriptionID?.hasPrefix(FriendManager.friendMealSubscriptionPrefix) == true {
+        await MainActor.run { NotificationManager.shared.requestedFriendsScreen = true }
+        return
+      }
+
+      // 식사 전 알림을 누르면 그 끼니 카메라를 바로 연다
+      if info["kind"] as? String == NotificationManager.mealReminderKind,
+         let raw = info["mealType"] as? String, let mealType = MealType(rawValue: raw) {
+        await MainActor.run { NotificationManager.shared.requestedCameraMeal = mealType }
+        return
+      }
+    }
+
+    // 알림의 "다 먹음" 액션 처리 — 앱을 열지 않고 기록만 남긴다
+    guard response.actionIdentifier == NotificationManager.ateAllActionID else { return }
     guard let raw = info["mealType"] as? String, let mealType = MealType(rawValue: raw) else { return }
     let date = (info["date"] as? TimeInterval).map { Date(timeIntervalSince1970: $0) } ?? Date()
     await MainActor.run {

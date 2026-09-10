@@ -771,6 +771,10 @@ class MealRecordStore: ObservableObject {
 
         // 위젯(홈/잠금화면)이 읽는 경량 스냅샷은 앨범 모드와 무관하게 식단 기준으로 항상 갱신
         publishWidgetSnapshot()
+
+        // 오늘 기록한 끼니는 오늘 식사 전 알림에서 빼고, 지운 끼니는 되살린다 (내일부터 알림은 그대로)
+        let completedToday = Set(dietMeals(for: Date()).filter { $0.value.isComplete }.keys)
+        NotificationManager.shared.scheduleMealNotifications(recordedToday: completedToday)
     }
 
     // MARK: - 위젯 스냅샷
