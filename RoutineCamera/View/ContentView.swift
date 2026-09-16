@@ -126,10 +126,16 @@ struct ContentView: View {
         return nil
     }
 
+    // 운동 앨범은 보기 설정과 상관없이 3열 사진 격자로 보여준다
+    private var showsExerciseGrid: Bool {
+        settingsManager.albumType == .exercise
+    }
+
     // 네이티브 내비게이션 바 타이틀
     private var navTitle: String {
+        if showsExerciseGrid { return "운동" }
         if settingsManager.useMomentsFeed {
-            return settingsManager.albumType == .exercise ? "운동" : "식단"
+            return "식단"
         }
         let f = DateFormatter()
         f.locale = Locale(identifier: "ko_KR")
@@ -201,14 +207,17 @@ struct ContentView: View {
                 // 메인 콘텐츠 (상단은 네이티브 내비게이션 바)
                 VStack(spacing: 0) {
                     // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시 (격자 모드에서만)
-                    if !settingsManager.useMomentsFeed, let pending = pendingMealType {
+                    if !settingsManager.useMomentsFeed, !showsExerciseGrid, let pending = pendingMealType {
                         RecordNowBanner(mealType: pending) {
                             autoOpenPhotoType = .before
                             autoOpenMealType = pending
                         }
                     }
 
-                    if settingsManager.useMomentsFeed {
+                    if showsExerciseGrid {
+                        // 운동: 인스타그램 피드처럼 날짜+사진 3열 격자
+                        ExerciseGridView(mealStore: mealStore)
+                    } else if settingsManager.useMomentsFeed {
                         // 순간 컬렉션 피드 (슬롯 없는 사진 일기)
                         MomentsView(mealStore: mealStore)
                     } else {
@@ -319,7 +328,7 @@ struct ContentView: View {
                 }
 
                 // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)
-                if !settingsManager.useMomentsFeed && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
+                if !settingsManager.useMomentsFeed && !showsExerciseGrid && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
                     VStack {
                         Spacer()
                         HStack {
