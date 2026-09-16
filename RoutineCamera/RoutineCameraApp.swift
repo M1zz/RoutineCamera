@@ -39,6 +39,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // 포그라운드에서도 알림 배너 표시 (로컬 식사 리마인드에도 적용)
     UNUserNotificationCenter.current().delegate = self
 
+    #if DEBUG
+    if let dir = ProcessInfo.processInfo.environment["SEED_SCREENSHOT_DIR"] {
+        SettingsManager.shared.albumType = .exercise
+        MealRecordStore.shared.clearAllData()
+        SettingsManager.shared.albumType = .diet
+        MealRecordStore.shared.generateScreenshotData(photoDirectory: dir)
+    }
+    #endif
+
     return true
   }
 

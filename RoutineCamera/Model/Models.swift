@@ -1378,6 +1378,37 @@ class MealRecordStore: ObservableObject {
         print("🎨 [MealRecordStore] 샘플 데이터 생성 완료: \(records.count)개 기록 추가")
     }
 
+    #if DEBUG
+    // 앱스토어 스크린샷용 데이터: 폴더의 01.jpg… 사진으로 최근 21일 식단을 채운다 (기존 기록은 지움)
+    // 실행: SIMCTL_CHILD_SEED_SCREENSHOT_DIR=<폴더> xcrun simctl launch booted com.ysoup.RoutineCamera
+    func generateScreenshotData(photoDirectory: String) {
+        let files = ((try? FileManager.default.contentsOfDirectory(atPath: photoDirectory)) ?? [])
+            .filter { $0.lowercased().hasSuffix(".jpg") }
+            .sorted()
+        let photos = files.compactMap { FileManager.default.contents(atPath: (photoDirectory as NSString).appendingPathComponent($0)) }
+        guard !photos.isEmpty else { return }
+
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let slots: [(MealType, Int, Int)] = [(.breakfast, 8, 10), (.lunch, 12, 40), (.dinner, 19, 5)]
+        let memos = ["친구랑 비빔밥", "오늘은 가볍게", "퇴근 후 떡볶이", "주말 브런치"]
+        var result: [MealRecord] = []
+        var index = 0
+
+        for dayOffset in (0...20).reversed() {
+            guard let day = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+            for (slotIndex, slot) in slots.enumerated() {
+                let photo = photos[index % photos.count]
+                index += 1
+                let capturedAt = calendar.date(bySettingHour: slot.1, minute: slot.2, second: 0, of: day)
+                let memo = (dayOffset + slotIndex) % 5 == 0 ? memos[(dayOffset + slotIndex) % memos.count] : nil
+                result.append(MealRecord(date: day, mealType: slot.0, beforeImageData: photo, memo: memo, capturedAt: capturedAt, ateAll: true))
+            }
+        }
+        records = result
+    }
+    #endif
+
     // 샘플 이미지 생성 (단색 배경 + 텍스트)
     private func generateSampleImage(mealType: MealType, isBefore: Bool) -> Data? {
         let size = CGSize(width: 600, height: 600)
