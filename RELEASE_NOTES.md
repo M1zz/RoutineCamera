@@ -1,5 +1,19 @@
 # 릴리스 노트
 
+## 1.1.1
+
+### 앱스토어 (한국어)
+
+설정에서 보낸 의견과 개발자 답장을 볼 수 있어요
+의견을 보낼 때 어떤 상황이었는지 차근차근 물어봐요
+설정에서 개인정보처리방침과 이용약관을 바로 열어요
+
+### 개발 메모 (노출 안 함)
+
+- LeeoKit 2.7.0 → 3.16.2: 보낸 의견 · 답장 행(LeeoSentFeedbackRow), 유형별 질문(LeeoFeedbackPrompt),
+  계약의 legal 링크(개인정보 · 지원 · 약관 · 데이터 삭제)가 LeeoSupportSection 에 자동으로 붙는다.
+- 수익모델 계약: paywall → monetization(.freemiumSubscription), 상품 ID 그대로.
+
 ## 1.0.10 (2026.09.16)
 
 ### 앱스토어 (한국어)
