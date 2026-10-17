@@ -331,6 +331,7 @@ struct SettingsView: View {
     @ViewBuilder private var supportSection: some View {
         Section(header: Text("지원")) {
             LeeoSupportSection<RoutineCameraSpec>()
+            NavigationLink(LeeoRoadmapText.entry) { RoadmapScreen() }
         }
     }
 
