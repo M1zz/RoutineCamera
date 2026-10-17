@@ -60,9 +60,12 @@ struct MomentsView: View {
         .map { (mealType: $0.0, at: $0.1) }
     }
 
+    // 지금 찍으면 들어갈 칸 — 이미 기록한 끼니는 덮어쓰지 않고 간식 칸으로 (now 의존으로 분 단위 갱신)
+    private var nextMealType: MealType { mealStore.recordableMealType(at: now) }
+
     // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
-        isExercise ? "운동 기록하기" : "\(MealType.inferred().rawValue) 기록하기"
+        isExercise ? "운동 기록하기" : "\(nextMealType.rawValue) 기록하기"
     }
 
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
@@ -130,6 +133,12 @@ struct MomentsView: View {
                 emptyState
             } else {
                 List {
+                    // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다
+                    if !isExercise {
+                        MealRhythmCard(mealStore: mealStore, now: now)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowSeparator(.hidden)
+                    }
                     ForEach(dayGroups, id: \.day) { group in
                         Section {
                             ForEach(group.rows) { row in
@@ -193,7 +202,7 @@ struct MomentsView: View {
             recordingPhotoType = .before
             // 식단·운동 모두 "지금 시각"으로 슬롯을 정한다.
             // (운동을 늘 .breakfast에 넣던 탓에 저녁 운동도 아침 칸에 들어가고 하루 한 번만 기록됐다)
-            recordingMealType = MealType.inferred()
+            recordingMealType = nextMealType
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: isExercise ? "figure.run" : "camera.fill")

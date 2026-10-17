@@ -1,5 +1,10 @@
 # RoutineCamera 접근성(VoiceOver) 개선
 
+## 완료: 간식 기록 덮어쓰기 수정 + 식사 리듬 카드 (빌드 검증 완료 ✅)
+- [x] 기록하기 버튼: 시간대 끼니가 오늘 이미 있으면 빈 간식 칸으로 (점심 사진이 간식으로 덮어써지던 문제) — MealRecordStore.recordableMealType
+- [x] 순간 피드 맨 위 "최근 7일 식사 리듬" 카드 (챙길 끼니 × 7일 점 격자, 다 챙긴 날 수) — MealRhythmCard
+- [ ] 시뮬레이터/실기기에서 카드 레이아웃(작은 화면·큰 글씨) 눈으로 확인
+
 ## 진행: 코드 구조화 · 리팩터 · 테스트
 - [x] 기능 목록 문서화 (FEATURES.md)
 - [x] 핵심 순수 로직을 RoutineCameraCore 로컬 패키지로 추출 (MealType/MealRecord/MealStats/PendingAteAll)

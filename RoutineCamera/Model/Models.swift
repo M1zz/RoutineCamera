@@ -487,6 +487,26 @@ class MealRecordStore: ObservableObject {
         return mealDict
     }
 
+    // 지금 새로 기록할 칸. 시간대 끼니가 오늘 이미 기록돼 있으면 덮어쓰지 않고 빈 간식 칸으로 보낸다.
+    // (점심을 찍은 뒤 오후에 간식을 찍으면 점심 사진이 간식으로 교체되던 문제)
+    func recordableMealType(at now: Date = Date()) -> MealType {
+        let cal = Calendar.current
+        let inferred = MealType.inferred(at: now)
+        let taken = Set(
+            records
+                .filter { $0.isComplete && cal.isDate($0.date, inSameDayAs: now) }
+                .map(\.mealType)
+        )
+        if !inferred.isSnack && !taken.contains(inferred) { return inferred }
+
+        // 시간대에 맞는 간식 칸을 먼저, 차 있으면 남은 간식 칸
+        let hour = cal.component(.hour, from: now)
+        let preferred: MealType = hour < 11 ? .snack1 : (hour < 16 ? .snack2 : .snack3)
+        let candidates = [preferred] + [MealType.snack1, .snack2, .snack3].filter { $0 != preferred }
+        // 전부 차 있으면 끼니 사진 대신 간식 칸을 덮어쓴다
+        return candidates.first { !taken.contains($0) } ?? preferred
+    }
+
     // 식사 기록 추가 또는 업데이트 (식전/식후 지정)
     func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool) {
         let targetDate = Calendar.current.startOfDay(for: date)
