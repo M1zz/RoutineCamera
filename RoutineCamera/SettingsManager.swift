@@ -109,6 +109,8 @@ class SettingsManager: ObservableObject {
             UserDefaults.standard.set(caredMeals.map { $0.rawValue }, forKey: "caredMeals")
             // 변경 즉시 알림 재설정
             NotificationManager.shared.scheduleMealNotifications()
+            // 위젯의 아침·점심·저녁 체크도 바뀐 끼니로
+            MealRecordStore.shared.publishWidgetSnapshot()
         }
     }
 

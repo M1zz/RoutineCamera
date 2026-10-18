@@ -815,7 +815,14 @@ class MealRecordStore: ObservableObject {
             inProgressSince: inProgress?.sortDate,
             lastRecordedAt: todays.map(\.sortDate).max(),
             needsRecordCount: dietRecords.filter { $0.needsRecordCompletion(asOf: now) }.count,
-            generatedAt: now
+            generatedAt: now,
+            // 위젯의 아침·점심·저녁 체크 — 끼니는 촬영 시각이 아니라 기록한 날짜 기준
+            recordedMealTypes: dietRecords
+                .filter { $0.isComplete && cal.isDate($0.date, inSameDayAs: now) }
+                .map(\.mealType.rawValue),
+            caredMealTypes: [MealType.breakfast, .lunch, .dinner]
+                .filter { SettingsManager.shared.caredMeals.contains($0) }
+                .map(\.rawValue)
         )
 
         if let encoded = try? JSONEncoder().encode(snapshot) {

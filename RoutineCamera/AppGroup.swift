@@ -39,6 +39,8 @@ struct WidgetSnapshot: Codable {
     let lastRecordedAt: Date?        // 오늘 마지막 기록 시각
     let needsRecordCount: Int        // 날이 지나 "기록 필요"로 남은 기록 수
     let generatedAt: Date
+    let recordedMealTypes: [String]  // 오늘 기록한 끼니 (MealType.rawValue)
+    let caredMealTypes: [String]     // 챙기기로 한 주요 끼니 (아침→저녁 순)
 }
 
 /// 앱을 실행하지 않고 위젯에서 "다 먹음"을 눌렀을 때 공유 저장소에 쌓이는 항목.
