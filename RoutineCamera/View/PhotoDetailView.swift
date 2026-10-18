@@ -749,68 +749,11 @@ struct PhotoDetailView: View {
             return
         }
 
-        let currentAlbumName = albumName
-
-        // 사진 라이브러리 접근 권한 확인
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            guard status == .authorized || status == .limited else {
-                DispatchQueue.main.async {
-                    showingSaveErrorAlert = true
-                }
-                return
-            }
-
-            // 먼저 앨범이 있는지 확인
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", currentAlbumName)
-            let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-
-            if let album = collection.firstObject {
-                // 기존 앨범에 이미지 추가
-                PHPhotoLibrary.shared().performChanges({
-                    let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                    let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                    albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
-                }) { success, error in
-                    DispatchQueue.main.async {
-                        if success {
-                            showingSaveSuccessAlert = true
-                        } else {
-                            showingSaveErrorAlert = true
-                        }
-                    }
-                }
+        MealAlbumSaver.save(image, toAlbum: albumName) { success in
+            if success {
+                showingSaveSuccessAlert = true
             } else {
-                // 새 앨범 생성
-                var albumPlaceholder: PHObjectPlaceholder?
-                PHPhotoLibrary.shared().performChanges({
-                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: currentAlbumName)
-                    albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
-                }) { success, error in
-                    if success, let placeholder = albumPlaceholder {
-                        // 앨범이 생성되면 이미지 추가
-                        let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [placeholder.localIdentifier], options: nil)
-                        if let album = fetchResult.firstObject {
-                            PHPhotoLibrary.shared().performChanges({
-                                let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                                let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                                albumChangeRequest?.addAssets([assetRequest.placeholderForCreatedAsset!] as NSArray)
-                            }) { success, error in
-                                DispatchQueue.main.async {
-                                    if success {
-                                        showingSaveSuccessAlert = true
-                                    } else {
-                                        showingSaveErrorAlert = true
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            showingSaveErrorAlert = true
-                        }
-                    }
-                }
+                showingSaveErrorAlert = true
             }
         }
     }

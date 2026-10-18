@@ -84,6 +84,68 @@ nonisolated enum MealImageResizer {
     }
 }
 
+// MARK: - "세끼" 앨범에 저장
+
+/// 사진을 사진앱의 이름 붙은 앨범(없으면 만든다)에 넣는다.
+/// Photos 의 권한·변경 콜백은 백그라운드 큐에서 오는데, 화면(View) 안에 클로저를 쓰면
+/// 메인 액터 격리를 물려받아 그 큐에서 불리는 순간 격리 검사에 걸려 앱이 종료됐다
+/// (찍고 "사용하기" 를 누르면 죽던 문제). 그래서 메인 액터에 묶지 않는다.
+nonisolated enum MealAlbumSaver {
+    /// completion 은 메인에서 불린다 (권한 없음·실패는 false)
+    static func save(_ image: UIImage, toAlbum albumName: String, completion: (@MainActor @Sendable (Bool) -> Void)? = nil) {
+        let finish: @Sendable (Bool) -> Void = { success in
+            DispatchQueue.main.async { completion?(success) }
+        }
+
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            guard status == .authorized || status == .limited else {
+                print("사진 라이브러리 접근 권한이 없습니다.")
+                finish(false)
+                return
+            }
+
+            // 먼저 앨범이 있는지 확인
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+            if let album = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions).firstObject {
+                add(image, to: album, finish: finish)
+                return
+            }
+
+            // 새 앨범 생성 후 이미지 추가
+            var albumIdentifier: String?
+            PHPhotoLibrary.shared().performChanges({
+                albumIdentifier = PHAssetCollectionChangeRequest
+                    .creationRequestForAssetCollection(withTitle: albumName)
+                    .placeholderForCreatedAssetCollection.localIdentifier
+            }) { success, error in
+                guard success, let albumIdentifier,
+                      let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumIdentifier], options: nil).firstObject else {
+                    print("앨범 생성 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+                    finish(false)
+                    return
+                }
+                add(image, to: album, finish: finish)
+            }
+        }
+    }
+
+    private static func add(_ image: UIImage, to album: PHAssetCollection, finish: @escaping @Sendable (Bool) -> Void) {
+        PHPhotoLibrary.shared().performChanges({
+            let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+            guard let placeholder = assetRequest.placeholderForCreatedAsset else { return }
+            PHAssetCollectionChangeRequest(for: album)?.addAssets([placeholder] as NSArray)
+        }) { success, error in
+            if success {
+                print("이미지가 \(album.localizedTitle ?? "") 앨범에 저장되었습니다.")
+            } else {
+                print("이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+            }
+            finish(success)
+        }
+    }
+}
+
 struct CustomCameraView: View {
     @Binding var selectedImage: UIImage?
     let isActive: Bool
@@ -252,62 +314,7 @@ struct CustomCameraView: View {
             albumName = "세끼운동"
         }
 
-        // 사진 라이브러리 접근 권한 확인
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            guard status == .authorized || status == .limited else {
-                print("사진 라이브러리 접근 권한이 없습니다.")
-                return
-            }
-
-            // 먼저 앨범이 있는지 확인
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
-            let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-
-            if let album = collection.firstObject {
-                // 기존 앨범에 이미지 추가
-                PHPhotoLibrary.shared().performChanges({
-                    let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                    guard let placeholder = assetRequest.placeholderForCreatedAsset else { return }
-                    let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                    albumChangeRequest?.addAssets([placeholder] as NSArray)
-                }) { success, error in
-                    if success {
-                        print("이미지가 \(albumName) 앨범에 저장되었습니다.")
-                    } else {
-                        print("이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
-                    }
-                }
-            } else {
-                // 새 앨범 생성
-                var albumPlaceholder: PHObjectPlaceholder?
-                PHPhotoLibrary.shared().performChanges({
-                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
-                    albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
-                }) { success, error in
-                    if success, let placeholder = albumPlaceholder {
-                        // 앨범이 생성되면 이미지 추가
-                        let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [placeholder.localIdentifier], options: nil)
-                        if let album = fetchResult.firstObject {
-                            PHPhotoLibrary.shared().performChanges({
-                                let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
-                                guard let assetPlaceholder = assetRequest.placeholderForCreatedAsset else { return }
-                                let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
-                                albumChangeRequest?.addAssets([assetPlaceholder] as NSArray)
-                            }) { success, error in
-                                if success {
-                                    print("이미지가 새로 생성된 \(albumName) 앨범에 저장되었습니다.")
-                                } else {
-                                    print("새 앨범에 이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
-                                }
-                            }
-                        }
-                    } else {
-                        print("앨범 생성 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
-                    }
-                }
-            }
-        }
+        MealAlbumSaver.save(image, toAlbum: albumName)
     }
 
     // 이미지에 날짜와 시간을 추가하는 함수
