@@ -64,6 +64,12 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // 기록 화면이 미리 채우는 "먹은 시각" — 오늘 지금 끼니면 지금, 아니면 그 날 끼니 대표 시각 (RoutineCameraCore)
+    func suggestedCapturedAt(on date: Date, now: Date = Date()) -> Date {
+        guard let core = RoutineCameraCore.MealType(rawValue: rawValue) else { return now }
+        return MealTimeSuggestion.capturedAt(day: date, mealType: core, now: now)
+    }
+
     // 촬영 시각으로 끼니를 자동 추론 (순간 기록에서 슬롯 선택 없이 바로 기록하기 위함)
     // 아침 05~10시 / 점심 11~15시 / 저녁 16~21시 / 그 외 간식
     static func inferred(at date: Date = Date()) -> MealType {
@@ -508,7 +514,8 @@ class MealRecordStore: ObservableObject {
     }
 
     // 식사 기록 추가 또는 업데이트 (식전/식후 지정)
-    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool) {
+    // capturedAt: 새 기록일 때 "먹은 시각" (기록 화면에서 고른 값). 기존 기록에 사진을 더할 때는 원래 시각을 유지한다.
+    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date()) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
         // 현재 앨범 타입에 따라 적절한 배열 사용
@@ -554,7 +561,7 @@ class MealRecordStore: ObservableObject {
                 mealType: mealType,
                 beforeImageData: isBefore ? imageData : nil,
                 afterImageData: isBefore ? nil : imageData,
-                capturedAt: Date()
+                capturedAt: capturedAt
             )
             currentRecords.append(newRecord)
         }
@@ -567,7 +574,7 @@ class MealRecordStore: ObservableObject {
     }
 
     // 사진 없이 기록
-    func recordWithoutPhoto(date: Date, mealType: MealType) {
+    func recordWithoutPhoto(date: Date, mealType: MealType, capturedAt: Date = Date()) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
         var currentRecords = records
@@ -587,7 +594,7 @@ class MealRecordStore: ObservableObject {
             beforeImageData: nil,
             afterImageData: nil,
             recordedWithoutPhoto: true,
-            capturedAt: Date()
+            capturedAt: capturedAt
         )
         currentRecords.append(newRecord)
 

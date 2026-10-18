@@ -6,10 +6,12 @@
 import SwiftUI
 import AVFoundation
 import Photos
+import RoutineCameraCore
 
 struct CameraPickerView: View {
-    let date: Date
-    let mealType: MealType
+    // 새 기록이면 사용자가 날짜·끼니를 바꿀 수 있다 (처음 값은 누른 칸 또는 지금 시간대 끼니)
+    @State private var date: Date
+    @State private var mealType: MealType
     @ObservedObject var mealStore: MealRecordStore
     @Binding var selectedPhotoType: MealPhotoView.PhotoType
     @Environment(\.dismiss) var dismiss
@@ -18,9 +20,17 @@ struct CameraPickerView: View {
     @State private var selectedImage: UIImage?
     @State private var localPhotoType: MealPhotoView.PhotoType
 
+    // "언제 먹었는지" — 제안값으로 채워 두고, 사용자가 고칠 수 있다 (점심을 깜빡하고 저녁에 남기는 경우)
+    private let canEditTarget: Bool            // 새 식단 기록일 때만 (기존 기록에 사진을 더할 때는 그 기록에 붙는다)
+    @State private var mealTime: Date          // 시·분만 쓰고 날짜는 date
+    @State private var mealTimeEdited = false  // 직접 고쳤으면 날짜·끼니를 바꿔도 제안으로 덮지 않는다
+    @State private var showingTargetEditor = false
+
     init(date: Date, mealType: MealType, mealStore: MealRecordStore, selectedPhotoType: Binding<MealPhotoView.PhotoType>) {
-        self.date = date
-        self.mealType = mealType
+        self._date = State(initialValue: date)
+        self._mealType = State(initialValue: mealType)
+        self._mealTime = State(initialValue: mealType.suggestedCapturedAt(on: date))
+        self.canEditTarget = SettingsManager.shared.albumType == .diet && mealStore.getMeals(for: date)[mealType] == nil
         self.mealStore = mealStore
         self._selectedPhotoType = selectedPhotoType
 
@@ -85,6 +95,10 @@ struct CameraPickerView: View {
                 }
                 .frame(height: 52)
 
+                if canEditTarget {
+                    recordTargetButton
+                }
+
                 // 사진 없이 끝내기 — 한 번 탭하면 바로 기록되고 닫힌다.
                 // 이미 기록이 있는 끼니에서 "사진 없이 기록"은 아무 일도 하지 않으므로 보여주지 않는다.
                 if canFinishWithoutAfterPhoto {
@@ -148,7 +162,8 @@ struct CameraPickerView: View {
         .ignoresSafeArea(edges: .bottom)
         .onChange(of: selectedImage) { oldValue, newValue in
             if let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
-                mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData, isBefore: localPhotoType == .before)
+                mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData,
+                                          isBefore: localPhotoType == .before, capturedAt: capturedAt)
 
                 // 식단 모드일 때 식전 사진만 자동으로 Vision 분석 실행
                 if SettingsManager.shared.albumType == .diet && localPhotoType == .before {
@@ -172,6 +187,165 @@ struct CameraPickerView: View {
         .onChange(of: localPhotoType) { oldValue, newValue in
             selectedPhotoType = newValue
         }
+        .onChange(of: date) { _, _ in refreshSuggestedTime() }
+        .onChange(of: mealType) { _, _ in refreshSuggestedTime() }
+        .sheet(isPresented: $showingTargetEditor) {
+            recordTargetEditor
+        }
+        #if DEBUG
+        // UI 검증용: 환경변수로 "언제 먹었나요?" 편집 시트 자동 오픈 (OPEN_CAMERA_SHEET_FOR_TEST 와 함께)
+        .onAppear {
+            if canEditTarget, ProcessInfo.processInfo.environment["OPEN_RECORD_TARGET_FOR_TEST"] == "1" {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingTargetEditor = true }
+            }
+        }
+        #endif
+    }
+
+    // MARK: - 언제·어느 끼니로 남길지
+
+    // 저장할 "먹은 시각" — 고른 날짜에 고른 시·분 (미래면 지금)
+    private var capturedAt: Date {
+        MealTimeSuggestion.combine(day: date, time: mealTime, now: Date())
+    }
+
+    private func refreshSuggestedTime() {
+        guard !mealTimeEdited else { return }
+        mealTime = mealType.suggestedCapturedAt(on: date)
+    }
+
+    // 그 날 이미 남긴 끼니 — 고를 수 없게 한다 (사진을 덮어쓰지 않도록)
+    private func takenMeals(on day: Date) -> Set<MealType> {
+        Set(mealStore.getMeals(for: day).filter { $0.value.isComplete }.keys)
+    }
+
+    private func mealName(_ type: MealType) -> String {
+        type.isSnack ? String(localized: "간식") : String(localized: String.LocalizationValue(type.rawValue))
+    }
+
+    private var dayText: String {
+        let cal = Calendar.current
+        if cal.isDateInToday(date) { return String(localized: "오늘") }
+        if cal.isDateInYesterday(date) { return String(localized: "어제") }
+        return date.formatted(.dateTime.month().day().weekday(.abbreviated))
+    }
+
+    private var targetSummary: String {
+        "\(dayText) \(mealName(mealType)) · \(capturedAt.formatted(date: .omitted, time: .shortened))"
+    }
+
+    private var recordTargetButton: some View {
+        Button {
+            showingTargetEditor = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: mealType.symbolName)
+                    .foregroundColor(mealType.symbolColor)
+                Text(targetSummary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.secondary)
+            }
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Capsule().fill(Color(.secondarySystemBackground)))
+        }
+        .buttonStyle(.plain)
+        .padding(.bottom, 8)
+        .accessibilityLabel("\(targetSummary)에 기록")
+        .accessibilityHint("두 번 탭하면 날짜, 끼니, 먹은 시각을 바꿀 수 있습니다")
+    }
+
+    private var recordTargetEditor: some View {
+        let taken = takenMeals(on: date)
+        let dayBinding = Binding<Date>(
+            get: { date },
+            set: { newDay in
+                date = Calendar.current.startOfDay(for: newDay)
+                // 고른 끼니가 그 날 이미 있으면 비어 있는 끼니로 옮긴다
+                let takenThatDay = takenMeals(on: date)
+                if takenThatDay.contains(mealType),
+                   let free = ([mealType] + MealType.allCases).first(where: { !takenThatDay.contains($0) }) {
+                    mealType = free
+                }
+            }
+        )
+        let timeBinding = Binding<Date>(
+            get: { mealTime },
+            set: { mealTime = $0; mealTimeEdited = true }
+        )
+        let snackSlot = [mealType].filter(\.isSnack) + [MealType.snack1, .snack2, .snack3]
+        let freeSnack = snackSlot.first { !taken.contains($0) }
+
+        return NavigationStack {
+            Form {
+                Section {
+                    DatePicker("날짜", selection: dayBinding, in: ...Date(), displayedComponents: .date)
+                }
+
+                Section("끼니") {
+                    HStack(spacing: 8) {
+                        ForEach([MealType.breakfast, .lunch, .dinner], id: \.self) { type in
+                            mealChoice(type, title: mealName(type), selected: mealType == type,
+                                       target: taken.contains(type) ? nil : type)
+                        }
+                        mealChoice(.snack1, title: mealName(.snack1), selected: mealType.isSnack, target: freeSnack)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                Section {
+                    DatePicker("먹은 시각", selection: timeBinding, displayedComponents: .hourAndMinute)
+                } footer: {
+                    Text("바꾸지 않으면 끼니 시간으로 남아요")
+                }
+            }
+            .navigationTitle("언제 먹었나요?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("완료") { showingTargetEditor = false }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    // target 이 nil 이면 그 날 이미 남긴 끼니 — 누를 수 없고 "기록됨" 으로 보인다
+    private func mealChoice(_ type: MealType, title: String, selected: Bool, target: MealType?) -> some View {
+        Button {
+            if let target { mealType = target }
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: type.symbolName)
+                    .font(.system(size: 20))
+                    .foregroundColor(target == nil && !selected ? .secondary : type.symbolColor)
+                Text(title)
+                    .font(.system(size: 14, weight: selected ? .bold : .regular))
+                if target == nil && !selected {
+                    Text("기록됨")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(selected ? type.symbolColor.opacity(0.18) : Color(.tertiarySystemFill))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(selected ? type.symbolColor : .clear, lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(target == nil && !selected)
+        .accessibilityLabel(target == nil && !selected ? "\(title), 이미 기록됨" : title)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     // MARK: - 사진 없이 끝내기 버튼
@@ -179,7 +353,7 @@ struct CameraPickerView: View {
     // 사진을 남기고 싶지 않은 순간을 위한 한 탭 기록. 토글 없이 바로 저장하고 닫는다.
     private var recordWithoutPhotoButton: some View {
         Button {
-            mealStore.recordWithoutPhoto(date: date, mealType: mealType)
+            mealStore.recordWithoutPhoto(date: date, mealType: mealType, capturedAt: capturedAt)
             // 사진 없이 마감했으므로 "다 드셨어요?" 리마인더는 필요 없다
             NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
             dismiss()
