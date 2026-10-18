@@ -368,13 +368,15 @@ class MealRecordStore: ObservableObject {
     private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
     /// 날짜별 기록 지문. 실제로 바뀐 날짜만 업로드하기 위한 기준값
     private var dateFingerprints: [String: Int] = [:]
-    private let fingerprintsKey = "dietDateFingerprints_v1"
-    private let fingerprintBaselineKey = "dietFingerprintBaseline_v1"
+    // v2: 지문을 StableHasher 로 만든다. v1 은 실행마다 시드가 바뀌는 Hasher 라 저장값과 맞은 적이 없어,
+    // 앱을 켠 뒤 처음 저장할 때마다 기록이 있는 모든 날짜가 다시 올라갔다. 키를 바꿔 기준값을 새로 잡는다.
+    private let fingerprintsKey = "dietDateFingerprints_v2"
+    private let fingerprintBaselineKey = "dietFingerprintBaseline_v2"
     // 운동은 지문을 따로 둔다. 기존 식단 해시에 운동을 섞으면 모든 날짜가 "바뀐 것"으로 잡혀
     // 1.0.8 첫 실행에 전체 이력이 한꺼번에 재업로드된다.
     private var exerciseDateFingerprints: [String: Int] = [:]
-    private let exerciseFingerprintsKey = "exerciseDateFingerprints_v1"
-    private let exerciseFingerprintBaselineKey = "exerciseFingerprintBaseline_v1"
+    private let exerciseFingerprintsKey = "exerciseDateFingerprints_v2"
+    private let exerciseFingerprintBaselineKey = "exerciseFingerprintBaseline_v2"
     private var lastUploadTime: Date?
     private var uploadTimer: Timer?
     private let uploadDelaySeconds: TimeInterval = 5  // 5초 후 업로드
@@ -919,9 +921,9 @@ class MealRecordStore: ObservableObject {
 
         var result: [String: Int] = [:]
         for (dateString, records) in grouped {
-            var hasher = Hasher()
+            var hasher = StableHasher() // 실행이 바뀌어도 같은 값 (저장해 두고 다음 실행에 비교한다)
             for record in records.sorted(by: { $0.mealType.rawValue < $1.mealType.rawValue }) {
-                hasher.combine(record.mealType)
+                hasher.combine(record.mealType.rawValue)
                 hasher.combine(record.memo ?? "")
                 hasher.combine(record.beforeImageData?.count ?? 0)
                 hasher.combine(record.afterImageData?.count ?? 0)
