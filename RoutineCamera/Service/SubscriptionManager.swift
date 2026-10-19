@@ -50,9 +50,15 @@ enum ProFeature: String, LeeoProFeature, CaseIterable {
 final class SubscriptionManager: ObservableObject {
     static let shared = SubscriptionManager()
 
-    // 구독 상품 ID (App Store Connect 에 등록된 값) — 절대 변경 금지.
-    // 이름은 예전 "매달 99코인" 시절 것이지만 지금은 세끼 프로 월간 구독이다.
-    static let monthlySubscriptionID = "com.ysoup.routinecamera.monthly.99coins"
+    // 세끼 프로 상품 ID — App Store Connect 에 등록한 뒤로는 절대 바꾸지 않는다 (한 번 쓴 ID 는 다시 못 쓴다).
+    // 연간·월간은 같은 구독 그룹(Sekki Pro), 평생은 비소모성. 무엇을 사든 같은 프로 권한이다.
+    static let yearlySubscriptionID = "com.ysoup.routinecamera.pro.yearly"
+    static let monthlySubscriptionID = "com.ysoup.routinecamera.pro.monthly"
+    static let lifetimeID = "com.ysoup.routinecamera.pro.lifetime"
+
+    /// 결제 화면에 보이는 순서 = 이 순서. 첫 상품이 기본 선택이다 —
+    /// 연간을 맨 위·기본으로 두고 평생은 맨 아래에 둬서 구독 쪽으로 이끈다.
+    static let productIDs = [yearlySubscriptionID, monthlySubscriptionID, lifetimeID]
 
     let store: LeeoStore
     private var cancellable: AnyCancellable?

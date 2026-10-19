@@ -33,7 +33,7 @@
 
 ## 5. AI 음식 분석
 - **음식 분석**: Vision Framework (`VisionAnalyzer`) — 기기 안에서 무료, 횟수 제한 없음
-- **세끼 프로**: 월간 구독(`SubscriptionManager`) — 그룹 여러 개, 자세한 통계, Face ID 잠금. 무엇이 프로인지는 `RoutineCameraSpec` 의 gate 한 곳
+- **세끼 프로**: 연간·월간 구독 + 평생 이용권(`SubscriptionManager`, 로컬 테스트는 `Config/SekkiPro.storekit`) — 그룹 여러 개, 자세한 통계, Face ID 잠금. 무엇이 프로인지는 `RoutineCameraSpec` 의 gate 한 곳
 
 ## 6. 기타
 - **사진앱 자동 저장** (앨범 분리)

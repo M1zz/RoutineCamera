@@ -1,0 +1,121 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "en_US",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "B7C1A1D2",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "39.99",
+      "familyShareable": true,
+      "internalID": "31000001",
+      "localizations": [
+        {
+          "description": "한 번 결제로 계속 써요",
+          "displayName": "세끼 프로 평생",
+          "locale": "ko"
+        },
+        {
+          "description": "Pay once, keep it",
+          "displayName": "Sekki Pro Lifetime",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.pro.lifetime",
+      "referenceName": "Sekki Pro Lifetime",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_locale": "ko",
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21000001",
+      "localizations": [
+        {
+          "customAppName": "",
+          "description": "",
+          "displayName": "세끼 프로",
+          "locale": "ko"
+        },
+        {
+          "customAppName": "",
+          "description": "",
+          "displayName": "Sekki Pro",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Sekki Pro",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "14.99",
+          "familyShareable": true,
+          "groupNumber": 1,
+          "internalID": "12419252",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "가장 알뜰해요 · 37% 할인",
+              "displayName": "세끼 프로 연간",
+              "locale": "ko"
+            },
+            {
+              "description": "Best value · Save 37%",
+              "displayName": "Sekki Pro Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.ysoup.routinecamera.pro.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Sekki Pro Yearly",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "1.99",
+          "familyShareable": true,
+          "groupNumber": 1,
+          "internalID": "47228444",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "언제든 해지할 수 있어요",
+              "displayName": "세끼 프로 월간",
+              "locale": "ko"
+            },
+            {
+              "description": "Cancel anytime",
+              "displayName": "Sekki Pro Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.ysoup.routinecamera.pro.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Sekki Pro Monthly",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}

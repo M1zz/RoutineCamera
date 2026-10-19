@@ -16,6 +16,7 @@ struct ContentView: View {
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
     @StateObject private var friendManager = FriendManager.shared
+    @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
     @State private var showingStatistics = false
@@ -285,6 +286,10 @@ struct ContentView: View {
                 .onAppear {
                     #if DEBUG
                     // UI 검증용: 환경변수로 카메라 시트 자동 오픈 (시뮬레이터 스크린샷 검증에 사용)
+                    // 심사용 스크린샷: 세끼 프로 결제 화면 바로 열기 (Xcode 실행 + Config/SekkiPro.storekit 이어야 상품이 뜬다)
+                    if ProcessInfo.processInfo.environment["OPEN_PAYWALL_FOR_TEST"] == "1" {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingPaywallForTest = true }
+                    }
                     if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             autoOpenMealType = .lunch
@@ -421,6 +426,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
             }
+            .proPaywall(isPresented: $showingPaywallForTest)
             .sheet(isPresented: $showingCaredMealsPrompt) {
                 CaredMealsPromptView()
             }

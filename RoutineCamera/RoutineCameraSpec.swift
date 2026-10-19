@@ -18,11 +18,11 @@ enum RoutineCameraSpec: LeeoAppSpec {
         createsAccounts: true
     )
 
-    /// 수익모델 — 기록·위젯·친구 공유·그룹 참여는 무료, 월간 구독(세끼 프로)으로 기능 묶음을 연다.
+    /// 수익모델 — 기록·위젯·친구 공유·그룹 참여는 무료, 세끼 프로(연간·월간 구독 또는 평생)로 기능 묶음을 연다.
     /// 상품 ID 는 절대 변경하지 않는다. 기능 키는 SubscriptionManager.swift 의 ProFeature 와 같다.
     static let monetization = LeeoMonetization.freemiumSubscription(
         LeeoSubscriptionConfig(
-            productIDs: [SubscriptionManager.monthlySubscriptionID],
+            productIDs: SubscriptionManager.productIDs,   // 연간(기본 선택) · 월간 · 평생
             termsURL: URL(string: "https://m1zz.github.io/RoutineCamera/terms.html")!,
             gate: LeeoGatePolicy(
                 freeLimits: [ProFeature.groupCreate.rawValue: 1],   // 그룹은 하나까지 무료로 만든다 (참여는 제한 없음)
