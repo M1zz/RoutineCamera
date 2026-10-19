@@ -1110,11 +1110,13 @@ struct GroupMemberTile: View {
                     .offset(x: 2, y: 2)
             }
 
+            // 이름이 길어도 "(나)" 가 잘려 나가지 않게 두 줄까지
             Text(isMe ? "\(member.nickname) (나)" : member.nickname)
                 .font(.system(size: 12, weight: hasRecord ? .semibold : .regular))
                 .foregroundColor(hasRecord ? .primary : .secondary)
-                .lineLimit(1)
-                .truncationMode(.tail)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .multilineTextAlignment(.center)
 
             Text(hasRecord ? "\(recorded.count)끼" : "미기록")
                 .font(.system(size: 10))
@@ -1124,7 +1126,7 @@ struct GroupMemberTile: View {
         .opacity(hasRecord ? 1 : 0.65)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(hasRecord
-                            ? "\(member.nickname)\(isMe ? ", 나" : ""), 기록함, \(recorded.map(\.rawValue).joined(separator: ", "))"
+                            ? "\(member.nickname)\(isMe ? ", 나" : ""), 기록함, \(recorded.map(\.displayName).joined(separator: ", "))"
                             : "\(member.nickname)\(isMe ? ", 나" : ""), 아직 기록 없음")
     }
 }

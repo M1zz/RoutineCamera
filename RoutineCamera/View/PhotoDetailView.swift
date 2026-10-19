@@ -41,16 +41,19 @@ struct PhotoDetailView: View {
 
     @ViewBuilder
     private var detailBody: some View {
+          // 메모·음식 태그·응원이 길어도 아래가 잘리지 않게 전체를 스크롤한다
+          ScrollView {
             VStack(spacing: 0) {
                 if let record = currentRecord {
-                    // 사진 영역
+                    // 사진 영역 — 정사각형 높이로 고정 (아래 정보가 많아도 사진이 찌그러지지 않게)
+                    Group {
                     if SettingsManager.shared.albumType == .exercise {
                         // 운동 모드: 사진 1장만 표시
                         if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
-                                .accessibilityLabel("\(mealType.rawValue) 기록 사진")
+                                .accessibilityLabel("\(mealType.displayName) 기록 사진")
                         } else {
                             VStack(spacing: 12) {
                                 Image(systemName: "photo")
@@ -77,7 +80,7 @@ struct PhotoDetailView: View {
                             Image(uiImage: beforeImage)
                                 .resizable()
                                 .scaledToFit()
-                                .accessibilityLabel("\(mealType.rawValue) 기록 사진")
+                                .accessibilityLabel("\(mealType.displayName) 기록 사진")
                         } else {
                             VStack(spacing: 12) {
                                 Image(systemName: "photo")
@@ -199,6 +202,9 @@ struct PhotoDetailView: View {
                         .tabViewStyle(.page)
                         .indexViewStyle(.page(backgroundDisplayMode: .always))
                     }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: UIScreen.appWidth)
 
                     // 정보 영역
                     VStack(alignment: .leading, spacing: 16) {
@@ -208,7 +214,7 @@ struct PhotoDetailView: View {
                             Image(systemName: isExercise ? "figure.run" : mealType.symbolName)
                                 .foregroundColor(isExercise ? .green : mealType.symbolColor)
                                 .font(.system(size: 24))
-                            Text(isExercise ? "운동" : mealType.rawValue)
+                            Text(isExercise ? "운동" : mealType.displayName)
                                 .font(.system(size: 24, weight: .bold))
                                 .lineLimit(1)
                             // 식단 모드 + 식후 사진을 쓸 때만 식전/식후 표시
@@ -365,6 +371,7 @@ struct PhotoDetailView: View {
                     .background(Color(.systemBackground))
                 }
             }
+          }
             .navigationTitle(dateFormatter.string(from: date))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -689,7 +696,7 @@ struct MemoEditorView: View {
                     Image(systemName: mealType.symbolName)
                         .font(.title)
                         .foregroundColor(mealType.symbolColor)
-                    Text(mealType.rawValue)
+                    Text(mealType.displayName)
                         .font(.title3)
                         .fontWeight(.semibold)
                         .lineLimit(1)

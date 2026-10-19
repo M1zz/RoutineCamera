@@ -18,7 +18,7 @@ import LeeoKit
 extension RoutineCameraSpec {
     static var roadmap: [LeeoRoadmapItem] {[
         // MARK: 다음에 만들어요
-        .init(id: "a11y.largetext", status: .planned,
+        .init(id: "a11y.largetext", status: .building,
               title: NSLocalizedString("큰 글씨에 맞춘 화면", comment: "Roadmap item: layouts for larger text"),
               detail: NSLocalizedString("글자 크기를 키워도 잘리지 않고 보기 좋게 다시 배치돼요.", comment: "Roadmap item detail: layouts for larger text")),
         .init(id: "a11y.contrast", status: .planned,
@@ -48,7 +48,7 @@ extension RoutineCameraSpec {
         .init(id: "backup", status: .planned,
               title: NSLocalizedString("백업과 내보내기", comment: "Roadmap item: backup and export"),
               detail: NSLocalizedString("식단 기록과 사진을 파일로 저장하고 다시 불러올 수 있어요.", comment: "Roadmap item detail: backup and export")),
-        .init(id: "lock.faceid", status: .planned,
+        .init(id: "lock.faceid", status: .building,
               title: NSLocalizedString("Face ID 잠금", comment: "Roadmap item: Face ID lock"),
               detail: NSLocalizedString("Face ID나 Touch ID로 앱을 잠가 내 식단 기록을 지켜요.", comment: "Roadmap item detail: Face ID lock")),
         .init(id: "fold", status: .planned,

@@ -107,7 +107,7 @@ class NotificationManager: ObservableObject {
         guard SettingsManager.shared.useAfterPhoto else { return }
         let content = UNMutableNotificationContent()
         content.title = "🍽️ 다 드셨어요?"
-        content.body = "\(mealType.rawValue), 다 먹었으면 여기서 바로 남겨요."
+        content.body = "\(mealType.displayName), 다 먹었으면 여기서 바로 남겨요."
         content.sound = .default
         content.categoryIdentifier = NotificationManager.ateAllCategoryID
         content.userInfo = [
@@ -255,7 +255,7 @@ class NotificationManager: ObservableObject {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = leadMinutes == 0 ? "\(emoji) \(meal.rawValue) 시간이에요" : "\(emoji) 곧 \(meal.rawValue) 시간이에요"
+        content.title = leadMinutes == 0 ? "\(emoji) \(meal.displayName) 시간이에요" : "\(emoji) 곧 \(meal.displayName) 시간이에요"
         content.body = "먹기 전에 사진 한 장 남겨요. 누르면 바로 카메라가 열려요."
         content.sound = .default
         content.threadIdentifier = "meal-reminder"

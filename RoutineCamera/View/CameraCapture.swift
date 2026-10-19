@@ -215,13 +215,15 @@ struct CustomCameraView: View {
                             }
                         }
                     }
-                    .frame(width: geometry.size.width, height: geometry.size.width)
+                    // 정사각형이되, 작은 화면(SE)에서도 아래 셔터가 잘리지 않을 만큼만
+                    .frame(width: previewSide(geometry), height: previewSide(geometry))
                     .clipShape(RoundedRectangle(cornerRadius: 18))
                     .overlay(
                         // 정사각형 촬영 프레임 경계 표시 (배경과 같은 검정이라 테두리로 구분)
                         RoundedRectangle(cornerRadius: 18)
                             .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
                     )
+                    .frame(maxWidth: .infinity)
                     .padding(.top, 8)
 
                     Spacer()
@@ -273,6 +275,10 @@ struct CustomCameraView: View {
                 cameraManager.stopSession()
             }
         }
+    }
+
+    private func previewSide(_ geometry: GeometryProxy) -> CGFloat {
+        max(0, min(geometry.size.width, geometry.size.height - shutterSize(geometry) - 40))
     }
 
     // 셔터 버튼 크기 (화면 폭 비례, 최대 78)

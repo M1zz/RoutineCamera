@@ -285,7 +285,7 @@ struct MealTypeStatsView: View {
                     HStack {
                         Image(systemName: mealType.symbolName)
                             .foregroundColor(mealType.symbolColor)
-                        Text(mealType.rawValue)
+                        Text(mealType.displayName)
                             .fontWeight(.semibold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -312,7 +312,7 @@ struct MealTypeStatsView: View {
                     .frame(height: 8)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(mealType.rawValue)
+                .accessibilityLabel(mealType.displayName)
                 .accessibilityValue("이번 달 \(stats.recorded)번 기록")
             }
         }
@@ -689,37 +689,33 @@ struct ComparisonDayView: View {
                     .foregroundColor(.secondary)
             }
 
-            HStack(spacing: 12) {
+            // 끼니 6칸을 3열로 — 한 줄에 100pt 고정 6칸을 늘어놓으면 화면 밖으로 잘렸다
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 12) {
                 ForEach(MealType.allCases, id: \.self) { mealType in
-                    VStack(spacing: 8) {
-                        if let meal = meals[mealType], meal.isComplete {
-                            if let photoData = meal.thumbnailImageData, let uiImage = MealImageResizer.downsampledImage(from: photoData, maxPixel: 300) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            } else {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 100, height: 100)
-                                    Text("📷")
-                                        .font(.system(size: 40))
+                    VStack(spacing: 6) {
+                        Color(.systemGray6)
+                            .aspectRatio(1, contentMode: .fit)
+                            .overlay {
+                                if let meal = meals[mealType], meal.isComplete {
+                                    if let photoData = meal.thumbnailImageData,
+                                       let uiImage = MealImageResizer.downsampledImage(from: photoData, maxPixel: 300) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                    } else {
+                                        Text("📷")
+                                            .font(.system(size: 32))
+                                    }
+                                } else {
+                                    Text("기록 없음")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
                                 }
                             }
-                        } else {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemGray6))
-                                    .frame(width: 100, height: 100)
-                                Text("기록 없음")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                        Text(mealType.rawValue)
+                        Text(mealType.displayName)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -903,19 +899,16 @@ struct FoodConsumptionStatsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("음식 소비 통계")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                Spacer()
-                Picker("기간", selection: $selectedPeriod) {
-                    ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
-                        Text(period.rawValue).tag(period)
-                    }
+            // 제목과 기간 선택을 위아래로 — 옆에 두면 좁은 화면에서 제목이 "음식 소…" 로 잘렸다
+            Text("자주 먹은 음식")
+                .font(.title3)
+                .fontWeight(.bold)
+            Picker("기간", selection: $selectedPeriod) {
+                ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
+                    Text(period.rawValue).tag(period)
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .frame(width: 180)
             }
+            .pickerStyle(SegmentedPickerStyle())
 
             if foodConsumption.isEmpty {
                 VStack(spacing: 12) {

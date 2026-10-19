@@ -445,8 +445,7 @@ struct SettingsView: View {
         Text(text)
             .font(.caption)
             .foregroundColor(.secondary)
-            .lineLimit(3)
-            .minimumScaleFactor(0.8)
+            .fixedSize(horizontal: false, vertical: true)   // 길어도 줄여 자르지 않고 다 보이게
     }
 }
 

@@ -47,16 +47,31 @@ struct MealRhythmCard: View {
         return days.filter { day in meals.allSatisfy { rec[day]?.contains($0) ?? false } }.count
     }
 
+    private var rhythmTitle: some View {
+        Text("최근 7일 식사 리듬")
+            .font(.headline)
+    }
+
+    private var fullDaysText: some View {
+        Text("다 챙긴 날 \(fullDays)일")
+            .font(.body.weight(.semibold))
+            .foregroundColor(fullDays > 0 ? .green : .secondary)
+    }
+
     var body: some View {
         let rec = recorded
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("최근 7일 식사 리듬")
-                    .font(.headline)
-                Spacer()
-                Text("다 챙긴 날 \(fullDays)일")
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(fullDays > 0 ? .green : .secondary)
+            // 좁은 화면·큰 글씨에서는 제목 아래로 내려 둘 다 잘리지 않게
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    rhythmTitle
+                    Spacer()
+                    fullDaysText
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    rhythmTitle
+                    fullDaysText
+                }
             }
 
             Grid(horizontalSpacing: 0, verticalSpacing: 10) {
@@ -75,7 +90,7 @@ struct MealRhythmCard: View {
                 ForEach(meals) { meal in
                     let count = days.filter { rec[$0]?.contains(meal) ?? false }.count
                     GridRow {
-                        Text(meal.rawValue)
+                        Text(meal.displayName)
                             .font(.body)
                             .gridColumnAlignment(.leading)
                         ForEach(days, id: \.self) { day in
@@ -89,7 +104,7 @@ struct MealRhythmCard: View {
                             .gridColumnAlignment(.trailing)
                     }
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(meal.rawValue), 최근 7일 중 \(count)일 기록")
+                    .accessibilityLabel("\(meal.displayName), 최근 7일 중 \(count)일 기록")
                 }
             }
         }

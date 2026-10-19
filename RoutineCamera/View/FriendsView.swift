@@ -524,7 +524,7 @@ struct MealDotsView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(recorded.isEmpty
                             ? "오늘 기록 없음"
-                            : "오늘 기록: " + MealType.allCases.filter { recorded.contains($0) }.map(\.rawValue).joined(separator: ", "))
+                            : "오늘 기록: " + MealType.allCases.filter { recorded.contains($0) }.map(\.displayName).joined(separator: ", "))
     }
 }
 
@@ -656,7 +656,7 @@ struct FriendTodayCard: View {
                 if let latest {
                     HStack(spacing: 3) {
                         Image(systemName: latest.mealType.symbolName)
-                        Text(latest.mealType.rawValue)
+                        Text(latest.mealType.displayName)
                     }
                         .font(.system(size: 11, weight: .semibold))
                         .padding(.horizontal, 7)
@@ -675,6 +675,7 @@ struct FriendTodayCard: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(.primary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
 
             HStack(spacing: 6) {
                 MealDotsView(recorded: Set(meals.keys))
@@ -746,7 +747,7 @@ struct FriendWeekOverview: View {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(meal.symbolColor)
                             .frame(width: 10, height: 8)
-                        Text(meal.rawValue)
+                        Text(meal.displayName)
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -762,7 +763,7 @@ struct FriendWeekOverview: View {
     private func dayColumn(_ day: Date) -> some View {
         let meals = allMeals[day] ?? [:]
         let isToday = Calendar.current.isDateInToday(day)
-        let recordedNames = MealType.allCases.filter { meals[$0] != nil }.map(\.rawValue)
+        let recordedNames = MealType.allCases.filter { meals[$0] != nil }.map(\.displayName)
 
         return Button {
             onSelectDay(day)
@@ -971,7 +972,9 @@ struct AddFriendSheet: View {
         }
     }
 
+    // 키보드가 올라와도 위가 잘리거나 버튼이 가리지 않게 스크롤 (그룹 만들기·참여 시트와 같은 방식)
     private var inputView: some View {
+        ScrollView {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Image(systemName: "person.badge.plus")
@@ -1025,10 +1028,12 @@ struct AddFriendSheet: View {
                 Text("iCloud에 요청을 등록하고 있어요. 잠시만 기다려주세요.")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
-
-            Spacer()
         }
+        .padding(.top, 24)
+        }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private var buttonTitle: String {
@@ -1189,7 +1194,7 @@ struct FriendMealsView: View {
                     onRetry: loadInitialMeals
                 )
             }
-            .navigationTitle("\(friend.name)의 \(album.shareTitle)")
+            .navigationTitle(friend.name)   // 음식/운동은 바로 아래 선택에 보인다 — 긴 이름이 잘리지 않게
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -1534,8 +1539,8 @@ struct NudgeTodayRow: View {
         .confirmationDialog("어느 \(album.shareTitle)을 재촉할까요?",
                             isPresented: $showingMealPicker, titleVisibility: .visible) {
             ForEach(pokeTargets, id: \.self) { mealType in
-                Button("👉 \(mealType.rawValue) 콕 찌르기") { sendPoke(mealType) }
-                Button("\(mealType.rawValue)에 응원 남기기") { commentTarget = mealType }
+                Button("👉 \(mealType.displayName) 콕 찌르기") { sendPoke(mealType) }
+                Button("\(mealType.displayName)에 응원 남기기") { commentTarget = mealType }
             }
             Button("취소", role: .cancel) { }
         }
@@ -1555,7 +1560,7 @@ struct NudgeTodayRow: View {
                     to: friend.id,
                     date: today,
                     mealType: mealType,
-                    content: "👉 콕! \(mealType.rawValue) 기록을 기다리고 있어요",
+                    content: "👉 콕! \(mealType.displayName) 기록을 기다리고 있어요",
                     album: album
                 )
                 pokedMeals.insert(mealType)
@@ -1635,7 +1640,7 @@ struct FriendMealDetailView: View {
                 }
                 .padding(.vertical)
             }
-            .navigationTitle("\(mealType.rawValue) - \(meal.date, style: .date)")
+            .navigationTitle("\(mealType.displayName) - \(meal.date, style: .date)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -1821,7 +1826,7 @@ struct FriendMealCard: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("응원 남기기")
-                .accessibilityHint("\(friend.name)님의 \(mealType.rawValue)에 응원 메시지를 보냅니다")
+                .accessibilityHint("\(friend.name)님의 \(mealType.displayName)에 응원 메시지를 보냅니다")
             }
         }
         .padding()
@@ -1973,8 +1978,10 @@ struct ICloudRequiredView: View {
     @ObservedObject private var friendManager = FriendManager.shared
 
     var body: some View {
+        // 작은 화면에서 아래 버튼이 잘리지 않게 스크롤 (넉넉하면 가운데 정렬 그대로)
+        ScrollView {
         VStack(spacing: 32) {
-            Spacer()
+            Spacer(minLength: 40)
 
             // 아이콘
             Image(systemName: "person.2.fill")
@@ -1992,7 +1999,7 @@ struct ICloudRequiredView: View {
                     .multilineTextAlignment(.center)
             }
 
-            Spacer()
+            Spacer(minLength: 16)
 
             VStack(spacing: 12) {
                 Image(systemName: friendManager.accountCheckFailed ? "icloud.slash" : "icloud")
@@ -2023,6 +2030,9 @@ struct ICloudRequiredView: View {
             }
             .padding(.bottom, 40)
         }
+        .frame(maxWidth: .infinity)
+        }
+        .scrollBounceBehavior(.basedOnSize)
         .navigationTitle("친구")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -2043,7 +2053,7 @@ struct QuickFeedbackView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(spacing: 8) {
-                        Text("\(friend.name)님의 \(mealType.rawValue)")
+                        Text("\(friend.name)님의 \(mealType.displayName)")
                             .font(.headline)
                         Text(date, style: .date)
                             .font(.subheadline)

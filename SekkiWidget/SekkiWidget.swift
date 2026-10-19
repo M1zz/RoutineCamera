@@ -20,12 +20,17 @@ struct SekkiEntry: TimelineEntry {
     var snackCount = 0
 
     var isEating: Bool { inProgressMeal != nil }
+
+    /// 화면에 보일 끼니 이름 — 간식1·2·3 은 "간식"
+    static func displayName(_ meal: String) -> String {
+        MealType(rawValue: meal)?.isSnack == true ? "간식" : meal
+    }
     var caredDoneCount: Int { caredMeals.filter { recordedMeals.contains($0) }.count }
     var missingMeals: [String] { caredMeals.filter { !recordedMeals.contains($0) } }
 
     /// 잠금화면 한 줄/직사각 첫 줄에 쓰는 짧은 문구
     var shortLabel: String {
-        if let meal = inProgressMeal { return "\(meal) 먹는 중" }
+        if let meal = inProgressMeal { return "\(Self.displayName(meal)) 먹는 중" }
         if missingMeals.isEmpty { return "오늘 끼니 다 챙김" }
         return "남은 끼니 \(missingMeals.joined(separator: "·"))"
     }
@@ -83,6 +88,8 @@ private struct MealCheckMark: View {
                 Text(meal)
             }
             .font(.caption2)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(done ? .primary : .secondary)
         } else {
             VStack(spacing: 3) {
@@ -148,7 +155,7 @@ struct SekkiWidgetEntryView: View {
                 HStack(spacing: 6) {
                     Image(systemName: entry.isEating ? "hourglass" : "fork.knife")
                         .foregroundStyle(entry.isEating ? .orange : .secondary)
-                    Text(entry.inProgressMeal.map { "\($0) 먹는 중" } ?? "오늘 식사")
+                    Text(entry.inProgressMeal.map { "\(SekkiEntry.displayName($0)) 먹는 중" } ?? "오늘 식사")
                         .font(.headline)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
@@ -202,6 +209,8 @@ struct SekkiWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: SekkiProvider()) { entry in
             SekkiWidgetEntryView(entry: entry)
+                // 작은 위젯에서 아주 큰 글씨면 '다 먹음' 버튼이 밀려 잘린다 — 위젯 안 글씨는 여기까지만 키운다
+                .dynamicTypeSize(...DynamicTypeSize.xxLarge)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("세끼")

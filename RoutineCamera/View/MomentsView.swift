@@ -65,7 +65,7 @@ struct MomentsView: View {
 
     // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
-        isExercise ? "운동 기록하기" : "\(nextMealType.rawValue) 기록하기"
+        isExercise ? "운동 기록하기" : "\(nextMealType.displayName) 기록하기"
     }
 
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
@@ -260,7 +260,7 @@ struct MomentsView: View {
                     Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
                         .font(.system(size: 13))
                         .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
-                    Text(isExercise ? "운동" : record.mealType.rawValue)
+                    Text(isExercise ? "운동" : record.mealType.displayName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.primary)
                     if let t = record.capturedAt {
@@ -285,17 +285,20 @@ struct MomentsView: View {
                             tag("기록 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.isEatingInProgressToday {
                             // 식전만 찍힌 오늘 기록 — 무엇이 비었는지 그대로 말해준다
-                            tag("식후 사진 기록 필요", system: "hourglass", color: .orange)
+                            tag("식후 사진 필요", system: "hourglass", color: .orange)
                         } else if record.needsRecordCompletion {
-                            tag("식후 사진 기록 필요", system: "pencil.circle", color: .gray)
+                            tag("식후 사진 필요", system: "pencil.circle", color: .gray)
                         } else if record.needsBeforePhoto {
-                            tag("식전 사진 기록 필요", system: "pencil.circle", color: .gray)
+                            tag("식전 사진 필요", system: "pencil.circle", color: .gray)
                         }
                     }
                     if let memo = record.memo, !memo.isEmpty {
                         tag("메모", system: "note.text", color: .orange)
                     }
                 }
+                // 좁은 화면에서 표시가 "…" 로 잘리지 않게 한 줄에 맞춰 줄인다
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
             }
             Spacer(minLength: 0)
         }
@@ -327,7 +330,7 @@ struct MomentsView: View {
                         Image(systemName: meal.symbolName)
                             .font(.system(size: 13))
                             .foregroundColor(meal.symbolColor.opacity(0.6))
-                        Text(meal.rawValue)
+                        Text(meal.displayName)
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(.secondary)
                         Text(timeLabel(at))
@@ -335,7 +338,7 @@ struct MomentsView: View {
                             .foregroundColor(.secondary.opacity(0.7))
                     }
 
-                    Text(now < at ? "곧 \(meal.rawValue) 시간이에요" : "지금 남기면 여기에 들어가요")
+                    Text(now < at ? "곧 \(meal.displayName) 시간이에요" : "지금 남기면 여기에 들어가요")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary.opacity(0.8))
                 }
@@ -345,7 +348,7 @@ struct MomentsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(meal.rawValue), 아직 기록 전")
+        .accessibilityLabel("\(meal.displayName), 아직 기록 전")
         .accessibilityHint("두 번 탭하여 지금 기록")
     }
 

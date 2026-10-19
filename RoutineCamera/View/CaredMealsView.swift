@@ -25,7 +25,7 @@ struct MealCareSelector: View {
                         Image(systemName: meal.symbolName)
                             .font(.system(size: 22))
                             .foregroundColor(on ? meal.symbolColor : .secondary)
-                        Text(meal.rawValue)
+                        Text(meal.displayName)
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(on ? .primary : .secondary)
                     }
@@ -39,7 +39,7 @@ struct MealCareSelector: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("\(meal.rawValue) 챙기기")
+                .accessibilityLabel("\(meal.displayName) 챙기기")
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }
@@ -51,30 +51,35 @@ struct CaredMealsPromptView: View {
     @ObservedObject private var settingsManager = SettingsManager.shared
     @Environment(\.dismiss) private var dismiss
 
+    // 내용은 스크롤, 버튼은 아래에 고정 — 작은 화면·큰 글씨에서도 제목과 버튼이 잘리지 않게
     var body: some View {
-        VStack(spacing: 18) {
-            VStack(spacing: 8) {
-                Text("어떤 식사를 챙기고 싶어요?")
-                    .font(.title3.weight(.bold))
-                    .multilineTextAlignment(.center)
-                Text("고른 식사만 살짝 알려드릴게요.\n나머지는 부담 없이, 기록하고 싶을 때만.")
-                    .font(.subheadline)
+        ScrollView {
+            VStack(spacing: 18) {
+                VStack(spacing: 8) {
+                    Text("어떤 식사를 챙기고 싶어요?")
+                        .font(.title3.weight(.bold))
+                        .multilineTextAlignment(.center)
+                    Text("고른 식사만 살짝 알려드릴게요.\n나머지는 부담 없이, 기록하고 싶을 때만.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 8)
+
+                MealCareSelector()
+
+                Text(settingsManager.caredMeals.isEmpty
+                     ? "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요."
+                     : "\(caredSummary) 알림을 받아요. 언제든 설정에서 바꿀 수 있어요.")
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.top, 8)
-
-            MealCareSelector()
-
-            Text(settingsManager.caredMeals.isEmpty
-                 ? "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요."
-                 : "\(caredSummary) 알림을 받아요. 언제든 설정에서 바꿀 수 있어요.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-
-            Spacer(minLength: 8)
-
+            .padding(24)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom) {
             Button {
                 settingsManager.hasConfiguredCaredMeals = true
                 dismiss()
@@ -88,8 +93,9 @@ struct CaredMealsPromptView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 12)
         }
-        .padding(24)
         .presentationDetents([.medium, .large])
     }
 

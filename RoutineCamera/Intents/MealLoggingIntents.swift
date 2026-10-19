@@ -29,7 +29,7 @@ struct LogAteAllIntent: AppIntent {
             date = Date()
         }
         store.recordAteAll(date: date, mealType: mealType)
-        return .result(dialog: "\(mealType.rawValue) 다 먹음으로 남겼어요.")
+        return .result(dialog: "\(mealType.displayName) 다 먹음으로 남겼어요.")
     }
 }
 

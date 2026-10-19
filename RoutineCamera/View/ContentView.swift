@@ -305,9 +305,16 @@ struct ContentView: View {
 
                     // 알림 권한 요청 — 이미 정해졌으면 묻지 않고 바로 답이 온다.
                     // 허용돼 있으면 식사 전 알림을 앞으로 며칠 치 새로 건다.
-                    notificationManager.requestAuthorization { granted in
-                        if granted {
-                            notificationManager.scheduleMealNotifications()
+                    var skipNotificationPrompt = false
+                    #if DEBUG
+                    // UI 검증용: 시뮬레이터 스크린샷에서 권한 창이 화면을 가리지 않게
+                    skipNotificationPrompt = ProcessInfo.processInfo.environment["SKIP_NOTIFICATION_PROMPT_FOR_TEST"] == "1"
+                    #endif
+                    if !skipNotificationPrompt {
+                        notificationManager.requestAuthorization { granted in
+                            if granted {
+                                notificationManager.scheduleMealNotifications()
+                            }
                         }
                     }
 
@@ -467,7 +474,7 @@ struct RecordNowBanner: View {
             HStack(spacing: 8) {
                 Image(systemName: "camera.fill")
                     .font(.system(size: 14, weight: .semibold))
-                Text("\(mealType.rawValue) 기록할 시간이에요")
+                Text("\(mealType.displayName) 기록할 시간이에요")
                     .font(.system(size: 15, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -483,7 +490,7 @@ struct RecordNowBanner: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
-        .accessibilityLabel("\(mealType.rawValue) 기록할 시간이에요")
+        .accessibilityLabel("\(mealType.displayName) 기록할 시간이에요")
         .accessibilityHint("두 번 탭하여 카메라 열기")
     }
 }

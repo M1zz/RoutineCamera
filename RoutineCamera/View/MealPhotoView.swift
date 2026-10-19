@@ -30,7 +30,7 @@ struct MealPhotoView: View {
 
     // 운동 모드에서는 슬롯(아침/점심/…)이 저장 위치일 뿐이므로 화면에는 "운동"으로 보여준다
     private var isExerciseMode: Bool { SettingsManager.shared.albumType == .exercise }
-    private var slotLabel: String { isExerciseMode ? "운동" : mealType.rawValue }
+    private var slotLabel: String { isExerciseMode ? "운동" : mealType.displayName }
     private var slotSymbolName: String { isExerciseMode ? "figure.run" : mealType.symbolName }
     private var slotSymbolColor: Color { isExerciseMode ? .green : mealType.symbolColor }
 
@@ -520,7 +520,7 @@ struct EmptyMealFeedbackSheet: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
             }
-            .navigationTitle("\(dateString) \(mealType.rawValue)")
+            .navigationTitle("\(dateString) \(mealType.displayName)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

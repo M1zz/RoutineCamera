@@ -220,7 +220,7 @@ struct CameraPickerView: View {
     }
 
     private func mealName(_ type: MealType) -> String {
-        type.isSnack ? String(localized: "간식") : String(localized: String.LocalizationValue(type.rawValue))
+        type.displayName
     }
 
     private var dayText: String {
@@ -362,7 +362,7 @@ struct CameraPickerView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("사진 없이 기록")
-        .accessibilityHint("두 번 탭하면 사진 없이 \(mealType.rawValue)을 기록하고 닫습니다")
+        .accessibilityHint("두 번 탭하면 사진 없이 \(mealType.displayName)을 기록하고 닫습니다")
     }
 
     // 식전 사진은 남겼고 식후는 찍고 싶지 않을 때 — "다 먹음"으로 이 식사를 마친다
@@ -376,7 +376,7 @@ struct CameraPickerView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("식후 사진 없이 마치기")
-        .accessibilityHint("두 번 탭하면 식후 사진 없이 \(mealType.rawValue)을 다 먹음으로 기록하고 닫습니다")
+        .accessibilityHint("두 번 탭하면 식후 사진 없이 \(mealType.displayName)을 다 먹음으로 기록하고 닫습니다")
     }
 
     private func headerActionLabel(_ title: String, systemImage: String) -> some View {
