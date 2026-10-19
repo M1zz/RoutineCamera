@@ -16,6 +16,9 @@ struct FriendsView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var selectedFriend: Friend?
+    @State private var safetyTarget: SafetyTarget?   // 끊기·차단·신고
+    @State private var showingNicknamePrompt = false  // 처음 한 번 — 친구에게 보일 이름
+    @State private var nicknameDraft = ""
     @State private var showingAccountSettings = false
     @State private var showingDeleteConfirm = false
     @State private var showingGroups = false
@@ -118,6 +121,19 @@ struct FriendsView: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(12)
+
+                    // 앱이 없는 친구도 받아서 바로 연결할 수 있게 — 코드와 앱 받기 링크를 함께 보낸다
+                    if !friendManager.myUserCode.isEmpty {
+                        ShareLink(item: FriendInvite.message(code: friendManager.myUserCode)) {
+                            Label("친구 초대하기", systemImage: "square.and.arrow.up")
+                                .font(.system(size: 15, weight: .semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                    }
 
                     Text(friendManager.myUserCode.isEmpty ? "친구 코드 생성 중..." : "이 코드를 친구에게 공유하세요")
                         .font(.caption)
@@ -308,6 +324,15 @@ struct FriendsView: View {
             .sheet(item: $selectedFriend) { friend in
                 FriendMealsView(friend: friend)
             }
+            .userSafetyActions($safetyTarget)
+            .alert("알림이 꺼져 있어요", isPresented: $friendManager.notificationsDenied) {
+                Button("설정 열기") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                }
+                Button("닫기", role: .cancel) {}
+            } message: {
+                Text("설정 ▸ 세끼 ▸ 알림을 켜야 친구 소식을 받을 수 있어요.")
+            }
             .sheet(isPresented: $showingGroups) {
                 GroupsView()
             }
@@ -340,9 +365,21 @@ struct FriendsView: View {
                 Text(errorMessage)
             }
             .task {
+                // 친구에게 "사용자" 로 요청이 가지 않도록, 이름을 정한 적 없으면 먼저 묻는다
+                if friendManager.isSignedIn && !settingsManager.hasChosenNickname {
+                    nicknameDraft = ""
+                    showingNicknamePrompt = true
+                }
                 // 화면 진입 시 받은 요청·수락 여부를 최신으로 (푸시를 탭해 들어온 경우 포함)
                 await friendManager.refreshSocialGraph()
                 await loadTodayMeals()
+            }
+            .alert("친구에게 보일 이름", isPresented: $showingNicknamePrompt) {
+                TextField("이름", text: $nicknameDraft)
+                Button("저장") { settingsManager.commitNickname(nicknameDraft) }
+                Button("나중에", role: .cancel) {}
+            } message: {
+                Text("친구 요청과 응원에 이 이름이 보여요. 설정에서 언제든 바꿀 수 있어요.")
             }
         }
 
@@ -422,13 +459,20 @@ struct FriendsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(friend.name), 오늘 \((todayMeals[friend.id] ?? [:]).count)끼 기록")
         .accessibilityHint("두 번 탭하여 이 친구의 기록 보기")
+        // 바로 지우지 않고 끊기·차단·신고 중에서 고르게 한다 (실수로 밀어도 친구가 사라지지 않도록)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) {
-                _Concurrency.Task {
-                    try? await friendManager.removeFriend(friendId: friend.id)
-                }
+            Button {
+                safetyTarget = SafetyTarget(userId: friend.id, code: friend.code, name: friend.name, isFriend: true)
             } label: {
-                Label("삭제", systemImage: "trash")
+                Label("관리", systemImage: "ellipsis.circle")
+            }
+            .tint(.gray)
+        }
+        .contextMenu {
+            Button {
+                safetyTarget = SafetyTarget(userId: friend.id, code: friend.code, name: friend.name, isFriend: true)
+            } label: {
+                Label("끊기 · 차단 · 신고", systemImage: "hand.raised")
             }
         }
     }
@@ -1107,6 +1151,9 @@ struct FriendMealsView: View {
     @State private var isLoadingPast = false
     @State private var allMeals: [Date: [MealType: MealRecord]] = [:]
     @State private var currentVisibleDate: Date = Calendar.current.startOfDay(for: Date())
+    @State private var safetyTarget: SafetyTarget?
+    /// 불러오기 실패 사유 — 실패한 날을 "기록 없음" 으로 치지 않고 다시 시도할 수 있게 보여 준다
+    @State private var loadError: String?
     @Environment(\.dismiss) var dismiss
 
     /// 기록 없는 날은 건너뛰며 과거로 확장하되, 여기까지만 거슬러 올라간다
@@ -1137,7 +1184,9 @@ struct FriendMealsView: View {
                     allMeals: $allMeals,
                     currentVisibleDate: $currentVisibleDate,
                     loadMorePastDates: loadMorePastDates,
-                    onRefresh: refreshLoadedDates
+                    onRefresh: refreshLoadedDates,
+                    loadError: loadError,
+                    onRetry: loadInitialMeals
                 )
             }
             .navigationTitle("\(friend.name)의 \(album.shareTitle)")
@@ -1148,7 +1197,16 @@ struct FriendMealsView: View {
                         dismiss()
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        safetyTarget = SafetyTarget(userId: friend.id, code: friend.code, name: friend.name, isFriend: true)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("끊기, 차단, 신고")
+                }
             }
+            .userSafetyActions($safetyTarget)
             .onAppear {
                 initializeDateList()
                 loadInitialMeals()
@@ -1217,11 +1275,13 @@ struct FriendMealsView: View {
                                                                       album: album)
             await MainActor.run {
                 for (date, meals) in loaded { allMeals[date] = meals }
+                loadError = nil
             }
         } catch {
+            // 실패한 날을 빈 날로 치면 "기록이 없어요" 로 보이고 과거로 계속 헛걸음한다 — 실패로 남긴다
             print("❌ 기록 로드 실패: \(error)")
             await MainActor.run {
-                for date in dates where allMeals[date] == nil { allMeals[date] = [:] }
+                loadError = String(localized: "기록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.")
             }
         }
     }
@@ -1240,6 +1300,8 @@ struct TimelineView: View {
     @Binding var currentVisibleDate: Date
     let loadMorePastDates: () -> Void
     let onRefresh: () async -> Void
+    var loadError: String? = nil
+    var onRetry: () -> Void = {}
 
     /// 오늘 기록이 아직 하나도 없는지
     private var todayIsEmpty: Bool {
@@ -1319,7 +1381,8 @@ struct TimelineView: View {
                     FriendDailySectionView(
                         date: date,
                         friend: friend,
-                        meals: allMeals[date] ?? [:]
+                        meals: allMeals[date] ?? [:],
+                        album: album   // 빠지면 운동 탭의 응원이 식단 기록에 달린다
                     )
                     .id(date)
                     .background(
@@ -1347,7 +1410,7 @@ struct TimelineView: View {
         }
         .onChange(of: isLoadingPast) { _, loading in
             // 불러온 구간이 통째로 비어 있으면 기록이 나올 때까지 계속 과거로 확장
-            if !loading && recordedDates.isEmpty && canLoadMore {
+            if !loading && recordedDates.isEmpty && canLoadMore && loadError == nil {
                 loadMorePastDates()
             }
         }
@@ -1355,15 +1418,26 @@ struct TimelineView: View {
 
     private var emptyState: some View {
         VStack(spacing: 10) {
-            Image(systemName: "photo.on.rectangle.angled")
+            Image(systemName: loadError == nil ? "photo.on.rectangle.angled" : "wifi.exclamationmark")
                 .font(.system(size: 40))
                 .foregroundColor(.gray)
                 .accessibilityHidden(true)
 
-            Text("아직 \(album.shareTitle) 기록이 없어요")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.secondary)
+            if let loadError {
+                Text(loadError)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("다시 시도", action: onRetry)
+                    .font(.system(size: 15, weight: .semibold))
+            } else {
+                Text("아직 \(album.shareTitle) 기록이 없어요")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.secondary)
+            }
         }
+        .padding(.horizontal, 24)
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
     }
@@ -1632,6 +1706,27 @@ struct FriendMealCard: View {
         return fmt.string(from: captured)
     }
 
+    // 정사각형으로 채운 사진 + 왼쪽 위 이름표 (식전·식후 나란히 볼 때)
+    private func labeledPhoto(_ image: UIImage, label: LocalizedStringKey) -> some View {
+        Color.clear
+            .aspectRatio(1, contentMode: .fit)
+            .overlay(
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(alignment: .topLeading) {
+                Text(label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(Color.black.opacity(0.5)))
+                    .padding(6)
+            }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 헤더 — 끼니 이름이 길어져도 시간이 밀려 잘리지 않도록 시간에 고정 폭을 준다
@@ -1639,7 +1734,7 @@ struct FriendMealCard: View {
                 Image(systemName: mealType.symbolName)
                     .foregroundColor(mealType.symbolColor)
                     .font(.system(size: 20))
-                Text(mealType.rawValue)
+                Text(mealType.displayName)
                     .font(.system(size: 20, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -1657,8 +1752,15 @@ struct FriendMealCard: View {
                 }
             }
 
-            // 이미지 — 원본 비율 그대로(잘라내지 않음)
-            if let beforeData = meal.beforeImageData, let image = UIImage(data: beforeData) {
+            // 식전·식후가 다 있으면 나란히 (예전엔 식전만 보여서 친구는 식후 사진을 볼 수 없었다)
+            if let before = meal.beforeImageData.flatMap(UIImage.init(data:)),
+               let after = meal.afterImageData.flatMap(UIImage.init(data:)) {
+                HStack(spacing: 8) {
+                    labeledPhoto(before, label: "식전")
+                    labeledPhoto(after, label: "식후")
+                }
+            } else if let image = (meal.beforeImageData ?? meal.afterImageData).flatMap(UIImage.init(data:)) {
+                // 이미지 — 원본 비율 그대로(잘라내지 않음)
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
@@ -1806,6 +1908,14 @@ struct AccountSettingsSheet: View {
                             Image(systemName: "doc.on.doc")
                                 .foregroundColor(.blue)
                         }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel("친구 코드 복사")
+                    }
+
+                    if !friendManager.myUserCode.isEmpty {
+                        ShareLink(item: FriendInvite.message(code: friendManager.myUserCode)) {
+                            Label("친구 초대하기", systemImage: "square.and.arrow.up")
+                        }
                     }
                 }
 
@@ -1860,6 +1970,8 @@ struct AccountSettingsSheet: View {
 
 // iCloud 로그인 안내 화면 (별도 로그인 없이 기기의 iCloud 계정을 사용)
 struct ICloudRequiredView: View {
+    @ObservedObject private var friendManager = FriendManager.shared
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -1883,24 +1995,33 @@ struct ICloudRequiredView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Image(systemName: "icloud")
+                Image(systemName: friendManager.accountCheckFailed ? "icloud.slash" : "icloud")
                     .font(.system(size: 32))
                     .foregroundColor(.secondary)
 
-                Text("iCloud 로그인이 필요해요")
+                // 연결 문제와 로그인 안 됨을 구분한다 — 로그인한 사람에게 "로그인하세요" 라고 하지 않도록
+                Text(friendManager.accountCheckFailed ? "iCloud에 연결하지 못했어요" : "iCloud 로그인이 필요해요")
                     .font(.system(size: 16, weight: .semibold))
 
-                Text("설정 앱에서 iCloud에 로그인하면\n친구 추가 및 식단 공유 기능을 사용할 수 있습니다")
+                Text(friendManager.accountCheckFailed
+                     ? "인터넷 연결을 확인한 뒤 다시 시도해 주세요"
+                     : "설정 앱에서 iCloud에 로그인하면\n친구 추가 및 식단 공유 기능을 사용할 수 있습니다")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(.horizontal, 24)
 
-            if let url = URL(string: UIApplication.openSettingsURLString) {
-                Link("설정 열기", destination: url)
+            VStack(spacing: 16) {
+                Button("다시 시도") { friendManager.recheckAccount() }
                     .font(.system(size: 16, weight: .semibold))
-                    .padding(.bottom, 40)
+                if !friendManager.accountCheckFailed, let url = URL(string: UIApplication.openSettingsURLString) {
+                    Link("설정 열기", destination: url)
+                        .font(.system(size: 16, weight: .semibold))
+                }
             }
+            .padding(.bottom, 40)
         }
         .navigationTitle("친구")
         .navigationBarTitleDisplayMode(.inline)
@@ -1944,5 +2065,15 @@ struct QuickFeedbackView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - 친구 초대
+
+enum FriendInvite {
+    /// 메시지·카톡으로 보낼 초대 문구 — 코드와 앱 받기 링크
+    static func message(code: String) -> String {
+        let link = RoutineCameraSpec.appStoreID.map { "https://apps.apple.com/app/id\($0)" } ?? ""
+        return String(localized: "세끼에서 같이 식사 기록해요! 앱에서 친구 추가 ▸ 코드 \(code) 를 입력하면 서로의 식사를 볼 수 있어요.") + (link.isEmpty ? "" : "\n" + link)
     }
 }

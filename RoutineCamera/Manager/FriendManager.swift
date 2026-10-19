@@ -16,6 +16,7 @@
 import Foundation
 import UIKit
 import CloudKit
+import UserNotifications
 import Combine
 import RoutineCameraCore
 
@@ -70,6 +71,9 @@ class FriendManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isSignedIn = false // iCloud 계정 사용 가능 여부
+    /// 로그인은 돼 있을 수 있지만 계정을 확인하지 못했다 (네트워크 등) — "로그인 필요" 와 구분해 보여 준다
+    @Published var accountCheckFailed = false
+    private var accountRetryCount = 0
     /// 내 코드가 서버에서 검색되지 않을 때의 안내 (배포 환경 불일치·인덱스 미반영·레코드 생성 실패 등)
     @Published var codeStatusWarning: String?
     /// 내가 받은 친구 요청 (아직 수락/거절 안 함)
@@ -86,6 +90,8 @@ class FriendManager: ObservableObject {
     @Published var socialError: String?
     /// 친구 관계를 불러오는 중인지 (빈 목록과 로딩 중을 구분)
     @Published var isLoadingSocial = false
+    /// 친구 알림을 켰는데 iOS 알림 권한이 꺼져 있다 — 화면이 "설정에서 켜 주세요" 를 띄운다
+    @Published var notificationsDenied = false
     /// 피드백 푸시 구독 상태 (설정 화면에서 확인·재시도)
     @Published var pushSubscriptionState: PushSubscriptionState = .unknown
     /// 친구가 기록을 올리면 알림을 받을지 (기본 꺼짐 — 친구가 많으면 알림이 잦아진다)
@@ -94,6 +100,7 @@ class FriendManager: ObservableObject {
             guard notifyFriendMeals != oldValue else { return }
             UserDefaults.standard.set(notifyFriendMeals, forKey: Self.notifyFriendMealsKey)
             syncFriendMealSubscriptions()
+            if notifyFriendMeals { checkNotificationPermission() }
         }
     }
     /// 친구 기록 알림 구독 상태 (설정 화면에서 확인·재시도)
@@ -130,6 +137,7 @@ class FriendManager: ObservableObject {
         // 메모리 캐시: 개수와 총 바이트 양쪽으로 제한 (사진이 들어 있어 개수만으로는 부족)
         memoryCache.countLimit = 200
         memoryCache.totalCostLimit = 80 * 1024 * 1024
+        clearMixedGroupCacheIfNeeded()
 
         // 디스크 캐시 용량 정리 (상한 초과 시 오래된 것부터). 실행 직후를 피해 뒤로 미룬다.
         _Concurrency.Task {
@@ -137,14 +145,14 @@ class FriendManager: ObservableObject {
         }
 
         // iCloud 계정 상태 확인 및 변경 감지
-        checkAccountState()
+        recheckAccount()
         NotificationCenter.default.addObserver(
             forName: .CKAccountChanged,
             object: nil,
             queue: .main
         ) { [weak self] _ in
             _Concurrency.Task { @MainActor [weak self] in
-                self?.checkAccountState()
+                self?.recheckAccount()
             }
         }
     }
@@ -152,12 +160,15 @@ class FriendManager: ObservableObject {
     // MARK: - 계정(iCloud) 상태
 
     /// iCloud 계정 확인 후 내 사용자 레코드 준비. 별도 로그인 과정 없음.
-    private func checkAccountState() {
+    func recheckAccount() {
         _Concurrency.Task {
             do {
                 let status = try await CKContainer.default().accountStatus()
                 guard status == .available else {
                     self.isSignedIn = false
+                    // 잠깐 확인이 안 되는 상태는 로그인 안 됨이 아니다 — 다시 확인한다
+                    self.accountCheckFailed = status == .temporarilyUnavailable || status == .couldNotDetermine
+                    if self.accountCheckFailed { self.scheduleAccountRetry() }
                     print("ℹ️ [CloudKit] iCloud 미로그인 (status: \(status.rawValue))")
                     return
                 }
@@ -165,7 +176,11 @@ class FriendManager: ObservableObject {
                 let recordID = try await CKContainer.default().userRecordID()
                 self.myUserId = recordID.recordName
                 self.isSignedIn = true
+                self.accountCheckFailed = false
+                self.accountRetryCount = 0
                 print("✅ [CloudKit] iCloud 계정 확인: \(self.myUserId)")
+                // 로그인 확인 전에 쌓인 업로드를 이제 올린다
+                MealRecordStore.shared.uploadPendingIfNeeded()
 
                 // 캐시된 친구 코드 즉시 표시
                 if let cachedCode = UserDefaults.standard.string(forKey: "friendCode_\(self.myUserId)") {
@@ -176,9 +191,24 @@ class FriendManager: ObservableObject {
                 self.ensureFeedbackSubscription()
                 self.ensureFriendLinkSubscription()
             } catch {
+                // 네트워크 등으로 확인하지 못한 것 — 로그인 안 됨으로 단정하지 않고 다시 시도한다
                 self.isSignedIn = false
+                self.accountCheckFailed = true
+                self.scheduleAccountRetry()
                 print("❌ [CloudKit] 계정 확인 실패: \(error.localizedDescription)")
             }
+        }
+    }
+
+    /// 계정 확인 재시도 — 5초, 15초, 45초 뒤 (그 뒤는 화면의 "다시 시도" 로)
+    private func scheduleAccountRetry() {
+        guard accountRetryCount < 3 else { return }
+        let delay = 5.0 * pow(3.0, Double(accountRetryCount))
+        accountRetryCount += 1
+        _Concurrency.Task { @MainActor [weak self] in
+            try? await _Concurrency.Task.sleep(for: .seconds(delay))
+            guard let self, !self.isSignedIn else { return }
+            self.recheckAccount()
         }
     }
 
@@ -420,13 +450,16 @@ class FriendManager: ObservableObject {
 
     // MARK: - 친구 관리
 
-    /// 친구 끊기: 내 쪽 링크를 지운다. (상대 링크는 상대만 지울 수 있어 그대로 남지만,
-    /// 상대 화면에서는 "상대가 끊음"으로 보이고 내 목록에서는 사라진다)
+    /// 친구 끊기: 내 쪽 링크를 지우지 않고 "끊음(거절)" 으로 바꾼다.
+    /// 지워 버리면 상대 쪽 "수락" 링크만 남아, 다음 새로고침에 상대가 내게 "받은 요청" 으로 다시 뜬다.
+    /// 상대 화면에서는 거절된 요청으로 보이고, 내 목록에서는 사라진다.
     func removeFriend(friendId: String) async throws {
         isLoading = true
         defer { isLoading = false }
 
-        try await deleteMyLink(otherId: friendId)
+        let friend = friends.first { $0.id == friendId }
+        try await saveMyLink(otherId: friendId, otherCode: friend?.code ?? "",
+                             otherNickname: friend?.name ?? "", state: .rejected)
 
         // 구버전 호환용 friendsJSON에도 남아 있으면 함께 정리
         if friends.contains(where: { $0.id == friendId }) {
@@ -518,8 +551,8 @@ class FriendManager: ObservableObject {
     func invalidateCache(friendId: String, date: Date) {
         let dateString = dateFormatter.string(from: date)
         // 앨범별로 키가 따로라 둘 다 지운다 (식단은 접미사 없음, 운동은 "_ex")
-        for album in AlbumType.allCases {
-            let key = dateString + album.recordSuffix
+        // 그룹 화면용(음식·운동 섞음)도 따로 있다
+        for key in AlbumType.allCases.map({ dateString + $0.recordSuffix }) + [dateString + "_group"] {
             memoryCache.removeObject(forKey: "\(friendId)_\(key)" as NSString)
             diskCache.invalidate(friendId: friendId, dateString: key)
         }
@@ -529,6 +562,15 @@ class FriendManager: ObservableObject {
     func clearCache() {
         memoryCache.removeAllObjects()
         diskCache.clearAll()
+    }
+
+    /// 예전 버전은 그룹 화면이 음식·운동을 섞은 결과를 친구 음식 캐시 자리에 저장했다.
+    /// 업데이트 후 한 번 비워, 친구 타임라인에 운동이 섞여 보이던 것을 바로잡는다.
+    func clearMixedGroupCacheIfNeeded() {
+        let key = "friendCacheClearedForGroupKey_v1"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        clearCache()
+        UserDefaults.standard.set(true, forKey: key)
     }
 
     // MARK: - 업로드용 이미지 축소
@@ -564,7 +606,8 @@ class FriendManager: ObservableObject {
 
         guard !myUserId.isEmpty else {
             print("❌ [CloudKit] myUserId가 비어있음 - 업로드 중단")
-            return
+            // 조용히 끝내면 호출부가 성공으로 알고 그 날짜를 다시 올리지 않는다
+            throw CKError(.notAuthenticated)
         }
 
         let dateString = dateFormatter.string(from: date)
@@ -608,9 +651,15 @@ class FriendManager: ObservableObject {
 
         guard !records.isEmpty else { return }
 
-        let (saveResults, _) = try await database.modifyRecords(
+        // 그 날 지운 끼니는 서버에서도 지운다 — 남은 끼니만 저장하면 친구 화면에 지운 사진이 계속 보인다
+        let staleIDs = MealType.allCases.filter { meals[$0] == nil }.map {
+            CKRecord.ID(recordName: Self.mealRecordName(userId: myUserId, dateString: dateString,
+                                                        mealType: $0, album: album))
+        }
+
+        let (saveResults, deleteResults) = try await database.modifyRecords(
             saving: records,
-            deleting: [],
+            deleting: staleIDs,
             savePolicy: .allKeys,
             atomically: false
         )
@@ -621,20 +670,32 @@ class FriendManager: ObservableObject {
                 throw error
             }
         }
+        try Self.throwIfDeleteFailed(deleteResults)
 
         print("✅ [CloudKit] \(album.rawValue) 업로드 완료: \(dateString)")
     }
 
     /// 특정 날짜의 내 식단을 서버에서 삭제 (기록을 모두 지웠을 때 친구 화면에서도 사라지도록)
-    func deleteMyMeals(date: Date, album: AlbumType = .diet) async {
-        guard !myUserId.isEmpty else { return }
+    /// 실패하면 던진다 — 호출부가 그 날짜를 다음에 다시 시도한다.
+    func deleteMyMeals(date: Date, album: AlbumType = .diet) async throws {
+        guard !myUserId.isEmpty else { throw CKError(.notAuthenticated) }
 
         let dateString = dateFormatter.string(from: date)
         let ids = MealType.allCases.map {
             CKRecord.ID(recordName: Self.mealRecordName(userId: myUserId, dateString: dateString,
                                                         mealType: $0, album: album))
         }
-        _ = try? await database.modifyRecords(saving: [], deleting: ids, atomically: false)
+        let (_, deleteResults) = try await database.modifyRecords(saving: [], deleting: ids, atomically: false)
+        try Self.throwIfDeleteFailed(deleteResults)
+    }
+
+    /// 지우려던 기록이 원래 없던 것(unknownItem)은 성공으로 본다
+    private static func throwIfDeleteFailed(_ results: [CKRecord.ID: Result<Void, Error>]) throws {
+        for (_, result) in results {
+            if case .failure(let error) = result, (error as? CKError)?.code != .unknownItem {
+                throw error
+            }
+        }
     }
 
     /// 이미 서버에 올라간 끼니 수를 날짜별로 확인.
@@ -788,6 +849,8 @@ class FriendManager: ObservableObject {
         record["nickname"] = nickname
         try await saveMyUserRecord()
         print("✅ [FriendManager] 닉네임 저장 완료: \(nickname)")
+        // 친구 화면은 연결(FriendLink)에 적힌 이름을 읽는다 — 거기도 바꿔야 친구에게 새 이름이 보인다
+        await propagateMyNickname(nickname)
     }
 
     /// 특정 사용자의 닉네임 가져오기
@@ -876,7 +939,8 @@ class FriendManager: ObservableObject {
             }
 
             print("✅ [FriendManager] 피드백 목록 조회 완료: \(feedbacks.count)개")
-            return feedbacks.sorted { $0.createdAt > $1.createdAt }
+            let blocked = blockedUserIds
+            return feedbacks.filter { !blocked.contains($0.authorId) }.sorted { $0.createdAt > $1.createdAt }
         } catch {
             print("❌ [FriendManager] 피드백 목록 조회 실패: \(error.localizedDescription)")
             return []
@@ -916,8 +980,9 @@ class FriendManager: ObservableObject {
                 )
             }
 
-            // 대화 순서 — 위에서 아래로 시간이 흐르게
-            return thread.sorted { $0.createdAt < $1.createdAt }
+            // 대화 순서 — 위에서 아래로 시간이 흐르게. 차단한 사람의 글은 보이지 않는다
+            let blocked = blockedUserIds
+            return thread.filter { !blocked.contains($0.authorId) }.sorted { $0.createdAt < $1.createdAt }
         } catch {
             print("❌ [FriendManager] 피드백 스레드 조회 실패: \(error.localizedDescription)")
             throw NSError(domain: "FriendManager", code: -10,
@@ -1054,6 +1119,24 @@ class FriendManager: ObservableObject {
     }
 
     static let feedbackSubscriptionID = "feedback-sub-"
+
+    /// 친구 알림을 켤 때 iOS 알림 권한을 확인한다. 아직 안 물었으면 묻고, 꺼져 있으면 알린다.
+    /// (예전엔 식사 알림 때 한 번 물은 게 전부라, 거절했던 사람은 친구 알림이 조용히 안 왔다)
+    func checkNotificationPermission() {
+        _Concurrency.Task {
+            let center = UNUserNotificationCenter.current()
+            let settings = await center.notificationSettings()
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                let granted = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+                notificationsDenied = !granted
+            case .denied:
+                notificationsDenied = true
+            default:
+                notificationsDenied = false
+            }
+        }
+    }
 
     /// 내 앞으로 온 피드백에 대한 푸시 구독 등록.
     ///

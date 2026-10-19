@@ -156,9 +156,19 @@ struct ContentView: View {
                     Label(settingsManager.albumType.rawValue, systemImage: settingsManager.albumType.symbolName)
                 }
             }
+            // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
+            Button { showingFriends = true } label: {
+                Image(systemName: "person.2")
+                    .overlay(alignment: .topTrailing) {
+                        if !friendManager.incomingRequests.isEmpty {
+                            Circle().fill(Color.red).frame(width: 8, height: 8).offset(x: 3, y: -2)
+                        }
+                    }
+            }
+            .accessibilityLabel(friendManager.incomingRequests.isEmpty
+                                ? "친구" : "친구, 받은 요청 \(friendManager.incomingRequests.count)건")
             Menu {
                 Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
-                Button { showingFriends = true } label: { Label("친구", systemImage: "person.2.fill") }
                 Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
             } label: {
                 Image(systemName: "ellipsis.circle")

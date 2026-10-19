@@ -22,6 +22,11 @@ enum MealType: String, CaseIterable, Codable, Identifiable {
 
     var id: String { self.rawValue }
 
+    /// 화면에 보이는 이름 — 간식1·2·3 은 저장용 구분일 뿐이라 사용자에게는 "간식" 으로 보인다
+    var displayName: String {
+        isSnack ? String(localized: "간식") : String(localized: String.LocalizationValue(rawValue))
+    }
+
     var symbolName: String {
         switch self {
         case .breakfast: return "sunrise.fill"
@@ -365,7 +370,11 @@ class MealRecordStore: ObservableObject {
     }
 
     // CloudKit 업로드 추적
-    private var dirtyDates: Set<String> = []  // 업로드 필요한 날짜들
+    // 업로드 필요한 날짜들 — 기기에 남겨 둔다 (5초 안에 앱을 닫거나 업로드가 실패해도 다음에 다시 올린다)
+    private var dirtyDates: Set<String> = [] {
+        didSet { userDefaults.set(Array(dirtyDates), forKey: dirtyDatesKey) }
+    }
+    private let dirtyDatesKey = "pendingUploadDates_v1"
     /// 날짜별 기록 지문. 실제로 바뀐 날짜만 업로드하기 위한 기준값
     private var dateFingerprints: [String: Int] = [:]
     // v2: 지문을 StableHasher 로 만든다. v1 은 실행마다 시드가 바뀌는 Hasher 라 저장값과 맞은 적이 없어,
@@ -388,6 +397,7 @@ class MealRecordStore: ObservableObject {
         movePhotosOutOfDefaultsIfNeeded()
         removeStaleStandardCopiesIfNeeded()
         establishFingerprintBaselineIfNeeded()
+        dirtyDates = Set(userDefaults.stringArray(forKey: dirtyDatesKey) ?? [])
         drainPendingAteAll()
 
         // SettingsManager의 albumType 변경 감지
@@ -403,7 +413,11 @@ class MealRecordStore: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.drainPendingAteAll() }
+            Task { @MainActor [weak self] in
+                self?.drainPendingAteAll()
+                // 지난번에 못 올린 날짜가 있으면 다시 올린다
+                if self?.dirtyDates.isEmpty == false { self?.scheduleDelayedUpload() }
+            }
         }
 
         // 앱 백그라운드 진입 시 대기 중인 업로드 즉시 실행
@@ -985,6 +999,12 @@ class MealRecordStore: ObservableObject {
         return days.sorted(by: >)
     }
 
+    /// 대기 중인 업로드가 있으면 올린다 (iCloud 확인이 끝났을 때 FriendManager 가 부른다)
+    func uploadPendingIfNeeded() {
+        guard !dirtyDates.isEmpty else { return }
+        scheduleDelayedUpload()
+    }
+
     /// 지연된 업로드 스케줄 (여러 저장이 연속으로 일어날 때 배치 처리)
     private func scheduleDelayedUpload() {
         // 기존 타이머 취소
@@ -1005,14 +1025,22 @@ class MealRecordStore: ObservableObject {
             return
         }
 
+        // 로그인 확인 전이면 기다린다 — 지금 올리면 실패로 끝나고 날짜만 다시 쌓인다
+        guard FriendManager.shared.isSignedIn, !FriendManager.shared.myUserId.isEmpty,
+              SettingsManager.shared.shareMealsToCloud else {
+            print("⏸️ [CloudKit] 업로드 보류 (로그인 전 또는 공유 꺼짐) - \(dirtyDates.count)개 날짜 대기")
+            return
+        }
+
         print("🚀 [CloudKit] 스마트 업로드 시작 - \(dirtyDates.count)개 날짜")
 
         let datesToUpload = dirtyDates
-        dirtyDates.removeAll()  // 먼저 클리어 (중복 방지)
+        dirtyDates.removeAll()  // 먼저 클리어 (업로드 중 생긴 변경은 새로 쌓인다)
 
         _Concurrency.Task {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
+            var failed: Set<String> = []
 
             for dateString in datesToUpload.sorted() {
                 // 날짜 문자열을 Date로 변환
@@ -1023,26 +1051,28 @@ class MealRecordStore: ObservableObject {
                     let meals = album == .diet ? dietMeals(for: date) : exerciseMeals(for: date)
                     print("   📅 \(dateString) - \(album.rawValue) 개수: \(meals.count)")
 
-                    if meals.isEmpty {
-                        // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
-                        await FriendManager.shared.deleteMyMeals(date: date, album: album)
-                        print("   🗑️ \(dateString) \(album.rawValue) 기록 없음 → 서버에서 삭제")
-                        continue
-                    }
-
-                    // dirty로 표시된 날짜는 무조건 업로드 (중복 방지는 dirty 클리어로 처리)
                     do {
-                        try await FriendManager.shared.uploadMyMeals(date: date, meals: meals, album: album)
-                        print("   ✅ \(dateString) \(album.rawValue) 업로드 완료 (\(meals.count)개)")
+                        if meals.isEmpty {
+                            // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
+                            try await FriendManager.shared.deleteMyMeals(date: date, album: album)
+                            print("   🗑️ \(dateString) \(album.rawValue) 기록 없음 → 서버에서 삭제")
+                        } else {
+                            try await FriendManager.shared.uploadMyMeals(date: date, meals: meals, album: album)
+                            print("   ✅ \(dateString) \(album.rawValue) 업로드 완료 (\(meals.count)개)")
+                        }
                     } catch {
                         print("   ❌ \(dateString) \(album.rawValue) 업로드 실패: \(error)")
+                        failed.insert(dateString)
                     }
                 }
             }
 
             await MainActor.run {
                 self.lastUploadTime = Date()
-                print("🏁 [CloudKit] 스마트 업로드 완료")
+                // 실패한 날짜는 다시 대기열로 — 앱이 다시 앞으로 오거나 다음에 저장할 때 올린다
+                self.dirtyDates.formUnion(failed)
+                print(failed.isEmpty ? "🏁 [CloudKit] 스마트 업로드 완료"
+                                     : "⚠️ [CloudKit] 업로드 실패 \(failed.count)개 날짜 — 다음에 다시 시도")
             }
         }
     }

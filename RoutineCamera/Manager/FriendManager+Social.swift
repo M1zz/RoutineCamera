@@ -18,6 +18,8 @@
 
 import Foundation
 import CloudKit
+import LeeoKit
+import Combine
 
 // MARK: - 모델
 
@@ -173,6 +175,8 @@ extension FriendManager {
             let state: FriendLinkState = alreadyRequestedByThem ? .accepted : .requested
 
             try await saveMyLink(otherId: friendId, otherCode: code, otherNickname: nickname, state: state)
+            // 차단했던 사람을 코드로 다시 추가하면 차단을 푼다
+            unblock(friendId)
             await refreshSocialGraph()
 
             print("✅ 친구 요청 \(alreadyRequestedByThem ? "수락(맞요청)" : "전송"): \(nickname) (\(code))")
@@ -180,6 +184,82 @@ extension FriendManager {
             errorMessage = error.localizedDescription
             throw error
         }
+    }
+
+    // MARK: - 이름 바꾸기
+
+    /// 내 이름이 적힌 곳(친구 연결의 ownerNickname, 그룹 멤버의 nickname)을 새 이름으로.
+    /// 실패해도 다음에 이름을 바꿀 때 다시 맞춰지므로 조용히 넘어간다.
+    func propagateMyNickname(_ nickname: String) async {
+        guard !myUserId.isEmpty else { return }
+        var changed: [CKRecord] = []
+
+        let links = (try? await fetchAll(query: CKQuery(recordType: Self.friendLinkRecordType,
+                                                        predicate: NSPredicate(format: "ownerId == %@", myUserId)))) ?? []
+        for link in links where link["ownerNickname"] as? String != nickname {
+            link["ownerNickname"] = nickname
+            changed.append(link)
+        }
+        let memberships = (try? await fetchAll(query: CKQuery(recordType: Self.groupMemberRecordType,
+                                                              predicate: NSPredicate(format: "userId == %@", myUserId)))) ?? []
+        for member in memberships where member["nickname"] as? String != nickname {
+            member["nickname"] = nickname
+            changed.append(member)
+        }
+        guard !changed.isEmpty else { return }
+
+        for start in stride(from: 0, to: changed.count, by: 100) {
+            let chunk = Array(changed[start..<min(start + 100, changed.count)])
+            _ = try? await database.modifyRecords(saving: chunk, deleting: [], savePolicy: .changedKeys, atomically: false)
+        }
+        print("✅ [CloudKit] 새 이름을 친구·그룹 \(changed.count)곳에 반영")
+    }
+
+    // MARK: - 차단 · 신고 (다른 사람이 올린 글·사진을 보는 앱이라 꼭 있어야 한다)
+
+    private static let blockedUsersKey = "blockedUserIds_v1"
+
+    /// 차단한 사람 — 그 사람의 댓글·반응을 보이지 않게 하고, 요청도 다시 뜨지 않는다 (이 기기 기준)
+    var blockedUserIds: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: Self.blockedUsersKey) ?? [])
+    }
+
+    func isBlocked(_ userId: String) -> Bool {
+        blockedUserIds.contains(userId)
+    }
+
+    /// 차단 — 끊음(거절) 링크를 남겨 서로 친구가 아니게 하고, 그 사람의 글을 숨긴다.
+    func blockUser(id userId: String, code: String, name: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+
+        try await saveMyLink(otherId: userId, otherCode: code, otherNickname: name, state: .rejected)
+        var blocked = blockedUserIds
+        blocked.insert(userId)
+        UserDefaults.standard.set(Array(blocked), forKey: Self.blockedUsersKey)
+        objectWillChange.send()
+        await refreshSocialGraph()
+        print("🚫 차단: \(name)")
+    }
+
+    func unblock(_ userId: String) {
+        var blocked = blockedUserIds
+        guard blocked.remove(userId) != nil else { return }
+        UserDefaults.standard.set(Array(blocked), forKey: Self.blockedUsersKey)
+        objectWillChange.send()
+    }
+
+    /// 신고 — 개발자에게 바로 전달된다 (FeedbackHub). 무엇을 왜 신고했는지 함께 보낸다.
+    func reportUser(id userId: String, name: String, reason: String, content: String? = nil) async throws {
+        var lines = [
+            "[사용자 신고]",
+            "사유: \(reason)",
+            "신고 대상: \(name) (\(userId))",
+            "신고한 사람: \(myUserId)",
+        ]
+        if let content, !content.isEmpty { lines.append("내용: \(content)") }
+        try await LeeoFeedbackService(spec: RoutineCameraSpec.self)
+            .submit(type: LeeoFeedbackType.other.rawValue, message: lines.joined(separator: "\n"), deviceInfo: "")
     }
 
     /// 받은 요청 수락 → 내 쪽 링크 생성으로 양방향 성립
@@ -215,7 +295,7 @@ extension FriendManager {
     }
 
     /// 내 쪽 링크 저장 (내가 만든 레코드이므로 덮어쓰기 가능 — 거절 후 재요청도 같은 레코드를 갱신)
-    private func saveMyLink(otherId: String, otherCode: String, otherNickname: String,
+    func saveMyLink(otherId: String, otherCode: String, otherNickname: String,
                             state: FriendLinkState, isLegacy: Bool = false) async throws {
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -5,
@@ -385,11 +465,15 @@ extension FriendManager {
                 _ = try await database.save(subscription)
                 UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
                 print("📡 [CloudKit] 친구 요청 푸시 구독 등록 완료")
-            } catch let error as CKError where error.code == .serverRejectedRequest {
-                UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
-                print("📡 [CloudKit] 친구 요청 구독이 이미 존재함 - 스킵")
             } catch {
-                print("❌ [CloudKit] 친구 요청 구독 등록 실패: \(error.localizedDescription)")
+                // 거절됐다고 "이미 있음" 으로 단정하지 않는다 — 서버에 정말 있는지 확인한 뒤에만 도장을 찍는다.
+                // (스키마 인덱스가 없을 때도 같은 오류가 와서, 예전엔 친구 요청 알림이 영영 안 왔다)
+                if (try? await database.subscription(for: "friendlink-sub-\(userId)")) != nil {
+                    UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
+                    print("📡 [CloudKit] 친구 요청 구독이 이미 서버에 있음")
+                } else {
+                    print("❌ [CloudKit] 친구 요청 구독 등록 실패 (다음 실행에 다시 시도): \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -745,15 +829,18 @@ extension FriendManager {
     /// (사람 × 끼니) 레코드 ID를 묶어서 요청하므로 쿼리 인덱스가 필요 없고, 사람 수만큼 왕복하지도 않는다.
     func loadGroupMeals(userIds: [String], date: Date) async throws -> [String: [MealType: MealRecord]] {
         let dateString = dateFormatter.string(from: date)
+        // 음식·운동을 섞은 결과라 친구 화면(음식만)과 캐시 키를 나눈다.
+        // 같은 키를 쓰면 그룹을 본 뒤 친구의 음식 타임라인에 운동 기록이 섞여 보였다.
+        let cacheDateKey = dateString + "_group"
         var out: [String: [MealType: MealRecord]] = [:]
         var missing: [String] = []
 
-        // 1. 기존 캐시(친구 화면과 공유) 먼저
+        // 1. 그룹 캐시 먼저
         for userId in userIds {
-            let cacheKey = "\(userId)_\(dateString)" as NSString
+            let cacheKey = "\(userId)_\(cacheDateKey)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[userId] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: userId, dateString: dateString, date: date) {
+            } else if let disk = loadFromDiskCache(friendId: userId, dateString: cacheDateKey, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[userId] = disk
             } else {
@@ -789,7 +876,7 @@ extension FriendManager {
                 }
             }
             out[userId] = meals
-            cacheMeals(meals, friendId: userId, dateString: dateString)
+            cacheMeals(meals, friendId: userId, dateString: cacheDateKey)
         }
 
         print("🌐 [CloudKit] 그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")

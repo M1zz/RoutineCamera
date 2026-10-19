@@ -187,12 +187,20 @@ struct FeedbackThreadView: View {
     /// 아무것도 없을 때 보여 줄 문구
     var emptyText: String = "아직 남긴 응원이 없어요"
 
+    @ObservedObject private var friendManager = FriendManager.shared
+    @State private var safetyTarget: SafetyTarget?
+
+    // 차단한 사람의 글은 바로 사라지게 (다시 불러오기 전에도)
+    private var visible: [MealFeedback] {
+        feedbacks.filter { !friendManager.isBlocked($0.authorId) }
+    }
+
     private var messages: [MealFeedback] {
-        feedbacks.filter { !FeedbackContent.isReaction($0.content) }
+        visible.filter { !FeedbackContent.isReaction($0.content) }
     }
 
     private var hasReactions: Bool {
-        feedbacks.contains { FeedbackContent.isReaction($0.content) }
+        visible.contains { FeedbackContent.isReaction($0.content) }
     }
 
     var body: some View {
@@ -215,18 +223,30 @@ struct FeedbackThreadView: View {
                     .foregroundColor(.secondary)
             } else {
                 if hasReactions {
-                    ReactionSummary(feedbacks: feedbacks, myUserId: myUserId)
+                    ReactionSummary(feedbacks: visible, myUserId: myUserId)
                 }
                 if !messages.isEmpty {
                     VStack(alignment: .leading, spacing: 14) {
                         ForEach(messages) { feedback in
-                            FeedbackBubble(feedback: feedback,
-                                           isMine: feedback.authorId == myUserId)
+                            let isMine = feedback.authorId == myUserId
+                            FeedbackBubble(feedback: feedback, isMine: isMine)
+                                .contextMenu {
+                                    if !isMine {
+                                        Button {
+                                            safetyTarget = SafetyTarget(userId: feedback.authorId, code: "",
+                                                                        name: feedback.authorNickname,
+                                                                        content: feedback.content)
+                                        } label: {
+                                            Label("신고 · 차단", systemImage: "hand.raised")
+                                        }
+                                    }
+                                }
                         }
                     }
                 }
             }
         }
+        .userSafetyActions($safetyTarget)
     }
 }
 

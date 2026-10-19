@@ -32,6 +32,8 @@ struct RoutineCameraApp: App {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await SubscriptionManager.shared.refresh() }
+                // 받은 친구 요청 점이 앱을 다시 열 때마다 맞도록
+                Task { await FriendManager.shared.refreshSocialGraph() }
             }
         }
     }

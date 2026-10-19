@@ -73,6 +73,14 @@ struct SettingsView: View {
             .onAppear { nicknameDraft = settingsManager.displayNickname }
             .proPaywall(isPresented: $showingPaywall, lead: paywallLead)
             .manageSubscriptionsSheet(isPresented: $showingManageSubscription)
+            .alert("알림이 꺼져 있어요", isPresented: $friendManager.notificationsDenied) {
+                Button("설정 열기") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                }
+                Button("닫기", role: .cancel) {}
+            } message: {
+                Text("설정 ▸ 세끼 ▸ 알림을 켜야 친구 소식을 받을 수 있어요.")
+            }
             .onDisappear { commitNickname() }
         }
     }

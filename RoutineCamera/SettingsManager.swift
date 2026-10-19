@@ -163,6 +163,11 @@ class SettingsManager: ObservableObject {
         return trimmed.isEmpty ? "사용자" : trimmed
     }
 
+    /// 친구에게 보일 이름을 직접 정했는지 — 안 정했으면 친구 화면이 처음 한 번 묻는다
+    var hasChosenNickname: Bool {
+        UserDefaults.standard.string(forKey: "userNickname") != nil && displayNickname != "사용자"
+    }
+
     /// 편집을 마쳤을 때 부르는 커밋. 앞뒤 공백을 정리하고, 빈 이름은 기본값으로 되돌린다.
     func commitNickname(_ raw: String) {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
