@@ -14,16 +14,25 @@ import LeeoKit
 struct RoutineCameraApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         // 사용량 기록 · 크래시 진단 · 익명 사용 통계. 실패해도 앱 동작에는 영향이 없다.
         LeeoKit.bootstrap(RoutineCameraSpec.self)
+        // 세끼 프로 — 시작할 때 스토어를 띄워 구독 권한과 갱신(환불·만료·다른 기기 구매)을 계속 따라간다
+        _ = SubscriptionManager.shared
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .leeoSatisfactionCheck(RoutineCameraSpec.self)
+                .appLockOverlay()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await SubscriptionManager.shared.refresh() }
+            }
         }
     }
 }

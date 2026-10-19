@@ -3,11 +3,12 @@
 //  RoutineCamera
 //
 //  설정 화면 — 위계별로 정돈: 화면/기록 → 챙길 식사/알림 → 목표/저장 → 계정 →
-//  고급(AI 분석은 하위 페이지) → 정보/지원 → 개발용.
+//  세끼 프로(맨 위) → … → 음식 분석 → 정보/지원 → 개발용.
 //
 
 import SwiftUI
 import LeeoKit
+import StoreKit
 
 struct SettingsView: View {
     @ObservedObject var notificationManager: NotificationManager
@@ -15,7 +16,11 @@ struct SettingsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject private var friendManager = FriendManager.shared
+    @ObservedObject private var subscription = SubscriptionManager.shared
     @Environment(\.dismiss) var dismiss
+    @State private var showingPaywall = false
+    @State private var paywallLead: ProFeature?
+    @State private var showingManageSubscription = false
 
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
@@ -32,6 +37,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
+                proSection
                 screenSection
                 displaySection
                 caredMealsSection
@@ -65,6 +71,8 @@ struct SettingsView: View {
                 }
             }
             .onAppear { nicknameDraft = settingsManager.displayNickname }
+            .proPaywall(isPresented: $showingPaywall, lead: paywallLead)
+            .manageSubscriptionsSheet(isPresented: $showingManageSubscription)
             .onDisappear { commitNickname() }
         }
     }
@@ -304,15 +312,73 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - 고급 (AI 분석 하위 페이지)
+    // MARK: - 세끼 프로
+
+    @ViewBuilder private var proSection: some View {
+        Section {
+            if subscription.isPro {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("세끼 프로 사용 중")
+                            .font(.headline)
+                        Text("모든 프로 기능을 쓸 수 있어요.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "crown.fill").foregroundColor(.orange)
+                }
+                Button("구독 관리") { showingManageSubscription = true }
+            } else {
+                Button {
+                    paywallLead = nil
+                    showingPaywall = true
+                } label: {
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("세끼 프로")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Text("그룹 여러 개, 자세한 통계, Face ID 잠금")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    } icon: {
+                        Image(systemName: "crown.fill").foregroundColor(.orange)
+                    }
+                }
+            }
+
+            // 앱 잠금 — 프로가 아니면 켜려 할 때 페이월
+            Toggle(isOn: Binding(
+                get: { settingsManager.appLockEnabled && subscription.allows(.appLock) },
+                set: { on in
+                    if on && !subscription.allows(.appLock) {
+                        paywallLead = .appLock
+                        showingPaywall = true
+                    } else {
+                        settingsManager.appLockEnabled = on
+                    }
+                }
+            )) {
+                Label("\(AppLockAuthenticator.biometryName) 잠금", systemImage: "lock.fill")
+            }
+        } footer: {
+            if !subscription.isPro {
+                Text("기록, 위젯, 친구와 공유, 그룹 참여는 계속 무료예요.")
+            }
+        }
+    }
+
+    // MARK: - 음식 분석 (기기 안에서 무료)
 
     @ViewBuilder private var advancedSection: some View {
-        Section(header: Text("고급")) {
-            NavigationLink {
-                AIAnalysisSettingsView(settingsManager: settingsManager)
-            } label: {
-                Label("AI 음식 분석", systemImage: "sparkles")
+        Section(header: Text("음식 분석")) {
+            Toggle(isOn: $settingsManager.autoFoodAnalysis) {
+                Label("찍으면 음식 자동 분석", systemImage: "sparkles")
             }
+            caption("사진 속 음식을 휴대폰 안에서 알아보고 기록에 이름표를 붙입니다. 사진은 밖으로 나가지 않아요.")
         }
     }
 
@@ -377,157 +443,6 @@ struct SettingsView: View {
 }
 
 // MARK: - AI 음식 분석 (설정 하위 페이지)
-
-struct AIAnalysisSettingsView: View {
-    @ObservedObject var settingsManager: SettingsManager
-    @State private var openAIAPIKey: String = UserDefaults.standard.string(forKey: "OpenAI_API_Key") ?? ""
-    @State private var showingAPIKeyInfo = false
-
-    var body: some View {
-        Form {
-            // 무료 분석
-            Section(header: Text("무료 분석")) {
-                HStack {
-                    Image(systemName: "gift.fill")
-                        .foregroundColor(settingsManager.freeAnalysisCount > 0 ? .green : .orange)
-                    Text("잔여 무료 분석")
-                    Spacer()
-                    Text("\(settingsManager.freeAnalysisCount)회")
-                        .font(.headline)
-                        .foregroundColor(settingsManager.freeAnalysisCount > 0 ? .green : .orange)
-                }
-                Text("Vision Framework(Apple 기본) 사용 · 정확도 중간. 소진 시 OpenAI(코인) 사용.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            // 코인 & 구독
-            Section(header: Text("분석 코인")) {
-                HStack {
-                    Image(systemName: "dollarsign.circle.fill").foregroundColor(.orange)
-                    Text("보유 코인")
-                    Spacer()
-                    Text("\(CoinManager.shared.currentCoins)개")
-                        .font(.headline).foregroundColor(.orange)
-                }
-
-                if CoinManager.shared.isSubscribed {
-                    HStack {
-                        Image(systemName: "checkmark.seal.fill").foregroundColor(.green)
-                        Text("구독 상태")
-                        Spacer()
-                        Text("활성").foregroundColor(.green)
-                    }
-                    if let daysLeft = CoinManager.shared.daysUntilNextRecharge() {
-                        Text("다음 충전까지 \(daysLeft)일 남음")
-                            .font(.caption).foregroundColor(.secondary)
-                    }
-                } else {
-                    Button {
-                        Task {
-                            if let product = SubscriptionManager.shared.monthlyProduct {
-                                _ = try? await SubscriptionManager.shared.purchase(product)
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "cart.fill")
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("월간 구독").fontWeight(.semibold)
-                                Text("매달 99코인 충전").font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Text("$2.00/월").fontWeight(.bold)
-                        }
-                        .padding(.vertical, 8)
-                    }
-
-                    Button {
-                        Task { await SubscriptionManager.shared.restorePurchases() }
-                    } label: {
-                        Text("구매 복원").font(.caption).foregroundColor(.blue)
-                    }
-                }
-
-                #if DEBUG
-                Button("🧪 테스트 코인 +10") { CoinManager.shared.addTestCoins(10) }
-                Button("🔄 테스트용 초기화") { CoinManager.shared.resetForTesting() }
-                #endif
-
-                Text("1회 OpenAI 분석 = 1코인 · 월 $2 구독 시 매달 99코인 자동 충전")
-                    .font(.caption).foregroundColor(.secondary)
-            }
-
-            // OpenAI 키
-            Section(header: Text("고급 인식 (OpenAI)")) {
-                HStack {
-                    Image(systemName: OpenAIFoodAnalyzer.shared.isConfigured ? "checkmark.circle.fill" : "exclamationmark.circle")
-                        .foregroundColor(OpenAIFoodAnalyzer.shared.isConfigured ? .green : .orange)
-                    Text("상태")
-                    Spacer()
-                    Text(OpenAIFoodAnalyzer.shared.isConfigured ? "설정됨" : "미설정")
-                        .foregroundColor(.secondary)
-                }
-
-                SecureField("API 키 입력", text: $openAIAPIKey)
-                    .textContentType(.password)
-                    .autocapitalization(.none)
-
-                HStack(spacing: 12) {
-                    Button {
-                        OpenAIFoodAnalyzer.shared.setAPIKey(openAIAPIKey)
-                    } label: {
-                        HStack { Image(systemName: "checkmark.circle.fill"); Text("저장") }
-                            .frame(maxWidth: .infinity).padding(.vertical, 8)
-                            .background(Color.blue).foregroundColor(.white).cornerRadius(8)
-                    }
-                    .disabled(openAIAPIKey.isEmpty)
-
-                    if OpenAIFoodAnalyzer.shared.isConfigured {
-                        Button {
-                            openAIAPIKey = ""
-                            OpenAIFoodAnalyzer.shared.setAPIKey("")
-                        } label: {
-                            HStack { Image(systemName: "trash.fill"); Text("삭제") }
-                                .frame(maxWidth: .infinity).padding(.vertical, 8)
-                                .background(Color.red).foregroundColor(.white).cornerRadius(8)
-                        }
-                    }
-                }
-
-                if OpenAIFoodAnalyzer.shared.isConfigured {
-                    Toggle("사진 촬영 시 자동 분석", isOn: $settingsManager.autoFoodAnalysis)
-                    Text(settingsManager.autoFoodAnalysis
-                         ? "⚠️ 촬영 시 자동 분석 (API 비용 발생, 월 약 $2.7~8.1 예상)"
-                         : "✅ 필요할 때만 수동 분석 (비용 절약)")
-                        .font(.caption)
-                        .foregroundColor(settingsManager.autoFoodAnalysis ? .orange : .green)
-                }
-
-                Button {
-                    showingAPIKeyInfo = true
-                } label: {
-                    HStack { Image(systemName: "questionmark.circle"); Text("API 키 받는 방법") }
-                }
-            }
-            .alert("OpenAI API 키 받는 방법", isPresented: $showingAPIKeyInfo) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text("""
-                1. https://platform.openai.com 접속
-                2. 로그인 후 API Keys 메뉴
-                3. "Create new secret key" 클릭
-                4. 생성된 키를 복사해서 붙여넣기
-
-                ⚠️ 결제 수단 등록·최소 $5 충전 필요
-                💰 이미지 1회 약 $0.01~0.03
-                """)
-            }
-        }
-        .navigationTitle("AI 음식 분석")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
 
 struct DeveloperContactSection: View {
     var body: some View {

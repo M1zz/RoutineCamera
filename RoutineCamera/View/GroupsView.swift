@@ -9,13 +9,25 @@ import SwiftUI
 
 struct GroupsView: View {
     @ObservedObject var friendManager = FriendManager.shared
+    @ObservedObject private var subscription = SubscriptionManager.shared
     @Environment(\.dismiss) var dismiss
 
     @State private var showingCreate = false
+    @State private var showingPaywall = false
     @State private var showingJoin = false
     @State private var leaveTarget: FriendGroup?
     @State private var isLeaving = false
     @State private var leaveError: String?
+
+    // 무료는 그룹 하나까지 만든다 (참여는 제한 없음) — 넘으면 세끼 프로 안내
+    private func startCreatingGroup() {
+        let owned = friendManager.groups.filter { $0.ownerId == friendManager.myUserId }.count
+        if subscription.allows(.groupCreate, current: owned) {
+            showingCreate = true
+        } else {
+            showingPaywall = true
+        }
+    }
 
     var body: some View {
         NavigationView {
@@ -30,7 +42,7 @@ struct GroupsView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
                             Button {
-                                showingCreate = true
+                                startCreatingGroup()
                             } label: {
                                 Label("그룹 만들기", systemImage: "plus.circle")
                             }
@@ -52,6 +64,7 @@ struct GroupsView: View {
                         try await friendManager.createGroup(name: name, visibility: visibility)
                     }
                 }
+                .proPaywall(isPresented: $showingPaywall, lead: .groupCreate)
                 .sheet(isPresented: $showingJoin) {
                     JoinGroupSheet { code in
                         try await friendManager.joinGroup(inviteCode: code)
@@ -176,7 +189,7 @@ struct GroupsView: View {
 
             HStack(spacing: 12) {
                 Button {
-                    showingCreate = true
+                    startCreatingGroup()
                 } label: {
                     Label("그룹 만들기", systemImage: "plus.circle")
                         .font(.system(size: 15, weight: .semibold))

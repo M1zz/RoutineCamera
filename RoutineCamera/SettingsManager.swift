@@ -139,12 +139,13 @@ class SettingsManager: ObservableObject {
         }
     }
 
-    // 무료 식단 분석 횟수 (기본 5회)
-    @Published var freeAnalysisCount: Int {
+    // 앱 잠금 (세끼 프로) — 앱을 열 때 Face ID·Touch ID·기기 암호를 묻는다
+    @Published var appLockEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(freeAnalysisCount, forKey: "freeAnalysisCount")
+            UserDefaults.standard.set(appLockEnabled, forKey: "appLockEnabled")
         }
     }
+
 
     // 친구·그룹 화면에서 상대에게 보이는 이름
     @Published var nickname: String = "사용자" {
@@ -209,9 +210,11 @@ class SettingsManager: ObservableObject {
 
         // 자동 음식 분석 기본값은 false (API 비용 절약)
         self.autoFoodAnalysis = UserDefaults.standard.object(forKey: "autoFoodAnalysis") as? Bool ?? false
+        self.appLockEnabled = UserDefaults.standard.bool(forKey: "appLockEnabled")
+        // 예전 "고급 인식(OpenAI)" 에서 받던 개인 API 키 — 기능을 없앴으므로 기기에 남기지 않는다
+        UserDefaults.standard.removeObject(forKey: "OpenAI_API_Key")
 
         // 무료 식단 분석 횟수 로드 (기본값: 5회)
-        self.freeAnalysisCount = UserDefaults.standard.object(forKey: "freeAnalysisCount") as? Int ?? 5
 
         // 챙길 식사 로드 (기본값: 삼시세끼 — 기존 동작 유지, 프롬프트로 조정 유도)
         if let raw = UserDefaults.standard.array(forKey: "caredMeals") as? [String] {
@@ -228,7 +231,6 @@ class SettingsManager: ObservableObject {
         print("   - 식단 공유: \(self.shareMealsToCloud)")
         print("   - 자동 카메라: \(self.autoOpenCamera)")
         print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
-        print("   - 무료 분석 잔여: \(self.freeAnalysisCount)회")
         print("   - 닉네임: \(self.nickname)")
     }
 

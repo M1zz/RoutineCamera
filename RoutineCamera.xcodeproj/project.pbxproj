@@ -381,7 +381,6 @@
 		5857FA1A2EC244C000A539D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
@@ -390,8 +389,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "앱 잠금을 켜면 Face ID로 내 식단 기록을 지킵니다.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "찍은 식단 사진을 사진 보관함의 세끼 앨범에 저장합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -420,7 +421,6 @@
 		5857FA1B2EC244C000A539D8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
@@ -429,8 +429,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "앱 잠금을 켜면 Face ID로 내 식단 기록을 지킵니다.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "찍은 식단 사진을 사진 보관함의 세끼 앨범에 저장합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

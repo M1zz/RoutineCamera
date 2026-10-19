@@ -10,7 +10,12 @@ import SwiftUI
 struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @Environment(\.dismiss) var dismiss
+    @ObservedObject private var subscription = SubscriptionManager.shared
     @State private var showingBeforeAfterComparison = false
+    @State private var showingPaywall = false
+
+    // 자세한 통계(전후 비교·자주 먹은 음식)는 세끼 프로
+    private var insightsUnlocked: Bool { subscription.allows(.insights) }
 
     private var navigationTitle: String {
         "\(SettingsManager.shared.albumType.rawValue) 통계"
@@ -28,7 +33,13 @@ struct StatisticsView: View {
 
                     // Before/After 비교 버튼 (식단 모드에서만)
                     if SettingsManager.shared.albumType == .diet {
-                        BeforeAfterComparisonButton(showingComparison: $showingBeforeAfterComparison)
+                        BeforeAfterComparisonButton(isLocked: !insightsUnlocked) {
+                            if insightsUnlocked {
+                                showingBeforeAfterComparison = true
+                            } else {
+                                showingPaywall = true
+                            }
+                        }
                     }
 
                     // 주간 통계
@@ -44,7 +55,14 @@ struct StatisticsView: View {
 
                     // 음식 소비 통계 (식단 모드에서만)
                     if SettingsManager.shared.albumType == .diet {
-                        FoodConsumptionStatsView(mealStore: mealStore)
+                        if insightsUnlocked {
+                            FoodConsumptionStatsView(mealStore: mealStore)
+                        } else {
+                            ProLockedStatsCard(title: "자주 먹은 음식",
+                                               detail: "이번 주, 이번 달에 많이 먹은 음식을 모아 봐요.") {
+                                showingPaywall = true
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 12)
@@ -63,6 +81,7 @@ struct StatisticsView: View {
             .sheet(isPresented: $showingBeforeAfterComparison) {
                 BeforeAfterComparisonView(mealStore: mealStore)
             }
+            .proPaywall(isPresented: $showingPaywall, lead: .insights)
         }
     }
 }
@@ -544,18 +563,20 @@ struct AllAchievementsView: View {
 
 // Before/After 비교 버튼
 struct BeforeAfterComparisonButton: View {
-    @Binding var showingComparison: Bool
+    var isLocked = false
+    let action: () -> Void
 
     var body: some View {
-        Button(action: {
-            showingComparison = true
-        }) {
+        Button(action: action) {
             HStack {
                 Image(systemName: "photo.on.rectangle.angled")
                     .font(.title3)
                 Text("Before/After 비교")
                     .font(.headline)
                 Spacer()
+                if isLocked {
+                    ProBadge()
+                }
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
             }
@@ -978,5 +999,52 @@ struct FoodConsumptionStatsView: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+}
+
+// MARK: - 세끼 프로 잠금 표시
+
+/// 작은 "프로" 표시
+struct ProBadge: View {
+    var body: some View {
+        Label("프로", systemImage: "crown.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundColor(.orange)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Color.orange.opacity(0.15)))
+            .accessibilityLabel("세끼 프로 기능")
+    }
+}
+
+/// 잠긴 통계 카드 — 누르면 세끼 프로 안내
+struct ProLockedStatsCard: View {
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(title)
+                        .font(.headline)
+                    Spacer()
+                    ProBadge()
+                }
+                Text(detail)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color(.systemBackground))
+            .foregroundColor(.primary)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("두 번 탭하면 세끼 프로 안내를 엽니다")
     }
 }

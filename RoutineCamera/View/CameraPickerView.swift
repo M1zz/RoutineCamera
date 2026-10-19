@@ -392,68 +392,16 @@ struct CameraPickerView: View {
         .background(Color(.systemGroupedBackground))
     }
 
-    // 자동 음식 분석 (무료 분석 우선, 소진 시 OpenAI 사용)
+    // 자동 음식 분석 — 기기 안(Vision)에서 무료로
     private func autoAnalyzeFood(image: UIImage, date: Date, mealType: MealType) {
-        // 자동 분석이 꺼져있으면 실행하지 않음
         guard SettingsManager.shared.autoFoodAnalysis else {
             print("ℹ️ [AutoAnalysis] 자동 분석 설정 꺼짐 - 건너뜀")
             return
         }
-
-        // 무료 분석 횟수가 남아있으면 Vision Framework 사용 (무료)
-        if SettingsManager.shared.freeAnalysisCount > 0 {
-            print("✅ [AutoAnalysis] 무료 분석 사용 (잔여: \(SettingsManager.shared.freeAnalysisCount)회)")
-
-            // 무료 횟수 차감
-            SettingsManager.shared.freeAnalysisCount -= 1
-
-            // Vision Framework로 분석
-            autoAnalyzeWithVisionFramework(image: image, date: date, mealType: mealType)
-            return
-        }
-
-        // 무료 횟수 소진 - OpenAI 사용 (코인 필요)
-        print("ℹ️ [AutoAnalysis] 무료 분석 소진 - OpenAI 사용")
-
-        // OpenAI가 설정되어 있는지 확인
-        guard OpenAIFoodAnalyzer.shared.isConfigured else {
-            print("❌ [AutoAnalysis] OpenAI 미설정, 무료 분석 소진 - 분석 건너뜀")
-            return
-        }
-
-        // 코인 체크
-        guard CoinManager.shared.hasEnoughCoins() else {
-            print("❌ [AutoAnalysis] 코인 부족 - 분석 건너뜀")
-            return
-        }
-
-        // OpenAI 분석 실행
-        _Concurrency.Task {
-            do {
-                let result = try await OpenAIFoodAnalyzer.shared.analyzeFood(image: image)
-
-                await MainActor.run {
-                    // 분석 성공 - 코인 차감
-                    if CoinManager.shared.consumeCoin() {
-                        let visionData = VisionAnalysisData(
-                            foodItems: [result.foodName] + result.ingredients,
-                            extractedText: [],
-                            confidence: 1.0,
-                            analyzedDate: Date(),
-                            isOpenAI: true,
-                            description: result.description
-                        )
-                        self.mealStore.updateVisionAnalysis(date: date, mealType: mealType, analysis: visionData)
-                        print("✅ OpenAI 자동 분석 완료: \(mealType.rawValue) - \(result.foodName) (코인 차감됨)")
-                    }
-                }
-            } catch {
-                print("❌ OpenAI 분석 실패: \(error)")
-            }
-        }
+        autoAnalyzeWithVisionFramework(image: image, date: date, mealType: mealType)
     }
 
-    // Vision Framework로 자동 분석 (폴백)
+    // Vision Framework로 자동 분석
     private func autoAnalyzeWithVisionFramework(image: UIImage, date: Date, mealType: MealType) {
         VisionAnalyzer.shared.analyzeFoodImage(image) { result in
             DispatchQueue.main.async {

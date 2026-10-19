@@ -2,102 +2,98 @@
 //  SubscriptionManager.swift
 //  RoutineCamera
 //
-//  StoreKit 기반 구독 관리 — 파사드
-//  - 월 $2 구독으로 매달 99코인 충전
-//
-//  StoreKit 2 엔진(상품 로드·구매·복원·권한 추적·트랜잭션 리스너·검증·오프라인 캐시)은
-//  이제 LeeoKit 의 LeeoStore 가 공용으로 담당한다. 이 파일은 그 위에 앱 고유의
-//  "구독 활성 ↔ CoinManager 월 충전" 연결만 얹은 얇은 파사드로, 기존 호출부는
-//  그대로 동작한다. (구독 상품 ID·코인 지급 정책은 변경 없음.)
+//  세끼 프로 — 월간 구독 하나로 여는 기능 묶음.
+//  StoreKit 2 엔진(상품 로드·구매·복원·권한 추적·트랜잭션 리스너·오프라인 캐시)은 LeeoKit 의 LeeoStore 가 맡고,
+//  여기서는 앱 시작 때 스토어를 띄워 두고 "이 기능을 지금 쓸 수 있나" 만 답한다.
+//  무엇이 무료이고 무엇이 프로인지는 RoutineCameraSpec 의 gate 한 곳에 있다.
 //
 
-import Foundation
-import StoreKit
+import SwiftUI
 import Combine
 import LeeoKit
 
-@MainActor
-class SubscriptionManager: ObservableObject {
-    static let shared = SubscriptionManager()
+/// 프로로 여는 기능. rawValue 는 RoutineCameraSpec 의 gate 키와 같다.
+enum ProFeature: String, LeeoProFeature, CaseIterable {
+    case groupCreate   // 그룹 여러 개 만들기 (무료 1개)
+    case insights      // 자세한 통계 — 전후 비교, 자주 먹은 음식
+    case appLock       // Face ID 잠금
 
-    // 구독 상품 ID (App Store Connect에서 설정한 ID) — 절대 변경 금지
-    static let monthlySubscriptionID = "com.ysoup.routinecamera.monthly.99coins"
-
-    enum SubscriptionStatus {
-        case notSubscribed
-        case subscribed
-        case expired
-        case loading
+    var leeoTitle: String {
+        switch self {
+        case .groupCreate: return String(localized: "그룹을 여러 개 만들어요")
+        case .insights:    return String(localized: "자세한 통계를 봐요")
+        case .appLock:     return String(localized: "Face ID로 잠가요")
+        }
     }
 
-    /// 공용 StoreKit 엔진. 구독 권한(entitlement) 판정을 담당한다.
-    private let store: LeeoStore
+    var leeoDetail: String {
+        switch self {
+        case .groupCreate: return String(localized: "가족, 회사, 운동 모임처럼 함께 먹는 사람마다 그룹을 따로 둘 수 있어요.")
+        case .insights:    return String(localized: "몇 주 전과 지금의 식사를 나란히 보고, 자주 먹은 음식을 모아 봐요.")
+        case .appLock:     return String(localized: "앱을 열 때 Face ID나 Touch ID로 내 식단 기록을 지켜요.")
+        }
+    }
+
+    var leeoIcon: String {
+        switch self {
+        case .groupCreate: return "person.3.fill"
+        case .insights:    return "chart.bar.xaxis"
+        case .appLock:     return "faceid"
+        }
+    }
+
+    /// 페이월 혜택 목록 — 모든 프로 기능
+    static var paywallBullets: [String] { allCases.map(\.leeoTitle) }
+}
+
+@MainActor
+final class SubscriptionManager: ObservableObject {
+    static let shared = SubscriptionManager()
+
+    // 구독 상품 ID (App Store Connect 에 등록된 값) — 절대 변경 금지.
+    // 이름은 예전 "매달 99코인" 시절 것이지만 지금은 세끼 프로 월간 구독이다.
+    static let monthlySubscriptionID = "com.ysoup.routinecamera.monthly.99coins"
+
+    let store: LeeoStore
     private var cancellable: AnyCancellable?
-    /// CoinManager 로 이미 반영한 구독 상태(전이 감지용).
-    private var lastSyncedSubscribed: Bool?
 
     private init() {
         store = LeeoStore(config: RoutineCameraSpec.paywall!)
-        // 공용 스토어의 상태 변화를 뷰에 전파하고, 구독 활성 여부를 코인 시스템에 반영한다.
         cancellable = store.objectWillChange.sink { [weak self] _ in
-            guard let self else { return }
-            self.objectWillChange.send()
-            self.syncCoinSubscription()
+            self?.objectWillChange.send()
         }
-        syncCoinSubscription()
     }
 
-    // MARK: - 공개 상태 (기존 API 유지)
+    var isPro: Bool { store.hasPro }
 
-    var products: [Product] { store.products }
-
-    var purchasedSubscriptions: [Product] {
-        store.products.filter { store.purchasedProductIDs.contains($0.id) }
+    /// 개수 제한이 있는 기능 — current 는 지금까지 쓴 개수
+    func evaluate(_ feature: ProFeature, current: Int = 0) -> LeeoGateDecision {
+        store.gate.evaluate(feature.rawValue, current: current)
     }
 
-    var subscriptionStatus: SubscriptionStatus {
-        store.hasPro ? .subscribed : .notSubscribed
+    func allows(_ feature: ProFeature) -> Bool {
+        store.gate.allows(feature.rawValue)
     }
 
-    var isSubscribed: Bool { store.hasPro }
-
-    var monthlyProduct: Product? {
-        store.products.first(where: { $0.id == Self.monthlySubscriptionID })
+    /// 하나 더 써도 되는지 (개수 제한 기능) — current 는 지금까지 쓴 개수
+    func allows(_ feature: ProFeature, current: Int) -> Bool {
+        evaluate(feature, current: current).isAllowed
     }
 
-    // MARK: - 상품 로드 / 구매 / 복원 (LeeoStore 로 위임)
-
-    func loadProducts() async {
-        await store.loadProducts()
-    }
-
-    @discardableResult
-    func purchase(_ product: Product) async throws -> Bool {
-        await store.purchase(product)
-    }
-
-    func restorePurchases() async {
-        await store.restore()
-    }
-
-    /// 현재 유효한 구독 권한을 다시 확인하고 코인 시스템에 반영한다.
-    func updateSubscriptionStatus() async {
+    /// 앱이 다시 앞으로 올 때 — 다른 기기 구매·환불·만료를 반영한다
+    func refresh() async {
         await store.refreshEntitlements()
-        syncCoinSubscription()
     }
+}
 
-    // MARK: - 구독 ↔ 코인 시스템 연결
-
-    /// 구독이 활성/비활성으로 "전이"될 때만 CoinManager 에 알린다.
-    /// activateSubscription() 은 월 단위로 멱등(같은 달 재충전 안 함)하므로 안전하다.
-    private func syncCoinSubscription() {
-        let subscribed = store.hasPro
-        guard subscribed != lastSyncedSubscribed else { return }
-        lastSyncedSubscribed = subscribed
-        if subscribed {
-            CoinManager.shared.activateSubscription()
-        } else {
-            CoinManager.shared.deactivateSubscription()
-        }
+extension View {
+    /// 세끼 프로 페이월. lead 가 있으면 "방금 막힌 그 기능" 을 앞세운다.
+    func proPaywall(isPresented: Binding<Bool>, lead: ProFeature? = nil) -> some View {
+        leeoPaywallSheet(RoutineCameraSpec.self,
+                         isPresented: isPresented,
+                         title: lead == nil ? String(localized: "세끼 프로") : nil,
+                         subtitle: lead == nil ? String(localized: "함께 먹는 사람이 많아질수록 더 편해져요.") : nil,
+                         features: ProFeature.paywallBullets,
+                         leadFeature: lead)
     }
 }
