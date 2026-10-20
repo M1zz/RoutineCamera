@@ -18,13 +18,7 @@ struct DailySectionView: View {
 
     private var dateString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-
-        if isToday {
-            formatter.dateFormat = "MM월 dd일 (E)"
-        } else {
-            formatter.dateFormat = "MM월 dd일 (E)"
-        }
+        formatter.setLocalizedDateFormatFromTemplate("MMMdE")
         return formatter.string(from: date)
     }
 

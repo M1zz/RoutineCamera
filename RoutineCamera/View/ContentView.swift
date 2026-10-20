@@ -36,11 +36,10 @@ struct ContentView: View {
     // 보이스오버 커스텀 로터용 네임스페이스
     @Namespace private var rotorNamespace
 
-    // 한글 날짜 라벨 (로터 항목 낭독용)
+    // 날짜 라벨 (로터 항목 낭독용, 지역 맞춤 표기)
     private func rotorDateLabel(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 EEEE"
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdEEEE")
         return formatter.string(from: date)
     }
 
@@ -134,13 +133,12 @@ struct ContentView: View {
 
     // 네이티브 내비게이션 바 타이틀
     private var navTitle: String {
-        if showsExerciseGrid { return "운동" }
+        if showsExerciseGrid { return AlbumType.exercise.displayName }
         if settingsManager.useMomentsFeed {
-            return "식단"
+            return AlbumType.diet.displayName
         }
         let f = DateFormatter()
-        f.locale = Locale(identifier: "ko_KR")
-        f.dateFormat = "M월 d일 (E)"
+        f.setLocalizedDateFormatFromTemplate("MMMdE")
         return f.string(from: currentVisibleDate)
     }
 
@@ -154,7 +152,7 @@ struct ContentView: View {
                         settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
                     }
                 } label: {
-                    Label(settingsManager.albumType.rawValue, systemImage: settingsManager.albumType.symbolName)
+                    Label(settingsManager.albumType.displayName, systemImage: settingsManager.albumType.symbolName)
                 }
             }
             // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
@@ -167,7 +165,9 @@ struct ContentView: View {
                     }
             }
             .accessibilityLabel(friendManager.incomingRequests.isEmpty
-                                ? "친구" : "친구, 받은 요청 \(friendManager.incomingRequests.count)건")
+                                ? String(localized: "친구", comment: "Toolbar button: friends")
+                                : String(localized: "친구, 받은 요청 \(friendManager.incomingRequests.count)건",
+                                         comment: "Toolbar friends button with pending request count (VoiceOver)"))
             Menu {
                 Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
                 Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
@@ -289,6 +289,12 @@ struct ContentView: View {
                     // 심사용 스크린샷: 세끼 프로 결제 화면 바로 열기 (Xcode 실행 + Config/SekkiPro.storekit 이어야 상품이 뜬다)
                     if ProcessInfo.processInfo.environment["OPEN_PAYWALL_FOR_TEST"] == "1" {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingPaywallForTest = true }
+                    }
+                    // 스크린샷용: OPEN_SCREEN_FOR_TEST=stats|settings 로 그 화면을 바로 연다
+                    switch ProcessInfo.processInfo.environment["OPEN_SCREEN_FOR_TEST"] {
+                    case "stats": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingStatistics = true }
+                    case "settings": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingSettings = true }
+                    default: break
                     }
                     if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

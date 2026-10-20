@@ -124,7 +124,7 @@ struct GroupsView: View {
         } else {
             VStack(spacing: 0) {
                 if let error = friendManager.groupsError {
-                    warningBanner("목록을 새로 고치지 못했어요. \(error)")
+                    warningBanner(String(localized: "목록을 새로 고치지 못했어요. \(error)", comment: "Banner: group list refresh failed; argument is the error message"))
                 }
                 groupList
             }
@@ -291,7 +291,7 @@ struct GroupsView: View {
 
 /// 화면 전체를 덮는 진행 표시 — 무슨 일이 진행 중인지 문구로 밝힌다
 struct StatusOverlay: View {
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
         ZStack {
@@ -1051,7 +1051,7 @@ struct GroupFeedView: View {
             loadError = nil
             await loadDay()
         } catch {
-            loadError = "멤버를 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
+            loadError = String(localized: "멤버를 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))", comment: "Error: group members failed to load; argument is the reason")
         }
     }
 
@@ -1071,7 +1071,7 @@ struct GroupFeedView: View {
             }
             loadError = nil
         } catch {
-            loadError = "기록을 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
+            loadError = String(localized: "기록을 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))", comment: "Error: group day entries failed to load; argument is the reason")
         }
     }
 }
@@ -1111,7 +1111,7 @@ struct GroupMemberTile: View {
             }
 
             // 이름이 길어도 "(나)" 가 잘려 나가지 않게 두 줄까지
-            Text(isMe ? "\(member.nickname) (나)" : member.nickname)
+            Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
                 .font(.system(size: 12, weight: hasRecord ? .semibold : .regular))
                 .foregroundColor(hasRecord ? .primary : .secondary)
                 .lineLimit(2)
@@ -1125,9 +1125,16 @@ struct GroupMemberTile: View {
         .frame(maxWidth: .infinity)
         .opacity(hasRecord ? 1 : 0.65)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(hasRecord
-                            ? "\(member.nickname)\(isMe ? ", 나" : ""), 기록함, \(recorded.map(\.displayName).joined(separator: ", "))"
-                            : "\(member.nickname)\(isMe ? ", 나" : ""), 아직 기록 없음")
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        let name = isMe
+            ? String(localized: "\(member.nickname), 나", comment: "VoiceOver: member name followed by 'me' marker")
+            : member.nickname
+        return hasRecord
+            ? String(localized: "\(name), 기록함, \(recorded.map(\.displayName).joined(separator: ", "))", comment: "VoiceOver: member logged meals; arguments are name and meal list")
+            : String(localized: "\(name), 아직 기록 없음", comment: "VoiceOver: member has not logged yet; argument is name")
     }
 }
 
@@ -1202,7 +1209,7 @@ struct GroupMemberSection: View {
                         .foregroundColor(.blue)
                 }
 
-                Text(isMe ? "\(member.nickname) (나)" : member.nickname)
+                Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
                     .font(.system(size: 16, weight: .semibold))
 
                 Spacer()

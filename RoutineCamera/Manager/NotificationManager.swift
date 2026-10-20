@@ -88,7 +88,7 @@ class NotificationManager: ObservableObject {
     func registerNotificationCategories() {
         let ateAll = UNNotificationAction(
             identifier: NotificationManager.ateAllActionID,
-            title: "다 먹음",
+            title: String(localized: "다 먹음", comment: "Notification action button: mark the meal as finished"),
             options: []  // .foreground 없음 = 앱 안 열고 백그라운드 처리
         )
         let category = UNNotificationCategory(
@@ -106,8 +106,9 @@ class NotificationManager: ObservableObject {
         // 식후 기록을 쓰지 않는 사용자에게는 마감을 재촉하지 않는다
         guard SettingsManager.shared.useAfterPhoto else { return }
         let content = UNMutableNotificationContent()
-        content.title = "🍽️ 다 드셨어요?"
-        content.body = "\(mealType.displayName), 다 먹었으면 여기서 바로 남겨요."
+        content.title = "🍽️ " + String(localized: "다 드셨어요?", comment: "Notification title: did you finish your meal?")
+        content.body = String(localized: "\(mealType.displayName), 다 먹었으면 여기서 바로 남겨요.",
+                              comment: "Notification body; argument is the meal name (Breakfast, Lunch…)")
         content.sound = .default
         content.categoryIdentifier = NotificationManager.ateAllCategoryID
         content.userInfo = [
@@ -255,8 +256,11 @@ class NotificationManager: ObservableObject {
         }
 
         let content = UNMutableNotificationContent()
-        content.title = leadMinutes == 0 ? "\(emoji) \(meal.displayName) 시간이에요" : "\(emoji) 곧 \(meal.displayName) 시간이에요"
-        content.body = "먹기 전에 사진 한 장 남겨요. 누르면 바로 카메라가 열려요."
+        content.title = "\(emoji) " + (leadMinutes == 0
+            ? String(localized: "\(meal.displayName) 시간이에요", comment: "Reminder title at meal time; argument is the meal name")
+            : String(localized: "곧 \(meal.displayName) 시간이에요", comment: "Reminder title shortly before meal time; argument is the meal name"))
+        content.body = String(localized: "먹기 전에 사진 한 장 남겨요. 누르면 바로 카메라가 열려요.",
+                              comment: "Meal reminder notification body")
         content.sound = .default
         content.threadIdentifier = "meal-reminder"
         content.userInfo = [

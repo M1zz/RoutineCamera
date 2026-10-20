@@ -96,22 +96,22 @@ struct SettingsView: View {
         Section(header: Text("화면")) {
             Toggle("순간 피드", isOn: $settingsManager.useMomentsFeed)
             caption(settingsManager.useMomentsFeed
-                    ? "빈 칸 없이 남긴 기록만 시간순으로 쌓이는 사진 일기 방식입니다."
-                    : "아침·점심·저녁 칸이 있는 기존 격자 방식입니다.")
+                    ? Text("빈 칸 없이 남긴 기록만 시간순으로 쌓이는 사진 일기 방식입니다.")
+                    : Text("아침·점심·저녁 칸이 있는 기존 격자 방식입니다."))
 
             Toggle("운동 모드로 기록", isOn: Binding(
                 get: { settingsManager.albumType == .exercise },
                 set: { settingsManager.albumType = $0 ? .exercise : .diet }
             ))
             caption(settingsManager.albumType == .exercise
-                    ? "운동 사진을 기록합니다. 식단과 운동은 별도로 저장돼요."
-                    : "식단 사진을 기록합니다. 켜면 운동 기록으로 전환돼요.")
+                    ? Text("운동 사진을 기록합니다. 식단과 운동은 별도로 저장돼요.")
+                    : Text("식단 사진을 기록합니다. 켜면 운동 기록으로 전환돼요."))
 
             if settingsManager.albumType == .diet {
                 Toggle("식후 사진 남기기", isOn: $settingsManager.useAfterPhoto)
                 caption(settingsManager.useAfterPhoto
-                        ? "식전·식후 두 장으로 기록합니다. 다 먹은 뒤 \"다 드셨어요?\" 알림을 받아요."
-                        : "식전 사진 한 장으로 기록이 끝납니다. 식후 촬영 안내와 알림을 받지 않아요.")
+                        ? Text("식전·식후 두 장으로 기록합니다. 다 먹은 뒤 \"다 드셨어요?\" 알림을 받아요.")
+                        : Text("식전 사진 한 장으로 기록이 끝납니다. 식후 촬영 안내와 알림을 받지 않아요."))
             }
 
             Toggle("헤더에 종류 전환 버튼", isOn: $settingsManager.showAlbumSwitcher)
@@ -136,9 +136,9 @@ struct SettingsView: View {
 
     @ViewBuilder private var caredMealsSection: some View {
         Section(header: Text("챙길 식사"),
-                footer: Text(settingsManager.caredMeals.isEmpty
-                    ? "선택한 식사가 없어 알림을 받지 않아요. 원할 때만 기록하세요."
-                    : "고른 식사만 리마인드 알림을 받아요.")) {
+                footer: settingsManager.caredMeals.isEmpty
+                    ? Text("선택한 식사가 없어 알림을 받지 않아요. 원할 때만 기록하세요.")
+                    : Text("고른 식사만 리마인드 알림을 받아요.")) {
             MealCareSelector()
                 .padding(.vertical, 4)
         }
@@ -166,12 +166,12 @@ struct SettingsView: View {
             if notificationManager.notificationsEnabled && notificationManager.mealRemindersEnabled {
                 Picker("알림 시점", selection: $notificationManager.reminderLeadMinutes) {
                     ForEach(NotificationManager.leadMinuteOptions, id: \.self) { minutes in
-                        Text(minutes == 0 ? "식사 시간 정각" : "\(minutes)분 전").tag(minutes)
+                        (minutes == 0 ? Text("식사 시간 정각") : Text("\(minutes)분 전")).tag(minutes)
                     }
                 }
-                mealTimeRow("🌅 아침", $notificationManager.breakfastTime)
-                mealTimeRow("☀️ 점심", $notificationManager.lunchTime)
-                mealTimeRow("🌙 저녁", $notificationManager.dinnerTime)
+                mealTimeRow("🌅 \(MealType.breakfast.displayName)", $notificationManager.breakfastTime)
+                mealTimeRow("☀️ \(MealType.lunch.displayName)", $notificationManager.lunchTime)
+                mealTimeRow("🌙 \(MealType.dinner.displayName)", $notificationManager.dinnerTime)
                 caption("챙길 식사로 고른 끼니만, 먹기 전에 사진을 찍으라고 알려요. 이미 기록한 끼니는 알리지 않아요.")
             } else if !notificationManager.notificationsEnabled {
                 caption("알림 권한이 꺼져 있어요. 설정 앱 → 세끼 → 알림에서 허용하면 켤 수 있어요.")
@@ -197,7 +197,7 @@ struct SettingsView: View {
                 }
             case .failed(let reason):
                 VStack(alignment: .leading, spacing: 6) {
-                    caption(reason)
+                    caption(Text(reason))
                     Button("다시 등록") {
                         friendManager.syncFriendMealSubscriptions()
                     }
@@ -285,10 +285,10 @@ struct SettingsView: View {
     @ViewBuilder private var photoSaveSection: some View {
         Section(header: Text("사진 저장")) {
             Toggle("자동으로 사진앱에 저장", isOn: $settingsManager.autoSaveToPhotoLibrary)
-            let albumName = settingsManager.albumType == .diet ? "세끼식단" : "세끼운동"
+            let albumName = settingsManager.albumType.photoAlbumName
             caption(settingsManager.autoSaveToPhotoLibrary
-                    ? "촬영하면 사진앱 '\(albumName)' 앨범에 저장됩니다."
-                    : "앱 내부에만 저장합니다. 상세보기에서 개별 저장할 수 있어요.")
+                    ? Text("촬영하면 사진앱 '\(albumName)' 앨범에 저장됩니다.")
+                    : Text("앱 내부에만 저장합니다. 상세보기에서 개별 저장할 수 있어요."))
         }
     }
 
@@ -441,8 +441,12 @@ struct SettingsView: View {
 
     // MARK: - 공용
 
-    private func caption(_ text: String) -> some View {
-        Text(text)
+    private func caption(_ key: LocalizedStringKey) -> some View {
+        caption(Text(key))
+    }
+
+    private func caption(_ text: Text) -> some View {
+        text
             .font(.caption)
             .foregroundColor(.secondary)
             .fixedSize(horizontal: false, vertical: true)   // 길어도 줄여 자르지 않고 다 보이게

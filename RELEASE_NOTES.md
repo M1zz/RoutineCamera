@@ -1,5 +1,19 @@
 # 릴리스 노트
 
+## 1.2.1
+
+### 앱스토어 (한국어)
+
+이제 세끼를 영어로도 쓸 수 있어요
+알림에서 다 먹었다고 하면 식단에 남아요
+지운 식사가 알림 때문에 다시 생기지 않아요
+
+### App Store (English)
+
+Sekki is now available in English
+Finishing from a reminder saves to Meals
+Deleted meals no longer come back
+
 ## 1.2.0
 
 ### 앱스토어 (한국어)

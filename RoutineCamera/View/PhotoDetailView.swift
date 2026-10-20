@@ -214,7 +214,7 @@ struct PhotoDetailView: View {
                             Image(systemName: isExercise ? "figure.run" : mealType.symbolName)
                                 .foregroundColor(isExercise ? .green : mealType.symbolColor)
                                 .font(.system(size: 24))
-                            Text(isExercise ? "운동" : mealType.displayName)
+                            Text(isExercise ? String(localized: "slot.workout", defaultValue: "운동", comment: "Slot label in workout mode") : mealType.displayName)
                                 .font(.system(size: 24, weight: .bold))
                                 .lineLimit(1)
                             // 식단 모드 + 식후 사진을 쓸 때만 식전/식후 표시
@@ -293,7 +293,7 @@ struct PhotoDetailView: View {
                                 }
                             } else if (record.beforeImageData != nil || record.afterImageData != nil) && currentPage == 0 {
                                 // 식전 사진만 분석 가능
-                                let buttonText = analyzingFood ? "분석 중..." : "식단 분석하기"
+                                let buttonText: LocalizedStringKey = analyzingFood ? "분석 중..." : "식단 분석하기"
 
                                 Button(action: {
                                     analyzeFoodWithVision()
@@ -363,7 +363,7 @@ struct PhotoDetailView: View {
                                 feedbacks: feedbacks,
                                 myUserId: FriendManager.shared.myUserId,
                                 isLoading: isLoadingFeedbacks,
-                                emptyText: "아직 받은 응원이 없습니다"
+                                emptyText: String(localized: "아직 받은 응원이 없습니다", comment: "Empty state: no cheers received yet")
                             )
                         }
                     }
@@ -631,24 +631,22 @@ struct PhotoDetailView: View {
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 (E)"
+        formatter.setLocalizedDateFormatFromTemplate("MMMdEEE")
         return formatter
     }
 
     private var timeFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "a h:mm"
+        formatter.setLocalizedDateFormatFromTemplate("jmm")
         return formatter
     }
 
     private var albumName: String {
         switch SettingsManager.shared.albumType {
         case .diet:
-            return "세끼식단"
+            return String(localized: "세끼식단", comment: "Photos album name for saved meal photos")
         case .exercise:
-            return "세끼운동"
+            return String(localized: "세끼운동", comment: "Photos album name for saved workout photos")
         }
     }
 

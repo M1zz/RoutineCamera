@@ -20,11 +20,27 @@ enum AlbumType: String, CaseIterable, Codable {
         }
     }
 
+    /// 화면에 보이는 이름 — rawValue("식단"/"운동")는 저장값이라 그대로 두고, 화면에는 이것을 쓴다
+    var displayName: String {
+        switch self {
+        case .diet: return String(localized: "식단", comment: "Album name: meal log")
+        case .exercise: return String(localized: "운동", comment: "Album name: workout log")
+        }
+    }
+
     /// 친구 화면에서 쓰는 이름 ("식단"보다 "음식"이 운동과 나란히 놓였을 때 읽기 쉽다)
     var shareTitle: String {
         switch self {
-        case .diet: return "음식"
-        case .exercise: return "운동"
+        case .diet: return String(localized: "음식", comment: "Friends screen tab: friends' food entries")
+        case .exercise: return String(localized: "운동", comment: "Album name: workout log")
+        }
+    }
+
+    /// 사진 앱에 만드는 앨범 이름 (사용자 언어로)
+    var photoAlbumName: String {
+        switch self {
+        case .diet: return String(localized: "세끼식단", comment: "Photos album name for meal photos")
+        case .exercise: return String(localized: "세끼운동", comment: "Photos album name for workout photos")
         }
     }
 

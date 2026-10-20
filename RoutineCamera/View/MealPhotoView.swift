@@ -30,7 +30,7 @@ struct MealPhotoView: View {
 
     // 운동 모드에서는 슬롯(아침/점심/…)이 저장 위치일 뿐이므로 화면에는 "운동"으로 보여준다
     private var isExerciseMode: Bool { SettingsManager.shared.albumType == .exercise }
-    private var slotLabel: String { isExerciseMode ? "운동" : mealType.displayName }
+    private var slotLabel: String { isExerciseMode ? String(localized: "slot.workout", defaultValue: "운동", comment: "Slot label in workout mode") : mealType.displayName }
     private var slotSymbolName: String { isExerciseMode ? "figure.run" : mealType.symbolName }
     private var slotSymbolColor: Color { isExerciseMode ? .green : mealType.symbolColor }
 
@@ -388,23 +388,23 @@ struct MealPhotoView: View {
     private var accessibilityStatus: String {
         if let record = mealRecord, record.isComplete {
             var parts: [String] = []
-            parts.append(record.recordedWithoutPhoto ? "사진 없이 기록 완료" : "기록 완료")
-            if let memo = record.memo, !memo.isEmpty { parts.append("메모 있음") }
-            if unreadFeedbackCount > 0 { parts.append("안 읽은 피드백 \(unreadFeedbackCount)개") }
+            parts.append(record.recordedWithoutPhoto ? String(localized: "사진 없이 기록 완료", comment: "Accessibility status: logged without a photo") : String(localized: "기록 완료", comment: "Accessibility status: logged"))
+            if let memo = record.memo, !memo.isEmpty { parts.append(String(localized: "메모 있음", comment: "Accessibility status: has a note")) }
+            if unreadFeedbackCount > 0 { parts.append(String(localized: "안 읽은 피드백 \(unreadFeedbackCount)개", comment: "Accessibility status: number of unread cheers")) }
             return parts.joined(separator: ", ")
         }
-        if isFutureDate { return "예정된 끼니, 아직 기록할 수 없음" }
+        if isFutureDate { return String(localized: "예정된 끼니, 아직 기록할 수 없음", comment: "Accessibility status: future meal, cannot log yet") }
 
         let baseStatus: String
-        if isWithinGracePeriod && isPastDateMissed { baseStatus = "아직 기록 전, 지금 기록할 수 있어요" }
-        else if isStreakBreakDay { baseStatus = "미기록, 다음 기록부터 다시 이어져요" }
-        else if isSoftMissed { baseStatus = "미기록" }
-        else if isCurrentMeal { baseStatus = "지금 기록할 차례" }
-        else { baseStatus = "아직 기록 안 함" }
+        if isWithinGracePeriod && isPastDateMissed { baseStatus = String(localized: "아직 기록 전, 지금 기록할 수 있어요", comment: "Accessibility status: not logged yet but can still be logged") }
+        else if isStreakBreakDay { baseStatus = String(localized: "미기록, 다음 기록부터 다시 이어져요", comment: "Accessibility status: missed; streak restarts from next entry") }
+        else if isSoftMissed { baseStatus = String(localized: "미기록", comment: "Accessibility status: missed meal") }
+        else if isCurrentMeal { baseStatus = String(localized: "지금 기록할 차례", comment: "Accessibility status: this is the meal to log now") }
+        else { baseStatus = String(localized: "아직 기록 안 함", comment: "Accessibility status: not logged yet") }
 
         // 기록 없는 칸에도 콕/댓글 수신 상태 안내
         if unreadFeedbackCount > 0 {
-            return "안 읽은 피드백 \(unreadFeedbackCount)개, \(baseStatus)"
+            return String(localized: "안 읽은 피드백 \(unreadFeedbackCount)개, \(baseStatus)", comment: "Accessibility status: unread cheers count, then meal status")
         }
         return baseStatus
     }
@@ -412,9 +412,9 @@ struct MealPhotoView: View {
     // 보이스오버 힌트 (액션 안내)
     private var accessibilityActionHint: String {
         if isFutureDate { return "" }
-        if mealRecord?.isComplete == true { return "두 번 탭하여 상세 보기" }
-        if unreadFeedbackCount > 0 { return "두 번 탭하여 피드백 보기" }
-        return "두 번 탭하여 기록"
+        if mealRecord?.isComplete == true { return String(localized: "두 번 탭하여 상세 보기", comment: "Accessibility hint: open details") }
+        if unreadFeedbackCount > 0 { return String(localized: "두 번 탭하여 피드백 보기", comment: "Accessibility hint: view cheers") }
+        return String(localized: "두 번 탭하여 기록", comment: "Accessibility hint: log this meal")
     }
 
     var body: some View {
@@ -502,8 +502,7 @@ struct EmptyMealFeedbackSheet: View {
 
     private var dateString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 (E)"
+        formatter.setLocalizedDateFormatFromTemplate("MMMdEEE")
         return formatter.string(from: date)
     }
 
@@ -515,7 +514,7 @@ struct EmptyMealFeedbackSheet: View {
                     feedbacks: feedbacks,
                     myUserId: FriendManager.shared.myUserId,
                     isLoading: isLoading,
-                    emptyText: "받은 응원이 없습니다"
+                    emptyText: String(localized: "받은 응원이 없습니다", comment: "Empty state: no cheers received")
                 )
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()

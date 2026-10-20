@@ -21,6 +21,10 @@ struct MomentsView: View {
 
     // 고스트 셀이 시간이 지나면 스스로 사라지도록 주기적으로 현재 시각을 갱신한다
     @State private var now: Date = Date()
+    #if DEBUG
+    // 스크린샷용: OPEN_FIRST_DETAIL_FOR_TEST=1 이면 오늘 아침 기록 상세를 바로 연다
+    @State private var testDetailRecord: MealRecord?
+    #endif
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -65,7 +69,9 @@ struct MomentsView: View {
 
     // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
-        isExercise ? "운동 기록하기" : "\(nextMealType.displayName) 기록하기"
+        isExercise
+            ? String(localized: "운동 기록하기", comment: "Button: log a workout")
+            : String(localized: "\(nextMealType.displayName) 기록하기", comment: "Button: log a meal; argument is the meal name (Breakfast, Lunch…)")
     }
 
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
@@ -177,6 +183,23 @@ struct MomentsView: View {
             }
         }
         .onReceive(clock) { now = $0 }
+        #if DEBUG
+        .navigationDestination(isPresented: Binding(
+            get: { testDetailRecord != nil },
+            set: { if !$0 { testDetailRecord = nil } })) {
+            if let record = testDetailRecord {
+                PhotoDetailView(date: record.date, mealType: record.mealType, mealRecord: record,
+                                mealStore: mealStore, embedInNavigation: false)
+            }
+        }
+        .onAppear {
+            guard ProcessInfo.processInfo.environment["OPEN_FIRST_DETAIL_FOR_TEST"] == "1" else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                testDetailRecord = moments.first { Calendar.current.isDateInToday($0.date) && $0.mealType == .breakfast }
+                    ?? moments.first
+            }
+        }
+        #endif
         // 기록 버튼은 하단 고정 (스크롤해도 항상 보임)
         .safeAreaInset(edge: .bottom) {
             recordButton
@@ -241,11 +264,10 @@ struct MomentsView: View {
 
     private func dayLabel(_ day: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(day) { return "오늘" }
-        if cal.isDateInYesterday(day) { return "어제" }
+        if cal.isDateInToday(day) { return String(localized: "오늘", comment: "Date label: today") }
+        if cal.isDateInYesterday(day) { return String(localized: "어제", comment: "Date label: yesterday") }
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "M월 d일 (E)"
+        fmt.setLocalizedDateFormatFromTemplate("MMMdE")
         return fmt.string(from: day)
     }
 
@@ -260,7 +282,7 @@ struct MomentsView: View {
                     Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
                         .font(.system(size: 13))
                         .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
-                    Text(isExercise ? "운동" : record.mealType.displayName)
+                    Text(isExercise ? AlbumType.exercise.displayName : record.mealType.displayName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.primary)
                     if let t = record.capturedAt {
@@ -338,7 +360,7 @@ struct MomentsView: View {
                             .foregroundColor(.secondary.opacity(0.7))
                     }
 
-                    Text(now < at ? "곧 \(meal.displayName) 시간이에요" : "지금 남기면 여기에 들어가요")
+                    (now < at ? Text("곧 \(meal.displayName) 시간이에요") : Text("지금 남기면 여기에 들어가요"))
                         .font(.system(size: 12))
                         .foregroundColor(.secondary.opacity(0.8))
                 }
@@ -374,7 +396,7 @@ struct MomentsView: View {
         }
     }
 
-    private func tag(_ text: String, system: String, color: Color) -> some View {
+    private func tag(_ text: LocalizedStringKey, system: String, color: Color) -> some View {
         HStack(spacing: 3) {
             Image(systemName: system)
                 .font(.system(size: 10))
@@ -389,10 +411,7 @@ struct MomentsView: View {
     }
 
     private func timeLabel(_ date: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "a h:mm"
-        return fmt.string(from: date)
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     // MARK: - 빈 상태
@@ -406,9 +425,9 @@ struct MomentsView: View {
             VStack(spacing: 6) {
                 Text("아직 기록이 없어요")
                     .font(.title3.weight(.semibold))
-                Text(isExercise
-                     ? "운동한 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요."
-                     : "먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
+                (isExercise
+                     ? Text("운동한 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
+                     : Text("먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요."))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)

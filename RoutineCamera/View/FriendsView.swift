@@ -268,10 +268,10 @@ struct FriendsView: View {
                             _Concurrency.Task {
                                 do {
                                     try await friendManager.createSampleFriend()
-                                    errorMessage = "샘플 친구가 생성되었습니다!\n코드 'ABCABC'로 추가할 수 있습니다."
+                                    errorMessage = String(localized: "샘플 친구가 생성되었습니다!\n코드 'ABCABC'로 추가할 수 있습니다.", comment: "Debug only: sample friend created")
                                     showingError = true
                                 } catch {
-                                    errorMessage = "샘플 데이터 생성 실패: \(error.localizedDescription)"
+                                    errorMessage = String(localized: "샘플 데이터 생성 실패: \(error.localizedDescription)", comment: "Debug only: sample data failed")
                                     showingError = true
                                 }
                             }
@@ -351,7 +351,7 @@ struct FriendsView: View {
                             try await friendManager.deleteAccount()
                             showingAccountSettings = false
                         } catch {
-                            errorMessage = "회원 탈퇴 실패: \(error.localizedDescription)"
+                            errorMessage = String(localized: "회원 탈퇴 실패: \(error.localizedDescription)", comment: "Error: deleting the account failed")
                             showingError = true
                         }
                     }
@@ -523,8 +523,8 @@ struct MealDotsView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(recorded.isEmpty
-                            ? "오늘 기록 없음"
-                            : "오늘 기록: " + MealType.allCases.filter { recorded.contains($0) }.map(\.displayName).joined(separator: ", "))
+                            ? String(localized: "오늘 기록 없음", comment: "VoiceOver: friend logged nothing today")
+                            : String(localized: "오늘 기록: \(MealType.allCases.filter { recorded.contains($0) }.map(\.displayName).formatted(.list(type: .and)))", comment: "VoiceOver: meals a friend logged today, e.g. 'Logged today: breakfast and lunch'"))
     }
 }
 
@@ -615,8 +615,7 @@ struct FriendTodayCard: View {
 
     private static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "a h:mm"
+        formatter.setLocalizedDateFormatFromTemplate("jmm")
         return formatter
     }()
 
@@ -645,7 +644,7 @@ struct FriendTodayCard: View {
                                 Text(String(friend.name.prefix(1)))
                                     .font(.system(size: 30, weight: .bold))
                                     .foregroundColor(hasRecord ? .green : .secondary)
-                                Text(hasRecord ? "사진 없이 기록" : "아직 기록 전")
+                                Text(hasRecord ? String(localized: "friend.loggedNoPhoto", defaultValue: "사진 없이 기록", comment: "Friend status: logged a meal without a photo") : String(localized: "아직 기록 전"))
                                     .font(.system(size: 11))
                                     .foregroundColor(.secondary)
                             }
@@ -690,8 +689,9 @@ struct FriendTodayCard: View {
         .opacity(hasRecord ? 1 : 0.7)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(hasRecord
-                            ? "\(friend.name), 오늘 \(meals.count)끼 기록\(timeText.map { ", 마지막 \($0)" } ?? "")"
-                            : "\(friend.name), 오늘 아직 기록 없음")
+                            ? (timeText.map { String(localized: "\(friend.name), 오늘 \(meals.count)끼 기록, 마지막 \($0)", comment: "VoiceOver: friend name, meals logged today, time of the last one") }
+                               ?? String(localized: "\(friend.name), 오늘 \(meals.count)끼 기록", comment: "VoiceOver: friend name, meals logged today"))
+                            : String(localized: "\(friend.name), 오늘 아직 기록 없음", comment: "VoiceOver: friend has not logged today"))
         .accessibilityHint("두 번 탭하여 \(friend.name)님의 기록 보기")
     }
 }
@@ -711,15 +711,13 @@ struct FriendWeekOverview: View {
 
     private static let weekdayFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "E"
+        formatter.setLocalizedDateFormatFromTemplate("EEE")
         return formatter
     }()
 
     private static let accessibilityDayFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 EEEE"
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdEEEE")
         return formatter
     }()
 
@@ -788,8 +786,9 @@ struct FriendWeekOverview: View {
         .buttonStyle(.plain)
         .disabled(meals.isEmpty)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(Self.accessibilityDayFormatter.string(from: day)), "
-                            + (recordedNames.isEmpty ? "기록 없음" : recordedNames.joined(separator: ", ") + " 기록"))
+        .accessibilityLabel(recordedNames.isEmpty
+                            ? String(localized: "\(Self.accessibilityDayFormatter.string(from: day)), 기록 없음", comment: "VoiceOver: day, nothing logged")
+                            : String(localized: "\(Self.accessibilityDayFormatter.string(from: day)), \(recordedNames.formatted(.list(type: .and))) 기록", comment: "VoiceOver: day, meals logged that day"))
         .accessibilityHint(meals.isEmpty ? "" : "두 번 탭하여 이 날 기록으로 이동")
     }
 }
@@ -833,13 +832,13 @@ struct FriendRequestRow: View {
                 }
             } else {
                 Button("수락") {
-                    perform("수락 중...") { try await friendManager.acceptFriendRequest(request) }
+                    perform(String(localized: "수락 중...", comment: "Accepting a friend request")) { try await friendManager.acceptFriendRequest(request) }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
 
                 Button("거절") {
-                    perform("거절 중...") { try await friendManager.rejectFriendRequest(request) }
+                    perform(String(localized: "거절 중...", comment: "Declining a friend request")) { try await friendManager.rejectFriendRequest(request) }
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
@@ -868,7 +867,7 @@ struct FriendRequestRow: View {
             do {
                 try await work()
             } catch {
-                errorText = "처리하지 못했어요. \(error.localizedDescription)"
+                errorText = String(localized: "처리하지 못했어요. \(error.localizedDescription)", comment: "Friend request action failed, with reason")
             }
             isWorking = false
         }
@@ -1039,9 +1038,13 @@ struct AddFriendSheet: View {
     private var buttonTitle: String {
         switch phase {
         case .working(let done, let total):
-            return total > 1 ? "요청 보내는 중... (\(done)/\(total))" : "요청 보내는 중..."
+            return total > 1
+                ? String(localized: "요청 보내는 중... (\(done)/\(total))", comment: "Sending friend requests, progress done/total")
+                : String(localized: "요청 보내는 중...", comment: "Sending a friend request")
         default:
-            return parsedCodes.count > 1 ? "\(parsedCodes.count)명에게 요청" : "친구 요청 보내기"
+            return parsedCodes.count > 1
+                ? String(localized: "\(parsedCodes.count)명에게 요청", comment: "Button: send requests to N people")
+                : String(localized: "친구 요청 보내기", comment: "Button: send a friend request")
         }
     }
 
@@ -1110,12 +1113,14 @@ struct AddFriendSheet: View {
 
     private func headline(sent: Int, failures: [String]) -> String {
         if failures.isEmpty {
-            return sent == 1 ? "친구 요청을 보냈어요" : "\(sent)명에게 친구 요청을 보냈어요"
+            return sent == 1
+                ? String(localized: "친구 요청을 보냈어요", comment: "One friend request sent")
+                : String(localized: "\(sent)명에게 친구 요청을 보냈어요", comment: "Friend requests sent to N people")
         }
         if sent == 0 {
-            return "요청을 보내지 못했어요"
+            return String(localized: "요청을 보내지 못했어요", comment: "No friend request could be sent")
         }
-        return "\(sent)명 전송, \(failures.count)명 실패"
+        return String(localized: "\(sent)명 전송, \(failures.count)명 실패", comment: "N requests sent, M failed")
     }
 
     private func send() {
@@ -1437,7 +1442,7 @@ struct TimelineView: View {
                 Button("다시 시도", action: onRetry)
                     .font(.system(size: 15, weight: .semibold))
             } else {
-                Text("아직 \(album.shareTitle) 기록이 없어요")
+                Text(album == .exercise ? "아직 운동 기록이 없어요" : "아직 음식 기록이 없어요")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.secondary)
             }
@@ -1498,7 +1503,9 @@ struct NudgeTodayRow: View {
                 Image(systemName: "hand.point.right.fill")
                     .foregroundColor(.orange)
                     .accessibilityHidden(true)
-                Text("\(friend.name)님이 오늘 아직 \(album.shareTitle) 기록이 없어요")
+                Text(album == .exercise
+                     ? "\(friend.name)님이 오늘 아직 운동 기록이 없어요"
+                     : "\(friend.name)님이 오늘 아직 음식 기록이 없어요")
                     .font(.system(size: 14, weight: .semibold))
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
@@ -1536,7 +1543,7 @@ struct NudgeTodayRow: View {
         .cornerRadius(12)
         .padding(.horizontal)
         .padding(.top, 12)
-        .confirmationDialog("어느 \(album.shareTitle)을 재촉할까요?",
+        .confirmationDialog(album == .exercise ? "어느 운동을 재촉할까요?" : "어느 음식을 재촉할까요?",
                             isPresented: $showingMealPicker, titleVisibility: .visible) {
             ForEach(pokeTargets, id: \.self) { mealType in
                 Button("👉 \(mealType.displayName) 콕 찌르기") { sendPoke(mealType) }
@@ -1706,8 +1713,7 @@ struct FriendMealCard: View {
     private var capturedTimeText: String? {
         guard let captured = meal.capturedAt else { return nil }
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "a h:mm"
+        fmt.setLocalizedDateFormatFromTemplate("jmm")
         return fmt.string(from: captured)
     }
 

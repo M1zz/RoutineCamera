@@ -121,7 +121,7 @@ struct VisionAnalysisData: Codable {
         var result = ""
 
         if !foodItems.isEmpty {
-            result += "🍽️ 음식: \(foodItems.joined(separator: ", "))\n"
+            result += "🍽️ " + String(localized: "음식: \(foodItems.joined(separator: ", "))", comment: "Food analysis summary: detected foods") + "\n"
         }
 
         if let desc = description, !desc.isEmpty {
@@ -129,10 +129,10 @@ struct VisionAnalysisData: Codable {
         }
 
         if !extractedText.isEmpty {
-            result += "📝 텍스트: \(extractedText.joined(separator: " "))"
+            result += "📝 " + String(localized: "텍스트: \(extractedText.joined(separator: " "))", comment: "Food analysis summary: text found in the photo")
         }
 
-        return result.isEmpty ? "분석 결과 없음" : result
+        return result.isEmpty ? String(localized: "분석 결과 없음", comment: "Food analysis summary when nothing was found") : result
     }
 }
 
@@ -1457,7 +1457,10 @@ class MealRecordStore: ObservableObject {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let slots: [(MealType, Int, Int)] = [(.breakfast, 8, 10), (.lunch, 12, 40), (.dinner, 19, 5)]
-        let memos = ["친구랑 비빔밥", "오늘은 가볍게", "퇴근 후 떡볶이", "주말 브런치"]
+        // 스크린샷 언어에 맞춘 메모 (시뮬레이터 언어가 영어면 영어 메모)
+        let memos = Locale.current.language.languageCode == .korean
+            ? ["친구랑 비빔밥", "오늘은 가볍게", "퇴근 후 떡볶이", "주말 브런치"]
+            : ["Bibimbap with a friend", "Keeping it light today", "Tteokbokki after work", "Weekend brunch"]
         var result: [MealRecord] = []
         var index = 0
 

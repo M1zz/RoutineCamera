@@ -23,24 +23,40 @@ struct SekkiEntry: TimelineEntry {
 
     /// 화면에 보일 끼니 이름 — 간식1·2·3 은 "간식"
     static func displayName(_ meal: String) -> String {
-        MealType(rawValue: meal)?.isSnack == true ? "간식" : meal
+        switch MealType(rawValue: meal) {
+        case .breakfast: return String(localized: "아침", comment: "Meal name: breakfast")
+        case .lunch:     return String(localized: "점심", comment: "Meal name: lunch")
+        case .dinner:    return String(localized: "저녁", comment: "Meal name: dinner")
+        case .snack1, .snack2, .snack3: return String(localized: "간식", comment: "Meal name: snack")
+        case nil:        return meal
+        }
     }
     var caredDoneCount: Int { caredMeals.filter { recordedMeals.contains($0) }.count }
     var missingMeals: [String] { caredMeals.filter { !recordedMeals.contains($0) } }
 
     /// 잠금화면 한 줄/직사각 첫 줄에 쓰는 짧은 문구
     var shortLabel: String {
-        if let meal = inProgressMeal { return "\(Self.displayName(meal)) 먹는 중" }
-        if missingMeals.isEmpty { return "오늘 끼니 다 챙김" }
-        return "남은 끼니 \(missingMeals.joined(separator: "·"))"
+        if let meal = inProgressMeal {
+            return String(localized: "\(Self.displayName(meal)) 먹는 중", comment: "Widget: currently eating this meal; argument is the meal name")
+        }
+        if missingMeals.isEmpty { return String(localized: "오늘 끼니 다 챙김", comment: "Widget: all of today's meals are logged") }
+        let names = missingMeals.map(Self.displayName).joined(separator: "·")
+        return String(localized: "남은 끼니 \(names)", comment: "Widget: meals not yet logged today; argument is a list of meal names")
     }
 
     /// VoiceOver 용 — 어떤 끼니를 챙겼고 무엇이 남았는지
     var mealsAccessibilityLabel: String {
-        let done = caredMeals.filter { recordedMeals.contains($0) }
-        var parts = [done.isEmpty ? "오늘 챙긴 끼니 없음" : "\(done.joined(separator: ", ")) 챙김"]
-        if !missingMeals.isEmpty { parts.append("\(missingMeals.joined(separator: ", ")) 기록 안 함") }
-        if snackCount > 0 { parts.append("간식 \(snackCount)번") }
+        let done = caredMeals.filter { recordedMeals.contains($0) }.map(Self.displayName).joined(separator: ", ")
+        let missing = missingMeals.map(Self.displayName).joined(separator: ", ")
+        var parts = [done.isEmpty
+                     ? String(localized: "오늘 챙긴 끼니 없음", comment: "Widget VoiceOver: no meals logged today")
+                     : String(localized: "\(done) 챙김", comment: "Widget VoiceOver: these meals are logged; argument is a list of meal names")]
+        if !missing.isEmpty {
+            parts.append(String(localized: "\(missing) 기록 안 함", comment: "Widget VoiceOver: these meals are not logged; argument is a list of meal names"))
+        }
+        if snackCount > 0 {
+            parts.append(String(localized: "간식 \(snackCount)번", comment: "Widget VoiceOver: number of snacks logged today"))
+        }
         return parts.joined(separator: ", ")
     }
 }
@@ -85,7 +101,7 @@ private struct MealCheckMark: View {
         if compact {
             HStack(spacing: 2) {
                 Image(systemName: done ? "checkmark.circle.fill" : "circle")
-                Text(meal)
+                Text(SekkiEntry.displayName(meal))
             }
             .font(.caption2)
             .lineLimit(1)
@@ -96,7 +112,7 @@ private struct MealCheckMark: View {
                 Image(systemName: done ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
                     .foregroundStyle(done ? Color.green : Color.secondary.opacity(0.6))
-                Text(meal)
+                Text(SekkiEntry.displayName(meal))
                     .font(.caption2.weight(done ? .semibold : .regular))
                     .foregroundStyle(done ? .primary : .secondary)
             }
@@ -155,7 +171,8 @@ struct SekkiWidgetEntryView: View {
                 HStack(spacing: 6) {
                     Image(systemName: entry.isEating ? "hourglass" : "fork.knife")
                         .foregroundStyle(entry.isEating ? .orange : .secondary)
-                    Text(entry.inProgressMeal.map { "\(SekkiEntry.displayName($0)) 먹는 중" } ?? "오늘 식사")
+                    Text(entry.inProgressMeal.map { String(localized: "\(SekkiEntry.displayName($0)) 먹는 중", comment: "Widget: currently eating this meal; argument is the meal name") }
+                         ?? String(localized: "오늘 식사", comment: "Widget title: today's meals"))
                         .font(.headline)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)

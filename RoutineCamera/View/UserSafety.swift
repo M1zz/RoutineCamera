@@ -40,7 +40,7 @@ private struct UserSafetyModifier: ViewModifier {
             .confirmationDialog(target?.name ?? "", isPresented: present($target), titleVisibility: .visible,
                                 presenting: target) { t in
                 if t.isFriend {
-                    Button("친구 끊기", role: .destructive) { run(t, "\(t.name)님과 친구를 끊었어요.") {
+                    Button("친구 끊기", role: .destructive) { run(t, String(localized: "\(t.name)님과 친구를 끊었어요.", comment: "Result: you unfriended this person")) {
                         try await FriendManager.shared.removeFriend(friendId: t.userId)
                     } }
                 }
@@ -52,7 +52,7 @@ private struct UserSafetyModifier: ViewModifier {
             // 차단 확인
             .confirmationDialog("\(blockTarget?.name ?? "")님을 차단할까요?", isPresented: present($blockTarget),
                                 titleVisibility: .visible, presenting: blockTarget) { t in
-                Button("차단하기", role: .destructive) { run(t, "\(t.name)님을 차단했어요.") {
+                Button("차단하기", role: .destructive) { run(t, String(localized: "\(t.name)님을 차단했어요.", comment: "Result: you blocked this person")) {
                     try await FriendManager.shared.blockUser(id: t.userId, code: t.code, name: t.name)
                 } }
                 Button("취소", role: .cancel) {}
@@ -63,7 +63,7 @@ private struct UserSafetyModifier: ViewModifier {
             .confirmationDialog("신고 사유를 골라 주세요", isPresented: present($reportTarget),
                                 titleVisibility: .visible, presenting: reportTarget) { t in
                 ForEach(Self.reportReasons, id: \.self) { reason in
-                    Button(reason) { run(t, "신고했어요. 확인한 뒤 조치할게요.") {
+                    Button(reason) { run(t, String(localized: "신고했어요. 확인한 뒤 조치할게요.", comment: "Result: report sent and will be reviewed")) {
                         try await FriendManager.shared.reportUser(id: t.userId, name: t.name,
                                                                   reason: reason, content: t.content)
                     } }

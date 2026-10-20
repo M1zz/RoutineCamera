@@ -24,6 +24,19 @@ SHOTS = [
     ("04-settings.png", "dark",        "챙길 식사만 알려드려요", "내 생활에 맞춘 식사 알림"),
 ]
 
+# 언어별 문구. 한국어는 위 SHOTS 그대로(원본 docs/screenshots/ → marketing/ko/),
+# 다른 언어는 원본 docs/screenshots/raw/<언어>/ → marketing/<언어>/.
+# 사용법: python3 scripts/make_marketing_screenshots.py [--lang en] [파일이름]
+SHOTS_BY_LANG = {
+    "ko": SHOTS,
+    "en": [
+        ("01-feed.png",     "hero-bleed",  "Snap it as you eat", "A meal diary that fills itself in"),
+        ("02-detail.png",   "left-text",   "Every meal,<br>in focus", "With the time and your notes"),
+        ("03-stats.png",    "text-bottom", "One meal keeps it going", "Miss a day, keep your progress"),
+        ("04-settings.png", "dark",        "Make it yours", "Choose what you log and what you see"),
+    ],
+}
+
 BASE_CSS = f"""
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 html,body {{ width:{W}px; height:{H}px; overflow:hidden; }}
@@ -83,16 +96,18 @@ HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
 {base}{layout}
 </style></head><body>{body}</body></html>"""
 
-def main(only=None):
-    OUT.mkdir(exist_ok=True)
-    for fname, layout, headline, sub in SHOTS:
+def main(only=None, lang="ko"):
+    src = SRC if lang == "ko" else SRC / "raw" / lang
+    out = OUT / lang  # marketing/<언어>/ — 언어 폴더가 있으면 DeployBar 가 언어별로 올린다
+    out.mkdir(parents=True, exist_ok=True)
+    for fname, layout, headline, sub in SHOTS_BY_LANG[lang]:
         if only and fname != only:
             continue
         body_tpl = BODY_PHONE_FIRST if layout == "text-bottom" else BODY_TEXT_FIRST
-        body = body_tpl.format(headline=headline, sub=sub, img=(SRC / fname).as_uri())
-        html_path = WORK / (fname.replace(".png", ".html"))
+        body = body_tpl.format(headline=headline, sub=sub, img=(src / fname).as_uri())
+        html_path = WORK / (fname.replace(".png", ".html") if lang == "ko" else f"{lang}-" + fname.replace(".png", ".html"))
         html_path.write_text(HTML.format(base=BASE_CSS, layout=LAYOUTS[layout], body=body), encoding="utf-8")
-        out_png = OUT / fname
+        out_png = out / fname
         subprocess.run([CHROME, "--headless=new", f"--screenshot={out_png}",
                         f"--window-size={W},{H}", "--force-device-scale-factor=1",
                         "--hide-scrollbars", "--disable-gpu", html_path.as_uri()],
@@ -100,4 +115,8 @@ def main(only=None):
         print(f"rendered {out_png}")
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else None)
+    args = sys.argv[1:]
+    lang = "ko"
+    if "--lang" in args:
+        i = args.index("--lang"); lang = args[i + 1]; del args[i:i + 2]
+    main(args[0] if args else None, lang)

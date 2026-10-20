@@ -1,0 +1,334 @@
+{
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "%@ 기록 안 함" : {
+      "comment" : "Widget VoiceOver: these meals are not logged; argument is a list of meal names",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not logged: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 기록 안 함"
+          }
+        }
+      }
+    },
+    "%@ 먹는 중" : {
+      "comment" : "Widget: currently eating this meal; argument is the meal name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eating %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 먹는 중"
+          }
+        }
+      }
+    },
+    "%@ 챙김" : {
+      "comment" : "Widget VoiceOver: these meals are logged; argument is a list of meal names",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logged: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 챙김"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
+          }
+        }
+      }
+    },
+    "간식" : {
+      "comment" : "Meal name: snack",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snack"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간식"
+          }
+        }
+      }
+    },
+    "간식 %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snack %lld"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간식 %lld"
+          }
+        }
+      }
+    },
+    "간식 %lld번" : {
+      "comment" : "Widget VoiceOver: number of snacks logged today",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld snack"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld snacks"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간식 %lld번"
+          }
+        }
+      }
+    },
+    "남은 끼니 %@" : {
+      "comment" : "Widget: meals not yet logged today; argument is a list of meal names",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "남은 끼니 %@"
+          }
+        }
+      }
+    },
+    "다 먹음" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finished"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다 먹음"
+          }
+        }
+      }
+    },
+    "다 먹음 기록" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log as Finished"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다 먹음 기록"
+          }
+        }
+      }
+    },
+    "방금 먹은 걸 '다 먹음'으로 남깁니다." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marks the meal you just ate as finished."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방금 먹은 걸 '다 먹음'으로 남깁니다."
+          }
+        }
+      }
+    },
+    "세끼" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세끼"
+          }
+        }
+      }
+    },
+    "아침" : {
+      "comment" : "Meal name: breakfast",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breakfast"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아침"
+          }
+        }
+      }
+    },
+    "오늘 끼니 다 챙김" : {
+      "comment" : "Widget: all of today's meals are logged",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All meals logged"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 끼니 다 챙김"
+          }
+        }
+      }
+    },
+    "오늘 식사" : {
+      "comment" : "Widget title: today's meals",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today’s Meals"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 식사"
+          }
+        }
+      }
+    },
+    "오늘 챙긴 끼니 없음" : {
+      "comment" : "Widget VoiceOver: no meals logged today",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No meals logged today"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 챙긴 끼니 없음"
+          }
+        }
+      }
+    },
+    "오늘 챙긴 끼니와 '다 먹음' 원탭" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See today’s meals and mark one finished with a tap."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 챙긴 끼니와 '다 먹음' 원탭"
+          }
+        }
+      }
+    },
+    "저녁" : {
+      "comment" : "Meal name: dinner",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinner"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저녁"
+          }
+        }
+      }
+    },
+    "점심" : {
+      "comment" : "Meal name: lunch",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunch"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "점심"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

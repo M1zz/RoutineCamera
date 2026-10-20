@@ -206,28 +206,26 @@ struct ExerciseGridView: View {
 
     private func dateLabel(_ date: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(date) { return "오늘" }
-        if cal.isDateInYesterday(date) { return "어제" }
+        if cal.isDateInToday(date) { return String(localized: "오늘", comment: "Date label: today") }
+        if cal.isDateInYesterday(date) { return String(localized: "어제", comment: "Date label: yesterday") }
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "M.d (E)"
+        fmt.setLocalizedDateFormatFromTemplate("MdE")
         return fmt.string(from: date)
     }
 
     private func accessibilityDateLabel(_ date: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(date) { return "오늘" }
-        if cal.isDateInYesterday(date) { return "어제" }
+        if cal.isDateInToday(date) { return String(localized: "오늘", comment: "Date label: today") }
+        if cal.isDateInYesterday(date) { return String(localized: "어제", comment: "Date label: yesterday") }
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "M월 d일 EEEE"
+        fmt.setLocalizedDateFormatFromTemplate("MMMMdEEEE")
         return fmt.string(from: date)
     }
 
     private func monthLabel(_ month: Date) -> String {
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = Calendar.current.isDate(month, equalTo: Date(), toGranularity: .year) ? "M월" : "yyyy년 M월"
+        fmt.setLocalizedDateFormatFromTemplate(
+            Calendar.current.isDate(month, equalTo: Date(), toGranularity: .year) ? "MMMM" : "yyyyMMMM")
         return fmt.string(from: month)
     }
 

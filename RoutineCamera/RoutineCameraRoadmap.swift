@@ -24,7 +24,7 @@ extension RoutineCameraSpec {
         .init(id: "a11y.contrast", status: .planned,
               title: NSLocalizedString("보기 편한 색과 대비", comment: "Roadmap item: better colors and contrast"),
               detail: NSLocalizedString("대비를 높이거나 색을 구별하기 어려워도 기록한 끼니를 알아볼 수 있어요.", comment: "Roadmap item detail: better colors and contrast")),
-        .init(id: "lang.english", status: .planned,
+        .init(id: "lang.english", status: .building,
               title: NSLocalizedString("영어 지원", comment: "Roadmap item: English language"),
               detail: NSLocalizedString("앱을 영어로도 쓸 수 있어요.", comment: "Roadmap item detail: English language")),
         .init(id: "lang.more", status: .planned,

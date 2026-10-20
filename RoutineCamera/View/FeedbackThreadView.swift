@@ -92,7 +92,7 @@ struct ReactionSummary: View {
             guard let items = buckets[emoji] else { return nil }
             return Group(
                 emoji: emoji,
-                names: items.map { $0.authorId == myUserId ? "나" : $0.authorNickname },
+                names: items.map { $0.authorId == myUserId ? String(localized: "나", comment: "Refers to the current user in a list of names") : $0.authorNickname },
                 containsMine: items.contains { $0.authorId == myUserId }
             )
         }
@@ -146,7 +146,7 @@ private struct FeedbackBubble: View {
         VStack(alignment: isMine ? .trailing : .leading, spacing: 6) {
             HStack(spacing: 6) {
                 if isMine { Spacer(minLength: 0) }
-                Text(isMine ? "나" : feedback.authorNickname)
+                (isMine ? Text("나") : Text(verbatim: feedback.authorNickname))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(isMine ? .green : .blue)
                 Text(feedback.createdAt, style: .relative)
@@ -171,7 +171,9 @@ private struct FeedbackBubble: View {
                 )
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(isMine ? "내가 남긴 글" : "\(feedback.authorNickname)님의 글"): \(feedback.content)")
+        .accessibilityLabel(isMine
+                            ? String(localized: "내가 남긴 글: \(feedback.content)", comment: "VoiceOver: your own comment, then its text")
+                            : String(localized: "\(feedback.authorNickname)님의 글: \(feedback.content)", comment: "VoiceOver: comment author, then its text"))
     }
 }
 
@@ -185,7 +187,7 @@ struct FeedbackThreadView: View {
     /// 불러오기에 실패했을 때 사유 (nil이면 정상)
     var errorMessage: String? = nil
     /// 아무것도 없을 때 보여 줄 문구
-    var emptyText: String = "아직 남긴 응원이 없어요"
+    var emptyText: String = String(localized: "아직 남긴 응원이 없어요", comment: "Empty state: no cheers yet")
 
     @ObservedObject private var friendManager = FriendManager.shared
     @State private var safetyTarget: SafetyTarget?
@@ -313,7 +315,7 @@ struct FriendFeedbackSection: View {
                     myUserId: friendManager.myUserId,
                     isLoading: isLoadingThread,
                     errorMessage: threadError,
-                    emptyText: "아직 아무도 응원을 남기지 않았어요"
+                    emptyText: String(localized: "아직 아무도 응원을 남기지 않았어요", comment: "Empty state: nobody has cheered yet")
                 )
             }
 

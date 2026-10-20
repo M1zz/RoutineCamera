@@ -14,7 +14,7 @@
 ⚠️ 가격 · 할인 · 주소(URL) · 수상 · 다른 플랫폼 이름은 넣지 않는다(Apple 가이드).
 
 기기 화면은 docs/screenshots/0N-*.png 시뮬레이터 원본(make_marketing_screenshots.py 와 같은 것)을 쓴다.
-스토어 언어는 한국어 하나다(deploy.env LOCALES=ko).
+스토어 언어는 deploy.env LOCALES 와 같다(ko · en). 영어 기기 화면은 docs/screenshots/raw/en/ 에 있다.
 """
 import shutil, subprocess, sys, pathlib, tempfile
 
@@ -37,11 +37,13 @@ SPEC = {
 # 눈썹글은 검색창에 칠 말이다.
 SEARCH = {
     "ko": ("식단 일기", "먹은 순간을<br>톡, 사진으로", "빈 칸 없이 쌓이는 나만의 식사 일기"),
+    "en": ("Food diary", "Snap it<br>as you eat", "A meal diary that builds itself, one photo at a time"),
 }
 
 # 헤더는 한 가지 약속만: 사진 한 장이면 하루 세끼가 기록된다.
 HEADER = {
     "ko": ("세끼 식단 기록", "사진 한 장이면<br>오늘 세끼가 남아요"),
+    "en": ("Sekki food diary", "One photo,<br>every meal logged"),
 }
 
 # ⚠️ 바탕 · 글자색은 마케팅 스크린샷(make_marketing_screenshots.py)과 같다: 밝은 회색 바탕, 검은 헤드라인,
@@ -115,7 +117,9 @@ def chrome(args, until, timeout=900):
 
 
 def shot(lang, name):
-    return (ROOT / "docs" / "screenshots" / name).as_uri()
+    # 한국어는 docs/screenshots/ 바로 아래, 다른 언어는 raw/<언어>/ 의 그 언어 화면
+    base = ROOT / "docs" / "screenshots"
+    return (base / name if lang == "ko" else base / "raw" / lang / name).as_uri()
 
 
 def phone(img, left, top, width, rotate=0):

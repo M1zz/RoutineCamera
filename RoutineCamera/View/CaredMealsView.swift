@@ -69,8 +69,8 @@ struct CaredMealsPromptView: View {
                 MealCareSelector()
 
                 Text(settingsManager.caredMeals.isEmpty
-                     ? "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요."
-                     : "\(caredSummary) 알림을 받아요. 언제든 설정에서 바꿀 수 있어요.")
+                     ? String(localized: "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요.", comment: "Cared meals prompt: nothing selected")
+                     : String(localized: "\(caredSummary) 알림을 받아요. 언제든 설정에서 바꿀 수 있어요.", comment: "Cared meals prompt: reminders for the selected meals (list of meal names)"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -102,7 +102,7 @@ struct CaredMealsPromptView: View {
     private var caredSummary: String {
         let order: [MealType] = [.breakfast, .lunch, .dinner]
         return order.filter { settingsManager.caredMeals.contains($0) }
-            .map { $0.rawValue }
-            .joined(separator: "·")
+            .map { $0.displayName }
+            .joined(separator: String(localized: "·", comment: "Separator between meal names in a short list, e.g. 아침·점심"))
     }
 }

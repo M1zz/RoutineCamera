@@ -135,8 +135,8 @@ struct MealRhythmCard: View {
 
     private func weekdayLabel(_ day: Date) -> String {
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "E"
+        // 좁은 칸에 맞는 한 글자 요일 — 한국어 "월", 영어 "M"
+        fmt.dateFormat = "EEEEE"
         return fmt.string(from: day)
     }
 }

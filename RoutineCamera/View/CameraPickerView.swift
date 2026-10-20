@@ -344,7 +344,7 @@ struct CameraPickerView: View {
         }
         .buttonStyle(.plain)
         .disabled(target == nil && !selected)
-        .accessibilityLabel(target == nil && !selected ? "\(title), 이미 기록됨" : title)
+        .accessibilityLabel(target == nil && !selected ? String(localized: "\(title), 이미 기록됨", comment: "Accessibility: meal choice that is already logged") : title)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
@@ -379,7 +379,7 @@ struct CameraPickerView: View {
         .accessibilityHint("두 번 탭하면 식후 사진 없이 \(mealType.displayName)을 다 먹음으로 기록하고 닫습니다")
     }
 
-    private func headerActionLabel(_ title: String, systemImage: String) -> some View {
+    private func headerActionLabel(_ title: LocalizedStringKey, systemImage: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
                 .font(.system(size: 16, weight: .semibold))

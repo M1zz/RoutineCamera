@@ -288,15 +288,13 @@ struct CustomCameraView: View {
 
     var dateString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy년 MM월 dd일 EEEE"
+        formatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEE")
         return formatter.string(from: currentDateTime)
     }
 
     var timeString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "HH:mm:ss"
+        formatter.setLocalizedDateFormatFromTemplate("jmmss")
         return formatter.string(from: currentDateTime)
     }
 
@@ -315,9 +313,9 @@ struct CustomCameraView: View {
         let albumName: String
         switch SettingsManager.shared.albumType {
         case .diet:
-            albumName = "세끼식단"
+            albumName = String(localized: "세끼식단", comment: "Photos album name for saved meal photos")
         case .exercise:
-            albumName = "세끼운동"
+            albumName = String(localized: "세끼운동", comment: "Photos album name for saved workout photos")
         }
 
         MealAlbumSaver.save(image, toAlbum: albumName)
@@ -327,14 +325,13 @@ struct CustomCameraView: View {
     private func addDateTimeToImage(_ image: UIImage) -> UIImage {
         let now = Date()
         let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ko_KR")
 
-        // 날짜 포맷 (년 월 일 요일)
-        dateFormatter.dateFormat = "yyyy년 MM월 dd일 EEEE"
+        // 날짜 포맷 (년 월 일 요일) — 지역 맞춤 표기
+        dateFormatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEE")
         let dateString = dateFormatter.string(from: now)
 
         // 시간 포맷
-        dateFormatter.dateFormat = "HH:mm:ss"
+        dateFormatter.setLocalizedDateFormatFromTemplate("jmmss")
         let timeString = dateFormatter.string(from: now)
 
         // 텍스트 속성 설정 (프리뷰와 동일하게)

@@ -18,7 +18,9 @@ struct StatisticsView: View {
     private var insightsUnlocked: Bool { subscription.allows(.insights) }
 
     private var navigationTitle: String {
-        "\(SettingsManager.shared.albumType.rawValue) 통계"
+        SettingsManager.shared.albumType == .exercise
+            ? String(localized: "운동 통계", comment: "Stats screen title (workouts album)")
+            : String(localized: "식단 통계", comment: "Stats screen title (meals album)")
     }
 
     var body: some View {
@@ -148,8 +150,8 @@ struct WeeklyStatsView: View {
                 .frame(height: 12)
 
                 Text(SettingsManager.shared.albumType == .exercise
-                     ? "이번 주 \(stats.meals)번 기록했어요"
-                     : "이번 주 \(stats.meals)끼 기록했어요")
+                     ? String(localized: "이번 주 \(stats.meals)번 기록했어요", comment: "Weekly stats: workouts logged this week")
+                     : String(localized: "이번 주 \(stats.meals)끼 기록했어요", comment: "Weekly stats: meals logged this week"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -228,8 +230,8 @@ struct MonthlyStatsView: View {
                 .frame(height: 12)
 
                 Text(SettingsManager.shared.albumType == .exercise
-                     ? "이번 달 \(stats.meals)번 기록했어요"
-                     : "이번 달 \(stats.meals)끼 기록했어요")
+                     ? String(localized: "이번 달 \(stats.meals)번 기록했어요", comment: "Monthly stats: workouts logged this month")
+                     : String(localized: "이번 달 \(stats.meals)끼 기록했어요", comment: "Monthly stats: meals logged this month"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -333,13 +335,13 @@ struct StreakAndGoalView: View {
     // 회복 프레임: 끊김을 실패로 두지 않고 '다시 시작'을 격려하는 한 줄
     private var encouragement: String {
         if totalDays == 0 {
-            return "오늘 한 끼만 남겨도 시작이에요 🌱"
+            return String(localized: "오늘 한 끼만 남겨도 시작이에요 🌱", comment: "Stats encouragement: no records yet")
         } else if currentStreak == 0 {
-            return "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱"
+            return String(localized: "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱", comment: "Stats encouragement: streak broken")
         } else if currentStreak < 3 {
-            return "좋아요, 다시 이어가는 중이에요"
+            return String(localized: "좋아요, 다시 이어가는 중이에요", comment: "Stats encouragement: short streak")
         } else {
-            return "\(currentStreak)일째 이어가는 중이에요 🔥"
+            return String(localized: "\(currentStreak)일째 이어가는 중이에요 🔥", comment: "Stats encouragement: streak of N days")
         }
     }
 
@@ -540,7 +542,9 @@ struct AllAchievementsView: View {
                         .cornerRadius(12)
                         .shadow(color: .black.opacity(0.05), radius: 3, y: 1)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(achievement.title), \(achievement.isUnlocked ? "달성함" : "잠김")")
+                        .accessibilityLabel(achievement.isUnlocked
+                            ? String(localized: "\(achievement.title), 달성함", comment: "VoiceOver: achievement name, unlocked")
+                            : String(localized: "\(achievement.title), 잠김", comment: "VoiceOver: achievement name, locked"))
                         .accessibilityValue(achievement.description)
                     }
                 }
@@ -600,6 +604,15 @@ struct BeforeAfterComparisonView: View {
         case twoWeeks = "2주 전"
         case oneMonth = "1개월 전"
 
+        /// 화면에 보이는 이름 (rawValue 는 식별용)
+        var title: String {
+            switch self {
+            case .oneWeek: return String(localized: "1주 전", comment: "Comparison period: one week ago")
+            case .twoWeeks: return String(localized: "2주 전", comment: "Comparison period: two weeks ago")
+            case .oneMonth: return String(localized: "1개월 전", comment: "Comparison period: one month ago")
+            }
+        }
+
         var daysAgo: Int {
             switch self {
             case .oneWeek: return 7
@@ -620,7 +633,7 @@ struct BeforeAfterComparisonView: View {
                     // 기간 선택
                     Picker("기간", selection: $selectedPeriod) {
                         ForEach(ComparisonPeriod.allCases, id: \.self) { period in
-                            Text(period.rawValue).tag(period)
+                            Text(period.title).tag(period)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -631,14 +644,14 @@ struct BeforeAfterComparisonView: View {
 
                     // Before
                     ComparisonDayView(
-                        title: "Before (\(selectedPeriod.rawValue))",
+                        title: String(localized: "Before (\(selectedPeriod.title))", comment: "Comparison card title: the earlier day, e.g. Before (1 week ago)"),
                         date: beforeDate,
                         meals: getMealsForDate(beforeDate)
                     )
 
                     // After (오늘)
                     ComparisonDayView(
-                        title: "After (오늘)",
+                        title: String(localized: "After (오늘)", comment: "Comparison card title: today"),
                         date: todayDate,
                         meals: getMealsForDate(todayDate)
                     )
@@ -674,8 +687,7 @@ struct ComparisonDayView: View {
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일 (E)"
-        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.setLocalizedDateFormatFromTemplate("MMMdEEE")
         return formatter
     }
 
@@ -825,6 +837,14 @@ struct FoodConsumptionStatsView: View {
     enum ConsumptionPeriod: String, CaseIterable {
         case week = "이번 주"
         case month = "이번 달"
+
+        /// 화면에 보이는 이름 (rawValue 는 식별용)
+        var title: String {
+            switch self {
+            case .week: return String(localized: "이번 주", comment: "Period picker: this week")
+            case .month: return String(localized: "이번 달", comment: "Period picker: this month")
+            }
+        }
     }
 
     // 기간별 음식 데이터 가져오기 (음식별 식사 횟수)
@@ -905,7 +925,7 @@ struct FoodConsumptionStatsView: View {
                 .fontWeight(.bold)
             Picker("기간", selection: $selectedPeriod) {
                 ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
-                    Text(period.rawValue).tag(period)
+                    Text(period.title).tag(period)
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
@@ -965,15 +985,11 @@ struct FoodConsumptionStatsView: View {
                             Spacer()
 
                             // 식사 횟수
-                            HStack(spacing: 4) {
-                                Text("\(item.mealCount)")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.blue)
-                                Text("끼")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                            // 숫자와 단위를 한 문구로 — 영어는 1 meal / 2 meals 로 단위가 숫자를 따라간다
+                            Text("\(item.mealCount)끼")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
                         }
                         .padding(.vertical, 4)
                     }

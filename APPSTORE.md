@@ -68,3 +68,71 @@ https://m1zz.github.io/RoutineCamera/privacy.html
 ### 마케팅 URL
 
 https://m1zz.github.io/RoutineCamera/
+
+## en
+
+### 이름
+
+Sekki: Photo Food Diary
+
+### 부제
+
+Snap meals, keep your streak
+
+### 키워드
+
+journal,tracker,diet,eating,habit,weight,loss,healthy,breakfast,lunch,dinner,snack,workout,friends
+
+### 프로모션 텍스트
+
+Snap a photo before you eat, tap once when you're done. Log just one meal a day to keep your streak alive, and cheer on friends' meals and workouts.
+
+### 설명
+
+One photo before you eat, and your meal is logged.
+Sekki is a photo food diary built for consistency, not perfection, so you can keep going even on the days you miss a meal.
+
+Logging in a single snap
+Sekki looks at when you took the photo and files it under breakfast, lunch, dinner, or a snack for you. Add before and after photos, log a meal without a photo, or jot down a note. Everything lines up in order with no empty gaps, building a food diary that's all yours.
+
+No need to open the app
+Take a before photo and a reminder will follow, so you can mark the meal as finished without opening the app. You can also log with the Action button, Siri, or Shortcuts, and check today's meals from a Home Screen widget.
+
+A log that never shrinks
+Log just one meal a day and your streak keeps going, and your total days logged never go down. Weekly and monthly stats show how many days and meals you logged instead of a completion score. Collect achievements along the way, too.
+
+Reminders for the meals you choose
+Pick which meals you want reminders for and set meal times that fit your day.
+
+Workouts, too
+Workouts are kept separate from your meals. The workout album shows a three-column grid of photos with dates, so you can see how many times you worked out this month at a glance.
+
+Better with friends
+Add friends with a friend code to see each other's meals and workouts, and cheer each other on with emojis and comments. Colors show at a glance who in your circle has logged today.
+
+Food analysis
+Sekki recognizes the food in your photos right on your device, for free. Your photos never leave your phone.
+
+Sekki Pro
+With a yearly or monthly subscription or a one-time lifetime purchase, you can create multiple groups, compare meals from a few weeks ago side by side with today, see the foods you eat most, and lock the app with Face ID. Logging and sharing with friends stay free without a subscription.
+
+Every entry can be logged and viewed with VoiceOver.
+
+About subscriptions
+Sekki Pro is available as a yearly or monthly subscription. Payment is charged to your Apple ID account when you confirm the purchase. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can cancel anytime in your Apple ID subscription settings.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Terms of Service: https://m1zz.github.io/RoutineCamera/en/terms.html
+Privacy Policy: https://m1zz.github.io/RoutineCamera/en/privacy.html
+
+### 지원 URL
+
+https://m1zz.github.io/RoutineCamera/en/support.html
+
+### 개인정보처리방침 URL
+
+https://m1zz.github.io/RoutineCamera/en/privacy.html
+
+### 마케팅 URL
+
+https://m1zz.github.io/RoutineCamera/en/

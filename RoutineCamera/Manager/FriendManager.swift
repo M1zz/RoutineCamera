@@ -292,7 +292,7 @@ class FriendManager: ObservableObject {
     func deleteAccount() async throws {
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -1,
-                         userInfo: [NSLocalizedDescriptionKey: "iCloud 계정을 확인할 수 없습니다."])
+                         userInfo: [NSLocalizedDescriptionKey: String(localized: "iCloud 계정을 확인할 수 없습니다.", comment: "Error: iCloud account unavailable")])
         }
 
         let userId = myUserId
@@ -381,14 +381,14 @@ class FriendManager: ObservableObject {
         switch error.code {
         case .unknownItem:
             // 이 환경(Development/Production)에 RCUser 스키마가 아직 배포되지 않음
-            message = "친구 코드 저장소가 아직 준비되지 않았어요. 잠시 후 다시 시도해주세요."
+            message = String(localized: "친구 코드 저장소가 아직 준비되지 않았어요. 잠시 후 다시 시도해주세요.", comment: "Error: friend code storage not ready")
         case .invalidArguments:
             // code 필드에 Queryable 인덱스가 없을 때
-            message = "친구 코드 검색 설정에 문제가 있어요(검색 인덱스 없음). 앱 업데이트 후 다시 시도해주세요."
+            message = String(localized: "친구 코드 검색 설정에 문제가 있어요(검색 인덱스 없음). 앱 업데이트 후 다시 시도해주세요.", comment: "Error: friend code search index missing")
         case .networkUnavailable, .networkFailure, .serviceUnavailable, .requestRateLimited:
-            message = "네트워크 연결을 확인한 뒤 다시 시도해주세요."
+            message = String(localized: "네트워크 연결을 확인한 뒤 다시 시도해주세요.", comment: "Error: network unavailable")
         case .notAuthenticated:
-            message = "iCloud에 로그인한 뒤 다시 시도해주세요."
+            message = String(localized: "iCloud에 로그인한 뒤 다시 시도해주세요.", comment: "Error: not signed in to iCloud")
         default:
             message = error.localizedDescription
         }
@@ -424,7 +424,7 @@ class FriendManager: ObservableObject {
         }
 
         guard code == myUserCode else { return } // 검증 중 코드가 바뀌었으면 무시
-        codeStatusWarning = "이 코드가 아직 서버에서 검색되지 않아요. 친구가 추가하면 '존재하지 않는 코드'로 나올 수 있어요."
+        codeStatusWarning = String(localized: "이 코드가 아직 서버에서 검색되지 않아요. 친구가 추가하면 '존재하지 않는 코드'로 나올 수 있어요.", comment: "Warning: my friend code is not searchable yet")
         print("⚠️ [CloudKit] 내 코드 \(code)가 쿼리로 조회되지 않음 (레코드 미생성 또는 배포 환경 불일치)")
     }
 
@@ -832,18 +832,18 @@ class FriendManager: ObservableObject {
     /// 내 닉네임을 CloudKit에 저장
     func saveMyNickname(_ nickname: String) async throws {
         guard !myUserId.isEmpty else {
-            throw NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 ID 없음"])
+            throw NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "사용자 ID 없음", comment: "Error: my user ID is missing")])
         }
 
         guard !nickname.isEmpty else {
-            throw NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: "닉네임이 비어있습니다"])
+            throw NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: String(localized: "닉네임이 비어있습니다", comment: "Error: nickname empty")])
         }
 
         if myUserRecord == nil {
             await bootstrapMyUserRecord()
         }
         guard let record = myUserRecord else {
-            throw NSError(domain: "FriendManager", code: -3, userInfo: [NSLocalizedDescriptionKey: "사용자 레코드 없음"])
+            throw NSError(domain: "FriendManager", code: -3, userInfo: [NSLocalizedDescriptionKey: String(localized: "사용자 레코드 없음", comment: "Error: my user record is missing")])
         }
 
         record["nickname"] = nickname
@@ -881,15 +881,15 @@ class FriendManager: ObservableObject {
     func addFeedback(to friendId: String, date: Date, mealType: MealType, content: String,
                      album: AlbumType = .diet) async throws {
         guard !myUserId.isEmpty else {
-            throw NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 ID 없음"])
+            throw NSError(domain: "FriendManager", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "사용자 ID 없음", comment: "Error: my user ID is missing")])
         }
 
         guard !friendId.isEmpty else {
-            throw NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: "친구 ID 없음"])
+            throw NSError(domain: "FriendManager", code: -2, userInfo: [NSLocalizedDescriptionKey: String(localized: "친구 ID 없음", comment: "Error: friend ID is missing")])
         }
 
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw NSError(domain: "FriendManager", code: -3, userInfo: [NSLocalizedDescriptionKey: "피드백 내용이 비어있습니다"])
+            throw NSError(domain: "FriendManager", code: -3, userInfo: [NSLocalizedDescriptionKey: String(localized: "피드백 내용이 비어있습니다", comment: "Error: cheer message empty")])
         }
 
         let dateString = dateFormatter.string(from: date)
@@ -931,7 +931,7 @@ class FriendManager: ObservableObject {
                 return MealFeedback(
                     id: record.recordID.recordName,
                     authorId: authorId,
-                    authorNickname: record["authorNickname"] as? String ?? "친구",
+                    authorNickname: record["authorNickname"] as? String ?? String(localized: "friend.fallbackName", defaultValue: "친구", comment: "Fallback name for a friend without a nickname"),
                     content: content,
                     createdAt: Date(timeIntervalSince1970: createdAtTS),
                     isRead: readIds.contains(record.recordID.recordName)
@@ -972,7 +972,7 @@ class FriendManager: ObservableObject {
                 return MealFeedback(
                     id: record.recordID.recordName,
                     authorId: authorId,
-                    authorNickname: record["authorNickname"] as? String ?? "친구",
+                    authorNickname: record["authorNickname"] as? String ?? String(localized: "friend.fallbackName", defaultValue: "친구", comment: "Fallback name for a friend without a nickname"),
                     content: content,
                     createdAt: Date(timeIntervalSince1970: createdAtTS),
                     // 내가 쓴 글은 언제나 읽은 것으로 둔다 (내 글에 안읽음 점이 붙으면 이상하다)
@@ -999,7 +999,7 @@ class FriendManager: ObservableObject {
                      album: AlbumType = .diet) async throws {
         guard FeedbackContent.isReaction(emoji) else {
             throw NSError(domain: "FriendManager", code: -11,
-                          userInfo: [NSLocalizedDescriptionKey: "이모지가 아닙니다"])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "이모지가 아닙니다", comment: "Error: not an emoji")])
         }
         try await addFeedback(to: friendId, date: date, mealType: mealType, content: emoji, album: album)
     }
@@ -1169,8 +1169,8 @@ class FriendManager: ObservableObject {
                 )
 
                 let info = CKSubscription.NotificationInfo()
-                info.title = "세끼"
-                info.alertBody = "친구가 내 식단에 응원을 남겼어요"
+                info.title = String(localized: "세끼", comment: "App name")
+                info.alertBody = String(localized: "친구가 내 식단에 응원을 남겼어요", comment: "Push body: a friend cheered on my meal")
                 info.soundName = "default"
                 // 배지가 아니라 배너로 알린다 — 숫자만 늘면 무엇이 왔는지 알 수 없다
                 subscription.notificationInfo = info
