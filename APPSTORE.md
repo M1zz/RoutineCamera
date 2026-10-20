@@ -49,6 +49,13 @@
 
 VoiceOver로도 모든 기록을 남기고 볼 수 있습니다.
 
+구독 안내
+세끼 프로 구독은 연간과 월간이 있고, 결제는 구입을 확인할 때 Apple ID 계정으로 청구됩니다. 구독은 기간이 끝나기 24시간 전까지 해지하지 않으면 자동으로 갱신되며, 설정의 Apple ID 구독 관리에서 언제든 해지할 수 있습니다.
+
+이용약관(EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+서비스 이용약관: https://m1zz.github.io/RoutineCamera/terms.html
+개인정보처리방침: https://m1zz.github.io/RoutineCamera/privacy.html
+
 
 ### 지원 URL
 
