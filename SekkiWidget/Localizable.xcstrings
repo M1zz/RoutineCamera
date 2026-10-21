@@ -141,6 +141,12 @@
             "state" : "translated",
             "value" : "Nezapsáno: %@"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydedilmeyen: %@"
+          }
         }
       }
     },
@@ -283,6 +289,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jíš: %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yemekte: %@"
           }
         }
       }
@@ -427,6 +439,12 @@
             "state" : "translated",
             "value" : "Zapsáno: %@"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydedilen: %@"
+          }
         }
       }
     },
@@ -565,6 +583,12 @@
           }
         },
         "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld/%2$lld"
@@ -712,6 +736,12 @@
             "state" : "translated",
             "value" : "Svačina"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atıştırmalık"
+          }
         }
       }
     },
@@ -853,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Svačina %lld"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atıştırmalık %lld"
           }
         }
       }
@@ -1285,6 +1321,18 @@
               }
             }
           }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld atıştırmalık"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1428,6 +1476,12 @@
             "state" : "translated",
             "value" : "Zbývá: %@"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalan: %@"
+          }
         }
       }
     },
@@ -1569,6 +1623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Snězeno"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitti"
           }
         }
       }
@@ -1712,6 +1772,12 @@
             "state" : "translated",
             "value" : "Zapsat jako snězené"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitti Olarak Kaydet"
+          }
         }
       }
     },
@@ -1854,6 +1920,12 @@
             "state" : "translated",
             "value" : "Zapíše jídlo, které právě jíš, jako snězené."
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az önce yediğin öğünü “bitti” olarak işaretler."
+          }
         }
       }
     },
@@ -1992,6 +2064,12 @@
           }
         },
         "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki"
@@ -2139,6 +2217,12 @@
             "state" : "translated",
             "value" : "Snídaně"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kahvaltı"
+          }
         }
       }
     },
@@ -2281,6 +2365,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Všechna jídla zapsána"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm öğünler kaydedildi"
           }
         }
       }
@@ -2425,6 +2515,12 @@
             "state" : "translated",
             "value" : "Dnešní jídla"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugünün Öğünleri"
+          }
         }
       }
     },
@@ -2568,6 +2664,12 @@
             "state" : "translated",
             "value" : "Dnes nic nezapsáno"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugün kaydedilen öğün yok"
+          }
         }
       }
     },
@@ -2709,6 +2811,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podívej se na dnešní jídla a jedním klepnutím je zapiš jako snězená."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bugünün öğünlerini gör ve dokunarak birini bitti olarak işaretle."
           }
         }
       }
@@ -2853,6 +2961,12 @@
             "state" : "translated",
             "value" : "Večeře"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akşam Yemeği"
+          }
         }
       }
     },
@@ -2995,6 +3109,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oběd"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğle Yemeği"
           }
         }
       }

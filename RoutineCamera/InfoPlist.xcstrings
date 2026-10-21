@@ -142,6 +142,12 @@
             "state" : "translated",
             "value" : "Sekki"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
         }
       }
     },
@@ -282,6 +288,12 @@
           }
         },
         "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki"
@@ -430,6 +442,12 @@
             "state" : "translated",
             "value" : "Sekki používá fotoaparát k focení tvých jídel."
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki, her öğünün fotoğrafını çekebilmen için kamerayı kullanır."
+          }
         }
       }
     },
@@ -573,6 +591,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Při zapnutém zámku aplikace chrání Face ID tvé záznamy jídel před ostatními."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama Kilidi açıkken Face ID, öğün kayıtlarını gizli tutar."
           }
         }
       }
@@ -718,6 +742,12 @@
             "state" : "translated",
             "value" : "Sekki ukládá fotky tvých jídel do alba Sekki v knihovně fotek."
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki, öğün fotoğraflarını fotoğraf kitaplığındaki bir Sekki albümüne kaydeder."
+          }
         }
       }
     },
@@ -861,6 +891,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki otevře tvou knihovnu fotek, ze které můžeš přidat už pořízené fotky jídel."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki, daha önce çektiğin öğün fotoğraflarını ekleyebilmen için fotoğraf kitaplığını açar."
           }
         }
       }

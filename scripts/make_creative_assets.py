@@ -14,7 +14,7 @@
 ⚠️ 가격 · 할인 · 주소(URL) · 수상 · 다른 플랫폼 이름은 넣지 않는다(Apple 가이드).
 
 기기 화면은 docs/screenshots/0N-*.png 시뮬레이터 원본(make_marketing_screenshots.py 와 같은 것)을 쓴다.
-스토어 언어는 deploy.env LOCALES 와 같다(ko · en). 영어 기기 화면은 docs/screenshots/raw/en/ 에 있다.
+스토어 언어는 deploy.env LOCALES 와 같다(ko · en · 그 밖 22개). 영어 기기 화면은 docs/screenshots/raw/en/ 에 있다.
 """
 import shutil, subprocess, sys, pathlib, tempfile
 
@@ -38,12 +38,56 @@ SPEC = {
 SEARCH = {
     "ko": ("식단 일기", "먹은 순간을<br>톡, 사진으로", "빈 칸 없이 쌓이는 나만의 식사 일기"),
     "en": ("Food diary", "Snap it<br>as you eat", "A meal diary that builds itself, one photo at a time"),
+    "en-GB": ("Food diary", "Snap it<br>as you eat", "A meal diary that builds itself, one photo at a time"),
+    "zh-Hans": ("饮食日记", "吃饭的瞬间<br>随手一拍", "一张照片接着一张，自动攒成你的饮食日记"),
+    "zh-Hant": ("飲食日記", "吃的當下<br>隨手拍一張", "一張一張，自然累積成你的餐點日記"),
+    "ja": ("食事日記", "食べた瞬間を<br>ぱっと写真で", "1枚ずつ積み重なる、空白のない食事日記"),
+    "ru": ("Дневник питания", "Снимите еду<br>в тот же момент", "Дневник питания, который пополняется сам, фото за фото"),
+    "es": ("Diario de comidas", "Una foto<br>al comer", "Un diario de comidas que se arma solo, foto a foto"),
+    "de": ("Essenstagebuch", "Einfach knipsen,<br>wenn du isst", "Ein Mahlzeitentagebuch, das sich Foto für Foto füllt"),
+    "fr": ("Journal alimentaire", "Une photo<br>à chaque repas", "Un journal de repas qui s’écrit photo après photo"),
+    "it": ("Diario alimentare", "Scatta mentre<br>mangi", "Un diario dei pasti che si scrive da solo, una foto alla volta"),
+    "pt-BR": ("Diário alimentar", "Foto na hora<br>de comer", "Um diário de refeições que se monta, foto a foto"),
+    "th": ("ไดอารี่อาหาร", "แชะตอนกิน<br>เก็บไว้เป็นรูป", "ไดอารี่มื้ออาหารที่เรียงต่อกันเอง ทีละรูป"),
+    "vi": ("Nhật ký ăn uống", "Chụp một tấm<br>khi vừa ăn", "Nhật ký bữa ăn tự đầy lên, từng tấm ảnh một"),
+    "cs": ("Jídelníček", "Vyfoť to<br>hned při jídle", "Jídelní deník, který se skládá sám, fotku po fotce"),
+    "da": ("Maddagbog", "Knips det,<br>mens du spiser", "En måltidsdagbog, der skriver sig selv, ét foto ad gangen"),
+    "el": ("Ημερολόγιο γευμάτων", "Φωτογράφισε<br>τη στιγμή που τρως", "Ένα ημερολόγιο γευμάτων που χτίζεται μόνο του, φωτογραφία με φωτογραφία"),
+    "fi": ("Ruokapäiväkirja", "Ota kuva<br>syödessäsi", "Ruokapäiväkirja, joka kertyy itsestään, yksi kuva kerrallaan"),
+    "id": ("Diari makan", "Foto saat<br>kamu makan", "Diari makan yang tersusun sendiri, satu foto demi satu foto"),
+    "nb": ("Matdagbok", "Ta bildet<br>mens du spiser", "En måltidsdagbok som bygger seg selv, ett bilde om gangen"),
+    "nl": ("Eetdagboek", "Leg het vast<br>terwijl je eet", "Een dagboek dat vanzelf groeit, foto voor foto"),
+    "pl": ("Dziennik posiłków", "Zrób zdjęcie<br>podczas jedzenia", "Dziennik posiłków, który wypełnia się sam, zdjęcie po zdjęciu"),
+    "sv": ("Matdagbok", "Ta ett foto<br>när du äter", "En måltidsdagbok som skriver sig själv, ett foto i taget"),
+    "tr": ("Yemek günlüğü", "Yerken<br>bir fotoğraf yeter", "Her fotoğrafla kendiliğinden büyüyen yemek günlüğü"),
 }
 
 # 헤더는 한 가지 약속만: 사진 한 장이면 하루 세끼가 기록된다.
 HEADER = {
     "ko": ("세끼 식단 기록", "사진 한 장이면<br>오늘 세끼가 남아요"),
     "en": ("Sekki food diary", "One photo,<br>every meal logged"),
+    "en-GB": ("Sekki food diary", "One photo,<br>every meal logged"),
+    "zh-Hans": ("Sekki 饮食记录", "一张照片<br>三餐都留下"),
+    "zh-Hant": ("Sekki 飲食日記", "一張照片<br>三餐都記錄"),
+    "ja": ("Sekki 食事日記", "写真1枚で<br>今日の食事を記録"),
+    "ru": ("Дневник питания Sekki", "Одно фото —<br>и приём пищи записан"),
+    "es": ("Sekki, diario de comidas", "Una foto,<br>cada comida registrada"),
+    "de": ("Sekki Essenstagebuch", "Ein Foto,<br>jede Mahlzeit eingetragen"),
+    "fr": ("Journal de repas Sekki", "Une photo,<br>chaque repas noté"),
+    "it": ("Sekki diario alimentare", "Una foto,<br>tutti i pasti registrati"),
+    "pt-BR": ("Diário alimentar Sekki", "Uma foto,<br>todas as refeições"),
+    "th": ("Sekki ไดอารี่อาหาร", "รูปเดียว<br>บันทึกครบทุกมื้อ"),
+    "vi": ("Sekki nhật ký ăn uống", "Một tấm ảnh,<br>mọi bữa đều được ghi"),
+    "cs": ("Sekki fotodeník jídla", "Jedna fotka<br>a jídlo je zapsáno"),
+    "da": ("Sekki maddagbog", "Ét foto,<br>alle måltider registreret"),
+    "el": ("Ημερολόγιο γευμάτων Sekki", "Μία φωτογραφία,<br>όλα τα γεύματα καταγεγραμμένα"),
+    "fi": ("Sekki-ruokapäiväkirja", "Yksi kuva,<br>kaikki ateriat kirjattu"),
+    "id": ("Diari makan Sekki", "Satu foto,<br>semua makan tercatat"),
+    "nb": ("Sekki matdagbok", "Ett bilde,<br>hvert måltid logget"),
+    "nl": ("Sekki foto-eetdagboek", "Eén foto,<br>elke maaltijd vastgelegd"),
+    "pl": ("Sekki: dziennik posiłków", "Jedno zdjęcie,<br>każdy posiłek zapisany"),
+    "sv": ("Sekki matdagbok", "Ett foto,<br>varje måltid loggad"),
+    "tr": ("Sekki yemek günlüğü", "Tek fotoğraf,<br>her öğün kayıtta"),
 }
 
 # ⚠️ 바탕 · 글자색은 마케팅 스크린샷(make_marketing_screenshots.py)과 같다: 밝은 회색 바탕, 검은 헤드라인,

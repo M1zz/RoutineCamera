@@ -141,6 +141,12 @@
             "state" : "translated",
             "value" : "Zapsat snězené jídlo v aplikaci ${applicationName}"
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde bitirdiğim öğünü kaydet"
+          }
         }
       }
     },
@@ -283,6 +289,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mám dojedeno v aplikaci ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} yemeğimi bitirdim"
           }
         }
       }

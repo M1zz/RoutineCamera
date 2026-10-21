@@ -14,6 +14,139 @@ Sekki is now available in English
 Finishing from a reminder saves to Meals
 Deleted meals no longer come back
 
+### App Store (en-GB)
+
+Sekki is now available in English
+Finishing from a reminder saves to Meals
+Deleted meals no longer come back
+
+### App Store (zh-Hans)
+
+Sekki 现已支持英文
+在提醒中点“吃完了”，就会记入饮食
+删除的餐不会再因提醒而重新出现
+
+### App Store (zh-Hant)
+
+Sekki 現在支援繁體中文了
+從通知標示吃完，會記錄到餐點中
+刪除的餐點不會再重新出現
+
+### App Store (ja)
+
+Sekkiを日本語で使えるようになりました
+通知から完食を記録すると食事に残ります
+削除した食事が復活しなくなりました
+
+### App Store (ru)
+
+Теперь Sekki доступен на русском
+Отметка в уведомлении попадает в питание
+Удалённые записи больше не возвращаются
+
+### App Store (es)
+
+Sekki ya está disponible en español
+Terminar desde el aviso queda en Comidas
+Las comidas eliminadas ya no reaparecen
+
+### App Store (de)
+
+Sekki gibt es jetzt auch auf Deutsch
+Fertig per Mitteilung landet im Tagebuch
+Gelöschte Mahlzeiten kehren nicht zurück
+
+### App Store (fr)
+
+Sekki parle désormais français
+Terminé depuis un rappel : repas ajouté
+Les repas supprimés ne reviennent plus
+
+### App Store (it)
+
+Sekki ora è disponibile in italiano
+Dal promemoria salvi tra i Pasti
+I pasti eliminati non tornano più
+
+### App Store (pt-BR)
+
+O Sekki agora tem versão em português
+Terminar pelo aviso salva em Refeições
+Refeições excluídas não voltam mais
+
+### App Store (th)
+
+ตอนนี้ใช้ Sekki เป็นภาษาไทยได้แล้ว
+กดกินหมดจากแจ้งเตือนก็บันทึกลงมื้อ
+มื้อที่ลบไปจะไม่กลับมาอีก
+
+### App Store (vi)
+
+Sekki giờ đã có tiếng Việt
+Ăn xong từ thông báo sẽ lưu vào Bữa ăn
+Bữa ăn đã xóa sẽ không hiện lại nữa
+
+### App Store (cs)
+
+Sekki je nově dostupné i v češtině
+Dojedení z upozornění se uloží do jídel
+Smazaná jídla se už nevrací
+
+### App Store (da)
+
+Sekki fås nu også på dansk
+Færdig fra påmindelse gemmes i Måltider
+Slettede måltider vender ikke tilbage
+
+### App Store (el)
+
+Το Sekki διατίθεται πλέον στα ελληνικά
+Το «Τελείωσα» αποθηκεύεται στα Γεύματα
+Τα διαγραμμένα γεύματα δεν επιστρέφουν
+
+### App Store (fi)
+
+Sekki on nyt saatavilla suomeksi
+Muistutuksesta kirjattu näkyy aterioissa
+Poistetut ateriat eivät palaa takaisin
+
+### App Store (id)
+
+Sekki kini hadir dalam bahasa Indonesia
+Selesai dari pengingat langsung tercatat
+Makanan yang dihapus tak muncul lagi
+
+### App Store (nb)
+
+Nå kan du bruke Sekki på norsk
+Ferdig fra varsel lagres i Måltider
+Slettede måltider kommer ikke tilbake
+
+### App Store (nl)
+
+Sekki is er nu ook in het Nederlands
+Opgegeten via melding komt in Maaltijden
+Gewiste maaltijden komen niet terug
+
+### App Store (pl)
+
+Sekki jest teraz także po polsku
+Zjedzone z powiadomienia zapisuje się
+Usunięte posiłki już nie wracają
+
+### App Store (sv)
+
+Nu finns Sekki även på svenska
+Markera uppäten direkt i påminnelsen
+Raderade måltider kommer inte tillbaka
+
+### App Store (tr)
+
+Sekki artık Türkçe de kullanılabilir
+Bildirimden bitirince Öğünler'e kaydolur
+Silinen öğünler artık geri gelmez
+
+
 ## 1.2.0
 
 ### 앱스토어 (한국어)
