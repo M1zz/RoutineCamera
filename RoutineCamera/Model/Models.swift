@@ -669,17 +669,22 @@ class MealRecordStore: ObservableObject {
               !items.isEmpty else { return }
 
         // 대기열은 항상 식단 기록으로 반영 (위젯은 식단 전용)
-        let previousAlbum = SettingsManager.shared.albumType
-        if previousAlbum != .diet { SettingsManager.shared.albumType = .diet }
-
-        for item in items {
-            guard let mealType = MealType(rawValue: item.mealType) else { continue }
-            recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType)
+        inDietAlbum {
+            for item in items {
+                guard let mealType = MealType(rawValue: item.mealType) else { continue }
+                recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType)
+            }
         }
-
-        if previousAlbum != .diet { SettingsManager.shared.albumType = previousAlbum }
         userDefaults.removeObject(forKey: AppGroup.pendingAteAllKey)
         print("📥 [AppGroup] 대기 중 '다 먹음' \(items.count)건 반영")
+    }
+
+    /// 알림·위젯의 '다 먹음'은 식단 기록이다 — 앱이 운동 앨범을 보고 있어도 식단에 남긴다
+    func inDietAlbum(_ body: () -> Void) {
+        let previousAlbum = SettingsManager.shared.albumType
+        if previousAlbum != .diet { SettingsManager.shared.albumType = .diet }
+        body()
+        if previousAlbum != .diet { SettingsManager.shared.albumType = previousAlbum }
     }
 
     // 식사 기록 삭제
@@ -697,6 +702,8 @@ class MealRecordStore: ObservableObject {
         print("🗑️ [MealRecordStore] 삭제 전: \(beforeCount)개, 삭제 후: \(afterCount)개")
 
         records = currentRecords
+        // 지운 식사에 "다 드셨어요?" 알림이 남아 있으면, 울려서 '다 먹음'을 누를 때 지운 기록이 되살아난다
+        NotificationManager.shared.cancelAteAllReminder(date: targetDate, mealType: mealType)
     }
 
     // 메모 업데이트

@@ -106,7 +106,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     guard let raw = info["mealType"] as? String, let mealType = MealType(rawValue: raw) else { return }
     let date = (info["date"] as? TimeInterval).map { Date(timeIntervalSince1970: $0) } ?? Date()
     await MainActor.run {
-      MealRecordStore.shared.recordAteAll(date: date, mealType: mealType)
+      let store = MealRecordStore.shared
+      store.inDietAlbum { store.recordAteAll(date: date, mealType: mealType) }
     }
   }
 }
