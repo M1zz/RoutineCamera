@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sekki — Privacy Policy</title>
+  <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/privacy.html">
+  <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/privacy.html">
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/privacy.html">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --text: #1c1c1e;
+      --secondary: #6e6e73;
+      --accent: #0a84ff;
+      --card: #f5f5f7;
+      --bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f5f5f7;
+        --secondary: #98989d;
+        --card: #1c1c1e;
+        --bg: #000000;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
+    h1 { font-size: 26px; margin-bottom: 4px; }
+    .updated { color: var(--secondary); font-size: 14px; margin-bottom: 36px; }
+    h2 { font-size: 19px; margin: 36px 0 10px; }
+    p, li { font-size: 15px; }
+    ul { padding-left: 22px; margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--card); vertical-align: top; }
+    th { color: var(--secondary); font-weight: 600; white-space: nowrap; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .note { background: var(--card); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--secondary); margin: 12px 0; }
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card);
+      color: var(--secondary);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Sekki · Last updated: October 19, 2026</p>
+
+    <p>Sekki (the "app") treats your personal information with care and follows applicable laws. This policy explains what the app collects and how it is used, stored, and deleted.</p>
+
+    <h2>1. Information We Collect</h2>
+    <table>
+      <tr><th>Item</th><td>Details</td></tr>
+      <tr>
+        <th>Account</th>
+        <td>The account identifier issued when you sign in with Apple, and the email address Apple provides under its policies (optional). Collected only if you use friend features.</td>
+      </tr>
+      <tr>
+        <th>Profile</th>
+        <td>The nickname you enter (shown as the author of cheers you send)</td>
+      </tr>
+      <tr>
+        <th>Your entries</th>
+        <td>Meal and workout photos and notes. <strong>Stored only on your device by default.</strong> They are uploaded to the server (Firebase) and shown to the friends you add only if you turn on sharing.</td>
+      </tr>
+      <tr>
+        <th>Friends and cheers</th>
+        <td>Friend codes, your friend list, and the cheers you send and receive (comments and nudges)</td>
+      </tr>
+      <tr>
+        <th>Notification signals</th>
+        <td>To deliver cheer notifications, the sender's nickname and the meal name pass through Apple iCloud (CloudKit). The content of the cheer is not included, and signals are deleted automatically after 7 days.</td>
+      </tr>
+      <tr>
+        <th>Anonymous usage stats</th>
+        <td>To understand how many people use the app and to fix bugs, the app sends the following anonymous stats to Apple iCloud (CloudKit), viewable only by the developer:
+          <ul>
+            <li>A random ID created at install (not linked to you, your Apple ID, your device, or other apps, and it changes if you reinstall)</li>
+            <li>App version, iOS version, and region and language settings</li>
+            <li>How many times and on which days you opened the app, the install date, and days since install</li>
+            <li>Subscription purchase steps (started, completed, canceled, and so on) and product type. No payment information is included</li>
+            <li>Error reports when the app freezes or quits unexpectedly (app version, iOS version, device model, and technical details of the error)</li>
+          </ul>
+          These stats never include your name, contacts, location, or your photos and notes, and they are not linked to your account. They are sent only when you're signed in to iCloud.</td>
+      </tr>
+      <tr>
+        <th>Payments</th>
+        <td>Subscriptions are processed by Apple (App Store). The app does not collect card numbers or other payment details.</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Food analysis runs <strong>entirely on your device</strong> with Apple Vision. Your photos are never sent anywhere for analysis.
+    </div>
+
+    <h2>2. How We Use It</h2>
+    <ul>
+      <li>To save and show your meal and workout entries</li>
+      <li>To let you share meals with friends and send and receive cheers</li>
+      <li>To send meal reminders and let you know when a cheer arrives</li>
+      <li>To offer the Sekki Pro subscription</li>
+      <li>To understand usage and fix bugs through anonymous stats</li>
+    </ul>
+
+    <h2>3. Retention and Deletion</h2>
+    <ul>
+      <li>Entries stored on your device are deleted when you delete the app.</li>
+      <li>Data uploaded to the server is <strong>deleted when you delete your account</strong> (in the app: Friends, then Account Settings, then Delete Account). Your account identifier, friend code, and uploaded meal data are deleted and can't be recovered.</li>
+      <li>Cheer notification signals (CloudKit) are cleaned up automatically 7 days after they're created.</li>
+      <li>If you'd like any remaining data deleted, contact us below and we'll take care of it promptly.</li>
+    </ul>
+
+    <h2>4. Third Parties and Processors</h2>
+    <p>The app never sells your personal information. The following services process data to provide the app:</p>
+    <table>
+      <tr><th>Service</th><td>Purpose</td></tr>
+      <tr><th>Google Firebase</th><td>Sign-in (Authentication) and storage of shared meals and cheers (Realtime Database)</td></tr>
+      <tr><th>Apple iCloud/APNs</th><td>Storing cheer notification signals, delivering push notifications, and storing anonymous usage stats and error reports</td></tr>
+      <tr><th>Apple App Store</th><td>Subscription and in-app purchase processing</td></tr>
+    </table>
+
+    <h2>5. Your Rights</h2>
+    <ul>
+      <li>You can turn off sharing in Settings at any time. Entries made after that are not uploaded.</li>
+      <li>You can delete your server data yourself by deleting your account.</li>
+      <li>To access, correct, or delete your personal information, contact us below.</li>
+    </ul>
+
+    <h2>6. Children</h2>
+    <p>The app is not intended for children under 14 and does not knowingly collect personal information from children.</p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>If this policy changes, we'll post the update on this page, and we'll let you know in the app about any significant changes.</p>
+
+    <h2>8. Contact</h2>
+    <p>
+      Privacy contact: Leeo (developer)<br>
+      Email: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
+      Instagram: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
+    </p>
+
+    <footer>
+      © 2026 Sekki · <a href="index.html">Back to Support</a> · <a href="../privacy.html" hreflang="ko" lang="ko">한국어</a>
+    </footer>
+  </div>
+</body>
+</html>
