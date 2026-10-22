@@ -78,93 +78,98 @@
 <body>
   <div class="container">
     <h1>Tietosuojakäytäntö</h1>
-    <p class="updated">Sekki · Päivitetty viimeksi: 19. lokakuuta 2026</p>
+    <p class="updated">Sekki · Voimassa 8.10.2026 alkaen · Päivitetty viimeksi: 22.10.2026</p>
 
     <p>Sekki (”appi”) käsittelee henkilötietojasi huolellisesti ja noudattaa sovellettavaa lainsäädäntöä. Tässä käytännössä kerrotaan, mitä tietoja appi kerää ja miten niitä käytetään, säilytetään ja poistetaan.</p>
 
-    <h2>1. Keräämämme tiedot</h2>
+    <h2>1. Kerättävät tiedot</h2>
     <table>
       <tr><th>Tieto</th><td>Tarkemmin</td></tr>
       <tr>
-        <th>Tili</th>
-        <td>Apple-kirjautumisen yhteydessä annettava tilitunniste sekä Applen käytäntöjensä mukaisesti antama sähköpostiosoite (valinnainen). Kerätään vain, jos käytät kaveriominaisuuksia.</td>
+        <th>Tilin tunniste</th>
+        <td>Erillistä rekisteröitymistä tai kirjautumista ei ole. Jos laitteesi on kirjautunut iCloudiin, kaveritoimintojen tilinä käytetään satunnaista käyttäjätunnistetta, jonka Apple CloudKit antaa vain tätä appia varten. Tunnisteesta ei näe Apple-tilisi sähköpostiosoitetta eikä nimeä.</td>
       </tr>
       <tr>
         <th>Profiili</th>
-        <td>Antamasi lempinimi (näkyy lähettämiesi kannustusten lähettäjänä)</td>
+        <td>Kaverikoodisi (kuusi satunnaista merkkiä) ja nimi, jonka annat näkyä kavereillesi</td>
       </tr>
       <tr>
         <th>Kirjauksesi</th>
-        <td>Ateria- ja treenikuvat sekä muistiinpanot. <strong>Oletuksena tallennetaan vain laitteellesi.</strong> Ne ladataan palvelimelle (Firebase) ja näytetään lisäämillesi kavereille vain, jos otat jakamisen käyttöön.</td>
+        <td>Ateria- ja treenikuvat (ennen ja jälkeen), muistiinpanot sekä kunkin kirjauksen päivämäärä, kellonaika ja ateria. Ne tallennetaan laitteellesi. <strong>Kun ”Jaa ateriani” on päällä ja olet kirjautunut iCloudiin</strong>, ne ladataan apin julkiseen CloudKit-tietokantaan, jotta kaverisi näkevät ne (kuvat pienennetään niin, että pidempi sivu on 1024 px). ”Jaa ateriani” on aluksi päällä, ja sen voi poistaa käytöstä kohdassa Asetukset &gt; Tili ja jakaminen.</td>
       </tr>
       <tr>
-        <th>Kaverit ja kannustukset</th>
-        <td>Kaverikoodit, kaverilistasi sekä lähettämäsi ja saamasi kannustukset (kommentit ja muistutukset)</td>
+        <th>Kaverit, ryhmät ja kannustukset</th>
+        <td>Kaveripyynnöt ja kaverilistasi, luomiesi tai liittymiesi ryhmien nimet ja jäsenet sekä lähettämäsi ja saamasi kannustukset ja tönäisyt lähettäjän nimen kanssa</td>
       </tr>
       <tr>
-        <th>Ilmoitussignaalit</th>
-        <td>Kannustusilmoitusten toimittamiseksi lähettäjän lempinimi ja aterian nimi kulkevat Applen iCloudin (CloudKit) kautta. Kannustuksen sisältöä ei mukana ole, ja signaalit poistetaan automaattisesti 7 päivän kuluttua.</td>
+        <th>Ilmoitukset</th>
+        <td>Kun kaveri kannustaa sinua tai julkaisee kirjauksen, saat siitä tiedon Applen push-ilmoituksena (CloudKit-tilaukset). Ateriamuistutukset ovat paikallisia ilmoituksia, jotka ajastetaan laitteellasi.</td>
       </tr>
       <tr>
-        <th>Anonyymit käyttötilastot</th>
-        <td>Jotta voimme ymmärtää, kuinka moni käyttää appia, ja korjata virheitä, appi lähettää seuraavat anonyymit tilastot Applen iCloudiin (CloudKit), ja vain kehittäjä voi katsoa niitä:
+        <th>Lähettämäsi palaute</th>
+        <td>Lähetetään vain, kun käytät Asetusten kohtaa ”Lähetä palautetta”. Palaute sisältää valitsemasi tyypin ja kirjoittamasi tekstin sekä apin version, iOS-version, laitemallin ja laitteen kielen. Nimesi ja sähköpostiosoitteesi lähetetään vain, jos kirjoitat ne itse, jotta voimme vastata sinulle. Kehittäjän vastauksen voit lukea apissa.</td>
+      </tr>
+      <tr>
+        <th>Anonyymit käyttötilastot ja virheraportit</th>
+        <td>Jotta tiedämme, kuinka moni appia käyttää, ja voimme korjata virheitä, appi lähettää seuraavat anonyymit tilastot kehittäjän Apple iCloud ‑tallennustilaan (CloudKit), johon vain kehittäjällä on pääsy:
           <ul>
-            <li>Asennuksen yhteydessä luotu satunnainen tunnus (ei liity sinuun, Apple ID:hesi, laitteeseesi tai muihin appeihin, ja se vaihtuu, jos asennat apin uudelleen)</li>
+            <li>Asennuksen yhteydessä luotu satunnainen tunniste (sitä ei ole yhdistetty sinuun, Apple ID:hesi, laitteeseesi, kaveritiliisi tai muihin appeihin, ja se vaihtuu, jos asennat apin uudelleen)</li>
             <li>Apin versio, iOS-versio sekä alue- ja kieliasetukset</li>
-            <li>Kuinka monta kertaa ja minä päivinä avasit apin, asennuspäivä ja asennuksesta kulunut aika päivinä</li>
-            <li>Tilausoston vaiheet (aloitettu, valmis, peruttu jne.) ja tuotetyyppi. Maksutietoja ei sisällytetä</li>
-            <li>Virheraportit, kun appi jumittuu tai sulkeutuu odottamatta (apin versio, iOS-versio, laitemalli ja virheen tekniset tiedot)</li>
+            <li>Kuinka monta kertaa ja minä päivinä olet avannut apin, asennuspäivä ja asennuksesta kuluneet päivät</li>
+            <li>Apissa tapahtuvien asioiden nimet (esimerkiksi että tyytyväisyyskysymys tai arviopyyntö näytettiin, tilausnäkymä avattiin tai osto aloitettiin, suoritettiin tai peruttiin) sekä tuotteen tyyppi. Maksutietoja tai kirjaustesi sisältöä ei lähetetä</li>
+            <li>Diagnostiikkaraportit, kun appi jumiutuu tai sulkeutuu odottamatta (laitemalli ja virheen tekniset tiedot)</li>
           </ul>
-          Näihin tilastoihin ei koskaan sisälly nimeäsi, yhteystietojasi, sijaintiasi eikä kuviasi tai muistiinpanojasi, eikä niitä yhdistetä tiliisi. Ne lähetetään vain, kun olet kirjautunut iCloudiin.</td>
+          Tilastot eivät koskaan sisällä nimeäsi, yhteystietojasi, sijaintiasi tai kuviasi ja muistiinpanojasi. Ne lähetetään vain, kun olet kirjautunut iCloudiin.</td>
       </tr>
       <tr>
         <th>Maksut</th>
-        <td>Apple (App Store) käsittelee tilaukset. Appi ei kerää korttinumeroita eikä muita maksutietoja.</td>
+        <td>Tilaukset ja ostot käsittelee Apple (App Store). Appi ei kerää korttinumeroita tai muita maksutietoja.</td>
       </tr>
     </table>
 
     <div class="note">
-      Ruoka-analyysi suoritetaan <strong>kokonaan laitteellasi</strong> Applen Visionilla. Kuviasi ei koskaan lähetetä minnekään analysoitavaksi.
+      Ruoan tunnistus tehdään Apple Visionilla <strong>kokonaan laitteellasi</strong>. Kuviasi ei lähetetä minnekään analysoitavaksi.<br>
+      Kuvakirjasto: jos otat käyttöön asetuksen ”Tallenna Kuviin automaattisesti”, kuvasi tallennetaan myös Kuvat-apin Sekki-albumeihin.
     </div>
 
-    <h2>2. Tietojen käyttö</h2>
+    <h2>2. Mihin tietoja käytetään</h2>
     <ul>
-      <li>Ateria- ja treenikirjauksiesi tallentamiseen ja näyttämiseen</li>
-      <li>Jotta voit jakaa aterioita kavereiden kanssa sekä lähettää ja vastaanottaa kannustuksia</li>
-      <li>Ateriamuistutusten lähettämiseen ja kannustuksen saapumisesta ilmoittamiseen</li>
-      <li>Sekki Pro -tilauksen tarjoamiseen</li>
+      <li>Ateria- ja treenikirjaustesi tallentamiseen ja näyttämiseen</li>
+      <li>Kirjausten jakamiseen kavereiden ja ryhmien kanssa sekä kannustusten ja tönäisyjen lähettämiseen ja vastaanottamiseen</li>
+      <li>Ateriamuistutusten lähettämiseen ja ilmoittamiseen, kun saat kannustuksen tai kaverisi tekee kirjauksen</li>
+      <li>Sekki Pro ‑tilauksen ja kertaostona maksettavan elinikäisen käyttöoikeuden tarjoamiseen</li>
+      <li>Lähettämääsi palautteeseen vastaamiseen ja apin kehittämiseen</li>
       <li>Käytön ymmärtämiseen ja virheiden korjaamiseen anonyymien tilastojen avulla</li>
     </ul>
 
     <h2>3. Säilytys ja poistaminen</h2>
     <ul>
       <li>Laitteellesi tallennetut kirjaukset poistuvat, kun poistat apin.</li>
-      <li>Palvelimelle ladatut tiedot <strong>poistetaan, kun poistat tilisi</strong> (apissa: Kaverit, sitten Tilin asetukset ja Poista tili). Tilitunnisteesi, kaverikoodisi ja ladatut ateriatiedot poistetaan, eikä niitä voi palauttaa.</li>
-      <li>Kannustusilmoitusten signaalit (CloudKit) siivotaan automaattisesti 7 päivän kuluttua niiden luomisesta.</li>
-      <li>Jos haluat, että jäljelle jääneet tiedot poistetaan, ota yhteyttä alla olevien tietojen kautta, niin hoidamme asian viipymättä.</li>
+      <li>Kun poistat päivän kirjauksen apissa, myös sen jaettu kopio poistetaan palvelimelta.</li>
+      <li>Palvelimella olevat tiedot <strong>poistetaan, kun poistat tilisi</strong> (apissa: Kaverit &gt; Tili &gt; Poista tili). Kaverikoodisi ja nimesi, jakamasi ateria- ja treenikirjaukset, antamasi kannustukset, kaveriyhteytesi, ryhmäjäsenyytesi ja luomasi ryhmät sekä ilmoitustilauksesi poistetaan, eikä niitä voi palauttaa.</li>
+      <li>Jos haluat, että jäljelle jääneet tiedot poistetaan, ota yhteyttä alla olevilla yhteystiedoilla, niin hoidamme asian viipymättä.</li>
     </ul>
 
-    <h2>4. Kolmannet osapuolet ja tietojenkäsittelijät</h2>
-    <p>Appi ei koskaan myy henkilötietojasi. Seuraavat palvelut käsittelevät tietoja apin toiminnan mahdollistamiseksi:</p>
+    <h2>4. Kolmannet osapuolet ja käsittelijät</h2>
+    <p>Appi ei koskaan myy henkilötietojasi eikä käytä mainoksia tai kolmansien osapuolten analytiikkapalveluja. Seuraavat palvelut käsittelevät tietoja apin toiminnan mahdollistamiseksi:</p>
     <table>
       <tr><th>Palvelu</th><td>Käyttötarkoitus</td></tr>
-      <tr><th>Google Firebase</th><td>Kirjautuminen (Authentication) sekä jaettujen aterioiden ja kannustusten tallennus (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Kannustusilmoitusten signaalien tallennus, push-ilmoitusten toimitus sekä anonyymien käyttötilastojen ja virheraporttien tallennus</td></tr>
-      <tr><th>Apple App Store</th><td>Tilausten ja sovelluksen sisäisten ostosten käsittely</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Tilin tunnistaminen; jaettujen kirjausten, kavereiden, ryhmien ja kannustusten tallentaminen; lähettämäsi palautteen tallentaminen; anonyymien käyttötilastojen ja virheraporttien tallentaminen; push-ilmoitusten toimittaminen</td></tr>
+      <tr><th>Apple App Store</th><td>Tilausten ja sovelluksen sisäisten ostojen käsittely</td></tr>
     </table>
 
     <h2>5. Oikeutesi</h2>
     <ul>
-      <li>Voit poistaa jakamisen käytöstä Asetuksissa milloin tahansa. Sen jälkeen tehtyjä kirjauksia ei ladata.</li>
-      <li>Voit poistaa palvelimella olevat tietosi itse poistamalla tilisi.</li>
-      <li>Jos haluat tarkastaa, oikaista tai poistaa henkilötietojasi, ota yhteyttä alla olevien tietojen kautta.</li>
+      <li>Voit poistaa ”Jaa ateriani” ‑asetuksen käytöstä Asetuksissa milloin tahansa. Sen jälkeen tehtyjä kirjauksia ei ladata palvelimelle.</li>
+      <li>Voit itse poistaa tietosi palvelimelta poistamalla tilisi.</li>
+      <li>Jos haluat tarkastaa, korjata tai poistaa henkilötietojasi, ota yhteyttä alla olevilla yhteystiedoilla.</li>
     </ul>
 
     <h2>6. Lapset</h2>
-    <p>Appi ei ole tarkoitettu alle 14-vuotiaille lapsille, emmekä tietoisesti kerää lasten henkilötietoja.</p>
+    <p>Appia ei ole tarkoitettu alle 14-vuotiaille, eikä se tietoisesti kerää lasten henkilötietoja.</p>
 
-    <h2>7. Tämän käytännön muutokset</h2>
-    <p>Jos tämä käytäntö muuttuu, julkaisemme päivityksen tällä sivulla, ja merkittävistä muutoksista ilmoitamme apissa.</p>
+    <h2>7. Muutokset tähän käytäntöön</h2>
+    <p>Jos tämä käytäntö muuttuu, julkaisemme päivitetyn version tällä sivulla, ja merkittävistä muutoksista kerromme myös apissa.</p>
 
     <h2>8. Yhteystiedot</h2>
     <p>

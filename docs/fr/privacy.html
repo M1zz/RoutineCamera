@@ -78,101 +78,105 @@
 <body>
   <div class="container">
     <h1>Politique de confidentialité</h1>
-    <p class="updated">Sekki · Dernière mise à jour : 19 octobre 2026</p>
+    <p class="updated">Sekki · En vigueur depuis le 8 octobre 2026 · Dernière mise à jour : 22 octobre 2026</p>
 
-    <p>Sekki (l’« app ») traite vos informations personnelles avec soin et respecte les lois applicables. Cette politique explique ce que l’app collecte, ainsi que la façon dont ces informations sont utilisées, conservées et supprimées.</p>
+    <p>Sekki (l’« app ») traite vos données personnelles avec soin, dans le respect de la réglementation applicable. La présente politique explique quelles données l’app collecte et comment elles sont utilisées, conservées et supprimées.</p>
 
-    <h2>1. Informations collectées</h2>
+    <h2>1. Données collectées</h2>
     <table>
-      <tr><th>Élément</th><td>Détails</td></tr>
+      <tr><th>Donnée</th><td>Détails</td></tr>
       <tr>
-        <th>Compte</th>
-        <td>L’identifiant de compte attribué lorsque vous vous connectez avec Apple, et l’adresse e-mail fournie par Apple selon ses propres règles (facultatif). Collectés uniquement si vous utilisez les fonctions entre amis.</td>
+        <th>Identifiant de compte</th>
+        <td>Il n’y a ni inscription ni connexion à part. Si votre appareil est connecté à iCloud, un identifiant aléatoire qu’Apple CloudKit attribue uniquement à cette app sert de compte pour les fonctionnalités entre amis. Cet identifiant ne révèle ni l’adresse e-mail ni le nom de votre compte Apple.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Le pseudo que vous saisissez (affiché comme auteur des encouragements que vous envoyez)</td>
+        <td>Votre code ami (six caractères aléatoires) et le « nom affiché pour vos amis » que vous saisissez</td>
       </tr>
       <tr>
-        <th>Vos enregistrements</th>
-        <td>Photos et notes de repas et de séances. <strong>Stockés uniquement sur votre appareil par défaut.</strong> Ils ne sont envoyés au serveur (Firebase) et montrés aux amis que vous ajoutez que si vous activez le partage.</td>
+        <th>Vos entrées</th>
+        <td>Photos de repas et de séances de sport (avant et après), notes, ainsi que la date, l’heure et le repas de chaque entrée. Elles sont conservées sur votre appareil. <strong>Tant que « Partager mes repas » est activé et que vous êtes connecté à iCloud</strong>, elles sont envoyées dans la base de données publique CloudKit de l’app afin que vos amis puissent les voir (les photos sont redimensionnées à 1024 px sur le côté le plus long). « Partager mes repas » est activé au départ ; vous pouvez le désactiver dans Réglages &gt; Compte et partage.</td>
       </tr>
       <tr>
-        <th>Amis et encouragements</th>
-        <td>Codes ami, liste d’amis, et encouragements envoyés et reçus (commentaires et rappels)</td>
+        <th>Amis, groupes et encouragements</th>
+        <td>Les demandes d’ami et votre liste d’amis, le nom et les membres des groupes que vous créez ou rejoignez, ainsi que les encouragements et rappels que vous envoyez et recevez, avec le nom de leur auteur</td>
       </tr>
       <tr>
-        <th>Signaux de notification</th>
-        <td>Pour envoyer les notifications d’encouragement, le pseudo de l’expéditeur et le nom du repas transitent par Apple iCloud (CloudKit). Le contenu de l’encouragement n’est pas inclus, et les signaux sont supprimés automatiquement au bout de 7 jours.</td>
+        <th>Notifications</th>
+        <td>Lorsqu’un ami vous laisse un encouragement ou publie une entrée, vous êtes prévenu par une notification push d’Apple (abonnements CloudKit). Les rappels de repas sont des notifications locales programmées sur votre appareil.</td>
       </tr>
       <tr>
-        <th>Statistiques d’utilisation anonymes</th>
-        <td>Pour savoir combien de personnes utilisent l’app et corriger les bugs, l’app envoie les statistiques anonymes suivantes à Apple iCloud (CloudKit), consultables uniquement par le développeur :
+        <th>Commentaires que vous envoyez</th>
+        <td>Envoyés uniquement lorsque vous utilisez « Envoyer un commentaire » dans Réglages. Ils comprennent le type choisi et votre message, ainsi que la version de l’app, la version d’iOS, le modèle et la langue de l’appareil. Votre nom et votre adresse e-mail ne sont inclus que si vous les saisissez pour que nous puissions vous répondre. Vous pouvez lire la réponse du développeur dans l’app.</td>
+      </tr>
+      <tr>
+        <th>Statistiques d’utilisation anonymes et rapports d’erreur</th>
+        <td>Pour savoir combien de personnes utilisent l’app et corriger les bugs, l’app envoie les statistiques anonymes suivantes vers l’espace Apple iCloud (CloudKit) du développeur, consultable par lui seul :
           <ul>
-            <li>Un identifiant aléatoire créé à l’installation (non lié à vous, à votre identifiant Apple, à votre appareil ni à d’autres apps, et qui change si vous réinstallez l’app)</li>
-            <li>Version de l’app, version d’iOS, et réglages de région et de langue</li>
-            <li>Le nombre de fois et les jours où vous avez ouvert l’app, la date d’installation et le nombre de jours depuis l’installation</li>
-            <li>Les étapes de l’achat d’un abonnement (démarré, terminé, annulé, etc.) et le type de produit. Aucune information de paiement n’est incluse</li>
-            <li>Les rapports d’erreur lorsque l’app se fige ou se ferme de façon inattendue (version de l’app, version d’iOS, modèle de l’appareil et détails techniques de l’erreur)</li>
+            <li>Un identifiant aléatoire créé à l’installation (sans lien avec vous, votre identifiant Apple, votre appareil, votre compte ami ou d’autres apps ; il change si vous réinstallez l’app)</li>
+            <li>La version de l’app, la version d’iOS et les réglages de région et de langue</li>
+            <li>Le nombre d’ouvertures de l’app et les jours concernés, la date d’installation et le nombre de jours écoulés depuis</li>
+            <li>Le nom des événements qui se produisent dans l’app (par exemple, l’affichage d’une question de satisfaction ou d’une demande d’avis, l’ouverture de l’écran d’abonnement, le lancement, la finalisation ou l’annulation d’un achat) et le type de produit. Aucune information de paiement ni aucun contenu de vos entrées n’est inclus</li>
+            <li>Des rapports de diagnostic lorsque l’app se fige ou se ferme de manière inattendue (modèle de l’appareil et détails techniques de l’erreur)</li>
           </ul>
-          Ces statistiques n’incluent jamais votre nom, vos contacts, votre position, ni vos photos et notes, et ne sont pas liées à votre compte. Elles ne sont envoyées que si vous êtes connecté à iCloud.</td>
+          Ces statistiques n’incluent jamais votre nom, vos contacts, votre position, ni vos photos et notes. Elles ne sont envoyées que si vous êtes connecté à iCloud.</td>
       </tr>
       <tr>
         <th>Paiements</th>
-        <td>Les abonnements sont traités par Apple (App Store). L’app ne collecte ni numéros de carte ni autres informations de paiement.</td>
+        <td>Les abonnements et achats sont traités par Apple (App Store). L’app ne collecte aucun numéro de carte ni aucune autre donnée de paiement.</td>
       </tr>
     </table>
 
     <div class="note">
-      L’analyse des aliments s’effectue <strong>entièrement sur votre appareil</strong> avec Apple Vision. Vos photos ne sont jamais envoyées ailleurs pour être analysées.
+      L’analyse des aliments s’effectue <strong>entièrement sur votre appareil</strong> grâce à Apple Vision. Vos photos ne sont jamais envoyées ailleurs pour être analysées.<br>
+      Photothèque : si vous activez « Enregistrer automatiquement dans Photos », vos photos sont aussi enregistrées dans les albums Sekki de l’app Photos.
     </div>
 
-    <h2>2. Utilisation des informations</h2>
+    <h2>2. Utilisation des données</h2>
     <ul>
-      <li>Enregistrer et afficher vos repas et vos séances</li>
-      <li>Vous permettre de partager des repas avec vos amis et d’envoyer et recevoir des encouragements</li>
-      <li>Envoyer des rappels de repas et vous prévenir lorsqu’un encouragement arrive</li>
-      <li>Proposer l’abonnement Sekki Pro</li>
-      <li>Comprendre l’utilisation et corriger les bugs grâce aux statistiques anonymes</li>
+      <li>Enregistrer et afficher vos entrées de repas et de sport</li>
+      <li>Partager vos entrées avec vos amis et vos groupes, et vous permettre d’envoyer et de recevoir encouragements et rappels</li>
+      <li>Vous envoyer des rappels de repas et vous prévenir de l’arrivée d’un encouragement ou d’une entrée d’un ami</li>
+      <li>Proposer l’abonnement Sekki Pro et l’achat à vie</li>
+      <li>Répondre aux commentaires que vous envoyez et améliorer l’app</li>
+      <li>Comprendre l’utilisation de l’app et corriger les bugs grâce à des statistiques anonymes</li>
     </ul>
 
     <h2>3. Conservation et suppression</h2>
     <ul>
-      <li>Les enregistrements stockés sur votre appareil sont supprimés lorsque vous supprimez l’app.</li>
-      <li>Les données envoyées au serveur sont <strong>supprimées lorsque vous supprimez votre compte</strong> (dans l’app : Amis, puis Réglages du compte, puis Supprimer le compte). Votre identifiant de compte, votre code ami et vos données de repas envoyées sont supprimés et ne peuvent pas être récupérés.</li>
-      <li>Les signaux de notification d’encouragement (CloudKit) sont nettoyés automatiquement 7 jours après leur création.</li>
-      <li>Si vous souhaitez faire supprimer d’autres données, contactez-nous ci-dessous et nous nous en occuperons rapidement.</li>
+      <li>Les entrées conservées sur votre appareil sont supprimées lorsque vous supprimez l’app.</li>
+      <li>Lorsque vous supprimez l’entrée d’une journée dans l’app, la copie partagée est également supprimée du serveur.</li>
+      <li>Les données présentes sur le serveur <strong>sont supprimées lorsque vous supprimez votre compte</strong> (dans l’app : Amis &gt; Compte &gt; Supprimer le compte). Votre code ami et votre nom, les entrées de repas et de sport que vous avez partagées, les encouragements que vous avez laissés, vos liens d’amitié, votre appartenance à des groupes et les groupes que vous avez créés, ainsi que vos abonnements aux notifications, sont alors supprimés de façon définitive.</li>
+      <li>Si vous souhaitez que d’autres données restantes soient supprimées, contactez-nous à l’adresse ci-dessous : nous nous en occuperons rapidement.</li>
     </ul>
 
     <h2>4. Tiers et sous-traitants</h2>
-    <p>L’app ne vend jamais vos informations personnelles. Les services suivants traitent des données pour faire fonctionner l’app :</p>
+    <p>L’app ne vend jamais vos données personnelles et n’utilise ni publicité ni service d’analyse tiers. Les services suivants traitent des données pour assurer le fonctionnement de l’app :</p>
     <table>
       <tr><th>Service</th><td>Finalité</td></tr>
-      <tr><th>Google Firebase</th><td>Connexion (Authentication) et stockage des repas partagés et des encouragements (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Stockage des signaux de notification d’encouragement, envoi des notifications push, et stockage des statistiques d’utilisation anonymes et des rapports d’erreur</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Identification du compte ; stockage des entrées partagées, des amis, des groupes et des encouragements ; stockage des commentaires que vous envoyez ; stockage des statistiques d’utilisation anonymes et des rapports d’erreur ; envoi des notifications push</td></tr>
       <tr><th>Apple App Store</th><td>Traitement des abonnements et des achats intégrés</td></tr>
     </table>
 
     <h2>5. Vos droits</h2>
     <ul>
-      <li>Vous pouvez désactiver le partage à tout moment dans Réglages. Les enregistrements créés ensuite ne sont pas envoyés.</li>
+      <li>Vous pouvez désactiver « Partager mes repas » dans Réglages à tout moment. Les entrées créées ensuite ne sont pas envoyées.</li>
       <li>Vous pouvez supprimer vous-même vos données sur le serveur en supprimant votre compte.</li>
-      <li>Pour accéder à vos informations personnelles, les corriger ou les supprimer, contactez-nous ci-dessous.</li>
+      <li>Pour accéder à vos données personnelles, les rectifier ou les supprimer, contactez-nous à l’adresse ci-dessous.</li>
     </ul>
 
     <h2>6. Enfants</h2>
-    <p>L’app n’est pas destinée aux enfants de moins de 14 ans et ne collecte pas sciemment d’informations personnelles auprès d’enfants.</p>
+    <p>L’app ne s’adresse pas aux enfants de moins de 14 ans et ne collecte pas sciemment de données personnelles les concernant.</p>
 
     <h2>7. Modifications de cette politique</h2>
-    <p>Si cette politique change, nous publierons la mise à jour sur cette page et vous informerons dans l’app de tout changement important.</p>
+    <p>En cas de modification de cette politique, nous publierons la nouvelle version sur cette page et vous informerons dans l’app de tout changement important.</p>
 
     <h2>8. Contact</h2>
     <p>
-      Contact pour la confidentialité : Leeo (développeur)<br>
-      E-mail : <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
-      Instagram : <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
+      Responsable de la confidentialité : Leeo (développeur)<br>
+      E-mail : <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
+      Instagram : <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
     </p>
-
     <footer>
       © 2026 Sekki · <a href="index.html">Retour à l’assistance</a> · <a href="../privacy.html" hreflang="ko" lang="ko">한국어</a>
     <br>

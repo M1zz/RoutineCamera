@@ -184,20 +184,29 @@ struct MomentsView: View {
         }
         .onReceive(clock) { now = $0 }
         #if DEBUG
-        .navigationDestination(isPresented: Binding(
-            get: { testDetailRecord != nil },
-            set: { if !$0 { testDetailRecord = nil } })) {
-            if let record = testDetailRecord {
+        // 스크린샷용 상세: 이 화면 구조에선 프로그램으로 push 가 먹지 않아, 같은 모양(뒤로 버튼 + 상세)을 전체 화면으로 띄운다
+        .fullScreenCover(item: $testDetailRecord) { record in
+            NavigationStack {
                 PhotoDetailView(date: record.date, mealType: record.mealType, mealRecord: record,
                                 mealStore: mealStore, embedInNavigation: false)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button { testDetailRecord = nil } label: { Image(systemName: "chevron.left") }
+                        }
+                    }
             }
         }
         .onAppear {
             guard ProcessInfo.processInfo.environment["OPEN_FIRST_DETAIL_FOR_TEST"] == "1" else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                testDetailRecord = moments.first { Calendar.current.isDateInToday($0.date) && $0.mealType == .breakfast }
-                    ?? moments.first
+            // 기록을 불러오는 데 시간이 걸릴 수 있어, 기록이 보일 때까지 몇 번 더 본다
+            func openFirst(_ attempt: Int) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + (attempt == 0 ? 1.5 : 0.8)) {
+                    testDetailRecord = moments.first { Calendar.current.isDateInToday($0.date) && $0.mealType == .breakfast }
+                        ?? moments.first
+                    if testDetailRecord == nil && attempt < 8 { openFirst(attempt + 1) }
+                }
             }
+            openFirst(0)
         }
         #endif
         // 기록 버튼은 하단 고정 (스크롤해도 항상 보임)

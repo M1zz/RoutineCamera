@@ -78,97 +78,102 @@
 <body>
   <div class="container">
     <h1>Privatlivspolitik</h1>
-    <p class="updated">Sekki · Senest opdateret: 19. oktober 2026</p>
+    <p class="updated">Sekki · Gælder fra: 8. oktober 2026 · Senest opdateret: 22. oktober 2026</p>
 
-    <p>Sekki (“appen”) behandler dine personoplysninger med omhu og overholder gældende lovgivning. Denne politik forklarer, hvad appen indsamler, og hvordan oplysningerne bruges, opbevares og slettes.</p>
+    <p>Sekki (“appen”) behandler dine personoplysninger med omhu og overholder gældende lovgivning. Denne politik forklarer, hvilke oplysninger appen indsamler, og hvordan de bruges, opbevares og slettes.</p>
 
     <h2>1. Oplysninger, vi indsamler</h2>
     <table>
-      <tr><th>Emne</th><td>Detaljer</td></tr>
+      <tr><th>Type</th><td>Detaljer</td></tr>
       <tr>
-        <th>Konto</th>
-        <td>Det kontoid, der udstedes, når du logger ind med Apple, og den e-mailadresse, som Apple oplyser i henhold til sine politikker (valgfrit). Indsamles kun, hvis du bruger vennefunktionerne.</td>
+        <th>Kontoidentifikator</th>
+        <td>Der er ingen særskilt oprettelse eller login. Hvis din enhed er logget ind på iCloud, bruges et tilfældigt bruger-id, som Apple CloudKit udsteder udelukkende til denne app, som din konto til vennefunktionerne. Id’et afslører hverken e-mailadressen eller navnet på din Apple-konto.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Det kaldenavn, du indtaster (vises som afsender af de opmuntringer, du sender)</td>
+        <td>Din vennekode (seks tilfældige tegn) og det navn, du vælger at vise for dine venner</td>
       </tr>
       <tr>
         <th>Dine registreringer</th>
-        <td>Fotos og noter af måltider og træning. <strong>Gemmes som standard kun på din enhed.</strong> De uploades til serveren (Firebase) og vises for de venner, du tilføjer, kun hvis du slår deling til.</td>
+        <td>Fotos af måltider og træning (før og efter), noter samt dato, klokkeslæt og måltid for hver registrering. De gemmes på din enhed. <strong>Så længe “Del mine måltider” er slået til, og du er logget ind på iCloud</strong>, uploades de til appens offentlige CloudKit-database, så dine venner kan se dem (fotos skaleres ned til 1024 px på den længste side). “Del mine måltider” er slået til fra start og kan slås fra under Indstillinger &gt; Konto og deling.</td>
       </tr>
       <tr>
-        <th>Venner og opmuntringer</th>
-        <td>Vennekoder, din venneliste og de opmuntringer, du sender og modtager (kommentarer og puf)</td>
+        <th>Venner, grupper og hep</th>
+        <td>Venneanmodninger og din venneliste, navne og medlemmer af de grupper, du opretter eller melder dig ind i, samt de hep-beskeder og puf, du sender og modtager, med afsenderens navn</td>
       </tr>
       <tr>
-        <th>Notifikationssignaler</th>
-        <td>For at levere notifikationer om opmuntringer passerer afsenderens kaldenavn og måltidets navn gennem Apple iCloud (CloudKit). Indholdet af opmuntringen er ikke med, og signalerne slettes automatisk efter 7 dage.</td>
+        <th>Notifikationer</th>
+        <td>Når en ven hepper på dig eller lægger en registrering op, får du besked via Apples pushnotifikationer (CloudKit-abonnementer). Påmindelser om måltider er lokale notifikationer, der planlægges på din enhed.</td>
       </tr>
       <tr>
-        <th>Anonym brugsstatistik</th>
-        <td>For at forstå, hvor mange der bruger appen, og for at rette fejl sender appen følgende anonyme statistik til Apple iCloud (CloudKit), som kun udvikleren kan se:
+        <th>Feedback, du sender</th>
+        <td>Sendes kun, når du bruger “Send feedback” i Indstillinger. Den indeholder den type, du vælger, og det, du skriver, samt appversion, iOS-version, enhedsmodel og enhedens sprog. Dit navn og din e-mailadresse medtages kun, hvis du selv skriver dem, så vi kan svare dig. Udviklerens svar kan du læse i appen.</td>
+      </tr>
+      <tr>
+        <th>Anonym brugsstatistik og fejlrapporter</th>
+        <td>For at forstå, hvor mange der bruger appen, og for at rette fejl sender appen følgende anonyme statistik til udviklerens Apple iCloud-lager (CloudKit), som kun udvikleren har adgang til:
           <ul>
-            <li>Et tilfældigt id, der oprettes ved installationen (ikke knyttet til dig, dit Apple ID, din enhed eller andre apps, og det ændres, hvis du geninstallerer)</li>
-            <li>Appversion, iOS-version samt region- og sprogindstillinger</li>
+            <li>Et tilfældigt id, der oprettes ved installationen (det er ikke knyttet til dig, dit Apple-id, din enhed, din vennekonto eller andre apps, og det skifter, hvis du geninstallerer appen)</li>
+            <li>Appversion, iOS-version samt indstillinger for område og sprog</li>
             <li>Hvor mange gange og på hvilke dage du har åbnet appen, installationsdatoen og antal dage siden installationen</li>
-            <li>Trin i abonnementskøb (påbegyndt, gennemført, annulleret osv.) og produkttype. Der medfølger ingen betalingsoplysninger</li>
-            <li>Fejlrapporter, når appen fryser eller afsluttes uventet (appversion, iOS-version, enhedsmodel og tekniske detaljer om fejlen)</li>
+            <li>Navnene på hændelser i appen (for eksempel at et spørgsmål om tilfredshed eller en anmodning om en anmeldelse blev vist, at abonnementsskærmen blev åbnet, eller at et køb blev startet, gennemført eller annulleret) og produkttypen. Betalingsoplysninger og indholdet af dine registreringer er ikke med</li>
+            <li>Diagnoserapporter, når appen fryser eller lukker uventet (enhedsmodel og tekniske oplysninger om fejlen)</li>
           </ul>
-          Denne statistik indeholder aldrig dit navn, dine kontakter, din placering eller dine fotos og noter, og den er ikke knyttet til din konto. Den sendes kun, når du er logget ind på iCloud.</td>
+          Statistikken indeholder aldrig dit navn, dine kontakter, din placering eller dine fotos og noter. Den sendes kun, når du er logget ind på iCloud.</td>
       </tr>
       <tr>
         <th>Betalinger</th>
-        <td>Abonnementer behandles af Apple (App Store). Appen indsamler hverken kortnumre eller andre betalingsoplysninger.</td>
+        <td>Abonnementer og køb håndteres af Apple (App Store). Appen indsamler ikke kortnumre eller andre betalingsoplysninger.</td>
       </tr>
     </table>
 
     <div class="note">
-      Madanalysen foregår <strong>helt på din enhed</strong> med Apple Vision. Dine fotos sendes aldrig nogen steder hen for at blive analyseret.
+      Analysen af din mad foregår <strong>udelukkende på din enhed</strong> med Apple Vision. Dine fotos sendes aldrig nogen steder hen for at blive analyseret.<br>
+      Fotobibliotek: Hvis du slår “Gem automatisk i Fotos” til, gemmes dine fotos også i Sekki-albummerne i appen Fotos.
     </div>
 
     <h2>2. Sådan bruger vi oplysningerne</h2>
     <ul>
-      <li>For at gemme og vise dine registreringer af måltider og træning</li>
-      <li>For at lade dig dele måltider med venner og sende og modtage opmuntringer</li>
-      <li>For at sende måltidspåmindelser og give dig besked, når der kommer en opmuntring</li>
-      <li>For at tilbyde abonnementet Sekki Pro</li>
-      <li>For at forstå brugen og rette fejl via anonym statistik</li>
+      <li>Til at gemme og vise dine registreringer af måltider og træning</li>
+      <li>Til at dele registreringer med venner og grupper og lade dig sende og modtage hep og puf</li>
+      <li>Til at minde dig om måltider og give dig besked, når der kommer et hep eller en vens registrering</li>
+      <li>Til at tilbyde abonnementet Sekki Pro og engangskøbet med livstidsadgang</li>
+      <li>Til at besvare den feedback, du sender, og forbedre appen</li>
+      <li>Til at forstå brugen og rette fejl ved hjælp af anonym statistik</li>
     </ul>
 
     <h2>3. Opbevaring og sletning</h2>
     <ul>
       <li>Registreringer, der er gemt på din enhed, slettes, når du sletter appen.</li>
-      <li>Data, der er uploadet til serveren, <strong>slettes, når du sletter din konto</strong> (i appen: Venner, derefter Kontoindstillinger og Slet konto). Dit kontoid, din vennekode og uploadede måltidsdata slettes og kan ikke gendannes.</li>
-      <li>Notifikationssignaler om opmuntringer (CloudKit) ryddes automatisk op 7 dage efter, de er oprettet.</li>
-      <li>Hvis du ønsker, at eventuelle resterende data slettes, kan du kontakte os nedenfor, så tager vi os hurtigt af det.</li>
+      <li>Når du sletter en dags registrering i appen, slettes den delte kopi også fra serveren.</li>
+      <li>Data på serveren <strong>slettes, når du sletter din konto</strong> (i appen: Venner &gt; Konto &gt; Slet konto). Din vennekode og dit navn, de registreringer af måltider og træning, du har delt, dine hep, dine venneforbindelser, dine gruppemedlemskaber og de grupper, du har oprettet, samt dine notifikationsabonnementer slettes og kan ikke gendannes.</li>
+      <li>Hvis du ønsker andre tilbageværende data slettet, kan du kontakte os nedenfor, så sørger vi hurtigt for det.</li>
     </ul>
 
     <h2>4. Tredjeparter og databehandlere</h2>
-    <p>Appen sælger aldrig dine personoplysninger. Følgende tjenester behandler data for at levere appen:</p>
+    <p>Appen sælger aldrig dine personoplysninger og bruger hverken annoncer eller analysetjenester fra tredjeparter. Følgende tjenester behandler data for at kunne levere appen:</p>
     <table>
       <tr><th>Tjeneste</th><td>Formål</td></tr>
-      <tr><th>Google Firebase</th><td>Login (Authentication) og lagring af delte måltider og opmuntringer (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Lagring af notifikationssignaler om opmuntringer, levering af push-notifikationer og lagring af anonym brugsstatistik og fejlrapporter</td></tr>
-      <tr><th>Apple App Store</th><td>Behandling af abonnementer og køb i appen</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Kontoidentifikation; opbevaring af delte registreringer, venner, grupper og hep; opbevaring af den feedback, du sender; opbevaring af anonym brugsstatistik og fejlrapporter; levering af pushnotifikationer</td></tr>
+      <tr><th>Apple App Store</th><td>Håndtering af abonnementer og køb i appen</td></tr>
     </table>
 
     <h2>5. Dine rettigheder</h2>
     <ul>
-      <li>Du kan til enhver tid slå deling fra i Indstillinger. Registreringer, du opretter derefter, uploades ikke.</li>
-      <li>Du kan selv slette dine serverdata ved at slette din konto.</li>
+      <li>Du kan til enhver tid slå “Del mine måltider” fra i Indstillinger. Registreringer, du laver derefter, uploades ikke.</li>
+      <li>Du kan selv slette dine data på serveren ved at slette din konto.</li>
       <li>Hvis du vil have indsigt i, rette eller slette dine personoplysninger, kan du kontakte os nedenfor.</li>
     </ul>
 
     <h2>6. Børn</h2>
-    <p>Appen er ikke beregnet til børn under 14 år og indsamler ikke bevidst personoplysninger fra børn.</p>
+    <p>Appen er ikke beregnet til børn under 14 år og indsamler ikke bevidst personoplysninger om børn.</p>
 
     <h2>7. Ændringer af denne politik</h2>
-    <p>Hvis denne politik ændres, offentliggør vi opdateringen på denne side, og vi giver besked i appen om væsentlige ændringer.</p>
+    <p>Hvis politikken ændres, offentliggør vi den nye version på denne side, og ved væsentlige ændringer giver vi dig også besked i appen.</p>
 
     <h2>8. Kontakt</h2>
     <p>
-      Kontaktperson for privatliv: Leeo (udvikler)<br>
+      Kontakt om privatliv: Leeo (udvikler)<br>
       E-mail: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
       Instagram: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
     </p>

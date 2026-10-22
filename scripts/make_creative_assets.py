@@ -80,7 +80,7 @@ HEADER = {
     "vi": ("Sekki nhật ký ăn uống", "Một tấm ảnh,<br>mọi bữa đều được ghi"),
     "cs": ("Sekki fotodeník jídla", "Jedna fotka<br>a jídlo je zapsáno"),
     "da": ("Sekki maddagbog", "Ét foto,<br>alle måltider registreret"),
-    "el": ("Ημερολόγιο γευμάτων Sekki", "Μία φωτογραφία,<br>όλα τα γεύματα καταγεγραμμένα"),
+    "el": ("Ημερολόγιο γευμάτων Sekki", "Μία φωτογραφία,<br>κάθε γεύμα γραμμένο"),
     "fi": ("Sekki-ruokapäiväkirja", "Yksi kuva,<br>kaikki ateriat kirjattu"),
     "id": ("Diari makan Sekki", "Satu foto,<br>semua makan tercatat"),
     "nb": ("Sekki matdagbok", "Ett bilde,<br>hvert måltid logget"),

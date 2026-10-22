@@ -1123,6 +1123,10 @@ class FriendManager: ObservableObject {
     /// 친구 알림을 켤 때 iOS 알림 권한을 확인한다. 아직 안 물었으면 묻고, 꺼져 있으면 알린다.
     /// (예전엔 식사 알림 때 한 번 물은 게 전부라, 거절했던 사람은 친구 알림이 조용히 안 왔다)
     func checkNotificationPermission() {
+        #if DEBUG
+        // UI 검증용: 시뮬레이터 스크린샷에서 권한 창이 화면을 가리지 않게
+        if ProcessInfo.processInfo.environment["SKIP_NOTIFICATION_PROMPT_FOR_TEST"] == "1" { return }
+        #endif
         _Concurrency.Task {
             let center = UNUserNotificationCenter.current()
             let settings = await center.notificationSettings()

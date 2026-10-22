@@ -78,93 +78,98 @@
 <body>
   <div class="container">
     <h1>Datenschutzerklärung</h1>
-    <p class="updated">Sekki · Zuletzt aktualisiert: 19. Oktober 2026</p>
+    <p class="updated">Sekki · Gültig ab: 8. Oktober 2026 · Zuletzt aktualisiert: 22. Oktober 2026</p>
 
-    <p>Sekki (die „App“) geht sorgfältig mit deinen personenbezogenen Daten um und hält die geltenden Gesetze ein. Diese Erklärung beschreibt, was die App erfasst und wie die Daten verwendet, gespeichert und gelöscht werden.</p>
+    <p>Sekki (die „App“) geht sorgfältig mit deinen personenbezogenen Daten um und hält die geltenden Gesetze ein. Diese Erklärung beschreibt, welche Daten die App erfasst und wie sie verwendet, gespeichert und gelöscht werden.</p>
 
     <h2>1. Welche Daten wir erfassen</h2>
     <table>
-      <tr><th>Kategorie</th><td>Details</td></tr>
+      <tr><th>Kategorie</th><td>Einzelheiten</td></tr>
       <tr>
-        <th>Account</th>
-        <td>Die Account-Kennung, die bei der Anmeldung mit Apple vergeben wird, und die E-Mail-Adresse, die Apple gemäß seinen Richtlinien bereitstellt (optional). Wird nur erfasst, wenn du die Freundefunktionen nutzt.</td>
+        <th>Account-Kennung</th>
+        <td>Es gibt keine eigene Registrierung und keine Anmeldung. Wenn dein Gerät bei iCloud angemeldet ist, dient eine zufällige Nutzerkennung, die Apple CloudKit ausschließlich für diese App vergibt, als dein Account für die Freundesfunktionen. Aus dieser Kennung lassen sich weder die E-Mail-Adresse noch der Name deines Apple Accounts ablesen.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Der Spitzname, den du eingibst (wird als Absender des von dir gesendeten Zuspruchs angezeigt)</td>
+        <td>Dein Freundescode (sechs zufällige Zeichen) und der Name, den du für deine Freunde einträgst</td>
       </tr>
       <tr>
         <th>Deine Einträge</th>
-        <td>Fotos und Notizen zu Mahlzeiten und Workouts. <strong>Standardmäßig nur auf deinem Gerät gespeichert.</strong> Sie werden nur dann auf den Server (Firebase) hochgeladen und den Freunden angezeigt, die du hinzufügst, wenn du das Teilen aktivierst.</td>
+        <td>Fotos von Mahlzeiten und Workouts (vorher und nachher), Notizen sowie Datum, Uhrzeit und Mahlzeit jedes Eintrags. Sie werden auf deinem Gerät gespeichert. <strong>Solange „Meine Mahlzeiten teilen“ aktiviert ist und du bei iCloud angemeldet bist</strong>, werden sie in die öffentliche CloudKit-Datenbank der App hochgeladen, damit deine Freunde sie sehen können (Fotos werden dabei auf 1024 px an der längeren Seite verkleinert). „Meine Mahlzeiten teilen“ ist anfangs aktiviert und lässt sich unter Einstellungen &gt; Account &amp; Teilen ausschalten.</td>
       </tr>
       <tr>
-        <th>Freunde und Zuspruch</th>
-        <td>Freundescodes, deine Freundesliste sowie der Zuspruch, den du sendest und erhältst (Kommentare und Anstupser)</td>
+        <th>Freunde, Gruppen und Anfeuerungen</th>
+        <td>Freundschaftsanfragen und deine Freundesliste, Namen und Mitglieder der Gruppen, die du erstellst oder denen du beitrittst, sowie die Anfeuerungen und Stupser, die du sendest und erhältst, jeweils mit dem Namen des Absenders</td>
       </tr>
       <tr>
-        <th>Benachrichtigungssignale</th>
-        <td>Um Mitteilungen zu Zuspruch zuzustellen, laufen der Spitzname des Absenders und der Name der Mahlzeit über Apple iCloud (CloudKit). Der Inhalt des Zuspruchs ist nicht enthalten, und die Signale werden nach 7 Tagen automatisch gelöscht.</td>
+        <th>Mitteilungen</th>
+        <td>Wenn dich ein Freund anfeuert oder einen Eintrag postet, wirst du über Apple-Push-Mitteilungen (CloudKit-Abonnements) benachrichtigt. Erinnerungen an Mahlzeiten sind lokale Mitteilungen, die auf deinem Gerät geplant werden.</td>
       </tr>
       <tr>
-        <th>Anonyme Nutzungsstatistiken</th>
-        <td>Um zu verstehen, wie viele Menschen die App nutzen, und um Fehler zu beheben, sendet die App die folgenden anonymen Statistiken an Apple iCloud (CloudKit), die nur der Entwickler einsehen kann:
+        <th>Feedback, das du sendest</th>
+        <td>Wird nur gesendet, wenn du in den Einstellungen „Feedback senden“ nutzt. Es enthält die gewählte Kategorie und deinen Text sowie App-Version, iOS-Version, Gerätemodell und Gerätesprache. Name und E-Mail-Adresse werden nur übermittelt, wenn du sie angibst, damit wir dir antworten können. Die Antwort des Entwicklers kannst du direkt in der App lesen.</td>
+      </tr>
+      <tr>
+        <th>Anonyme Nutzungsstatistiken und Fehlerberichte</th>
+        <td>Um zu verstehen, wie viele Menschen die App nutzen, und um Fehler zu beheben, sendet die App die folgenden anonymen Statistiken an den Apple-iCloud-Speicher (CloudKit) des Entwicklers, auf den nur der Entwickler Zugriff hat:
           <ul>
-            <li>Eine bei der Installation erzeugte zufällige ID (nicht mit dir, deiner Apple-ID, deinem Gerät oder anderen Apps verknüpft; sie ändert sich bei einer Neuinstallation)</li>
-            <li>App-Version, iOS-Version sowie Regions- und Spracheinstellungen</li>
+            <li>Eine zufällige ID, die bei der Installation erzeugt wird (sie ist weder mit dir noch mit deiner Apple-ID, deinem Gerät, deinem Freundes-Account oder anderen Apps verknüpft und ändert sich bei einer Neuinstallation)</li>
+            <li>App-Version, iOS-Version sowie Region- und Spracheinstellungen</li>
             <li>Wie oft und an welchen Tagen du die App geöffnet hast, das Installationsdatum und die Tage seit der Installation</li>
-            <li>Schritte beim Abokauf (gestartet, abgeschlossen, abgebrochen usw.) und Produkttyp. Zahlungsinformationen sind nicht enthalten</li>
-            <li>Fehlerberichte, wenn die App einfriert oder unerwartet beendet wird (App-Version, iOS-Version, Gerätemodell und technische Details des Fehlers)</li>
+            <li>Die Bezeichnungen von Ereignissen in der App (zum Beispiel, dass eine Zufriedenheitsfrage oder eine Bewertungsanfrage angezeigt, der Abo-Bildschirm geöffnet oder ein Kauf gestartet, abgeschlossen oder abgebrochen wurde) und die Art des Produkts. Zahlungsdaten und Inhalte deiner Einträge sind nicht enthalten</li>
+            <li>Diagnoseberichte, wenn die App hängt oder unerwartet beendet wird (Gerätemodell und technische Angaben zum Fehler)</li>
           </ul>
-          Diese Statistiken enthalten nie deinen Namen, deine Kontakte, deinen Standort oder deine Fotos und Notizen und sind nicht mit deinem Account verknüpft. Sie werden nur gesendet, wenn du bei iCloud angemeldet bist.</td>
+          Diese Statistiken enthalten niemals deinen Namen, deine Kontakte, deinen Standort oder deine Fotos und Notizen. Sie werden nur gesendet, wenn du bei iCloud angemeldet bist.</td>
       </tr>
       <tr>
         <th>Zahlungen</th>
-        <td>Abos werden von Apple (App Store) abgewickelt. Die App erfasst keine Kartennummern oder sonstigen Zahlungsdaten.</td>
+        <td>Abos und Käufe werden von Apple (App Store) abgewickelt. Die App erfasst keine Kartennummern oder sonstigen Zahlungsdaten.</td>
       </tr>
     </table>
 
     <div class="note">
-      Die Essensanalyse läuft <strong>vollständig auf deinem Gerät</strong> mit Apple Vision. Deine Fotos werden für die Analyse nirgendwohin gesendet.
+      Die Analyse deiner Mahlzeiten erfolgt mit Apple Vision <strong>vollständig auf deinem Gerät</strong>. Deine Fotos werden dafür nirgendwohin übertragen.<br>
+      Fotomediathek: Wenn du „Automatisch in Fotos speichern“ aktivierst, werden deine Fotos zusätzlich in den Sekki-Alben der Fotos-App gespeichert.
     </div>
 
-    <h2>2. Wie wir die Daten verwenden</h2>
+    <h2>2. Wofür wir die Daten verwenden</h2>
     <ul>
       <li>Um deine Mahlzeiten- und Workout-Einträge zu speichern und anzuzeigen</li>
-      <li>Damit du Mahlzeiten mit Freunden teilen und Zuspruch senden und empfangen kannst</li>
-      <li>Um Mahlzeitenerinnerungen zu senden und dich zu benachrichtigen, wenn Zuspruch eintrifft</li>
-      <li>Um das Sekki-Pro-Abo anzubieten</li>
-      <li>Um die Nutzung zu verstehen und Fehler anhand anonymer Statistiken zu beheben</li>
+      <li>Um Einträge mit Freunden und Gruppen zu teilen und dir das Senden und Empfangen von Anfeuerungen und Stupsern zu ermöglichen</li>
+      <li>Um dich an Mahlzeiten zu erinnern und dir Bescheid zu geben, wenn eine Anfeuerung oder der Eintrag eines Freundes eintrifft</li>
+      <li>Um das Abo Sekki Pro und den einmaligen Dauerkauf anzubieten</li>
+      <li>Um auf dein Feedback zu antworten und die App zu verbessern</li>
+      <li>Um die Nutzung anhand anonymer Statistiken zu verstehen und Fehler zu beheben</li>
     </ul>
 
-    <h2>3. Aufbewahrung und Löschung</h2>
+    <h2>3. Speicherdauer und Löschung</h2>
     <ul>
-      <li>Auf deinem Gerät gespeicherte Einträge werden gelöscht, wenn du die App löschst.</li>
-      <li>Auf den Server hochgeladene Daten werden <strong>gelöscht, wenn du deinen Account löschst</strong> (in der App: „Freunde“, dann „Account“, dann „Account löschen“). Deine Account-Kennung, dein Freundescode und deine hochgeladenen Mahlzeitendaten werden gelöscht und können nicht wiederhergestellt werden.</li>
-      <li>Benachrichtigungssignale zu Zuspruch (CloudKit) werden 7 Tage nach ihrer Erstellung automatisch bereinigt.</li>
-      <li>Wenn du möchtest, dass weitere Daten gelöscht werden, kontaktiere uns unten, und wir kümmern uns zeitnah darum.</li>
+      <li>Einträge auf deinem Gerät werden gelöscht, wenn du die App löschst.</li>
+      <li>Wenn du den Eintrag eines Tages in der App löschst, wird auch die geteilte Kopie auf dem Server gelöscht.</li>
+      <li>Daten auf dem Server werden <strong>gelöscht, wenn du deinen Account löschst</strong> (in der App: Freunde &gt; Account &gt; Account löschen). Dabei werden dein Freundescode und Name, die geteilten Mahlzeiten- und Workout-Einträge, deine Anfeuerungen, deine Freundschaften, deine Gruppenmitgliedschaften und die von dir erstellten Gruppen sowie deine Mitteilungsabonnements endgültig gelöscht und können nicht wiederhergestellt werden.</li>
+      <li>Wenn du möchtest, dass noch verbliebene Daten gelöscht werden, schreib uns über die unten genannten Kontaktdaten. Wir kümmern uns umgehend darum.</li>
     </ul>
 
     <h2>4. Dritte und Auftragsverarbeiter</h2>
-    <p>Die App verkauft deine personenbezogenen Daten nie. Die folgenden Dienste verarbeiten Daten, um die App bereitzustellen:</p>
+    <p>Die App verkauft niemals deine personenbezogenen Daten und nutzt weder Werbung noch Analysedienste von Drittanbietern. Folgende Dienste verarbeiten Daten, um die App bereitzustellen:</p>
     <table>
       <tr><th>Dienst</th><td>Zweck</td></tr>
-      <tr><th>Google Firebase</th><td>Anmeldung (Authentication) und Speicherung geteilter Mahlzeiten und von Zuspruch (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Speicherung von Benachrichtigungssignalen zu Zuspruch, Zustellung von Push-Mitteilungen und Speicherung anonymer Nutzungsstatistiken und Fehlerberichte</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Account-Kennung; Speicherung geteilter Einträge, Freunde, Gruppen und Anfeuerungen; Speicherung deines Feedbacks; Speicherung anonymer Nutzungsstatistiken und Fehlerberichte; Zustellung von Push-Mitteilungen</td></tr>
       <tr><th>Apple App Store</th><td>Abwicklung von Abos und In-App-Käufen</td></tr>
     </table>
 
     <h2>5. Deine Rechte</h2>
     <ul>
-      <li>Du kannst das Teilen jederzeit in den Einstellungen deaktivieren. Danach erstellte Einträge werden nicht hochgeladen.</li>
-      <li>Du kannst deine Serverdaten selbst löschen, indem du deinen Account löschst.</li>
-      <li>Um Auskunft über deine personenbezogenen Daten zu erhalten oder sie zu berichtigen oder löschen zu lassen, kontaktiere uns unten.</li>
+      <li>Du kannst „Meine Mahlzeiten teilen“ jederzeit in den Einstellungen ausschalten. Danach erstellte Einträge werden nicht mehr hochgeladen.</li>
+      <li>Du kannst deine Daten auf dem Server selbst löschen, indem du deinen Account löschst.</li>
+      <li>Für Auskunft, Berichtigung oder Löschung deiner personenbezogenen Daten wende dich an die unten genannten Kontaktdaten.</li>
     </ul>
 
     <h2>6. Kinder</h2>
-    <p>Die App richtet sich nicht an Kinder unter 14 Jahren und erfasst wissentlich keine personenbezogenen Daten von Kindern.</p>
+    <p>Die App richtet sich nicht an Kinder unter 14 Jahren und erfasst nicht wissentlich personenbezogene Daten von Kindern.</p>
 
     <h2>7. Änderungen dieser Erklärung</h2>
-    <p>Wenn sich diese Erklärung ändert, veröffentlichen wir die Aktualisierung auf dieser Seite und informieren dich in der App über wesentliche Änderungen.</p>
+    <p>Wenn sich diese Erklärung ändert, veröffentlichen wir die neue Fassung auf dieser Seite. Über wesentliche Änderungen informieren wir dich außerdem in der App.</p>
 
     <h2>8. Kontakt</h2>
     <p>

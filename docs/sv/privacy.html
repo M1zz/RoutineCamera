@@ -78,93 +78,98 @@
 <body>
   <div class="container">
     <h1>Integritetspolicy</h1>
-    <p class="updated">Sekki · Senast uppdaterad: 19 oktober 2026</p>
+    <p class="updated">Sekki · Gäller från: 8 oktober 2026 · Senast uppdaterad: 22 oktober 2026</p>
 
-    <p>Sekki (”appen”) hanterar dina personuppgifter varsamt och följer gällande lagar. Den här policyn förklarar vad appen samlar in och hur uppgifterna används, lagras och raderas.</p>
+    <p>Sekki (”appen”) hanterar dina personuppgifter varsamt och följer gällande lagar. Den här policyn förklarar vilka uppgifter appen samlar in och hur de används, lagras och raderas.</p>
 
     <h2>1. Uppgifter vi samlar in</h2>
     <table>
-      <tr><th>Uppgift</th><td>Detaljer</td></tr>
+      <tr><th>Typ</th><td>Detaljer</td></tr>
       <tr>
-        <th>Konto</th>
-        <td>Kontoidentifieraren som utfärdas när du loggar in med Apple och den e-postadress som Apple tillhandahåller enligt sina regler (valfritt). Samlas bara in om du använder vänfunktionerna.</td>
+        <th>Kontoidentifierare</th>
+        <td>Det finns ingen separat registrering eller inloggning. Om din enhet är inloggad på iCloud används ett slumpmässigt användar-id, som Apple CloudKit utfärdar enbart för den här appen, som ditt konto för vänfunktionerna. Id:t avslöjar varken e-postadressen eller namnet på ditt Apple-konto.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Det smeknamn du anger (visas som avsändare av den pepp du skickar)</td>
+        <td>Din vänkod (sex slumpmässiga tecken) och det namn du väljer att visa för dina vänner</td>
       </tr>
       <tr>
         <th>Dina inlägg</th>
-        <td>Foton och anteckningar för måltider och träning. <strong>Lagras som standard bara på din enhet.</strong> De laddas bara upp till servern (Firebase) och visas för vännerna du lagt till om du slår på delning.</td>
+        <td>Foton på måltider och träning (före och efter), anteckningar samt datum, tid och måltid för varje inlägg. De lagras på din enhet. <strong>Så länge ”Dela mina måltider” är på och du är inloggad på iCloud</strong> laddas de upp till appens offentliga CloudKit-databas så att dina vänner kan se dem (foton skalas ned till 1024 px på den längsta sidan). ”Dela mina måltider” är på från början och kan stängas av under Inställningar &gt; Konto och delning.</td>
       </tr>
       <tr>
-        <th>Vänner och pepp</th>
-        <td>Vänkoder, din vänlista och den pepp du skickar och får (kommentarer och knuffar)</td>
+        <th>Vänner, grupper och pepp</th>
+        <td>Vänförfrågningar och din vänlista, namn och medlemmar i grupper du skapar eller går med i samt de peppkommentarer och puffar du skickar och tar emot, med avsändarens namn</td>
       </tr>
       <tr>
-        <th>Notissignaler</th>
-        <td>För att leverera notiser om pepp passerar avsändarens smeknamn och måltidens namn genom Apple iCloud (CloudKit). Innehållet i peppen ingår inte, och signalerna raderas automatiskt efter 7 dagar.</td>
+        <th>Notiser</th>
+        <td>När en vän peppar dig eller lägger upp ett inlägg får du en notis via Apples pushnotiser (CloudKit-prenumerationer). Påminnelser om måltider är lokala notiser som schemaläggs på din enhet.</td>
       </tr>
       <tr>
-        <th>Anonym användningsstatistik</th>
-        <td>För att förstå hur många som använder appen och för att rätta fel skickar appen följande anonyma statistik till Apple iCloud (CloudKit), som bara utvecklaren kan se:
+        <th>Feedback du skickar</th>
+        <td>Skickas bara när du använder ”Skicka feedback” i Inställningar. Den innehåller den typ du väljer och det du skriver, tillsammans med appversion, iOS-version, enhetsmodell och enhetens språk. Ditt namn och din e-postadress följer bara med om du själv fyller i dem så att vi kan svara. Utvecklarens svar kan du läsa i appen.</td>
+      </tr>
+      <tr>
+        <th>Anonym användningsstatistik och felrapporter</th>
+        <td>För att förstå hur många som använder appen och för att kunna åtgärda fel skickar appen följande anonyma statistik till utvecklarens lagring i Apple iCloud (CloudKit), som bara utvecklaren har tillgång till:
           <ul>
-            <li>Ett slumpmässigt ID som skapas vid installationen (inte kopplat till dig, ditt Apple-ID, din enhet eller andra appar, och det byts ut om du installerar om)</li>
-            <li>Appversion, iOS-version samt region- och språkinställningar</li>
-            <li>Hur många gånger och vilka dagar du öppnade appen, installationsdatum och antal dagar sedan installationen</li>
-            <li>Steg i prenumerationsköpet (påbörjat, slutfört, avbrutet och så vidare) och produkttyp. Inga betalningsuppgifter ingår</li>
-            <li>Felrapporter när appen hänger sig eller avslutas oväntat (appversion, iOS-version, enhetsmodell och tekniska detaljer om felet)</li>
+            <li>Ett slumpmässigt id som skapas vid installationen (det är inte kopplat till dig, ditt Apple-id, din enhet, ditt vänkonto eller andra appar, och det ändras om du installerar om appen)</li>
+            <li>Appversion, iOS-version samt inställningar för region och språk</li>
+            <li>Hur många gånger och vilka dagar du har öppnat appen, installationsdatum och antal dagar sedan installationen</li>
+            <li>Namnen på händelser i appen (till exempel att en fråga om nöjdhet eller en begäran om betyg visades, att prenumerationsskärmen öppnades eller att ett köp påbörjades, slutfördes eller avbröts) och typen av produkt. Inga betalningsuppgifter eller innehåll från dina inlägg ingår</li>
+            <li>Diagnosrapporter när appen hänger sig eller avslutas oväntat (enhetsmodell och tekniska uppgifter om felet)</li>
           </ul>
-          Statistiken innehåller aldrig ditt namn, dina kontakter, din plats eller dina foton och anteckningar, och den är inte kopplad till ditt konto. Den skickas bara när du är inloggad på iCloud.</td>
+          Statistiken innehåller aldrig ditt namn, dina kontakter, din plats eller dina foton och anteckningar. Den skickas bara när du är inloggad på iCloud.</td>
       </tr>
       <tr>
         <th>Betalningar</th>
-        <td>Prenumerationer hanteras av Apple (App Store). Appen samlar inte in kortnummer eller andra betalningsuppgifter.</td>
+        <td>Prenumerationer och köp hanteras av Apple (App Store). Appen samlar inte in kortnummer eller andra betalningsuppgifter.</td>
       </tr>
     </table>
 
     <div class="note">
-      Matanalysen sker <strong>helt på din enhet</strong> med Apple Vision. Dina foton skickas aldrig någonstans för analys.
+      Analysen av maten sker <strong>helt och hållet på din enhet</strong> med Apple Vision. Dina foton skickas aldrig någonstans för analys.<br>
+      Bildbibliotek: Om du slår på ”Spara automatiskt i Bilder” sparas dina foton även i Sekki-albumen i appen Bilder.
     </div>
 
     <h2>2. Hur vi använder uppgifterna</h2>
     <ul>
-      <li>För att spara och visa dina måltids- och träningsinlägg</li>
-      <li>För att du ska kunna dela måltider med vänner samt skicka och ta emot pepp</li>
-      <li>För att skicka måltidspåminnelser och meddela dig när pepp kommer in</li>
-      <li>För att erbjuda prenumerationen Sekki Pro</li>
-      <li>För att förstå användningen och rätta fel med hjälp av anonym statistik</li>
+      <li>För att spara och visa dina inlägg om måltider och träning</li>
+      <li>För att dela inlägg med vänner och grupper och låta dig skicka och ta emot pepp och puffar</li>
+      <li>För att påminna dig om måltider och meddela dig när du får pepp eller när en vän lägger upp ett inlägg</li>
+      <li>För att erbjuda prenumerationen Sekki Pro och engångsköpet för livstidsåtkomst</li>
+      <li>För att svara på feedback du skickar och förbättra appen</li>
+      <li>För att förstå hur appen används och åtgärda fel med hjälp av anonym statistik</li>
     </ul>
 
-    <h2>3. Lagring och radering</h2>
+    <h2>3. Lagringstid och radering</h2>
     <ul>
       <li>Inlägg som lagras på din enhet raderas när du raderar appen.</li>
-      <li>Data som laddats upp till servern <strong>raderas när du raderar ditt konto</strong> (i appen: Vänner, sedan Kontoinställningar och Radera konto). Din kontoidentifierare, din vänkod och uppladdad måltidsdata raderas och kan inte återställas.</li>
-      <li>Notissignaler för pepp (CloudKit) rensas automatiskt 7 dagar efter att de skapats.</li>
-      <li>Om du vill att kvarvarande data raderas kan du kontakta oss nedan så tar vi hand om det snarast.</li>
+      <li>När du raderar en dags inlägg i appen raderas även den delade kopian från servern.</li>
+      <li>Data på servern <strong>raderas när du raderar ditt konto</strong> (i appen: Vänner &gt; Konto &gt; Radera konto). Din vänkod och ditt namn, de inlägg om måltider och träning du har delat, den pepp du har gett, dina vänkontakter, dina gruppmedlemskap och de grupper du har skapat samt dina notisprenumerationer raderas och kan inte återställas.</li>
+      <li>Om du vill att eventuella kvarvarande uppgifter ska raderas kan du kontakta oss nedan, så ser vi till det snarast.</li>
     </ul>
 
     <h2>4. Tredje parter och personuppgiftsbiträden</h2>
-    <p>Appen säljer aldrig dina personuppgifter. Följande tjänster behandlar data för att appen ska fungera:</p>
+    <p>Appen säljer aldrig dina personuppgifter och använder varken annonser eller analystjänster från tredje part. Följande tjänster behandlar uppgifter för att appen ska fungera:</p>
     <table>
-      <tr><th>Tjänst</th><td>Ändamål</td></tr>
-      <tr><th>Google Firebase</th><td>Inloggning (Authentication) och lagring av delade måltider och pepp (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Lagring av notissignaler för pepp, leverans av pushnotiser samt lagring av anonym användningsstatistik och felrapporter</td></tr>
+      <tr><th>Tjänst</th><td>Syfte</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Kontoidentifiering; lagring av delade inlägg, vänner, grupper och pepp; lagring av feedback du skickar; lagring av anonym användningsstatistik och felrapporter; leverans av pushnotiser</td></tr>
       <tr><th>Apple App Store</th><td>Hantering av prenumerationer och köp i appen</td></tr>
     </table>
 
     <h2>5. Dina rättigheter</h2>
     <ul>
-      <li>Du kan när som helst stänga av delning i Inställningar. Inlägg som görs efter det laddas inte upp.</li>
-      <li>Du kan själv radera dina serverdata genom att radera ditt konto.</li>
-      <li>För att få tillgång till, rätta eller radera dina personuppgifter kan du kontakta oss nedan.</li>
+      <li>Du kan när som helst stänga av ”Dela mina måltider” i Inställningar. Inlägg du gör efter det laddas inte upp.</li>
+      <li>Du kan själv radera dina uppgifter på servern genom att radera ditt konto.</li>
+      <li>Om du vill få tillgång till, rätta eller radera dina personuppgifter kan du kontakta oss nedan.</li>
     </ul>
 
     <h2>6. Barn</h2>
     <p>Appen är inte avsedd för barn under 14 år och samlar inte medvetet in personuppgifter från barn.</p>
 
     <h2>7. Ändringar i policyn</h2>
-    <p>Om policyn ändras publicerar vi uppdateringen på den här sidan, och vid större ändringar meddelar vi dig i appen.</p>
+    <p>Om policyn ändras publicerar vi den nya versionen på den här sidan, och vid väsentliga ändringar meddelar vi dig även i appen.</p>
 
     <h2>8. Kontakt</h2>
     <p>

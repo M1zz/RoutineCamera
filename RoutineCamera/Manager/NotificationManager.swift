@@ -172,6 +172,12 @@ class NotificationManager: ObservableObject {
 
     // 알림 권한 요청 (이미 정해졌으면 다시 묻지 않고 바로 답이 온다)
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
+        #if DEBUG
+        // UI 검증용: 시뮬레이터 스크린샷에서 권한 창이 화면을 가리지 않게
+        if ProcessInfo.processInfo.environment["SKIP_NOTIFICATION_PROMPT_FOR_TEST"] == "1" {
+            completion(false); return
+        }
+        #endif
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 self.notificationsEnabled = granted

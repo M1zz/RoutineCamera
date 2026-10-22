@@ -1465,9 +1465,35 @@ class MealRecordStore: ObservableObject {
         let today = calendar.startOfDay(for: Date())
         let slots: [(MealType, Int, Int)] = [(.breakfast, 8, 10), (.lunch, 12, 40), (.dinner, 19, 5)]
         // 스크린샷 언어에 맞춘 메모 (시뮬레이터 언어가 영어면 영어 메모)
-        let memos = Locale.current.language.languageCode == .korean
-            ? ["친구랑 비빔밥", "오늘은 가볍게", "퇴근 후 떡볶이", "주말 브런치"]
-            : ["Bibimbap with a friend", "Keeping it light today", "Tteokbokki after work", "Weekend brunch"]
+        let memosByLanguage: [String: [String]] = [
+            "ko": ["친구랑 비빔밥", "오늘은 가볍게", "퇴근 후 떡볶이", "주말 브런치"],
+            "en": ["Bibimbap with a friend", "Keeping it light today", "Tteokbokki after work", "Weekend brunch"],
+            "zh-Hans": ["和朋友吃拌饭", "今天吃得清淡点", "下班后的炒年糕", "周末早午餐"],
+            "zh-Hant": ["和朋友吃拌飯", "今天吃清淡一點", "下班後的辣炒年糕", "週末早午餐"],
+            "ja": ["友だちとビビンバ", "今日は軽めに", "仕事帰りのトッポッキ", "週末のブランチ"],
+            "ru": ["Пибимпап с другом", "Сегодня что-то лёгкое", "Токпокки после работы", "Бранч в выходной"],
+            "es": ["Bibimbap con un amigo", "Hoy, algo ligero", "Tteokbokki al salir del trabajo", "Brunch de fin de semana"],
+            "de": ["Bibimbap mit einer Freundin", "Heute mal leicht", "Tteokbokki nach der Arbeit", "Wochenend-Brunch"],
+            "fr": ["Bibimbap avec un ami", "Léger aujourd’hui", "Tteokbokki après le boulot", "Brunch du week-end"],
+            "it": ["Bibimbap con un’amica", "Oggi qualcosa di leggero", "Tteokbokki dopo il lavoro", "Brunch del weekend"],
+            "pt": ["Bibimbap com um amigo", "Hoje, algo leve", "Tteokbokki depois do trabalho", "Brunch de fim de semana"],
+            "th": ["บิบิมบับกับเพื่อน", "วันนี้กินเบา ๆ", "ต็อกบกกีหลังเลิกงาน", "บรันช์วันหยุด"],
+            "vi": ["Cơm trộn cùng bạn", "Hôm nay ăn nhẹ", "Tteokbokki sau giờ làm", "Bữa brunch cuối tuần"],
+            "cs": ["Bibimbap s kamarádem", "Dnes něco lehkého", "Tteokbokki po práci", "Víkendový brunch"],
+            "da": ["Bibimbap med en ven", "Noget let i dag", "Tteokbokki efter arbejde", "Weekendbrunch"],
+            "el": ["Μπιμπιμπάπ με έναν φίλο", "Σήμερα κάτι ελαφρύ", "Τοκμπόκι μετά τη δουλειά", "Μπραντς Σαββατοκύριακου"],
+            "fi": ["Bibimbapia ystävän kanssa", "Tänään jotain kevyttä", "Tteokbokkia töiden jälkeen", "Viikonlopun brunssi"],
+            "id": ["Bibimbap bareng teman", "Hari ini yang ringan saja", "Tteokbokki sepulang kerja", "Brunch akhir pekan"],
+            "nb": ["Bibimbap med en venn", "Noe lett i dag", "Tteokbokki etter jobb", "Helgebrunsj"],
+            "nl": ["Bibimbap met een vriend", "Vandaag iets lichts", "Tteokbokki na het werk", "Weekendbrunch"],
+            "pl": ["Bibimbap ze znajomym", "Dziś coś lekkiego", "Tteokbokki po pracy", "Weekendowy brunch"],
+            "sv": ["Bibimbap med en vän", "Något lätt i dag", "Tteokbokki efter jobbet", "Helgbrunch"],
+            "tr": ["Arkadaşla bibimbap", "Bugün hafif bir şeyler", "İş çıkışı tteokbokki", "Hafta sonu brunch’ı"],
+        ]
+        let language = Locale.current.language
+        let languageCode = language.languageCode?.identifier ?? "en"
+        let scriptKey = language.script == .hanTraditional ? "zh-Hant" : "zh-Hans"
+        let memos = memosByLanguage[languageCode == "zh" ? scriptKey : languageCode] ?? memosByLanguage["en"]!
         var result: [MealRecord] = []
         var index = 0
 

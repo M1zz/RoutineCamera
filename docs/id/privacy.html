@@ -78,93 +78,98 @@
 <body>
   <div class="container">
     <h1>Kebijakan Privasi</h1>
-    <p class="updated">Sekki · Terakhir diperbarui: 19 Oktober 2026</p>
+    <p class="updated">Sekki · Berlaku sejak: 8 Oktober 2026 · Terakhir diperbarui: 22 Oktober 2026</p>
 
-    <p>Sekki (“app”) memperlakukan informasi pribadimu dengan hati-hati dan mematuhi hukum yang berlaku. Kebijakan ini menjelaskan apa saja yang dikumpulkan app serta bagaimana informasi itu digunakan, disimpan, dan dihapus.</p>
+    <p>Sekki ("aplikasi") memperlakukan informasi pribadimu dengan hati-hati dan mematuhi hukum yang berlaku. Kebijakan ini menjelaskan informasi apa saja yang dikumpulkan aplikasi, serta bagaimana informasi tersebut digunakan, disimpan, dan dihapus.</p>
 
     <h2>1. Informasi yang Kami Kumpulkan</h2>
     <table>
       <tr><th>Item</th><td>Rincian</td></tr>
       <tr>
-        <th>Akun</th>
-        <td>Pengenal akun yang diterbitkan saat kamu masuk dengan Apple, dan alamat email yang diberikan Apple sesuai kebijakannya (opsional). Hanya dikumpulkan jika kamu memakai fitur teman.</td>
+        <th>Pengenal akun</th>
+        <td>Tidak ada pendaftaran atau proses masuk terpisah. Jika perangkatmu masuk ke iCloud, pengenal pengguna acak yang diterbitkan Apple CloudKit khusus untuk aplikasi ini digunakan sebagai akunmu untuk fitur teman. Pengenal ini tidak mengungkapkan email atau nama Akun Apple-mu.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Nama panggilan yang kamu masukkan (ditampilkan sebagai pengirim dukungan yang kamu kirim)</td>
+        <td>Kode temanmu (enam karakter acak) dan "nama yang ditampilkan ke teman" yang kamu masukkan</td>
       </tr>
       <tr>
         <th>Catatanmu</th>
-        <td>Foto dan catatan makan serta olahraga. <strong>Secara bawaan hanya disimpan di perangkatmu.</strong> Data ini diunggah ke server (Firebase) dan ditampilkan kepada teman yang kamu tambahkan hanya jika kamu mengaktifkan berbagi.</td>
+        <td>Foto makanan dan olahraga (sebelum dan sesudah), catatan, serta tanggal, waktu, dan waktu makan dari setiap entri. Semua ini disimpan di perangkatmu. <strong>Selama "Bagikan Makananku" aktif dan kamu masuk ke iCloud</strong>, semuanya diunggah ke database publik CloudKit milik aplikasi agar teman-temanmu bisa melihatnya (foto diperkecil menjadi 1024 px pada sisi terpanjang). "Bagikan Makananku" aktif sejak awal, dan kamu bisa menonaktifkannya di Pengaturan &gt; Akun &amp; Berbagi.</td>
       </tr>
       <tr>
-        <th>Teman dan dukungan</th>
-        <td>Kode teman, daftar temanmu, serta dukungan yang kamu kirim dan terima (komentar dan colekan)</td>
+        <th>Teman, grup, dan semangat</th>
+        <td>Permintaan pertemanan dan daftar temanmu, nama dan anggota grup yang kamu buat atau ikuti, serta komentar semangat dan colekan yang kamu kirim dan terima, beserta nama pengirimnya</td>
       </tr>
       <tr>
-        <th>Sinyal notifikasi</th>
-        <td>Untuk mengirim notifikasi dukungan, nama panggilan pengirim dan nama waktu makan melewati Apple iCloud (CloudKit). Isi dukungan tidak disertakan, dan sinyal dihapus otomatis setelah 7 hari.</td>
+        <th>Notifikasi</th>
+        <td>Saat teman memberi semangat atau memposting catatan, kamu diberi tahu melalui notifikasi push Apple (langganan CloudKit). Pengingat makan adalah notifikasi lokal yang dijadwalkan di perangkatmu.</td>
       </tr>
       <tr>
-        <th>Statistik penggunaan anonim</th>
-        <td>Untuk memahami berapa banyak orang yang memakai app dan memperbaiki bug, app mengirimkan statistik anonim berikut ke Apple iCloud (CloudKit), yang hanya bisa dilihat oleh pengembang:
+        <th>Masukan yang kamu kirim</th>
+        <td>Hanya dikirim saat kamu menggunakan "Kirim Masukan" di Pengaturan. Isinya meliputi jenis yang kamu pilih dan apa yang kamu tulis, beserta versi aplikasi, versi iOS, model perangkat, dan bahasa perangkat. Nama dan emailmu hanya disertakan jika kamu mengisinya agar kami bisa membalas. Kamu bisa membaca balasan pengembang langsung di aplikasi.</td>
+      </tr>
+      <tr>
+        <th>Statistik penggunaan anonim dan laporan error</th>
+        <td>Untuk mengetahui berapa banyak orang yang menggunakan aplikasi dan untuk memperbaiki bug, aplikasi mengirim statistik anonim berikut ke penyimpanan Apple iCloud (CloudKit) milik pengembang, yang hanya bisa dilihat oleh pengembang:
           <ul>
-            <li>ID acak yang dibuat saat pemasangan (tidak terhubung dengan dirimu, Apple ID, perangkat, atau app lain, dan berubah jika kamu memasang ulang)</li>
-            <li>Versi app, versi iOS, serta pengaturan wilayah dan bahasa</li>
-            <li>Berapa kali dan pada hari apa kamu membuka app, tanggal pemasangan, dan jumlah hari sejak pemasangan</li>
-            <li>Tahap pembelian langganan (dimulai, selesai, dibatalkan, dan sebagainya) dan jenis produk. Tidak ada informasi pembayaran yang disertakan</li>
-            <li>Laporan kesalahan saat app macet atau tiba-tiba berhenti (versi app, versi iOS, model perangkat, dan rincian teknis kesalahan)</li>
+            <li>ID acak yang dibuat saat instalasi (tidak terhubung dengan dirimu, Apple ID, perangkat, akun teman, atau aplikasi lain, dan akan berubah jika kamu menginstal ulang)</li>
+            <li>Versi aplikasi, versi iOS, serta pengaturan wilayah dan bahasa</li>
+            <li>Berapa kali dan pada hari apa saja kamu membuka aplikasi, tanggal instalasi, dan jumlah hari sejak instalasi</li>
+            <li>Nama kejadian di dalam aplikasi (misalnya pertanyaan kepuasan atau permintaan ulasan ditampilkan, layar langganan dibuka, pembelian dimulai, selesai, atau dibatalkan) dan jenis produknya. Tidak ada informasi pembayaran atau isi catatan yang disertakan</li>
+            <li>Laporan diagnostik saat aplikasi macet atau tertutup tiba-tiba (model perangkat dan detail teknis error)</li>
           </ul>
-          Statistik ini tidak pernah memuat namamu, kontak, lokasi, ataupun foto dan catatanmu, dan tidak terhubung dengan akunmu. Statistik hanya dikirim saat kamu sudah masuk ke iCloud.</td>
+          Statistik ini tidak pernah memuat nama, kontak, lokasi, ataupun foto dan catatanmu. Statistik hanya dikirim saat kamu masuk ke iCloud.</td>
       </tr>
       <tr>
         <th>Pembayaran</th>
-        <td>Langganan diproses oleh Apple (App Store). App tidak mengumpulkan nomor kartu atau rincian pembayaran lainnya.</td>
+        <td>Langganan dan pembelian diproses oleh Apple (App Store). Aplikasi tidak mengumpulkan nomor kartu atau detail pembayaran lainnya.</td>
       </tr>
     </table>
 
     <div class="note">
-      Analisis makanan berjalan <strong>sepenuhnya di perangkatmu</strong> dengan Apple Vision. Fotomu tidak pernah dikirim ke mana pun untuk dianalisis.
+      Analisis makanan berjalan <strong>sepenuhnya di perangkatmu</strong> dengan Apple Vision. Fotomu tidak pernah dikirim ke mana pun untuk dianalisis.<br>
+      Perpustakaan foto: jika kamu mengaktifkan "Simpan ke Foto Otomatis", fotomu juga disimpan ke album Sekki di app Foto.
     </div>
 
     <h2>2. Cara Kami Menggunakannya</h2>
     <ul>
-      <li>Untuk menyimpan dan menampilkan catatan makan dan olahraga kamu</li>
-      <li>Agar kamu bisa berbagi makanan dengan teman serta mengirim dan menerima dukungan</li>
-      <li>Untuk mengirim pengingat makan dan memberi tahu saat ada dukungan masuk</li>
-      <li>Untuk menyediakan langganan Sekki Pro</li>
-      <li>Untuk memahami penggunaan dan memperbaiki bug lewat statistik anonim</li>
+      <li>Untuk menyimpan dan menampilkan catatan makanan dan olahragamu</li>
+      <li>Untuk membagikan catatan ke teman dan grup, serta memungkinkanmu mengirim dan menerima semangat dan colekan</li>
+      <li>Untuk mengirim pengingat makan dan memberi tahu saat ada semangat atau catatan baru dari teman</li>
+      <li>Untuk menyediakan langganan Sekki Pro dan pembelian seumur hidup</li>
+      <li>Untuk membalas masukan yang kamu kirim dan menyempurnakan aplikasi</li>
+      <li>Untuk memahami penggunaan dan memperbaiki bug melalui statistik anonim</li>
     </ul>
 
     <h2>3. Penyimpanan dan Penghapusan</h2>
     <ul>
-      <li>Catatan yang disimpan di perangkatmu terhapus saat kamu menghapus app.</li>
-      <li>Data yang diunggah ke server <strong>dihapus saat kamu menghapus akun</strong> (di app: Teman, lalu Pengaturan Akun, lalu Hapus Akun). Pengenal akun, kode teman, dan data makanan yang diunggah akan dihapus dan tidak dapat dipulihkan.</li>
-      <li>Sinyal notifikasi dukungan (CloudKit) dibersihkan otomatis 7 hari setelah dibuat.</li>
-      <li>Jika kamu ingin data yang tersisa dihapus, hubungi kami di bawah dan kami akan segera menanganinya.</li>
+      <li>Catatan yang tersimpan di perangkatmu akan terhapus saat kamu menghapus aplikasi.</li>
+      <li>Saat kamu menghapus catatan suatu hari di aplikasi, salinan yang dibagikan juga dihapus dari server.</li>
+      <li>Data di server <strong>dihapus saat kamu menghapus akun</strong> (di aplikasi: Teman &gt; Akun &gt; Hapus Akun). Kode teman dan namamu, catatan makanan dan olahraga yang kamu bagikan, semangat yang kamu tinggalkan, koneksi pertemananmu, keanggotaan grup dan grup yang kamu buat, serta langganan notifikasimu akan dihapus dan tidak dapat dipulihkan.</li>
+      <li>Jika kamu ingin data yang tersisa dihapus, hubungi kami melalui kontak di bawah dan kami akan segera menanganinya.</li>
     </ul>
 
     <h2>4. Pihak Ketiga dan Pemroses Data</h2>
-    <p>App tidak pernah menjual informasi pribadimu. Layanan berikut memproses data untuk menjalankan app:</p>
+    <p>Aplikasi tidak pernah menjual informasi pribadimu dan tidak menggunakan layanan iklan atau analitik pihak ketiga. Layanan berikut memproses data untuk menjalankan aplikasi:</p>
     <table>
       <tr><th>Layanan</th><td>Tujuan</td></tr>
-      <tr><th>Google Firebase</th><td>Proses masuk (Authentication) dan penyimpanan makanan yang dibagikan serta dukungan (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Menyimpan sinyal notifikasi dukungan, mengirim notifikasi push, serta menyimpan statistik penggunaan anonim dan laporan kesalahan</td></tr>
-      <tr><th>Apple App Store</th><td>Pemrosesan langganan dan pembelian dalam app</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Identifikasi akun; penyimpanan catatan yang dibagikan, teman, grup, dan semangat; penyimpanan masukan yang kamu kirim; penyimpanan statistik penggunaan anonim dan laporan error; pengiriman notifikasi push</td></tr>
+      <tr><th>Apple App Store</th><td>Pemrosesan langganan dan pembelian dalam aplikasi</td></tr>
     </table>
 
-    <h2>5. Hakmu</h2>
+    <h2>5. Hak-Hakmu</h2>
     <ul>
-      <li>Kamu bisa menonaktifkan berbagi di Pengaturan kapan saja. Catatan yang dibuat setelahnya tidak diunggah.</li>
-      <li>Kamu bisa menghapus sendiri data di server dengan menghapus akunmu.</li>
-      <li>Untuk mengakses, memperbaiki, atau menghapus informasi pribadimu, hubungi kami di bawah.</li>
+      <li>Kamu bisa menonaktifkan "Bagikan Makananku" di Pengaturan kapan saja. Catatan yang dibuat setelahnya tidak akan diunggah.</li>
+      <li>Kamu bisa menghapus sendiri datamu di server dengan menghapus akun.</li>
+      <li>Untuk mengakses, memperbaiki, atau menghapus informasi pribadimu, hubungi kami melalui kontak di bawah.</li>
     </ul>
 
     <h2>6. Anak-Anak</h2>
-    <p>App ini tidak ditujukan untuk anak di bawah 14 tahun dan tidak dengan sengaja mengumpulkan informasi pribadi dari anak-anak.</p>
+    <p>Aplikasi ini tidak ditujukan untuk anak di bawah 14 tahun dan tidak dengan sengaja mengumpulkan informasi pribadi dari anak-anak.</p>
 
     <h2>7. Perubahan Kebijakan Ini</h2>
-    <p>Jika kebijakan ini berubah, kami akan memuat pembaruannya di halaman ini, dan perubahan yang penting akan kami beri tahukan lewat app.</p>
+    <p>Jika kebijakan ini berubah, kami akan memuat pembaruannya di halaman ini dan memberi tahu di aplikasi jika ada perubahan yang penting.</p>
 
     <h2>8. Kontak</h2>
     <p>

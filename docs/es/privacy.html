@@ -78,101 +78,105 @@
 <body>
   <div class="container">
     <h1>Política de privacidad</h1>
-    <p class="updated">Sekki · Última actualización: 19 de octubre de 2026</p>
+    <p class="updated">Sekki · En vigor desde el 8 de octubre de 2026 · Última actualización: 22 de octubre de 2026</p>
 
-    <p>Sekki (la "app") trata tu información personal con cuidado y cumple las leyes aplicables. Esta política explica qué datos recopila la app y cómo se usan, se almacenan y se eliminan.</p>
+    <p>Sekki (la "app") trata tu información personal con cuidado y cumple la legislación aplicable. Esta política explica qué datos recopila la app y cómo se usan, almacenan y eliminan.</p>
 
     <h2>1. Información que recopilamos</h2>
     <table>
-      <tr><th>Elemento</th><td>Detalles</td></tr>
+      <tr><th>Dato</th><td>Detalle</td></tr>
       <tr>
-        <th>Cuenta</th>
-        <td>El identificador de cuenta que se genera al iniciar sesión con Apple y la dirección de correo que Apple proporciona según sus políticas (opcional). Solo se recopila si usas las funciones de amigos.</td>
+        <th>Identificador de cuenta</th>
+        <td>No hay registro ni inicio de sesión aparte. Si tu dispositivo tiene una sesión iniciada en iCloud, se usa como cuenta para las funciones de amigos un identificador aleatorio que Apple CloudKit genera solo para esta app. Este identificador no revela el correo ni el nombre de tu cuenta de Apple.</td>
       </tr>
       <tr>
         <th>Perfil</th>
-        <td>El apodo que escribes (se muestra como autor de los ánimos que envías)</td>
+        <td>Tu código de amigo (seis caracteres aleatorios) y el "nombre que ven tus amigos" que tú escribes</td>
       </tr>
       <tr>
         <th>Tus registros</th>
-        <td>Fotos y notas de comidas y ejercicio. <strong>De forma predeterminada se guardan solo en tu dispositivo.</strong> Se suben al servidor (Firebase) y se muestran a los amigos que agregues únicamente si activas el uso compartido.</td>
+        <td>Fotos de comidas y entrenamientos (antes y después), notas, y la fecha, la hora y la comida de cada registro. Se guardan en tu dispositivo. <strong>Mientras "Compartir mis comidas" esté activado y tengas la sesión iniciada en iCloud</strong>, se suben a la base de datos pública de CloudKit de la app para que tus amigos puedan verlos (las fotos se reducen a 1024 px en su lado más largo). "Compartir mis comidas" viene activado de inicio y puedes desactivarlo en Ajustes &gt; Cuenta y uso compartido.</td>
       </tr>
       <tr>
-        <th>Amigos y ánimos</th>
-        <td>Códigos de amigo, tu lista de amigos y los ánimos que envías y recibes (comentarios y empujoncitos)</td>
+        <th>Amigos, grupos y ánimos</th>
+        <td>Solicitudes de amistad y tu lista de amigos, los nombres y miembros de los grupos que creas o a los que te unes, y los comentarios de ánimo y avisos que envías y recibes, junto con el nombre de quien los escribe</td>
       </tr>
       <tr>
-        <th>Señales de notificación</th>
-        <td>Para entregar las notificaciones de ánimos, el apodo del remitente y el nombre de la comida pasan por Apple iCloud (CloudKit). El contenido del ánimo no se incluye, y las señales se eliminan automáticamente a los 7 días.</td>
+        <th>Notificaciones</th>
+        <td>Cuando un amigo te deja un ánimo o publica un registro, recibes un aviso mediante las notificaciones push de Apple (suscripciones de CloudKit). Los recordatorios de comidas son notificaciones locales programadas en tu dispositivo.</td>
       </tr>
       <tr>
-        <th>Estadísticas de uso anónimas</th>
-        <td>Para saber cuántas personas usan la app y corregir errores, la app envía las siguientes estadísticas anónimas a Apple iCloud (CloudKit), visibles únicamente para el desarrollador:
+        <th>Comentarios que envías</th>
+        <td>Solo se envían cuando usas "Enviar comentarios" en Ajustes. Incluyen el tipo que eliges y lo que escribes, además de la versión de la app, la versión de iOS, el modelo del dispositivo y su idioma. Tu nombre y correo solo se incluyen si los escribes para que podamos responderte. Puedes leer la respuesta del desarrollador dentro de la app.</td>
+      </tr>
+      <tr>
+        <th>Estadísticas de uso anónimas e informes de errores</th>
+        <td>Para saber cuántas personas usan la app y corregir errores, la app envía las siguientes estadísticas anónimas al almacenamiento de Apple iCloud (CloudKit) del desarrollador, que solo él puede consultar:
           <ul>
-            <li>Un ID aleatorio creado al instalar (no está vinculado contigo, con tu Apple ID, con tu dispositivo ni con otras apps, y cambia si vuelves a instalar)</li>
-            <li>Versión de la app, versión de iOS, y ajustes de región e idioma</li>
-            <li>Cuántas veces y en qué días abriste la app, la fecha de instalación y los días desde la instalación</li>
-            <li>Pasos de la compra de la suscripción (iniciada, completada, cancelada, etc.) y tipo de producto. No se incluye información de pago</li>
-            <li>Informes de errores cuando la app se congela o se cierra inesperadamente (versión de la app, versión de iOS, modelo del dispositivo y detalles técnicos del error)</li>
+            <li>Un identificador aleatorio creado al instalar la app (no está vinculado a ti, a tu Apple ID, a tu dispositivo, a tu cuenta de amigos ni a otras apps, y cambia si reinstalas la app)</li>
+            <li>Versión de la app, versión de iOS y configuración de región e idioma</li>
+            <li>Cuántas veces y qué días abriste la app, la fecha de instalación y los días transcurridos desde entonces</li>
+            <li>Los nombres de las acciones que ocurren en la app (por ejemplo, que se mostró una pregunta de satisfacción o una solicitud de reseña, que se abrió la pantalla de suscripción o que se inició, completó o canceló una compra) y el tipo de producto. No se incluye ningún dato de pago ni el contenido de tus registros</li>
+            <li>Informes de diagnóstico cuando la app se bloquea o se cierra de forma inesperada (modelo del dispositivo y detalles técnicos del error)</li>
           </ul>
-          Estas estadísticas nunca incluyen tu nombre, tus contactos, tu ubicación ni tus fotos y notas, y no están vinculadas a tu cuenta. Solo se envían cuando tienes la sesión de iCloud iniciada.</td>
+          Estas estadísticas nunca incluyen tu nombre, tus contactos, tu ubicación ni tus fotos y notas. Solo se envían si tienes la sesión iniciada en iCloud.</td>
       </tr>
       <tr>
         <th>Pagos</th>
-        <td>Las suscripciones las procesa Apple (App Store). La app no recopila números de tarjeta ni otros datos de pago.</td>
+        <td>Las suscripciones y compras las procesa Apple (App Store). La app no recopila números de tarjeta ni otros datos de pago.</td>
       </tr>
     </table>
 
     <div class="note">
-      El análisis de comida se realiza <strong>por completo en tu dispositivo</strong> con Apple Vision. Tus fotos nunca se envían a ningún lugar para su análisis.
+      El análisis de los alimentos se realiza <strong>íntegramente en tu dispositivo</strong> con Apple Vision. Tus fotos nunca se envían a ningún sitio para analizarlas.<br>
+      Fototeca: si activas "Guardar en Fotos automáticamente", tus fotos también se guardan en los álbumes de Sekki de la app Fotos.
     </div>
 
-    <h2>2. Cómo lo usamos</h2>
+    <h2>2. Cómo usamos la información</h2>
     <ul>
-      <li>Para guardar y mostrar tus registros de comidas y ejercicio</li>
-      <li>Para que puedas compartir comidas con tus amigos y enviar y recibir ánimos</li>
-      <li>Para enviar recordatorios de comidas y avisarte cuando llegue un ánimo</li>
-      <li>Para ofrecer la suscripción Sekki Pro</li>
-      <li>Para entender el uso y corregir errores mediante estadísticas anónimas</li>
+      <li>Para guardar y mostrar tus registros de comidas y entrenamientos</li>
+      <li>Para compartir registros con amigos y grupos, y para que puedas enviar y recibir ánimos y avisos</li>
+      <li>Para enviarte recordatorios de comidas y avisarte cuando llega un ánimo o un registro de un amigo</li>
+      <li>Para ofrecer la suscripción a Sekki Pro y la compra de por vida</li>
+      <li>Para responder a los comentarios que envías y mejorar la app</li>
+      <li>Para conocer el uso de la app y corregir errores mediante estadísticas anónimas</li>
     </ul>
 
     <h2>3. Conservación y eliminación</h2>
     <ul>
-      <li>Los registros guardados en tu dispositivo se eliminan cuando eliminas la app.</li>
-      <li>Los datos subidos al servidor <strong>se eliminan cuando eliminas tu cuenta</strong> (en la app: Amigos, luego Ajustes de la cuenta y, por último, Eliminar cuenta). Tu identificador de cuenta, tu código de amigo y los datos de comidas subidos se eliminan y no se pueden recuperar.</li>
-      <li>Las señales de notificación de ánimos (CloudKit) se limpian automáticamente 7 días después de crearse.</li>
-      <li>Si quieres que eliminemos algún dato restante, contáctanos con los datos de abajo y lo atenderemos de inmediato.</li>
+      <li>Los registros guardados en tu dispositivo se eliminan al borrar la app.</li>
+      <li>Cuando eliminas el registro de un día en la app, la copia compartida también se elimina del servidor.</li>
+      <li>Los datos del servidor <strong>se eliminan al eliminar tu cuenta</strong> (en la app: Amigos &gt; Cuenta &gt; Eliminar cuenta). Se borran de forma definitiva tu código de amigo y tu nombre, los registros de comidas y entrenamientos que compartiste, los ánimos que dejaste, tus conexiones de amistad, tu pertenencia a grupos y los grupos que creaste, y tus suscripciones a notificaciones. No se pueden recuperar.</li>
+      <li>Si quieres que eliminemos cualquier otro dato que quede, escríbenos a la dirección de abajo y nos encargaremos cuanto antes.</li>
     </ul>
 
     <h2>4. Terceros y encargados del tratamiento</h2>
-    <p>La app nunca vende tu información personal. Los siguientes servicios procesan datos para que la app funcione:</p>
+    <p>La app nunca vende tu información personal y no utiliza publicidad ni servicios de análisis de terceros. Los siguientes servicios tratan datos para que la app funcione:</p>
     <table>
       <tr><th>Servicio</th><td>Finalidad</td></tr>
-      <tr><th>Google Firebase</th><td>Inicio de sesión (Authentication) y almacenamiento de las comidas compartidas y los ánimos (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Almacenamiento de las señales de notificación de ánimos, entrega de notificaciones push, y almacenamiento de estadísticas de uso anónimas e informes de errores</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Identificación de la cuenta; almacenamiento de registros compartidos, amigos, grupos y ánimos; almacenamiento de los comentarios que envías; almacenamiento de estadísticas de uso anónimas e informes de errores; envío de notificaciones push</td></tr>
       <tr><th>Apple App Store</th><td>Procesamiento de suscripciones y compras dentro de la app</td></tr>
     </table>
 
     <h2>5. Tus derechos</h2>
     <ul>
-      <li>Puedes desactivar el uso compartido en Ajustes en cualquier momento. Los registros que hagas después no se suben.</li>
-      <li>Puedes eliminar tus datos del servidor tú mismo eliminando tu cuenta.</li>
-      <li>Para acceder a tu información personal, corregirla o eliminarla, contáctanos con los datos de abajo.</li>
+      <li>Puedes desactivar "Compartir mis comidas" en Ajustes en cualquier momento. Los registros que hagas a partir de entonces no se suben.</li>
+      <li>Puedes eliminar tú mismo tus datos del servidor eliminando tu cuenta.</li>
+      <li>Para acceder a tu información personal, corregirla o eliminarla, escríbenos a la dirección de abajo.</li>
     </ul>
 
-    <h2>6. Menores de edad</h2>
-    <p>La app no está dirigida a menores de 14 años y no recopila a sabiendas información personal de menores.</p>
+    <h2>6. Menores</h2>
+    <p>La app no está dirigida a menores de 14 años y no recopila de forma consciente información personal de menores.</p>
 
     <h2>7. Cambios en esta política</h2>
-    <p>Si esta política cambia, publicaremos la actualización en esta página y te avisaremos en la app de cualquier cambio importante.</p>
+    <p>Si esta política cambia, publicaremos la nueva versión en esta página y te avisaremos en la app de cualquier cambio importante.</p>
 
     <h2>8. Contacto</h2>
     <p>
-      Contacto de privacidad: Leeo (desarrollador)<br>
+      Responsable de privacidad: Leeo (desarrollador)<br>
       Correo: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
       Instagram: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
     </p>
-
     <footer>
       © 2026 Sekki · <a href="index.html">Volver a Soporte</a> · <a href="../privacy.html" hreflang="ko" lang="ko">한국어</a>
     <br>

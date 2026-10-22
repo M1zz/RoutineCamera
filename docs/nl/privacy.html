@@ -78,101 +78,105 @@
 <body>
   <div class="container">
     <h1>Privacybeleid</h1>
-    <p class="updated">Sekki · Laatst bijgewerkt: 19 oktober 2026</p>
+    <p class="updated">Sekki · Van kracht sinds 8 oktober 2026 · Laatst bijgewerkt: 22 oktober 2026</p>
 
-    <p>Sekki (de “app”) gaat zorgvuldig om met je persoonsgegevens en houdt zich aan de toepasselijke wetgeving. In dit beleid lees je welke gegevens de app verzamelt en hoe die worden gebruikt, bewaard en verwijderd.</p>
+    <p>Sekki (de 'app') gaat zorgvuldig om met je persoonsgegevens en houdt zich aan de geldende wetgeving. Dit beleid legt uit welke gegevens de app verzamelt en hoe die worden gebruikt, bewaard en verwijderd.</p>
 
-    <h2>1. Gegevens die we verzamelen</h2>
+    <h2>1. Welke gegevens we verzamelen</h2>
     <table>
-      <tr><th>Onderdeel</th><td>Details</td></tr>
+      <tr><th>Gegeven</th><td>Toelichting</td></tr>
       <tr>
-        <th>Account</th>
-        <td>De accountidentificatie die wordt aangemaakt wanneer je je aanmeldt met Apple, en het e-mailadres dat Apple volgens zijn eigen beleid verstrekt (optioneel). Wordt alleen verzameld als je de vriendenfuncties gebruikt.</td>
+        <th>Account-ID</th>
+        <td>Er is geen aparte registratie of inlog. Als je apparaat is ingelogd bij iCloud, wordt een willekeurige ID die Apple CloudKit alleen voor deze app aanmaakt gebruikt als je account voor de vriendenfuncties. Deze ID onthult niet het e-mailadres of de naam van je Apple-account.</td>
       </tr>
       <tr>
         <th>Profiel</th>
-        <td>De bijnaam die je invoert (wordt getoond als afzender van aanmoedigingen die je verstuurt)</td>
+        <td>Je vriendcode (zes willekeurige tekens) en de 'naam voor vrienden' die je invult</td>
       </tr>
       <tr>
         <th>Je registraties</th>
-        <td>Foto’s en notities van maaltijden en workouts. <strong>Standaard alleen op je apparaat opgeslagen.</strong> Ze worden pas naar de server (Firebase) geüpload en getoond aan de vrienden die je toevoegt als je delen inschakelt.</td>
+        <td>Foto's van maaltijden en workouts (voor en na), notities, en de datum, het tijdstip en de maaltijd van elke registratie. Ze worden op je apparaat bewaard. <strong>Zolang 'Mijn maaltijden delen' aanstaat en je bij iCloud bent ingelogd</strong>, worden ze geüpload naar de openbare CloudKit-database van de app, zodat je vrienden ze kunnen zien (foto's worden verkleind tot 1024 px aan de lange zijde). 'Mijn maaltijden delen' staat standaard aan en je kunt het uitzetten via Instellingen &gt; Account en delen.</td>
       </tr>
       <tr>
-        <th>Vrienden en aanmoedigingen</th>
-        <td>Vriendcodes, je vriendenlijst en de aanmoedigingen die je verstuurt en ontvangt (reacties en seintjes)</td>
+        <th>Vrienden, groepen en aanmoedigingen</th>
+        <td>Vriendschapsverzoeken en je vriendenlijst, de namen en leden van groepen die je aanmaakt of waar je lid van wordt, en de aanmoedigingen en herinneringen die je verstuurt en ontvangt, met de naam van de afzender</td>
       </tr>
       <tr>
-        <th>Meldingssignalen</th>
-        <td>Om meldingen over aanmoedigingen te bezorgen, lopen de bijnaam van de afzender en de naam van de maaltijd via Apple iCloud (CloudKit). De inhoud van de aanmoediging is daar niet bij inbegrepen en de signalen worden na 7 dagen automatisch verwijderd.</td>
+        <th>Meldingen</th>
+        <td>Als een vriend je aanmoedigt of een registratie plaatst, krijg je een melding via pushmeldingen van Apple (CloudKit-abonnementen). Maaltijdherinneringen zijn lokale meldingen die op je apparaat worden ingepland.</td>
       </tr>
       <tr>
-        <th>Anonieme gebruiksstatistieken</th>
-        <td>Om te begrijpen hoeveel mensen de app gebruiken en om fouten te herstellen, stuurt de app de volgende anonieme statistieken naar Apple iCloud (CloudKit), die alleen de ontwikkelaar kan inzien:
+        <th>Feedback die je stuurt</th>
+        <td>Wordt alleen verstuurd als je 'Stuur feedback' in Instellingen gebruikt. Bevat het type dat je kiest en wat je schrijft, samen met de appversie, iOS-versie, het apparaatmodel en de taal van het apparaat. Je naam en e-mailadres worden alleen meegestuurd als je ze invult zodat we kunnen antwoorden. Je kunt het antwoord van de ontwikkelaar in de app lezen.</td>
+      </tr>
+      <tr>
+        <th>Anonieme gebruiksstatistieken en foutrapporten</th>
+        <td>Om te begrijpen hoeveel mensen de app gebruiken en om bugs op te lossen, stuurt de app de volgende anonieme statistieken naar de Apple iCloud-opslag (CloudKit) van de ontwikkelaar, die alleen de ontwikkelaar kan inzien:
           <ul>
-            <li>Een willekeurige ID die bij de installatie wordt aangemaakt (niet gekoppeld aan jou, je Apple ID, je apparaat of andere apps, en die verandert als je de app opnieuw installeert)</li>
-            <li>Appversie, iOS-versie en instellingen voor regio en taal</li>
-            <li>Hoe vaak en op welke dagen je de app hebt geopend, de installatiedatum en het aantal dagen sinds installatie</li>
-            <li>Stappen van het aankoopproces van een abonnement (gestart, voltooid, geannuleerd enzovoort) en het producttype. Er worden geen betaalgegevens meegestuurd</li>
-            <li>Foutrapporten wanneer de app vastloopt of onverwacht stopt (appversie, iOS-versie, apparaatmodel en technische details van de fout)</li>
+            <li>Een willekeurige ID die bij installatie wordt aangemaakt (niet gekoppeld aan jou, je Apple ID, je apparaat, je vriendenaccount of andere apps, en die verandert als je de app opnieuw installeert)</li>
+            <li>Appversie, iOS-versie en regio- en taalinstellingen</li>
+            <li>Hoe vaak en op welke dagen je de app hebt geopend, de installatiedatum en het aantal dagen sinds de installatie</li>
+            <li>De namen van gebeurtenissen in de app (bijvoorbeeld dat een tevredenheidsvraag of beoordelingsverzoek is getoond, het abonnementsscherm is geopend, of een aankoop is gestart, voltooid of geannuleerd) en het producttype. Er worden geen betaalgegevens of inhoud van je registraties meegestuurd</li>
+            <li>Diagnoserapporten als de app vastloopt of onverwacht stopt (apparaatmodel en technische details van de fout)</li>
           </ul>
-          Deze statistieken bevatten nooit je naam, contactpersonen, locatie, foto’s of notities en zijn niet gekoppeld aan je account. Ze worden alleen verstuurd als je bent aangemeld bij iCloud.</td>
+          Deze statistieken bevatten nooit je naam, contacten, locatie of je foto's en notities. Ze worden alleen verstuurd als je bij iCloud bent ingelogd.</td>
       </tr>
       <tr>
         <th>Betalingen</th>
-        <td>Abonnementen worden verwerkt door Apple (App Store). De app verzamelt geen creditcardnummers of andere betaalgegevens.</td>
+        <td>Abonnementen en aankopen worden verwerkt door Apple (App Store). De app verzamelt geen kaartnummers of andere betaalgegevens.</td>
       </tr>
     </table>
 
     <div class="note">
-      Voedselanalyse wordt <strong>volledig op je apparaat</strong> uitgevoerd met Apple Vision. Je foto’s worden nooit ergens naartoe gestuurd voor analyse.
+      Voedselanalyse gebeurt <strong>volledig op je apparaat</strong> met Apple Vision. Je foto's worden nooit ergens heen gestuurd voor analyse.<br>
+      Fotobibliotheek: als je 'Automatisch bewaren in Foto’s' aanzet, worden je foto's ook bewaard in de Sekki-albums in de Foto’s-app.
     </div>
 
-    <h2>2. Hoe we de gegevens gebruiken</h2>
+    <h2>2. Waarvoor we de gegevens gebruiken</h2>
     <ul>
-      <li>Om je maaltijd- en workoutregistraties op te slaan en te tonen</li>
-      <li>Zodat je maaltijden kunt delen met vrienden en aanmoedigingen kunt versturen en ontvangen</li>
-      <li>Om maaltijdherinneringen te sturen en je te laten weten wanneer er een aanmoediging binnenkomt</li>
-      <li>Om het abonnement Sekki Pro aan te bieden</li>
-      <li>Om het gebruik te begrijpen en fouten te herstellen met anonieme statistieken</li>
+      <li>Om je registraties van maaltijden en workouts te bewaren en te tonen</li>
+      <li>Om registraties te delen met vrienden en groepen, en om aanmoedigingen en herinneringen te kunnen versturen en ontvangen</li>
+      <li>Om maaltijdherinneringen te sturen en je te laten weten wanneer er een aanmoediging of een registratie van een vriend binnenkomt</li>
+      <li>Om het Sekki Pro-abonnement en de levenslange aankoop aan te bieden</li>
+      <li>Om te reageren op feedback die je stuurt en de app te verbeteren</li>
+      <li>Om met anonieme statistieken het gebruik te begrijpen en bugs op te lossen</li>
     </ul>
 
-    <h2>3. Bewaartermijn en verwijdering</h2>
+    <h2>3. Bewaren en verwijderen</h2>
     <ul>
-      <li>Registraties die op je apparaat zijn opgeslagen, worden verwijderd wanneer je de app verwijdert.</li>
-      <li>Gegevens die naar de server zijn geüpload, worden <strong>verwijderd wanneer je je account verwijdert</strong> (in de app: Vrienden, dan Accountinstellingen, dan Account verwijderen). Je accountidentificatie, vriendcode en geüploade maaltijdgegevens worden verwijderd en kunnen niet worden hersteld.</li>
-      <li>Meldingssignalen voor aanmoedigingen (CloudKit) worden 7 dagen nadat ze zijn aangemaakt automatisch opgeruimd.</li>
-      <li>Wil je dat overgebleven gegevens worden verwijderd, neem dan hieronder contact met ons op, dan regelen we dat snel.</li>
+      <li>Registraties op je apparaat worden verwijderd wanneer je de app verwijdert.</li>
+      <li>Als je de registratie van een dag in de app verwijdert, wordt de gedeelde kopie ook van de server verwijderd.</li>
+      <li>Gegevens op de server <strong>worden verwijderd wanneer je je account verwijdert</strong> (in de app: Vrienden &gt; Account &gt; Account verwijderen). Je vriendcode en naam, de gedeelde registraties van maaltijden en workouts, de aanmoedigingen die je hebt achtergelaten, je vriendschappen, je groepslidmaatschappen en de groepen die je hebt aangemaakt, en je meldingsabonnementen worden dan definitief verwijderd en zijn niet te herstellen.</li>
+      <li>Wil je dat eventuele overige gegevens worden verwijderd? Neem dan contact met ons op via het adres hieronder, dan regelen we dat zo snel mogelijk.</li>
     </ul>
 
     <h2>4. Derden en verwerkers</h2>
-    <p>De app verkoopt je persoonsgegevens nooit. De volgende diensten verwerken gegevens om de app te kunnen aanbieden:</p>
+    <p>De app verkoopt nooit je persoonsgegevens en gebruikt geen advertenties of analysediensten van derden. De volgende diensten verwerken gegevens om de app te laten werken:</p>
     <table>
       <tr><th>Dienst</th><td>Doel</td></tr>
-      <tr><th>Google Firebase</th><td>Aanmelden (Authentication) en opslag van gedeelde maaltijden en aanmoedigingen (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Opslag van meldingssignalen voor aanmoedigingen, bezorging van pushmeldingen en opslag van anonieme gebruiksstatistieken en foutrapporten</td></tr>
-      <tr><th>Apple App Store</th><td>Verwerking van abonnementen en aankopen in de app</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Accountidentificatie; opslag van gedeelde registraties, vrienden, groepen en aanmoedigingen; opslag van feedback die je stuurt; opslag van anonieme gebruiksstatistieken en foutrapporten; versturen van pushmeldingen</td></tr>
+      <tr><th>Apple App Store</th><td>Verwerking van abonnementen en in-app-aankopen</td></tr>
     </table>
 
     <h2>5. Je rechten</h2>
     <ul>
-      <li>Je kunt delen op elk moment uitschakelen in Instellingen. Registraties die je daarna maakt, worden niet geüpload.</li>
-      <li>Je kunt je servergegevens zelf verwijderen door je account te verwijderen.</li>
-      <li>Wil je je persoonsgegevens inzien, laten corrigeren of laten verwijderen, neem dan hieronder contact met ons op.</li>
+      <li>Je kunt 'Mijn maaltijden delen' op elk moment uitzetten in Instellingen. Registraties die je daarna maakt, worden niet geüpload.</li>
+      <li>Je kunt je gegevens op de server zelf verwijderen door je account te verwijderen.</li>
+      <li>Wil je je persoonsgegevens inzien, laten corrigeren of laten verwijderen? Neem dan contact met ons op via het adres hieronder.</li>
     </ul>
 
     <h2>6. Kinderen</h2>
     <p>De app is niet bedoeld voor kinderen jonger dan 14 jaar en verzamelt niet bewust persoonsgegevens van kinderen.</p>
 
     <h2>7. Wijzigingen in dit beleid</h2>
-    <p>Als dit beleid verandert, plaatsen we de update op deze pagina. Bij belangrijke wijzigingen laten we het je ook weten in de app.</p>
+    <p>Als dit beleid verandert, publiceren we de nieuwe versie op deze pagina en laten we je belangrijke wijzigingen in de app weten.</p>
 
     <h2>8. Contact</h2>
     <p>
-      Contactpersoon voor privacy: Leeo (ontwikkelaar)<br>
+      Contactpersoon privacy: Leeo (ontwikkelaar)<br>
       E-mail: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
       Instagram: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
     </p>
-
     <footer>
       © 2026 Sekki · <a href="index.html">Terug naar Ondersteuning</a> · <a href="../privacy.html" hreflang="ko" lang="ko">한국어</a>
     <br>

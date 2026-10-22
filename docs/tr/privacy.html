@@ -78,97 +78,102 @@
 <body>
   <div class="container">
     <h1>Gizlilik Politikası</h1>
-    <p class="updated">Sekki · Son güncelleme: 19 Ekim 2026</p>
+    <p class="updated">Sekki · Yürürlük tarihi: 8 Ekim 2026 · Son güncelleme: 22 Ekim 2026</p>
 
-    <p>Sekki ("uygulama") kişisel bilgilerinizi özenle ele alır ve yürürlükteki yasalara uyar. Bu politika, uygulamanın hangi bilgileri topladığını ve bu bilgilerin nasıl kullanıldığını, saklandığını ve silindiğini açıklar.</p>
+    <p>Sekki ("uygulama") kişisel bilgilerinizi özenle ele alır ve yürürlükteki mevzuata uyar. Bu politika, uygulamanın hangi bilgileri topladığını ve bu bilgilerin nasıl kullanıldığını, saklandığını ve silindiğini açıklar.</p>
 
     <h2>1. Topladığımız Bilgiler</h2>
     <table>
-      <tr><th>Öğe</th><td>Ayrıntılar</td></tr>
+      <tr><th>Kategori</th><td>Ayrıntılar</td></tr>
       <tr>
-        <th>Hesap</th>
-        <td>Apple ile giriş yaptığınızda verilen hesap tanımlayıcısı ve Apple'ın politikaları kapsamında sağladığı e-posta adresi (isteğe bağlı). Yalnızca arkadaş özelliklerini kullanırsanız toplanır.</td>
+        <th>Hesap tanımlayıcısı</th>
+        <td>Ayrı bir üyelik veya giriş işlemi yoktur. Cihazınızda iCloud oturumu açıksa, arkadaş özellikleri için hesabınız olarak Apple CloudKit'in yalnızca bu uygulama için verdiği rastgele bir kullanıcı tanımlayıcısı kullanılır. Bu tanımlayıcı, Apple Hesabınızın e-posta adresini veya adınızı ortaya çıkarmaz.</td>
       </tr>
       <tr>
         <th>Profil</th>
-        <td>Girdiğiniz takma ad (gönderdiğiniz desteklerde yazar olarak gösterilir)</td>
+        <td>Arkadaş kodunuz (rastgele altı karakter) ve girdiğiniz "arkadaşlara görünen ad"</td>
       </tr>
       <tr>
         <th>Kayıtlarınız</th>
-        <td>Öğün ve egzersiz fotoğrafları ile notlar. <strong>Varsayılan olarak yalnızca cihazınızda saklanır.</strong> Yalnızca paylaşımı açarsanız sunucuya (Firebase) yüklenir ve eklediğiniz arkadaşlarınıza gösterilir.</td>
+        <td>Öğün ve antrenman fotoğrafları (öncesi ve sonrası), notlar ve her kaydın tarihi, saati ve öğünü. Bunlar cihazınızda saklanır. <strong>"Öğünlerimi Paylaş" açıkken ve iCloud oturumunuz açıkken</strong>, arkadaşlarınızın görebilmesi için uygulamanın CloudKit genel veritabanına yüklenir (fotoğraflar uzun kenarı 1024 piksel olacak şekilde küçültülür). "Öğünlerimi Paylaş" başlangıçta açıktır; Ayarlar &gt; Hesap ve Paylaşım bölümünden kapatabilirsiniz.</td>
       </tr>
       <tr>
-        <th>Arkadaşlar ve destekler</th>
-        <td>Arkadaş kodları, arkadaş listeniz ile gönderdiğiniz ve aldığınız destekler (yorumlar ve dürtmeler)</td>
+        <th>Arkadaşlar, gruplar ve destekler</th>
+        <td>Arkadaşlık istekleri ve arkadaş listeniz, oluşturduğunuz veya katıldığınız grupların adları ve üyeleri, gönderdiğiniz ve aldığınız destek yorumları ve dürtmeler ile yazanın adı</td>
       </tr>
       <tr>
-        <th>Bildirim sinyalleri</th>
-        <td>Destek bildirimlerini iletmek için gönderenin takma adı ve öğün adı Apple iCloud (CloudKit) üzerinden geçer. Desteğin içeriği dahil değildir ve sinyaller 7 gün sonra otomatik olarak silinir.</td>
+        <th>Bildirimler</th>
+        <td>Bir arkadaşınız size destek bıraktığında veya bir kayıt paylaştığında Apple anlık bildirimleriyle (CloudKit abonelikleri) haberdar edilirsiniz. Öğün hatırlatmaları, cihazınızda planlanan yerel bildirimlerdir.</td>
       </tr>
       <tr>
-        <th>Anonim kullanım istatistikleri</th>
-        <td>Uygulamayı kaç kişinin kullandığını anlamak ve hataları gidermek için uygulama, yalnızca geliştiricinin görebildiği aşağıdaki anonim istatistikleri Apple iCloud'a (CloudKit) gönderir:
+        <th>Gönderdiğiniz geri bildirimler</th>
+        <td>Yalnızca Ayarlar'daki "Geri Bildirim Gönder" özelliğini kullandığınızda gönderilir. Seçtiğiniz tür ve yazdıklarınızla birlikte uygulama sürümü, iOS sürümü, cihaz modeli ve cihaz dili de gönderilir. Adınız ve e-posta adresiniz yalnızca size yanıt verebilmemiz için bunları girerseniz eklenir. Geliştiricinin yanıtını uygulama içinde okuyabilirsiniz.</td>
+      </tr>
+      <tr>
+        <th>Anonim kullanım istatistikleri ve hata raporları</th>
+        <td>Uygulamayı kaç kişinin kullandığını anlamak ve hataları düzeltmek için uygulama, aşağıdaki anonim istatistikleri geliştiricinin yalnızca kendisinin görebildiği Apple iCloud (CloudKit) depolama alanına gönderir:
           <ul>
-            <li>Kurulumda oluşturulan rastgele bir kimlik (sizinle, Apple Kimliğinizle, cihazınızla veya diğer uygulamalarla ilişkilendirilmez ve uygulamayı yeniden yüklerseniz değişir)</li>
-            <li>Uygulama sürümü, iOS sürümü ile bölge ve dil ayarları</li>
-            <li>Uygulamayı kaç kez ve hangi günlerde açtığınız, kurulum tarihi ve kurulumdan bu yana geçen gün sayısı</li>
-            <li>Abonelik satın alma adımları (başlatıldı, tamamlandı, iptal edildi vb.) ve ürün türü. Ödeme bilgisi dahil değildir</li>
-            <li>Uygulama donduğunda veya beklenmedik şekilde kapandığında gönderilen hata raporları (uygulama sürümü, iOS sürümü, cihaz modeli ve hatanın teknik ayrıntıları)</li>
+            <li>Yükleme sırasında oluşturulan rastgele bir kimlik (sizinle, Apple Kimliğinizle, cihazınızla, arkadaş hesabınızla veya diğer uygulamalarla ilişkilendirilmez ve uygulamayı yeniden yüklediğinizde değişir)</li>
+            <li>Uygulama sürümü, iOS sürümü ve bölge ile dil ayarları</li>
+            <li>Uygulamayı kaç kez ve hangi günlerde açtığınız, yükleme tarihi ve yüklemeden bu yana geçen gün sayısı</li>
+            <li>Uygulamada gerçekleşen olayların adları (örneğin bir memnuniyet sorusu veya değerlendirme isteği gösterildi, abonelik ekranı açıldı, bir satın alma başlatıldı, tamamlandı veya iptal edildi) ve ürün türü. Ödeme bilgileri veya kayıt içerikleri dahil edilmez</li>
+            <li>Uygulama donduğunda veya beklenmedik şekilde kapandığında oluşan tanılama raporları (cihaz modeli ve hatanın teknik ayrıntıları)</li>
           </ul>
-          Bu istatistikler adınızı, kişilerinizi, konumunuzu veya fotoğraf ve notlarınızı hiçbir zaman içermez ve hesabınızla ilişkilendirilmez. Yalnızca iCloud'da oturum açtığınızda gönderilir.</td>
+          Bu istatistikler hiçbir zaman adınızı, kişilerinizi, konumunuzu veya fotoğraflarınızı ve notlarınızı içermez. Yalnızca iCloud oturumunuz açıkken gönderilir.</td>
       </tr>
       <tr>
         <th>Ödemeler</th>
-        <td>Abonelikler Apple (App Store) tarafından işlenir. Uygulama kart numaralarını veya diğer ödeme bilgilerini toplamaz.</td>
+        <td>Abonelikler ve satın almalar Apple (App Store) tarafından işlenir. Uygulama kart numaralarını veya diğer ödeme bilgilerini toplamaz.</td>
       </tr>
     </table>
 
     <div class="note">
-      Yemek analizi, Apple Vision ile <strong>tamamen cihazınızda</strong> çalışır. Fotoğraflarınız analiz için hiçbir yere gönderilmez.
+      Yemek analizi Apple Vision ile <strong>tamamen cihazınızda</strong> yapılır. Fotoğraflarınız analiz için hiçbir yere gönderilmez.<br>
+      Fotoğraf arşivi: "Fotoğraflar'a Otomatik Kaydet" seçeneğini açarsanız fotoğraflarınız ayrıca Fotoğraflar uygulamasındaki Sekki albümlerine de kaydedilir.
     </div>
 
     <h2>2. Bilgileri Nasıl Kullanıyoruz</h2>
     <ul>
-      <li>Öğün ve egzersiz kayıtlarınızı kaydetmek ve göstermek</li>
-      <li>Arkadaşlarınızla öğün paylaşmanızı ve destek göndermenizi ve almanızı sağlamak</li>
-      <li>Öğün hatırlatmaları göndermek ve bir destek geldiğinde sizi bilgilendirmek</li>
-      <li>Sekki Pro aboneliğini sunmak</li>
-      <li>Anonim istatistiklerle kullanımı anlamak ve hataları gidermek</li>
+      <li>Öğün ve antrenman kayıtlarınızı kaydetmek ve göstermek için</li>
+      <li>Kayıtları arkadaşlarınız ve gruplarla paylaşmak, destek ve dürtme gönderip almanızı sağlamak için</li>
+      <li>Öğün hatırlatmaları göndermek ve bir destek ya da arkadaşınızdan yeni bir kayıt geldiğinde sizi haberdar etmek için</li>
+      <li>Sekki Pro aboneliğini ve ömür boyu satın alma seçeneğini sunmak için</li>
+      <li>Gönderdiğiniz geri bildirimlere yanıt vermek ve uygulamayı geliştirmek için</li>
+      <li>Anonim istatistiklerle kullanımı anlamak ve hataları düzeltmek için</li>
     </ul>
 
     <h2>3. Saklama ve Silme</h2>
     <ul>
       <li>Cihazınızda saklanan kayıtlar, uygulamayı sildiğinizde silinir.</li>
-      <li>Sunucuya yüklenen veriler <strong>hesabınızı sildiğinizde silinir</strong> (uygulamada: Arkadaşlar, ardından Hesap Ayarları, ardından Hesabı Sil). Hesap tanımlayıcınız, arkadaş kodunuz ve yüklenen öğün verileriniz silinir ve geri alınamaz.</li>
-      <li>Destek bildirimi sinyalleri (CloudKit), oluşturulmalarından 7 gün sonra otomatik olarak temizlenir.</li>
-      <li>Geriye kalan verilerin silinmesini isterseniz aşağıdaki adresten bize ulaşın, hemen ilgileneceğiz.</li>
+      <li>Uygulamada bir günün kaydını sildiğinizde, paylaşılan kopyası da sunucudan silinir.</li>
+      <li>Sunucudaki veriler <strong>hesabınızı sildiğinizde silinir</strong> (uygulamada: Arkadaşlar &gt; Hesap &gt; Hesabı Sil). Arkadaş kodunuz ve adınız, paylaştığınız öğün ve antrenman kayıtları, bıraktığınız destekler, arkadaş bağlantılarınız, grup üyelikleriniz ve oluşturduğunuz gruplar ile bildirim abonelikleriniz silinir ve geri alınamaz.</li>
+      <li>Kalan herhangi bir verinin silinmesini isterseniz aşağıdaki iletişim bilgilerinden bize ulaşın; en kısa sürede ilgileneceğiz.</li>
     </ul>
 
     <h2>4. Üçüncü Taraflar ve Veri İşleyenler</h2>
-    <p>Uygulama kişisel bilgilerinizi asla satmaz. Aşağıdaki hizmetler, uygulamayı sunmak için veri işler:</p>
+    <p>Uygulama kişisel bilgilerinizi asla satmaz; reklam veya üçüncü taraf analiz hizmetleri kullanmaz. Uygulamanın çalışması için aşağıdaki hizmetler veri işler:</p>
     <table>
       <tr><th>Hizmet</th><td>Amaç</td></tr>
-      <tr><th>Google Firebase</th><td>Giriş (Authentication) ile paylaşılan öğünlerin ve desteklerin saklanması (Realtime Database)</td></tr>
-      <tr><th>Apple iCloud/APNs</th><td>Destek bildirimi sinyallerinin saklanması, anlık bildirimlerin iletilmesi ve anonim kullanım istatistikleri ile hata raporlarının saklanması</td></tr>
+      <tr><th>Apple iCloud (CloudKit)</th><td>Hesap tanımlama; paylaşılan kayıtları, arkadaşları, grupları ve destekleri saklama; gönderdiğiniz geri bildirimleri saklama; anonim kullanım istatistiklerini ve hata raporlarını saklama; anlık bildirimleri iletme</td></tr>
       <tr><th>Apple App Store</th><td>Abonelik ve uygulama içi satın alma işlemleri</td></tr>
     </table>
 
     <h2>5. Haklarınız</h2>
     <ul>
-      <li>Paylaşımı istediğiniz zaman Ayarlar'dan kapatabilirsiniz. Bundan sonra yaptığınız kayıtlar yüklenmez.</li>
+      <li>"Öğünlerimi Paylaş" seçeneğini Ayarlar'dan istediğiniz zaman kapatabilirsiniz. Bundan sonra oluşturulan kayıtlar yüklenmez.</li>
       <li>Hesabınızı silerek sunucudaki verilerinizi kendiniz silebilirsiniz.</li>
-      <li>Kişisel bilgilerinize erişmek, bunları düzeltmek veya silmek için aşağıdaki adresten bize ulaşın.</li>
+      <li>Kişisel bilgilerinize erişmek, bunları düzeltmek veya silmek için aşağıdaki iletişim bilgilerinden bize ulaşın.</li>
     </ul>
 
     <h2>6. Çocuklar</h2>
-    <p>Uygulama 14 yaşın altındaki çocuklara yönelik değildir ve çocuklardan bilerek kişisel bilgi toplamaz.</p>
+    <p>Uygulama 14 yaşından küçük çocuklara yönelik değildir ve çocuklardan bilerek kişisel bilgi toplamaz.</p>
 
     <h2>7. Bu Politikadaki Değişiklikler</h2>
-    <p>Bu politika değişirse güncellemeyi bu sayfada yayımlarız; önemli değişiklikleri ayrıca uygulama içinde bildiririz.</p>
+    <p>Bu politika değişirse güncel hâlini bu sayfada yayımlar, önemli değişiklikleri ise uygulama içinde size bildiririz.</p>
 
     <h2>8. İletişim</h2>
     <p>
-      Gizlilik iletişim kişisi: Leeo (geliştirici)<br>
+      Gizlilik sorumlusu: Leeo (geliştirici)<br>
       E-posta: <a href="mailto:leeo@kakao.com">leeo@kakao.com</a><br>
       Instagram: <a href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">@lee25_ios</a>
     </p>
