@@ -60,6 +60,10 @@ final class SubscriptionManager: ObservableObject {
     /// 연간을 맨 위·기본으로 두고 평생은 맨 아래에 둬서 구독 쪽으로 이끈다.
     static let productIDs = [yearlySubscriptionID, monthlySubscriptionID, lifetimeID]
 
+    /// 프로 선물 — 소모성 상품. 받는 사람은 평생(`lifetimeID`)을 산 것과 같아진다(`RoutineCameraSpec.monetization`).
+    /// ⚠️ `productIDs` 에 넣지 않는다. 넣으면 선물을 산 사람 자신이 프로가 된다.
+    static let giftProductID = "com.ysoup.routinecamera.gift.pro"
+
     let store: LeeoStore
     private var cancellable: AnyCancellable?
 
@@ -71,6 +75,9 @@ final class SubscriptionManager: ObservableObject {
     }
 
     var isPro: Bool { store.hasPro }
+
+    /// 프로 선물 엔진. 받은 선물은 LeeoStore 가 권한에 합치므로 `isPro` 가 그대로 따라온다.
+    var gift: LeeoGiftStore? { store.gift }
 
     /// 개수 제한이 있는 기능 — current 는 지금까지 쓴 개수
     func evaluate(_ feature: ProFeature, current: Int = 0) -> LeeoGateDecision {

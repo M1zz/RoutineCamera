@@ -31,6 +31,26 @@
       "productID": "com.ysoup.routinecamera.pro.lifetime",
       "referenceName": "Sekki Pro Lifetime",
       "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "39.99",
+      "familyShareable": false,
+      "internalID": "31000002",
+      "localizations": [
+        {
+          "description": "다른 사람에게 세끼 프로를 선물해요. 코드를 보내 주세요.",
+          "displayName": "세끼 프로 선물",
+          "locale": "ko"
+        },
+        {
+          "description": "Give Sekki Pro to someone else with a gift code.",
+          "displayName": "Gift Sekki Pro",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.gift.pro",
+      "referenceName": "Gift Sekki Pro",
+      "type": "Consumable"
     }
   ],
   "settings": {
