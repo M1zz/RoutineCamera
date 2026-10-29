@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: el diario de comidas en fotos que solo pide una foto antes de comer",
+  "description": "Una foto antes de comer y Sekki la guarda como desayuno, almuerzo o cena. Con una comida al día mantienes la racha, y tus amigos te animan.",
+  "hero": {
+    "headline": "Una foto antes de comer.\nY ya está registrado.",
+    "lead": "Sekki mira la hora de la foto y la guarda como desayuno, almuerzo, cena o snack. Registra solo una comida al día y tu racha sigue.",
+    "cta": "Descárgala gratis en el App Store",
+    "note": "El registro, las estadísticas, los widgets y compartir con amigos son gratis."
+  },
+  "demo": {
+    "title": "Pruébalo tú",
+    "lead": "Elige una hora y toca el botón de registrar. Igual que en la app, el botón ya indica la comida que toca a esa hora.",
+    "clock": "Hora de la foto",
+    "record": "Registrar {meal}",
+    "meals": {
+      "breakfast": "Desayuno",
+      "lunch": "Almuerzo",
+      "dinner": "Cena",
+      "snack": "Snack"
+    },
+    "today": "Hoy · {n}",
+    "empty": "Aún no hay registros hoy",
+    "streak": "Racha de {n} días",
+    "total": "{n} días registrados",
+    "before": "Antes",
+    "ateAll": "Terminé",
+    "kept": "Con una comida basta: hoy ya cuenta para tu racha.",
+    "rule": "Las mismas reglas que la app: de 5 a 10 es desayuno, de 11 a 15 almuerzo y de 16 a 21 cena. A cualquier otra hora, o si esa comida ya está registrada, entra como snack.",
+    "reset": "Empezar de nuevo",
+    "note": "Las fotos de la demo son de ejemplo."
+  },
+  "problem": {
+    "title": "¿Dejaste un diario de comidas a los tres días?",
+    "text": "Te saltas un desayuno, olvidas una cena, y las casillas vacías empiezan a molestar hasta que borras la app. Sekki no tiene casillas vacías. Solo se acumulan en orden las comidas que registras, y con una foto el día ya cuenta."
+  },
+  "features": [
+    {
+      "title": "Haz la foto y la comida se ordena sola",
+      "text": "Según la hora de la foto, Sekki la guarda como desayuno, almuerzo, cena o snack. Añade fotos de antes y después, registra sin foto o escribe una nota.\nReconoce la comida en tu dispositivo, gratis, y tus fotos nunca salen del teléfono.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Un registro que nunca disminuye",
+      "text": "Una comida al día mantiene la racha, y el total de días registrados nunca baja. Las estadísticas semanales y mensuales muestran cuántos días y comidas registraste, no un porcentaje de cumplimiento.\nPor el camino vas sumando logros como Racha de 7 días o Madrugador.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Solo las comidas que eliges, sin abrir la app",
+      "text": "Elige de qué comidas quieres recordatorios y ajusta los horarios a tu día. Haz la foto de antes y podrás marcar Terminé directamente desde la notificación.\nRegistra también con el botón de acción, Siri, Atajos o un widget, y añade amigos con un código para animaros con emojis y comentarios.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Empieza en tres pasos",
+    "items": [
+      {
+        "title": "Elige tus comidas",
+        "text": "La primera vez, Sekki te pregunta qué comidas recordarte. Puedes cambiarlo en Ajustes."
+      },
+      {
+        "title": "Foto antes de comer",
+        "text": "El botón de registrar ya muestra la comida de esa hora. Tócalo, haz la foto y listo."
+      },
+      {
+        "title": "Al terminar, un toque",
+        "text": "Pulsa Terminé en la notificación o en el widget, o añade una foto de después."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Registrar sin abrir la app",
+    "rows": [
+      ["Notificación", "Tras la foto de antes, marca Terminé desde el aviso"],
+      ["Widget de inicio", "Mira cuántas comidas llevas hoy y la que estás comiendo, y toca Terminé"],
+      ["Widgets de pantalla bloqueada", "Rectangular, circular y en línea"],
+      ["Botón de acción · Siri · Atajos", "Marca Terminé con un botón o una frase"],
+      ["Guardar en Fotos", "Actívalo en Ajustes para tener álbumes de Sekki separados para comidas y ejercicio"],
+      ["Modo ejercicio", "El ejercicio se guarda aparte de las comidas, con las sesiones del mes de un vistazo"]
+    ],
+    "note": "El botón Terminé del widget requiere iOS 17 o posterior."
+  },
+  "pricing": {
+    "title": "Registrar es gratis. Sekki Pro va más allá.",
+    "free": {
+      "name": "Gratis",
+      "items": [
+        "Registro con fotos y clasificación automática, fotos de antes y después, notas",
+        "Rachas, total de días, estadísticas semanales y mensuales, logros",
+        "Recordatorios de las comidas que eliges y Terminé sin abrir la app",
+        "Widgets, botón de acción, Siri y Atajos",
+        "Compartir comidas y ejercicio con amigos, ánimos con emojis y comentarios",
+        "Crear un grupo y unirte a todos los que quieras",
+        "Análisis de comida en el dispositivo"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Varios grupos: familia, trabajo, compañeros de gimnasio",
+        "Comparar comidas de hace unas semanas con las de hoy",
+        "Ver las comidas que más repites",
+        "Bloquear la app con Face ID o Touch ID"
+      ],
+      "note": "Suscripción anual o mensual, o compra única de por vida"
+    },
+    "note": "La suscripción se renueva automáticamente salvo que la canceles al menos 24 horas antes de que termine el periodo. Cancélala cuando quieras en Ajustes > Cuenta de Apple > Suscripciones. Condiciones del servicio: m1zz.github.io/RoutineCamera/es/terms.html"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "items": [
+      {
+        "q": "¿Dónde se guardan mis fotos?",
+        "a": "En tu dispositivo. Si activas Guardar en Fotos automáticamente en Ajustes, también se guardan en los álbumes de Sekki en Fotos. Mientras Compartir mis comidas esté activado (lo está al principio), se suben a iCloud para que las vean los amigos que añadas. Puedes desactivarlo en Ajustes > Cuenta y uso compartido."
+      },
+      {
+        "q": "¿Cómo añado amigos?",
+        "a": "En la pantalla Amigos, comparte tu código de seis caracteres e introduce el de tu amigo. También puedes pegar varios códigos a la vez separados por comas."
+      },
+      {
+        "q": "¿Cómo animo a un amigo?",
+        "a": "Abre una comida de tu amigo y deja un emoji o un comentario breve. Si aún no ha registrado una comida, toca la casilla vacía para darle un toque."
+      },
+      {
+        "q": "¿Pierdo la racha si me salto una comida?",
+        "a": "No. Si ese día registras cualquier comida, snacks incluidos, la racha sigue. Aunque te saltes un día entero, el total de días registrados no baja."
+      },
+      {
+        "q": "No me llegan las notificaciones.",
+        "a": "Comprueba que las notificaciones de Sekki estén permitidas en Ajustes de iOS > Notificaciones y que el dispositivo tenga sesión iniciada en iCloud. Las horas de los recordatorios se cambian en los ajustes de la app."
+      },
+      {
+        "q": "¿El análisis de comida envía mis fotos a un servidor?",
+        "a": "No. Se hace en tu dispositivo, así que las fotos nunca salen del teléfono. Es gratis y sin límite."
+      },
+      {
+        "q": "¿Cómo elimino mi cuenta y mis datos?",
+        "a": "Ve a Amigos > Cuenta > Eliminar cuenta. Se borran la cuenta y los datos de comidas guardados en el servidor, y no se pueden recuperar. Si algo falla, escríbenos."
+      },
+      {
+        "q": "¿Cómo cancelo la suscripción?",
+        "a": "En Ajustes > Cuenta de Apple > Suscripciones. Se renueva automáticamente salvo que la canceles al menos 24 horas antes de que termine el periodo. La compra de por vida se paga una sola vez."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Empieza\ncon el almuerzo de hoy",
+    "cta": "Descárgala gratis en el App Store"
+  },
+  "ui": {
+    "skip": "Saltar al contenido",
+    "languages": "Idioma",
+    "privacy": "Política de privacidad",
+    "contact": "Errores, ideas o dudas sobre tu cuenta: escribe a {email} o manda un DM a @lee25_ios en Instagram. Solemos responder en uno o dos días."
+  }
+}

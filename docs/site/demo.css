@@ -1,0 +1,48 @@
+/* 세끼 웹 데모. 피드는 앱의 순간 피드처럼 사진 · 끼니 · 시각 · 상태 한 줄. */
+.demo-card { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); align-items: start; }
+.sk-stage { background: var(--bg); border-radius: var(--r-inner); padding: var(--s5); min-height: 360px; }
+.sk-stats { display: flex; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s4); }
+.sk-stats span { background: var(--surface); border-radius: 999px; padding: var(--s1) var(--s3); font-weight: 600;
+                 font-variant-numeric: tabular-nums; }
+.sk-streak::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+                     background: #FF6A00; margin-right: var(--s2); vertical-align: middle; }
+.sk-streak.bump { animation: sk-bump .5s var(--ease); }
+@keyframes sk-bump { 0% { transform: scale(1.15); } 100% { transform: none; } }
+.sk-head { font-weight: 700; margin: 0 0 var(--s2); }
+.sk-empty { color: var(--muted); margin: var(--s5) 0; }
+.sk-feed { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
+.sk-feed li { display: grid; grid-template-columns: 56px 1fr auto; gap: var(--s3); align-items: center;
+              background: var(--surface); border-radius: 12px; padding: var(--s2);
+              animation: sk-in .35s var(--ease); }
+@keyframes sk-in { from { opacity: 0; transform: translateY(-6px); } }
+.sk-feed img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: var(--line); }
+.sk-feed strong::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+                          background: var(--meal); margin-right: 6px; vertical-align: middle; }
+.sk-feed em { display: block; width: fit-content; font-style: normal; font-size: .8125rem; font-weight: 600;
+              color: var(--muted); background: var(--bg); border-radius: 999px; padding: 0 var(--s2); margin-top: 2px; }
+.sk-feed em.done { color: #fff; background: #34C759; }
+.sk-done { font: inherit; font-size: .875rem; font-weight: 600; min-height: 44px; padding: 0 var(--s3); cursor: pointer;
+           color: var(--accent); background: transparent; border: 2px solid var(--line); border-radius: 999px; }
+.sk-done:hover { border-color: var(--accent); }
+
+.sk-controls { display: grid; gap: var(--s3); align-content: start; }
+.sk-clock { display: grid; gap: var(--s2); font-weight: 600; }
+.sk-clock b { color: var(--accent); font-variant-numeric: tabular-nums; }
+.sk-clock input { width: 100%; min-height: 44px; accent-color: var(--accent); }
+.sk-chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip { font: inherit; font-weight: 600; color: var(--accent); background: var(--bg); border: 0;
+        border-radius: 999px; padding: var(--s2) var(--s4); min-height: 44px; cursor: pointer;
+        transition: transform .15s var(--ease), background .15s var(--ease); }
+.chip:hover { background: color-mix(in srgb, var(--accent) 14%, var(--bg)); }
+.chip:active { transform: scale(.95); }
+.sk-record { display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+             font: inherit; font-weight: 700; min-height: 52px; border: 0; border-radius: 14px; cursor: pointer;
+             color: #fff; background: var(--accent); transition: transform .15s var(--ease), filter .15s var(--ease); }
+.sk-record:hover { filter: brightness(1.08); }
+.sk-record:active { transform: scale(.98); }
+.sk-record:disabled { opacity: .45; cursor: default; }
+.sk-msg { margin: 0; min-height: 1.6em; font-weight: 600; }
+.sk-reset { justify-self: start; }
+
+@media (prefers-reduced-motion: reduce) { .sk-streak.bump, .sk-feed li { animation: none; } }
+@media (max-width: 760px) { .demo-card { grid-template-columns: 1fr; } .sk-stage { min-height: 0; } }

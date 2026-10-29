@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Support</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: the photo food diary that takes one snap before you eat</title>
+  <meta name="description" content="Snap one photo before you eat and Sekki files it under breakfast, lunch or dinner. One meal a day keeps your streak alive, and friends cheer each other on.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: the photo food diary that takes one snap before you eat">
+  <meta property="og:description" content="Snap one photo before you eat and Sekki files it under breakfast, lunch or dinner. One meal a day keeps your streak alive, and friends cheer each other on.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/en/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/en/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">A photo food diary for breakfast, lunch, and dinner</p>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="bar">
+    <a class="brand" href="../en/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Language</a>
+  </header>
 
-    <p>Snap one photo before you eat and your meal is logged. Sekki sorts it into breakfast, lunch, dinner, or a snack, keeps your streak going even on days you only log one meal, and lets friends cheer each other on.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>One photo before you eat.<br>That's the whole log.</h1>
+        <p class="lead">Sekki looks at when you took the photo and files it under breakfast, lunch, dinner or a snack. Log just one meal a day and your streak keeps going.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Get it free on the App Store</a><a class="try" href="#try">Try logging a meal ↓</a></div>
+        <p class="muted small">Logging, stats, widgets and sharing with friends are all free.</p>
+      </div>
+      <div class="phone"><img src="../img/en/01-feed.jpg" alt="One photo before you eat. That&#x27;s the whole log." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Contact Us</h2>
-    <p>Bug reports, feature ideas, and account questions are all welcome.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Email Us</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      Email: leeo@kakao.com · Instagram: @lee25_ios<br>
-      We usually reply within one or two days.
-    </p>
 
-    <h2>FAQ</h2>
+    <section class="reveal" id="try">
+      <h2>Try logging a meal</h2>
+      <p class="muted">Pick a time and tap the log button. Just like in the app, the button already names the meal for that time.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Try logging a meal&quot;, &quot;lead&quot;: &quot;Pick a time and tap the log button. Just like in the app, the button already names the meal for that time.&quot;, &quot;clock&quot;: &quot;Photo taken at&quot;, &quot;record&quot;: &quot;Log {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Breakfast&quot;, &quot;lunch&quot;: &quot;Lunch&quot;, &quot;dinner&quot;: &quot;Dinner&quot;, &quot;snack&quot;: &quot;Snack&quot;}, &quot;today&quot;: &quot;Today · {n} logged&quot;, &quot;empty&quot;: &quot;Nothing logged today yet&quot;, &quot;streak&quot;: &quot;{n}-day streak&quot;, &quot;total&quot;: &quot;{n} days logged&quot;, &quot;before&quot;: &quot;Before&quot;, &quot;ateAll&quot;: &quot;Finished&quot;, &quot;kept&quot;: &quot;One meal is enough. Today counts toward your streak.&quot;, &quot;rule&quot;: &quot;Same rules as the app: 5 to 10 a.m. is breakfast, 11 a.m. to 3 p.m. is lunch, 4 to 9 p.m. is dinner. Any other time, or a meal you already logged, goes in as a snack.&quot;, &quot;reset&quot;: &quot;Start over&quot;, &quot;note&quot;: &quot;The photos in this demo are examples.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Where are my photos stored?</h3>
-      <p>On your device. If you turn on "Save to Photos Automatically" in Settings, they're also saved to the Sekki albums in Photos. While "Share My Meals" is on (it's on at first), they're uploaded to iCloud so the friends you add can see them. You can turn it off in Settings &gt; Account &amp; Sharing.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Ever quit a food diary after three days?</h2>
+      <p>Skip breakfast once, forget dinner twice, and the empty boxes start nagging until you delete the app. Sekki has no empty boxes. Only the meals you log stack up in order, and a single photo makes the day count.</p>
+    </section>
 
-    <div class="card">
-      <h3>How do I add friends?</h3>
-      <p>On the Friends screen, share your six-character friend code and enter your friend's code. You can also paste several codes at once, separated by commas.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Snap it, and the meal is sorted</h2>
+        <p>Sekki files each photo under breakfast, lunch, dinner or a snack based on when you took it. Add before and after photos, log without a photo, or jot down a note.<br>It recognizes the food on your device, for free, and your photos never leave your phone.</p>
+      </div>
+      <div class="phone"><img src="../img/en/02-detail.jpg" alt="Snap it, and the meal is sorted" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>How do I cheer on a friend?</h3>
-      <p>Open a friend's meal and leave an emoji or a short comment. If they haven't logged a meal yet, tap the empty slot to send a gentle nudge.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>A log that never shrinks</h2>
+        <p>One meal a day keeps your streak alive, and your total days logged never go down. Weekly and monthly stats show how many days and meals you logged instead of a completion score.<br>Achievements like 7-Day Streak and Early Bird pile up along the way.</p>
+      </div>
+      <div class="phone"><img src="../img/en/03-stats.jpg" alt="A log that never shrinks" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>How do I delete my account and data?</h3>
-      <p>Go to Friends, then Account, then Delete Account. Your account and the meal data stored on the server are deleted and can't be recovered. If anything goes wrong, just email us.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Only the meals you choose, without opening the app</h2>
+        <p>Pick which meals you want reminders for and set times that fit your day. Take a before photo and you can mark the meal finished right from the notification.<br>Log with the Action button, Siri, Shortcuts or a Home Screen widget, and add friends by code to cheer each other on with emojis and comments.</p>
+      </div>
+      <div class="phone"><img src="../img/en/04-settings.jpg" alt="Only the meals you choose, without opening the app" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>I'm not getting notifications</h3>
-      <p>Check that notifications are allowed for Sekki in iOS Settings, then Notifications, and that your device is signed in to iCloud. You can change your meal reminder times in the app's Settings.</p>
-    </div>
+    <section class="reveal">
+      <h2>Three steps to start</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Choose your meals</h3><p>The first time you open Sekki, it asks which meals to remind you about. Change them anytime in Settings.</p></li>
+<li class="card"><span class="n">2</span><h3>Snap before you eat</h3><p>The log button already shows the meal for the current time. Tap it, take the photo, done.</p></li>
+<li class="card"><span class="n">3</span><h3>Tap when you're done</h3><p>Hit Finished in the notification or widget, or add an after photo.</p></li></ol>
+    </section>
 
-    <h2>Terms and Policies</h2>
-    <p><a href="privacy.html">Privacy Policy →</a></p>
-    <p><a href="terms.html">Terms of Use →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Logging without opening the app</h2>
+      <div class="card table">
+        <dl><div><dt>Notification</dt><dd>After a before photo, mark the meal Finished right from the alert</dd></div><div><dt>Home Screen widget</dt><dd>See today's count and the meal you're eating, then tap Finished</dd></div><div><dt>Lock Screen widgets</dt><dd>Rectangular, circular and inline views of today's log</dd></div><div><dt>Action button · Siri · Shortcuts</dt><dd>Log Finished with one press or one sentence</dd></div><div><dt>Save to Photos</dt><dd>Turn it on in Settings to keep separate Sekki albums for meals and workouts</dd></div><div><dt>Workout mode</dt><dd>Workouts are kept apart from meals, with this month's count at a glance</dd></div></dl>
+      </div>
+      <p class="muted">The Finished button on the widget needs iOS 17 or later.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Use</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Logging is free. Sekki Pro goes deeper.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Free</h3>
+          <ul><li>Photo logging with automatic meal sorting, before and after photos, notes</li><li>Streaks, total days logged, weekly and monthly stats, achievements</li><li>Reminders for the meals you choose, Finished without opening the app</li><li>Widgets, Action button, Siri and Shortcuts</li><li>Sharing meals and workouts with friends, emoji and comment cheers</li><li>Create one group, join as many as you like</li><li>On-device food analysis</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Multiple groups for family, work or your gym crew</li><li>Compare meals from a few weeks ago side by side with today</li><li>See the foods you eat most</li><li>Lock the app with Face ID or Touch ID</li></ul>
+          <p class="muted">Yearly or monthly subscription, or a one-time lifetime purchase</p>
+        </div>
+      </div>
+      <p class="muted">Subscriptions renew automatically unless canceled at least 24 hours before the period ends. Cancel anytime in Settings &gt; Apple Account &gt; Subscriptions. Terms of Service: m1zz.github.io/RoutineCamera/en/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Questions</h2>
+      <div class="faq"><details><summary>Where are my photos stored?</summary><p>On your device. Turn on Save to Photos Automatically in Settings to also keep them in the Sekki albums in Photos. While Share My Meals is on (it's on at first), they're uploaded to iCloud so the friends you add can see them. You can turn it off in Settings &gt; Account &amp; Sharing.</p></details>
+<details><summary>How do I add friends?</summary><p>On the Friends screen, share your six-character friend code and enter your friend's code. You can paste several codes at once, separated by commas.</p></details>
+<details><summary>How do I cheer on a friend?</summary><p>Open a friend's meal and leave an emoji or a short comment. If they haven't logged a meal yet, tap the empty slot to send a gentle nudge.</p></details>
+<details><summary>Does missing a meal break my streak?</summary><p>No. Log any one meal that day, snacks included, and the streak continues. Even if you skip a whole day, your total days logged never go down.</p></details>
+<details><summary>I'm not getting notifications.</summary><p>Check that notifications are allowed for Sekki in iOS Settings &gt; Notifications, and that your device is signed in to iCloud. You can change your meal reminder times in the app's Settings.</p></details>
+<details><summary>Does food analysis send my photos to a server?</summary><p>No. It runs on your device, so your photos never leave your phone. It's free with no limit.</p></details>
+<details><summary>How do I delete my account and data?</summary><p>Go to Friends &gt; Account &gt; Delete Account. Your account and the meal data stored on the server are deleted and can't be recovered. If anything goes wrong, just email us.</p></details>
+<details><summary>How do I cancel my subscription?</summary><p>In Settings &gt; Apple Account &gt; Subscriptions. It renews automatically unless you cancel at least 24 hours before the period ends. Lifetime is a single charge.</p></details></div>
+      <p class="contact">Bug reports, feature ideas and account questions: email <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> or DM @lee25_ios on Instagram. We usually reply within a day or two.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Start with<br>today's lunch</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Get it free on the App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Language"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en" aria-current="page">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Privacy Policy</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

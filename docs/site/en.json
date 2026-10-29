@@ -1,0 +1,173 @@
+{
+  "title": "Sekki: the photo food diary that takes one snap before you eat",
+  "description": "Snap one photo before you eat and Sekki files it under breakfast, lunch or dinner. One meal a day keeps your streak alive, and friends cheer each other on.",
+  "hero": {
+    "headline": "One photo before you eat.\nThat's the whole log.",
+    "lead": "Sekki looks at when you took the photo and files it under breakfast, lunch, dinner or a snack. Log just one meal a day and your streak keeps going.",
+    "cta": "Get it free on the App Store",
+    "note": "Logging, stats, widgets and sharing with friends are all free."
+  },
+  "demo": {
+    "title": "Try logging a meal",
+    "lead": "Pick a time and tap the log button. Just like in the app, the button already names the meal for that time.",
+    "clock": "Photo taken at",
+    "record": "Log {meal}",
+    "meals": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "today": "Today · {n} logged",
+    "empty": "Nothing logged today yet",
+    "streak": "{n}-day streak",
+    "total": "{n} days logged",
+    "before": "Before",
+    "ateAll": "Finished",
+    "kept": "One meal is enough. Today counts toward your streak.",
+    "rule": "Same rules as the app: 5 to 10 a.m. is breakfast, 11 a.m. to 3 p.m. is lunch, 4 to 9 p.m. is dinner. Any other time, or a meal you already logged, goes in as a snack.",
+    "reset": "Start over",
+    "note": "The photos in this demo are examples."
+  },
+  "problem": {
+    "title": "Ever quit a food diary after three days?",
+    "text": "Skip breakfast once, forget dinner twice, and the empty boxes start nagging until you delete the app. Sekki has no empty boxes. Only the meals you log stack up in order, and a single photo makes the day count."
+  },
+  "features": [
+    {
+      "title": "Snap it, and the meal is sorted",
+      "text": "Sekki files each photo under breakfast, lunch, dinner or a snack based on when you took it. Add before and after photos, log without a photo, or jot down a note.\nIt recognizes the food on your device, for free, and your photos never leave your phone.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "A log that never shrinks",
+      "text": "One meal a day keeps your streak alive, and your total days logged never go down. Weekly and monthly stats show how many days and meals you logged instead of a completion score.\nAchievements like 7-Day Streak and Early Bird pile up along the way.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Only the meals you choose, without opening the app",
+      "text": "Pick which meals you want reminders for and set times that fit your day. Take a before photo and you can mark the meal finished right from the notification.\nLog with the Action button, Siri, Shortcuts or a Home Screen widget, and add friends by code to cheer each other on with emojis and comments.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Three steps to start",
+    "items": [
+      {
+        "title": "Choose your meals",
+        "text": "The first time you open Sekki, it asks which meals to remind you about. Change them anytime in Settings."
+      },
+      {
+        "title": "Snap before you eat",
+        "text": "The log button already shows the meal for the current time. Tap it, take the photo, done."
+      },
+      {
+        "title": "Tap when you're done",
+        "text": "Hit Finished in the notification or widget, or add an after photo."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Logging without opening the app",
+    "rows": [
+      [
+        "Notification",
+        "After a before photo, mark the meal Finished right from the alert"
+      ],
+      [
+        "Home Screen widget",
+        "See today's count and the meal you're eating, then tap Finished"
+      ],
+      [
+        "Lock Screen widgets",
+        "Rectangular, circular and inline views of today's log"
+      ],
+      [
+        "Action button · Siri · Shortcuts",
+        "Log Finished with one press or one sentence"
+      ],
+      [
+        "Save to Photos",
+        "Turn it on in Settings to keep separate Sekki albums for meals and workouts"
+      ],
+      [
+        "Workout mode",
+        "Workouts are kept apart from meals, with this month's count at a glance"
+      ]
+    ],
+    "note": "The Finished button on the widget needs iOS 17 or later."
+  },
+  "pricing": {
+    "title": "Logging is free. Sekki Pro goes deeper.",
+    "free": {
+      "name": "Free",
+      "items": [
+        "Photo logging with automatic meal sorting, before and after photos, notes",
+        "Streaks, total days logged, weekly and monthly stats, achievements",
+        "Reminders for the meals you choose, Finished without opening the app",
+        "Widgets, Action button, Siri and Shortcuts",
+        "Sharing meals and workouts with friends, emoji and comment cheers",
+        "Create one group, join as many as you like",
+        "On-device food analysis"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Multiple groups for family, work or your gym crew",
+        "Compare meals from a few weeks ago side by side with today",
+        "See the foods you eat most",
+        "Lock the app with Face ID or Touch ID"
+      ],
+      "note": "Yearly or monthly subscription, or a one-time lifetime purchase"
+    },
+    "note": "Subscriptions renew automatically unless canceled at least 24 hours before the period ends. Cancel anytime in Settings > Apple Account > Subscriptions. Terms of Service: m1zz.github.io/RoutineCamera/en/terms.html"
+  },
+  "faq": {
+    "title": "Questions",
+    "items": [
+      {
+        "q": "Where are my photos stored?",
+        "a": "On your device. Turn on Save to Photos Automatically in Settings to also keep them in the Sekki albums in Photos. While Share My Meals is on (it's on at first), they're uploaded to iCloud so the friends you add can see them. You can turn it off in Settings > Account & Sharing."
+      },
+      {
+        "q": "How do I add friends?",
+        "a": "On the Friends screen, share your six-character friend code and enter your friend's code. You can paste several codes at once, separated by commas."
+      },
+      {
+        "q": "How do I cheer on a friend?",
+        "a": "Open a friend's meal and leave an emoji or a short comment. If they haven't logged a meal yet, tap the empty slot to send a gentle nudge."
+      },
+      {
+        "q": "Does missing a meal break my streak?",
+        "a": "No. Log any one meal that day, snacks included, and the streak continues. Even if you skip a whole day, your total days logged never go down."
+      },
+      {
+        "q": "I'm not getting notifications.",
+        "a": "Check that notifications are allowed for Sekki in iOS Settings > Notifications, and that your device is signed in to iCloud. You can change your meal reminder times in the app's Settings."
+      },
+      {
+        "q": "Does food analysis send my photos to a server?",
+        "a": "No. It runs on your device, so your photos never leave your phone. It's free with no limit."
+      },
+      {
+        "q": "How do I delete my account and data?",
+        "a": "Go to Friends > Account > Delete Account. Your account and the meal data stored on the server are deleted and can't be recovered. If anything goes wrong, just email us."
+      },
+      {
+        "q": "How do I cancel my subscription?",
+        "a": "In Settings > Apple Account > Subscriptions. It renews automatically unless you cancel at least 24 hours before the period ends. Lifetime is a single charge."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Start with\ntoday's lunch",
+    "cta": "Get it free on the App Store"
+  },
+  "ui": {
+    "skip": "Skip to content",
+    "languages": "Language",
+    "privacy": "Privacy Policy",
+    "contact": "Bug reports, feature ideas and account questions: email {email} or DM @lee25_ios on Instagram. We usually reply within a day or two."
+  }
+}

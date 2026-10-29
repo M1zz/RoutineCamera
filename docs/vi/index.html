@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Hỗ trợ</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: nhật ký ăn uống bằng ảnh, chỉ cần chụp một tấm trước khi ăn</title>
+  <meta name="description" content="Chụp một tấm trước khi ăn, Sekki tự xếp vào bữa sáng, bữa trưa hay bữa tối. Mỗi ngày một bữa là giữ được chuỗi, và bạn bè cổ vũ nhau.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/vi/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: nhật ký ăn uống bằng ảnh, chỉ cần chụp một tấm trước khi ăn">
+  <meta property="og:description" content="Chụp một tấm trước khi ăn, Sekki tự xếp vào bữa sáng, bữa trưa hay bữa tối. Mỗi ngày một bữa là giữ được chuỗi, và bạn bè cổ vũ nhau.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/vi/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/vi/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Nhật ký ảnh cho bữa sáng, bữa trưa và bữa tối</p>
+  <a class="skip" href="#main">Chuyển đến nội dung</a>
+  <header class="bar">
+    <a class="brand" href="../vi/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Ngôn ngữ</a>
+  </header>
 
-    <p>Chỉ cần chụp một tấm ảnh trước khi ăn là bữa ăn của bạn đã được ghi lại. Sekki tự xếp ảnh vào bữa sáng, bữa trưa, bữa tối hoặc ăn vặt, giữ chuỗi ngày của bạn kể cả những hôm chỉ ghi một bữa, và để bạn bè cổ vũ lẫn nhau.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Chụp một tấm trước khi ăn.<br>Vậy là ghi xong.</h1>
+        <p class="lead">Sekki xem giờ chụp rồi tự xếp vào bữa sáng, bữa trưa, bữa tối hoặc ăn vặt. Mỗi ngày chỉ cần ghi một bữa, chuỗi vẫn không đứt.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Tải miễn phí trên App Store</a><a class="try" href="#try">Thử chụp xem ↓</a></div>
+        <p class="muted small">Ghi chép, thống kê, tiện ích và chia sẻ với bạn bè đều miễn phí.</p>
+      </div>
+      <div class="phone"><img src="../img/vi/01-feed.jpg" alt="Chụp một tấm trước khi ăn. Vậy là ghi xong." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Liên hệ với chúng tôi</h2>
-    <p>Chúng tôi luôn chào đón báo lỗi, đề xuất tính năng và các câu hỏi về tài khoản.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Gửi email</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Nhắn Instagram</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      Email: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Chúng tôi thường phản hồi trong vòng một đến hai ngày.
-    </p>
 
-    <h2>Câu hỏi thường gặp</h2>
+    <section class="reveal" id="try">
+      <h2>Thử chụp xem</h2>
+      <p class="muted">Chọn giờ chụp rồi nhấn nút ghi. Giống trong ứng dụng, nút đã ghi sẵn bữa của giờ đó.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Thử chụp xem&quot;, &quot;lead&quot;: &quot;Chọn giờ chụp rồi nhấn nút ghi. Giống trong ứng dụng, nút đã ghi sẵn bữa của giờ đó.&quot;, &quot;clock&quot;: &quot;Giờ chụp&quot;, &quot;record&quot;: &quot;Ghi {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Bữa sáng&quot;, &quot;lunch&quot;: &quot;Bữa trưa&quot;, &quot;dinner&quot;: &quot;Bữa tối&quot;, &quot;snack&quot;: &quot;Ăn vặt&quot;}, &quot;today&quot;: &quot;Hôm nay · {n}&quot;, &quot;empty&quot;: &quot;Hôm nay chưa ghi gì&quot;, &quot;streak&quot;: &quot;Chuỗi {n} ngày&quot;, &quot;total&quot;: &quot;Tổng {n} ngày&quot;, &quot;before&quot;: &quot;Trước&quot;, &quot;ateAll&quot;: &quot;Đã ăn xong&quot;, &quot;kept&quot;: &quot;Một bữa là đủ: hôm nay đã được tính vào chuỗi.&quot;, &quot;rule&quot;: &quot;Cùng quy tắc với ứng dụng: 5 đến 10 giờ là bữa sáng, 11 đến 15 giờ là bữa trưa, 16 đến 21 giờ là bữa tối. Giờ khác, hoặc bữa đã ghi rồi, sẽ thành ăn vặt.&quot;, &quot;reset&quot;: &quot;Làm lại&quot;, &quot;note&quot;: &quot;Ảnh trong bản thử là ảnh mẫu.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Ảnh của tôi được lưu ở đâu?</h3>
-      <p>Trên thiết bị của bạn. Nếu bạn bật "Tự động lưu vào Ảnh" trong Cài đặt, ảnh cũng được lưu vào các album Sekki trong Ảnh. Khi "Chia sẻ bữa ăn của tôi" đang bật (được bật sẵn từ đầu), ảnh sẽ được tải lên iCloud để những người bạn đã thêm có thể xem. Bạn có thể tắt trong Cài đặt &gt; Tài khoản &amp; chia sẻ.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Bạn từng bỏ nhật ký ăn uống sau ba ngày?</h2>
+      <p>Bỏ một bữa sáng, quên một bữa tối, những ô trống bắt đầu gây khó chịu cho tới khi bạn xóa ứng dụng. Sekki không có ô trống. Chỉ những bữa bạn ghi được xếp theo thời gian, và chụp một bữa là ngày đó đã được tính.</p>
+    </section>
 
-    <div class="card">
-      <h3>Làm sao để thêm bạn bè?</h3>
-      <p>Ở màn hình Bạn bè, hãy chia sẻ mã bạn bè gồm sáu ký tự của bạn và nhập mã của người bạn muốn thêm. Bạn cũng có thể dán nhiều mã cùng lúc, cách nhau bằng dấu phẩy.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Chụp xong, bữa ăn tự vào chỗ</h2>
+        <p>Dựa vào giờ chụp, Sekki xếp ảnh vào bữa sáng, bữa trưa, bữa tối hoặc ăn vặt. Thêm ảnh trước và sau khi ăn, ghi không cần ảnh hoặc viết ghi chú.<br>Món ăn được nhận diện ngay trên máy, miễn phí, và ảnh không bao giờ rời khỏi điện thoại.</p>
+      </div>
+      <div class="phone"><img src="../img/vi/02-detail.jpg" alt="Chụp xong, bữa ăn tự vào chỗ" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Làm sao để cổ vũ bạn bè?</h3>
-      <p>Mở bữa ăn của bạn bè rồi để lại một emoji hoặc một bình luận ngắn. Nếu bạn ấy chưa ghi bữa nào, hãy chạm vào ô trống để gửi một lời nhắc nhẹ.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Ghi chép không bao giờ giảm</h2>
+        <p>Mỗi ngày một bữa là giữ chuỗi, và tổng số ngày đã ghi không bao giờ giảm. Thống kê tuần và tháng cho thấy bạn đã ghi bao nhiêu ngày, bao nhiêu bữa thay vì tỉ lệ hoàn thành.<br>Dọc đường bạn còn gom được thành tích như Chuỗi 7 ngày hay Người dậy sớm.</p>
+      </div>
+      <div class="phone"><img src="../img/vi/03-stats.jpg" alt="Ghi chép không bao giờ giảm" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Làm sao để xóa tài khoản và dữ liệu?</h3>
-      <p>Vào Bạn bè, chọn Tài khoản, rồi chọn Xóa tài khoản. Tài khoản và dữ liệu bữa ăn lưu trên máy chủ sẽ bị xóa và không thể khôi phục. Nếu có trục trặc, bạn cứ gửi email cho chúng tôi.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Chỉ những bữa bạn chọn, không cần mở ứng dụng</h2>
+        <p>Chọn bữa muốn được nhắc và chỉnh giờ ăn theo nếp sống của bạn. Chụp ảnh trước khi ăn xong, bạn đánh dấu Đã ăn xong ngay từ thông báo.<br>Ghi bằng nút Tác vụ, Siri, Phím tắt hoặc tiện ích, và thêm bạn bằng mã để cổ vũ nhau bằng emoji và bình luận.</p>
+      </div>
+      <div class="phone"><img src="../img/vi/04-settings.jpg" alt="Chỉ những bữa bạn chọn, không cần mở ứng dụng" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Tôi không nhận được thông báo</h3>
-      <p>Hãy kiểm tra Sekki đã được cho phép gửi thông báo trong Cài đặt iOS, mục Thông báo, và thiết bị đã đăng nhập iCloud chưa. Bạn có thể đổi giờ nhắc bữa ăn trong phần Cài đặt của ứng dụng.</p>
-    </div>
+    <section class="reveal">
+      <h2>Bắt đầu trong ba bước</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Chọn bữa cần theo dõi</h3><p>Lần đầu mở, Sekki hỏi bạn muốn nhắc bữa nào. Có thể đổi sau trong Cài đặt.</p></li>
+<li class="card"><span class="n">2</span><h3>Chụp một tấm trước khi ăn</h3><p>Nút ghi đã hiện sẵn bữa của giờ hiện tại. Nhấn, chụp, xong.</p></li>
+<li class="card"><span class="n">3</span><h3>Ăn xong thì chạm</h3><p>Chạm Đã ăn xong trong thông báo hoặc tiện ích, hoặc thêm ảnh sau khi ăn.</p></li></ol>
+    </section>
 
-    <h2>Điều khoản và chính sách</h2>
-    <p><a href="privacy.html">Chính sách quyền riêng tư →</a></p>
-    <p><a href="terms.html">Điều khoản sử dụng →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Ghi mà không cần mở ứng dụng</h2>
+      <div class="card table">
+        <dl><div><dt>Thông báo</dt><dd>Sau ảnh trước khi ăn, đánh dấu Đã ăn xong ngay từ thông báo</dd></div><div><dt>Tiện ích Màn hình chính</dt><dd>Xem số bữa hôm nay và bữa đang ăn, rồi chạm nút Đã ăn xong</dd></div><div><dt>Tiện ích Màn hình khóa</dt><dd>Chữ nhật, tròn và một dòng</dd></div><div><dt>Nút Tác vụ · Siri · Phím tắt</dt><dd>Ghi Đã ăn xong bằng một nút hoặc một câu</dd></div><div><dt>Lưu vào Ảnh</dt><dd>Bật trong Cài đặt để có album Sekki riêng cho bữa ăn và tập luyện</dd></div><div><dt>Chế độ tập luyện</dt><dd>Tập luyện được lưu riêng với bữa ăn, số buổi trong tháng hiện ngay</dd></div></dl>
+      </div>
+      <p class="muted">Nút Đã ăn xong trên tiện ích cần iOS 17 trở lên.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Chính sách quyền riêng tư</a> · <a href="terms.html">Điều khoản sử dụng</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Ghi chép miễn phí. Sekki Pro cho bạn xem sâu hơn.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Miễn phí</h3>
+          <ul><li>Ghi bằng ảnh và tự xếp bữa, ảnh trước và sau, ghi chú</li><li>Chuỗi, tổng số ngày, thống kê tuần và tháng, thành tích</li><li>Nhắc các bữa bạn chọn, Đã ăn xong không cần mở ứng dụng</li><li>Tiện ích, nút Tác vụ, Siri và Phím tắt</li><li>Chia sẻ bữa ăn và tập luyện với bạn bè, cổ vũ bằng emoji và bình luận</li><li>Tạo một nhóm, tham gia bao nhiêu nhóm khác cũng được</li><li>Nhận diện món ăn ngay trên máy</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Nhiều nhóm cho gia đình, công ty, hội tập luyện</li><li>So sánh song song bữa ăn vài tuần trước và bây giờ</li><li>Xem những món bạn ăn nhiều nhất</li><li>Khóa ứng dụng bằng Face ID hoặc Touch ID</li></ul>
+          <p class="muted">Gói đăng ký theo năm hoặc tháng, hoặc mua một lần dùng trọn đời</p>
+        </div>
+      </div>
+      <p class="muted">Gói đăng ký tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi hết kỳ. Hủy bất cứ lúc nào trong Cài đặt &gt; Tài khoản Apple &gt; Đăng ký. Điều khoản dịch vụ: m1zz.github.io/RoutineCamera/vi/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Câu hỏi thường gặp</h2>
+      <div class="faq"><details><summary>Ảnh được lưu ở đâu?</summary><p>Trên thiết bị của bạn. Nếu bật Tự động lưu vào Ảnh trong Cài đặt, ảnh cũng vào album Sekki trong ứng dụng Ảnh. Khi Chia sẻ bữa ăn của tôi đang bật (mặc định là bật), ảnh được tải lên iCloud để bạn bè đã thêm xem được. Tắt trong Cài đặt &gt; Tài khoản &amp; chia sẻ.</p></details>
+<details><summary>Thêm bạn bè thế nào?</summary><p>Trong màn hình Bạn bè, chia sẻ mã 6 ký tự của bạn và nhập mã của bạn kia. Có thể dán nhiều mã cùng lúc, ngăn cách bằng dấu phẩy.</p></details>
+<details><summary>Cổ vũ bạn bè thế nào?</summary><p>Mở bữa ăn của bạn ấy và để lại emoji hoặc một bình luận ngắn. Nếu bạn ấy chưa ghi bữa nào, chạm vào ô trống để nhắc khẽ.</p></details>
+<details><summary>Bỏ một bữa có làm đứt chuỗi không?</summary><p>Không. Hôm đó chỉ cần ghi một bữa bất kỳ, kể cả ăn vặt, chuỗi vẫn tiếp tục. Kể cả bỏ cả ngày, tổng số ngày đã ghi cũng không giảm.</p></details>
+<details><summary>Tôi không nhận được thông báo.</summary><p>Kiểm tra trong Cài đặt iOS &gt; Thông báo xem Sekki đã được cho phép chưa, và thiết bị đã đăng nhập iCloud chưa. Giờ nhắc bữa ăn đổi được trong cài đặt của ứng dụng.</p></details>
+<details><summary>Nhận diện món ăn có gửi ảnh lên máy chủ không?</summary><p>Không. Việc nhận diện diễn ra trên máy, nên ảnh không rời khỏi điện thoại. Miễn phí và không giới hạn.</p></details>
+<details><summary>Tôi muốn xóa tài khoản và dữ liệu.</summary><p>Vào Bạn bè &gt; Tài khoản &gt; Xóa tài khoản. Tài khoản và dữ liệu bữa ăn trên máy chủ sẽ bị xóa và không thể khôi phục. Nếu có vấn đề, hãy gửi email cho chúng tôi.</p></details>
+<details><summary>Hủy gói đăng ký thế nào?</summary><p>Trong Cài đặt &gt; Tài khoản Apple &gt; Đăng ký. Gói tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi hết kỳ. Gói trọn đời chỉ trả một lần.</p></details></div>
+      <p class="contact">Báo lỗi, góp ý tính năng hay hỏi về tài khoản, hãy gửi email tới <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> hoặc nhắn tin Instagram @lee25_ios. Chúng tôi thường trả lời trong một hai ngày.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Bắt đầu<br>từ bữa trưa hôm nay</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Tải miễn phí trên App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Ngôn ngữ"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi" aria-current="page">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Chính sách quyền riêng tư</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki – Support</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: matdagboken med foton där en bild före maten räcker</title>
+  <meta name="description" content="En bild innan du äter, så sorterar Sekki den som frukost, lunch eller middag. En måltid om dagen håller sviten vid liv, och vänner hejar på varandra.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: matdagboken med foton där en bild före maten räcker">
+  <meta property="og:description" content="En bild innan du äter, så sorterar Sekki den som frukost, lunch eller middag. En måltid om dagen håller sviten vid liv, och vänner hejar på varandra.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/sv/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/sv/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">En fotodagbok för frukost, lunch och middag</p>
+  <a class="skip" href="#main">Hoppa till innehållet</a>
+  <header class="bar">
+    <a class="brand" href="../sv/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Språk</a>
+  </header>
 
-    <p>Ta ett foto innan du äter så är måltiden loggad. Sekki sorterar den som frukost, lunch, middag eller mellanmål, håller sviten vid liv även de dagar du bara loggar en måltid och låter vänner peppa varandra.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>En bild innan du äter.<br>Så är det loggat.</h1>
+        <p class="lead">Sekki ser när bilden togs och lägger den under frukost, lunch, middag eller mellanmål. Logga bara en måltid om dagen så fortsätter din svit.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Hämta gratis i App Store</a><a class="try" href="#try">Testa själv ↓</a></div>
+        <p class="muted small">Loggning, statistik, widgetar och delning med vänner är gratis.</p>
+      </div>
+      <div class="phone"><img src="../img/sv/01-feed.jpg" alt="En bild innan du äter. Så är det loggat." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Kontakta oss</h2>
-    <p>Buggrapporter, funktionsförslag och frågor om kontot är alltid välkomna.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Mejla oss</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-post: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Vi svarar oftast inom en till två dagar.
-    </p>
 
-    <h2>Vanliga frågor</h2>
+    <section class="reveal" id="try">
+      <h2>Testa själv</h2>
+      <p class="muted">Välj en tid och tryck på loggknappen. Precis som i appen visar knappen redan måltiden för den tiden.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Testa själv&quot;, &quot;lead&quot;: &quot;Välj en tid och tryck på loggknappen. Precis som i appen visar knappen redan måltiden för den tiden.&quot;, &quot;clock&quot;: &quot;Bild tagen kl.&quot;, &quot;record&quot;: &quot;Logga {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Frukost&quot;, &quot;lunch&quot;: &quot;Lunch&quot;, &quot;dinner&quot;: &quot;Middag&quot;, &quot;snack&quot;: &quot;Mellanmål&quot;}, &quot;today&quot;: &quot;I dag · {n}&quot;, &quot;empty&quot;: &quot;Inget loggat i dag än&quot;, &quot;streak&quot;: &quot;{n} dagar i rad&quot;, &quot;total&quot;: &quot;{n} dagar totalt&quot;, &quot;before&quot;: &quot;Före&quot;, &quot;ateAll&quot;: &quot;Uppäten&quot;, &quot;kept&quot;: &quot;En måltid räcker: i dag räknas redan in i din svit.&quot;, &quot;rule&quot;: &quot;Samma regler som appen: kl. 5 till 10 är frukost, 11 till 15 lunch och 16 till 21 middag. Andra tider, eller en måltid som redan är loggad, blir mellanmål.&quot;, &quot;reset&quot;: &quot;Börja om&quot;, &quot;note&quot;: &quot;Bilderna i demon är exempel.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Var lagras mina foton?</h3>
-      <p>På din enhet. Om du slår på ”Spara automatiskt i Bilder” i Inställningar sparas de också i Sekki-albumen i Bilder. Så länge ”Dela mina måltider” är på (det är det från början) laddas de upp till iCloud så att vännerna du lägger till kan se dem. Du kan stänga av det under Inställningar &gt; Konto och delning.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Har du gett upp en matdagbok efter tre dagar?</h2>
+      <p>Du hoppar över frukosten, glömmer middagen, och de tomma rutorna börjar irritera tills du raderar appen. Sekki har inga tomma rutor. Bara måltiderna du loggar samlas i ordning, och en enda bild räcker för att dagen ska räknas.</p>
+    </section>
 
-    <div class="card">
-      <h3>Hur lägger jag till vänner?</h3>
-      <p>På skärmen Vänner delar du din vänkod på sex tecken och anger din väns kod. Du kan också klistra in flera koder på en gång, åtskilda med kommatecken.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Ta bilden, så hamnar måltiden rätt</h2>
+        <p>Utifrån tiden lägger Sekki bilden under frukost, lunch, middag eller mellanmål. Lägg till bilder före och efter, logga utan bild eller skriv en anteckning.<br>Maten känns igen gratis på enheten, och dina bilder lämnar aldrig telefonen.</p>
+      </div>
+      <div class="phone"><img src="../img/sv/02-detail.jpg" alt="Ta bilden, så hamnar måltiden rätt" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Hur peppar jag en vän?</h3>
-      <p>Öppna en väns måltid och lämna en emoji eller en kort kommentar. Om vännen inte har loggat någon måltid ännu kan du trycka på den tomma rutan för att skicka en vänlig knuff.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>En dagbok som aldrig krymper</h2>
+        <p>En måltid om dagen håller sviten vid liv, och totalt antal loggade dagar minskar aldrig. Vecko- och månadsstatistiken visar hur många dagar och måltider du har loggat, inte en procentsats.<br>På vägen samlar du prestationer som 7 dagar i rad och Morgonpigg.</p>
+      </div>
+      <div class="phone"><img src="../img/sv/03-stats.jpg" alt="En dagbok som aldrig krymper" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Hur raderar jag mitt konto och min data?</h3>
-      <p>Gå till Vänner, sedan Konto och välj Radera konto. Ditt konto och måltidsdatan som finns på servern raderas och kan inte återställas. Om något går fel är det bara att mejla oss.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Bara måltiderna du väljer, utan att öppna appen</h2>
+        <p>Välj vilka måltider du vill bli påmind om och anpassa tiderna efter din dag. Efter förebilden markerar du Uppäten direkt i notisen.<br>Logga också med Åtgärdsknappen, Siri, Genvägar eller en widget, och lägg till vänner med en kod för att heja på varandra med emojis och kommentarer.</p>
+      </div>
+      <div class="phone"><img src="../img/sv/04-settings.jpg" alt="Bara måltiderna du väljer, utan att öppna appen" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Jag får inga notiser</h3>
-      <p>Kontrollera att notiser är tillåtna för Sekki i iOS-inställningarna under Notiser och att din enhet är inloggad på iCloud. Tiderna för måltidspåminnelserna kan du ändra i appens inställningar.</p>
-    </div>
+    <section class="reveal">
+      <h2>Kom igång i tre steg</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Välj dina måltider</h3><p>Första gången frågar Sekki vilka måltider du vill bli påmind om. Kan ändras i Inställningar.</p></li>
+<li class="card"><span class="n">2</span><h3>En bild före maten</h3><p>Loggknappen visar redan måltiden för aktuell tid. Tryck, ta bilden, klart.</p></li>
+<li class="card"><span class="n">3</span><h3>Tryck när du är klar</h3><p>Tryck på Uppäten i notisen eller widgeten, eller lägg till en efterbild.</p></li></ol>
+    </section>
 
-    <h2>Villkor och policyer</h2>
-    <p><a href="privacy.html">Integritetspolicy →</a></p>
-    <p><a href="terms.html">Användarvillkor →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Logga utan att öppna appen</h2>
+      <div class="card table">
+        <dl><div><dt>Notis</dt><dd>Efter förebilden markerar du Uppäten direkt i notisen</dd></div><div><dt>Widget på hemskärmen</dt><dd>Se dagens antal och måltiden du äter just nu, och tryck på Uppäten</dd></div><div><dt>Widgetar på låsskärmen</dt><dd>Rektangulär, rund och på en rad</dd></div><div><dt>Åtgärdsknapp · Siri · Genvägar</dt><dd>Logga Uppäten med ett tryck eller en mening</dd></div><div><dt>Spara i Bilder</dt><dd>Slå på det i Inställningar för separata Sekki-album för måltider och träning</dd></div><div><dt>Träningsläge</dt><dd>Träning hålls isär från måltider, med månadens antal pass i en blick</dd></div></dl>
+      </div>
+      <p class="muted">Knappen Uppäten i widgeten kräver iOS 17 eller senare.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Integritetspolicy</a> · <a href="terms.html">Användarvillkor</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Loggning är gratis. Sekki Pro går djupare.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Gratis</h3>
+          <ul><li>Fotologgning med automatisk sortering, bilder före och efter, anteckningar</li><li>Sviter, totalt antal dagar, vecko- och månadsstatistik, prestationer</li><li>Påminnelser om valda måltider och Uppäten utan att öppna appen</li><li>Widgetar, Åtgärdsknapp, Siri och Genvägar</li><li>Dela måltider och träning med vänner, emojis och kommentarer</li><li>Skapa en grupp, gå med i hur många som helst</li><li>Matigenkänning på enheten</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Flera grupper för familjen, jobbet eller träningsgänget</li><li>Jämför måltider från för några veckor sedan med i dag sida vid sida</li><li>Se vad du äter oftast</li><li>Lås appen med Face ID eller Touch ID</li></ul>
+          <p class="muted">Års- eller månadsprenumeration, eller ett engångsköp för livet</p>
+        </div>
+      </div>
+      <p class="muted">Prenumerationen förnyas automatiskt om den inte sägs upp minst 24 timmar innan perioden tar slut. Säg upp när som helst i Inställningar &gt; Apple-konto &gt; Prenumerationer. Användarvillkor: m1zz.github.io/RoutineCamera/sv/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Vanliga frågor</h2>
+      <div class="faq"><details><summary>Var sparas mina bilder?</summary><p>På din enhet. Slår du på Spara automatiskt i Bilder i Inställningar hamnar de också i Sekki-albumen i Bilder. Så länge Dela mina måltider är på (det är på från början) laddas de upp till iCloud så att vännerna du lagt till kan se dem. Stäng av det i Inställningar &gt; Konto och delning.</p></details>
+<details><summary>Hur lägger jag till vänner?</summary><p>På skärmen Vänner delar du din kod på sex tecken och anger din väns kod. Du kan klistra in flera koder samtidigt, separerade med kommatecken.</p></details>
+<details><summary>Hur hejar jag på en vän?</summary><p>Öppna en av vännens måltider och lämna en emoji eller en kort kommentar. Har vännen inte loggat något än kan du trycka på den tomma rutan för en liten knuff.</p></details>
+<details><summary>Bryts sviten om jag hoppar över en måltid?</summary><p>Nej. Logga vilken måltid som helst den dagen, mellanmål inräknade, så fortsätter sviten. Även om du hoppar över en hel dag minskar inte totalt antal loggade dagar.</p></details>
+<details><summary>Jag får inga notiser.</summary><p>Kontrollera i iOS-inställningar &gt; Notiser att Sekki får skicka notiser och att enheten är inloggad på iCloud. Påminnelsetiderna ändrar du i appens inställningar.</p></details>
+<details><summary>Skickar matigenkänningen mina bilder till en server?</summary><p>Nej. Den körs på enheten, så bilderna lämnar aldrig telefonen. Gratis och utan gräns.</p></details>
+<details><summary>Hur raderar jag mitt konto och mina data?</summary><p>Gå till Vänner &gt; Konto &gt; Radera konto. Kontot och måltidsdata på servern raderas och kan inte återställas. Om något går fel, mejla oss.</p></details>
+<details><summary>Hur säger jag upp prenumerationen?</summary><p>I Inställningar &gt; Apple-konto &gt; Prenumerationer. Den förnyas automatiskt om du inte säger upp minst 24 timmar innan perioden tar slut. Livstidsköpet betalas en gång.</p></details></div>
+      <p class="contact">Buggar, idéer eller frågor om kontot: mejla <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> eller skicka DM till @lee25_ios på Instagram. Vi svarar oftast inom en dag eller två.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Börja<br>med dagens lunch</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Hämta gratis i App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Språk"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv" aria-current="page">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Integritetspolicy</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

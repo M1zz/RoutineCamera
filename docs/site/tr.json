@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: yemekten önce tek fotoğrafın yettiği yemek fotoğraf günlüğü",
+  "description": "Yemekten önce bir fotoğraf çek, Sekki onu kahvaltı, öğle ya da akşam yemeğine ayırsın. Günde bir öğün serini korur, arkadaşlar birbirini destekler.",
+  "hero": {
+    "headline": "Yemekten önce bir fotoğraf.\nKayıt tamam.",
+    "lead": "Sekki fotoğrafın ne zaman çekildiğine bakar ve onu kahvaltı, öğle yemeği, akşam yemeği ya da atıştırmalık olarak ayırır. Günde tek bir öğün kaydetsen bile serin sürer.",
+    "cta": "App Store'dan ücretsiz indir",
+    "note": "Kayıt, istatistikler, widget'lar ve arkadaşlarla paylaşım ücretsiz."
+  },
+  "demo": {
+    "title": "Kendin dene",
+    "lead": "Bir saat seç ve kaydet düğmesine dokun. Uygulamadaki gibi, düğme o saatin öğününü baştan gösterir.",
+    "clock": "Çekim saati",
+    "record": "{meal} kaydet",
+    "meals": {
+      "breakfast": "Kahvaltı",
+      "lunch": "Öğle Yemeği",
+      "dinner": "Akşam Yemeği",
+      "snack": "Atıştırmalık"
+    },
+    "today": "Bugün · {n}",
+    "empty": "Bugün henüz kayıt yok",
+    "streak": "{n} Gün Seri",
+    "total": "Toplam {n} gün",
+    "before": "Önce",
+    "ateAll": "Bitti",
+    "kept": "Tek öğün yeter: bugün serine çoktan sayıldı.",
+    "rule": "Uygulamayla aynı kurallar: 5 ile 10 arası kahvaltı, 11 ile 15 arası öğle yemeği, 16 ile 21 arası akşam yemeği. Başka saatler ya da zaten kaydedilmiş bir öğün atıştırmalık olarak girer.",
+    "reset": "Baştan başla",
+    "note": "Denemedeki fotoğraflar örnektir."
+  },
+  "problem": {
+    "title": "Yemek günlüğünü üç günde bıraktın mı?",
+    "text": "Bir kahvaltıyı atlarsın, bir akşam yemeğini unutursun, boş kutular gözüne batmaya başlar ve sonunda uygulamayı silersin. Sekki'de boş kutu yok. Yalnızca kaydettiğin öğünler sırayla birikir, tek bir fotoğraf o günün sayılmasına yeter."
+  },
+  "features": [
+    {
+      "title": "Çek, öğün yerini bulsun",
+      "text": "Çekim saatine göre Sekki fotoğrafı kahvaltı, öğle yemeği, akşam yemeği ya da atıştırmalık olarak ayırır. Önce ve sonra fotoğrafları ekle, fotoğrafsız kaydet ya da not yaz.\nYemek, cihazında ücretsiz olarak tanınır ve fotoğrafların telefonundan hiç çıkmaz.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Hiç azalmayan bir günlük",
+      "text": "Günde bir öğün serini korur, toplam kayıtlı gün sayın asla düşmez. Haftalık ve aylık istatistikler başarı yüzdesi yerine kaç gün ve kaç öğün kaydettiğini gösterir.\nYol boyunca 7 Gün Seri ve Erkenci Kuş gibi başarılar toplarsın.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Yalnızca seçtiğin öğünler, uygulamayı açmadan",
+      "text": "Hangi öğünler için hatırlatma istediğini seç, saatleri gününe göre ayarla. Önce fotoğrafını çektikten sonra Bitti'yi doğrudan bildirimden işaretlersin.\nEylem düğmesi, Siri, Kestirmeler ya da bir widget ile de kaydet, arkadaşlarını kodla ekleyip emoji ve yorumlarla birbirinizi destekleyin.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Üç adımda başla",
+    "items": [
+      {
+        "title": "Öğünlerini seç",
+        "text": "İlk açılışta Sekki hangi öğünleri hatırlatacağını sorar. Ayarlar'dan değiştirebilirsin."
+      },
+      {
+        "title": "Yemekten önce bir fotoğraf",
+        "text": "Kaydet düğmesi şu anki saatin öğününü zaten gösterir. Dokun, çek, bitti."
+      },
+      {
+        "title": "Bitince bir dokunuş",
+        "text": "Bildirimde ya da widget'ta Bitti'ye dokun veya sonra fotoğrafı ekle."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Uygulamayı açmadan kaydetmek",
+    "rows": [
+      ["Bildirim", "Önce fotoğrafından sonra Bitti'yi doğrudan bildirimden işaretle"],
+      ["Ana ekran widget'ı", "Bugünkü kayıt sayısını ve yemekte olduğun öğünü gör, Bitti'ye dokun"],
+      ["Kilitli ekran widget'ları", "Dikdörtgen, yuvarlak ve tek satır"],
+      ["Eylem düğmesi · Siri · Kestirmeler", "Tek dokunuşla ya da tek cümleyle Bitti"],
+      ["Fotoğraflar'a kaydet", "Ayarlar'dan açınca öğünler ve egzersizler ayrı Sekki albümlerine kaydedilir"],
+      ["Egzersiz modu", "Egzersizler öğünlerden ayrı tutulur, bu ayki antrenman sayısı bir bakışta görünür"]
+    ],
+    "note": "Widget'taki Bitti düğmesi iOS 17 veya sonrasını gerektirir."
+  },
+  "pricing": {
+    "title": "Kayıt ücretsiz. Sekki Pro daha derine iner.",
+    "free": {
+      "name": "Ücretsiz",
+      "items": [
+        "Otomatik öğün ayırmalı fotoğraf kaydı, önce ve sonra fotoğrafları, notlar",
+        "Seriler, toplam gün, haftalık ve aylık istatistikler, başarılar",
+        "Seçtiğin öğünler için hatırlatma, uygulamayı açmadan Bitti",
+        "Widget'lar, Eylem düğmesi, Siri ve Kestirmeler",
+        "Öğün ve egzersizleri arkadaşlarla paylaşma, emoji ve yorumlar",
+        "Bir grup oluşturma, istediğin kadar gruba katılma",
+        "Cihazda yemek tanıma"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Aile, iş ya da spor arkadaşları için birden çok grup",
+        "Birkaç hafta önceki ve bugünkü öğünleri yan yana karşılaştırma",
+        "En sık yediğin yemekleri görme",
+        "Uygulamayı Face ID ya da Touch ID ile kilitleme"
+      ],
+      "note": "Yıllık ya da aylık abonelik veya tek seferlik ömür boyu satın alma"
+    },
+    "note": "Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. İstediğin zaman Ayarlar > Apple Hesabı > Abonelikler'den iptal edebilirsin. Hizmet koşulları: m1zz.github.io/RoutineCamera/tr/terms.html"
+  },
+  "faq": {
+    "title": "Sık sorulan sorular",
+    "items": [
+      {
+        "q": "Fotoğraflarım nerede saklanıyor?",
+        "a": "Cihazında. Ayarlar'da Fotoğraflar'a Otomatik Kaydet'i açarsan Fotoğraflar'daki Sekki albümlerine de kaydedilir. Öğünlerimi Paylaş açık olduğu sürece (başta açıktır) eklediğin arkadaşlar görebilsin diye iCloud'a yüklenir. Ayarlar > Hesap ve Paylaşım'dan kapatabilirsin."
+      },
+      {
+        "q": "Arkadaş nasıl eklerim?",
+        "a": "Arkadaşlar ekranında altı karakterlik kodunu paylaş ve arkadaşının kodunu gir. Birden çok kodu virgülle ayırarak tek seferde yapıştırabilirsin."
+      },
+      {
+        "q": "Bir arkadaşımı nasıl desteklerim?",
+        "a": "Arkadaşının bir öğününü aç ve bir emoji ya da kısa bir yorum bırak. Henüz kayıt yapmadıysa boş kutuya dokunarak onu nazikçe dürt."
+      },
+      {
+        "q": "Bir öğünü atlarsam serim bozulur mu?",
+        "a": "Hayır. O gün atıştırmalık dahil herhangi bir öğün kaydedersen serin devam eder. Bütün bir günü atlasan bile toplam kayıtlı gün sayısı düşmez."
+      },
+      {
+        "q": "Bildirim gelmiyor.",
+        "a": "iOS Ayarlar > Bildirimler'de Sekki bildirimlerine izin verildiğini ve cihazın iCloud'a giriş yaptığını kontrol et. Hatırlatma saatlerini uygulamanın ayarlarından değiştirebilirsin."
+      },
+      {
+        "q": "Yemek tanıma fotoğraflarımı sunucuya gönderiyor mu?",
+        "a": "Hayır. Cihazda çalışır, fotoğrafların telefonundan hiç çıkmaz. Ücretsiz ve sınırsız."
+      },
+      {
+        "q": "Hesabımı ve verilerimi nasıl silerim?",
+        "a": "Arkadaşlar > Hesap > Hesabı Sil yolunu izle. Hesabın ve sunucudaki öğün verileri silinir ve geri getirilemez. Bir sorun olursa bize e-posta gönder."
+      },
+      {
+        "q": "Aboneliği nasıl iptal ederim?",
+        "a": "Ayarlar > Apple Hesabı > Abonelikler'den. Dönem bitmeden en az 24 saat önce iptal etmezsen otomatik yenilenir. Ömür boyu satın alma bir kez ödenir."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Bugünkü öğle yemeğinden\nbaşla",
+    "cta": "App Store'dan ücretsiz indir"
+  },
+  "ui": {
+    "skip": "İçeriğe geç",
+    "languages": "Dil",
+    "privacy": "Gizlilik Politikası",
+    "contact": "Hata, fikir ya da hesapla ilgili soruların için {email} adresine yaz veya Instagram'da @lee25_ios hesabına DM gönder. Genellikle bir iki gün içinde yanıtlıyoruz."
+  }
+}

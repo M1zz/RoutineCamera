@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: maddagbogen med foto, hvor ét billede før maden er nok",
+  "description": "Ét billede før du spiser, og Sekki sorterer det som morgenmad, frokost eller aftensmad. Ét måltid om dagen holder din streak, og venner hepper på hinanden.",
+  "hero": {
+    "headline": "Ét billede før du spiser.\nSå er det registreret.",
+    "lead": "Sekki kigger på, hvornår billedet blev taget, og lægger det under morgenmad, frokost, aftensmad eller snack. Registrér bare ét måltid om dagen, så fortsætter din streak.",
+    "cta": "Hent gratis i App Store",
+    "note": "Registrering, statistik, widgets og deling med venner er gratis."
+  },
+  "demo": {
+    "title": "Prøv selv",
+    "lead": "Vælg et tidspunkt og tryk på registreringsknappen. Ligesom i appen viser knappen allerede måltidet for det tidspunkt.",
+    "clock": "Billede taget kl.",
+    "record": "Registrer {meal}",
+    "meals": {
+      "breakfast": "Morgenmad",
+      "lunch": "Frokost",
+      "dinner": "Aftensmad",
+      "snack": "Snack"
+    },
+    "today": "I dag · {n}",
+    "empty": "Intet registreret i dag endnu",
+    "streak": "{n} dages streak",
+    "total": "{n} dage i alt",
+    "before": "Før",
+    "ateAll": "Færdig",
+    "kept": "Ét måltid er nok: I dag tæller allerede med i din streak.",
+    "rule": "Samme regler som appen: kl. 5 til 10 er morgenmad, 11 til 15 frokost og 16 til 21 aftensmad. På andre tidspunkter, eller hvis måltidet allerede er registreret, bliver det en snack.",
+    "reset": "Start forfra",
+    "note": "Billederne i demoen er eksempler."
+  },
+  "problem": {
+    "title": "Har du droppet en maddagbog efter tre dage?",
+    "text": "Du springer morgenmaden over, glemmer aftensmaden, og de tomme felter begynder at irritere, til du sletter appen. Sekki har ingen tomme felter. Kun de måltider, du registrerer, samler sig i rækkefølge, og ét billede er nok til, at dagen tæller."
+  },
+  "features": [
+    {
+      "title": "Tag billedet, så er måltidet på plads",
+      "text": "Ud fra tidspunktet lægger Sekki billedet under morgenmad, frokost, aftensmad eller snack. Tilføj før- og efterbilleder, registrér uden billede eller skriv en note.\nMaden genkendes gratis på enheden, og dine billeder forlader aldrig telefonen.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "En dagbog, der aldrig skrumper",
+      "text": "Ét måltid om dagen holder din streak, og det samlede antal registrerede dage falder aldrig. Uge- og månedsstatistik viser, hvor mange dage og måltider du har registreret, ikke en procentsats.\nUndervejs samler du præstationer som 7 dages streak og Morgenfugl.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Kun de måltider, du vælger, uden at åbne appen",
+      "text": "Vælg hvilke måltider du vil have påmindelser om, og tilpas tiderne til din dag. Efter førbilledet markerer du Færdig direkte fra notifikationen.\nRegistrér også med Handlingsknappen, Siri, Genveje eller en widget, og tilføj venner med en kode, så I kan heppe med emojis og kommentarer.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Kom i gang i tre trin",
+    "items": [
+      {
+        "title": "Vælg dine måltider",
+        "text": "Første gang spørger Sekki, hvilke måltider du vil mindes om. Kan ændres i Indstillinger."
+      },
+      {
+        "title": "Ét billede før maden",
+        "text": "Registreringsknappen viser allerede måltidet for det aktuelle tidspunkt. Tryk, tag billedet, færdig."
+      },
+      {
+        "title": "Tryk, når du er færdig",
+        "text": "Tryk på Færdig i notifikationen eller widgetten, eller tilføj et efterbillede."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Registrér uden at åbne appen",
+    "rows": [
+      ["Notifikation", "Efter førbilledet markerer du Færdig direkte fra beskeden"],
+      ["Widget på hjemmeskærmen", "Se dagens antal og måltidet i gang, og tryk på Færdig"],
+      ["Widgets på låseskærmen", "Rektangulær, rund og på én linje"],
+      ["Handlingsknap · Siri · Genveje", "Registrér Færdig med ét tryk eller én sætning"],
+      ["Gem i Fotos", "Slå det til i Indstillinger for separate Sekki-albummer til måltider og træning"],
+      ["Træningstilstand", "Træning gemmes adskilt fra måltider, med månedens antal på et øjeblik"]
+    ],
+    "note": "Færdig-knappen i widgetten kræver iOS 17 eller nyere."
+  },
+  "pricing": {
+    "title": "Registrering er gratis. Sekki Pro går dybere.",
+    "free": {
+      "name": "Gratis",
+      "items": [
+        "Fotoregistrering med automatisk sortering, før- og efterbilleder, noter",
+        "Streaks, samlede dage, uge- og månedsstatistik, præstationer",
+        "Påmindelser om valgte måltider og Færdig uden at åbne appen",
+        "Widgets, Handlingsknap, Siri og Genveje",
+        "Del måltider og træning med venner, emojis og kommentarer",
+        "Opret én gruppe, deltag i så mange du vil",
+        "Madgenkendelse på enheden"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Flere grupper til familie, arbejde eller træningsholdet",
+        "Sammenlign måltider fra for nogle uger siden med i dag side om side",
+        "Se de retter, du spiser oftest",
+        "Lås appen med Face ID eller Touch ID"
+      ],
+      "note": "Års- eller månedsabonnement, eller ét livstidskøb"
+    },
+    "note": "Abonnementet fornyes automatisk, medmindre det opsiges mindst 24 timer før periodens udløb. Opsig når som helst i Indstillinger > Apple-konto > Abonnementer. Servicevilkår: m1zz.github.io/RoutineCamera/da/terms.html"
+  },
+  "faq": {
+    "title": "Ofte stillede spørgsmål",
+    "items": [
+      {
+        "q": "Hvor gemmes mine billeder?",
+        "a": "På din enhed. Slår du Gem automatisk i Fotos til i Indstillinger, havner de også i Sekki-albummerne i Fotos. Så længe Del mine måltider er slået til (det er det fra start), uploades de til iCloud, så dine tilføjede venner kan se dem. Slå det fra i Indstillinger > Konto og deling."
+      },
+      {
+        "q": "Hvordan tilføjer jeg venner?",
+        "a": "På skærmen Venner deler du din kode på seks tegn og indtaster din vens kode. Du kan indsætte flere koder på én gang, adskilt af komma."
+      },
+      {
+        "q": "Hvordan hepper jeg på en ven?",
+        "a": "Åbn et af din vens måltider, og giv en emoji eller en kort kommentar. Har vennen ikke registreret noget endnu, så tryk på det tomme felt for et lille puf."
+      },
+      {
+        "q": "Mister jeg min streak, hvis jeg springer et måltid over?",
+        "a": "Nej. Registrér et hvilket som helst måltid den dag, snacks medregnet, så fortsætter din streak. Selv hvis du springer en hel dag over, falder det samlede antal registrerede dage ikke."
+      },
+      {
+        "q": "Jeg får ingen notifikationer.",
+        "a": "Tjek i iOS-indstillinger > Notifikationer, at Sekki må sende notifikationer, og at enheden er logget ind på iCloud. Påmindelsestiderne ændrer du i appens indstillinger."
+      },
+      {
+        "q": "Sender madgenkendelsen mine billeder til en server?",
+        "a": "Nej. Den kører på enheden, så billederne forlader aldrig telefonen. Gratis og uden grænse."
+      },
+      {
+        "q": "Hvordan sletter jeg min konto og mine data?",
+        "a": "Gå til Venner > Konto > Slet konto. Kontoen og måltidsdata på serveren slettes og kan ikke gendannes. Går noget galt, så skriv til os."
+      },
+      {
+        "q": "Hvordan opsiger jeg abonnementet?",
+        "a": "I Indstillinger > Apple-konto > Abonnementer. Det fornyes automatisk, medmindre du opsiger mindst 24 timer før periodens udløb. Livstidskøbet betales én gang."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Start\nmed dagens frokost",
+    "cta": "Hent gratis i App Store"
+  },
+  "ui": {
+    "skip": "Gå til indhold",
+    "languages": "Sprog",
+    "privacy": "Privatlivspolitik",
+    "contact": "Fejl, idéer eller spørgsmål om din konto: skriv til {email} eller send en DM til @lee25_ios på Instagram. Vi svarer som regel inden for en dag eller to."
+  }
+}

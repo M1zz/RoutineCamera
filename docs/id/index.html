@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Dukungan</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: diari foto makanan yang cukup satu jepretan sebelum makan</title>
+  <meta name="description" content="Satu foto sebelum makan, Sekki langsung memasukkannya ke sarapan, makan siang, atau makan malam. Sehari satu kali makan sudah menjaga beruntunmu.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/id/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: diari foto makanan yang cukup satu jepretan sebelum makan">
+  <meta property="og:description" content="Satu foto sebelum makan, Sekki langsung memasukkannya ke sarapan, makan siang, atau makan malam. Sehari satu kali makan sudah menjaga beruntunmu.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/id/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/id/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Buku harian foto untuk sarapan, makan siang, dan makan malam</p>
+  <a class="skip" href="#main">Lewati ke konten</a>
+  <header class="bar">
+    <a class="brand" href="../id/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Bahasa</a>
+  </header>
 
-    <p>Cukup satu foto sebelum makan, dan makananmu tercatat. Sekki otomatis menggolongkannya ke sarapan, makan siang, makan malam, atau camilan, menjaga catatan beruntunmu tetap jalan meski sehari hanya satu kali makan yang dicatat, dan memungkinkan teman saling memberi semangat.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Satu foto sebelum makan.<br>Selesai dicatat.</h1>
+        <p class="lead">Sekki melihat jam foto diambil, lalu memasukkannya ke sarapan, makan siang, makan malam, atau camilan. Cukup catat satu kali makan sehari, beruntunmu tetap jalan.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Unduh gratis di App Store</a><a class="try" href="#try">Coba sendiri ↓</a></div>
+        <p class="muted small">Pencatatan, statistik, widget, dan berbagi dengan teman semuanya gratis.</p>
+      </div>
+      <div class="phone"><img src="../img/id/01-feed.jpg" alt="Satu foto sebelum makan. Selesai dicatat." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Hubungi Kami</h2>
-    <p>Laporan bug, ide fitur, dan pertanyaan seputar akun semuanya kami tunggu.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Kirim Email</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      Email: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Biasanya kami membalas dalam satu atau dua hari.
-    </p>
 
-    <h2>Tanya Jawab</h2>
+    <section class="reveal" id="try">
+      <h2>Coba sendiri</h2>
+      <p class="muted">Pilih jam lalu ketuk tombol catat. Sama seperti di aplikasi, tombolnya sudah menunjukkan waktu makan untuk jam itu.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Coba sendiri&quot;, &quot;lead&quot;: &quot;Pilih jam lalu ketuk tombol catat. Sama seperti di aplikasi, tombolnya sudah menunjukkan waktu makan untuk jam itu.&quot;, &quot;clock&quot;: &quot;Foto diambil jam&quot;, &quot;record&quot;: &quot;Catat {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Sarapan&quot;, &quot;lunch&quot;: &quot;Makan Siang&quot;, &quot;dinner&quot;: &quot;Makan Malam&quot;, &quot;snack&quot;: &quot;Camilan&quot;}, &quot;today&quot;: &quot;Hari ini · {n}&quot;, &quot;empty&quot;: &quot;Belum ada catatan hari ini&quot;, &quot;streak&quot;: &quot;Beruntun {n} hari&quot;, &quot;total&quot;: &quot;Total {n} hari&quot;, &quot;before&quot;: &quot;Sebelum&quot;, &quot;ateAll&quot;: &quot;Selesai makan&quot;, &quot;kept&quot;: &quot;Satu kali makan sudah cukup: hari ini sudah masuk beruntunmu.&quot;, &quot;rule&quot;: &quot;Aturannya sama dengan aplikasi: pukul 5 sampai 10 sarapan, 11 sampai 15 makan siang, 16 sampai 21 makan malam. Di luar jam itu, atau waktu makan yang sudah dicatat, masuk sebagai camilan.&quot;, &quot;reset&quot;: &quot;Ulangi&quot;, &quot;note&quot;: &quot;Foto di demo ini hanya contoh.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Di mana fotoku disimpan?</h3>
-      <p>Di perangkatmu. Jika kamu mengaktifkan "Simpan ke Foto Otomatis" di Pengaturan, foto juga disimpan ke album Sekki di Foto. Selama "Bagikan Makananku" aktif (aktif sejak awal), foto diunggah ke iCloud agar teman yang kamu tambahkan bisa melihatnya. Kamu bisa menonaktifkannya di Pengaturan &gt; Akun &amp; Berbagi.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Pernah berhenti mencatat makanan setelah tiga hari?</h2>
+      <p>Sekali lewat sarapan, lupa makan malam, lalu kotak-kotak kosong mulai mengganggu sampai aplikasinya dihapus. Sekki tidak punya kotak kosong. Hanya makanan yang kamu catat yang tersusun berurutan, dan satu foto saja sudah membuat hari itu terhitung.</p>
+    </section>
 
-    <div class="card">
-      <h3>Bagaimana cara menambah teman?</h3>
-      <p>Di layar Teman, bagikan kode temanmu yang terdiri dari enam karakter dan masukkan kode temanmu. Kamu juga bisa menempel beberapa kode sekaligus, dipisahkan dengan koma.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Jepret, waktu makannya langsung tertata</h2>
+        <p>Dari jam foto diambil, Sekki memasukkannya ke sarapan, makan siang, makan malam, atau camilan. Tambahkan foto sebelum dan sesudah, catat tanpa foto, atau tulis catatan.<br>Makanan dikenali langsung di perangkat secara gratis, dan fotomu tidak pernah keluar dari ponsel.</p>
+      </div>
+      <div class="phone"><img src="../img/id/02-detail.jpg" alt="Jepret, waktu makannya langsung tertata" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Bagaimana cara memberi semangat ke teman?</h3>
-      <p>Buka makanan temanmu lalu tinggalkan emoji atau komentar singkat. Jika mereka belum mencatat makan, ketuk kolom yang kosong untuk mengirim colekan lembut.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Catatan yang tidak pernah berkurang</h2>
+        <p>Satu kali makan sehari menjaga beruntunmu, dan total hari tercatat tidak pernah turun. Statistik mingguan dan bulanan menunjukkan berapa hari dan berapa kali makan yang kamu catat, bukan persentase.<br>Sepanjang jalan kamu mengumpulkan pencapaian seperti Beruntun 7 Hari dan Si Pagi.</p>
+      </div>
+      <div class="phone"><img src="../img/id/03-stats.jpg" alt="Catatan yang tidak pernah berkurang" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Bagaimana cara menghapus akun dan data saya?</h3>
-      <p>Buka Teman, lalu Akun, lalu Hapus Akun. Akun dan data makanan yang tersimpan di server akan dihapus dan tidak dapat dipulihkan. Jika ada masalah, kirim saja email kepada kami.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Hanya waktu makan pilihanmu, tanpa membuka aplikasi</h2>
+        <p>Pilih waktu makan yang ingin diingatkan, lalu atur jamnya sesuai harimu. Setelah foto sebelum makan, tandai Selesai makan langsung dari notifikasi.<br>Catat juga lewat tombol Tindakan, Siri, Pintasan, atau widget, dan tambahkan teman dengan kode untuk saling menyemangati lewat emoji dan komentar.</p>
+      </div>
+      <div class="phone"><img src="../img/id/04-settings.jpg" alt="Hanya waktu makan pilihanmu, tanpa membuka aplikasi" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Saya tidak menerima notifikasi</h3>
-      <p>Pastikan notifikasi untuk Sekki diizinkan di Pengaturan iOS, lalu Notifikasi, dan perangkatmu sudah masuk ke iCloud. Jam pengingat makan bisa diubah di Pengaturan dalam app.</p>
-    </div>
+    <section class="reveal">
+      <h2>Mulai dalam tiga langkah</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Pilih waktu makanmu</h3><p>Saat pertama dibuka, Sekki menanyakan waktu makan mana yang perlu diingatkan. Bisa diubah di Pengaturan.</p></li>
+<li class="card"><span class="n">2</span><h3>Foto sebelum makan</h3><p>Tombol catat sudah menampilkan waktu makan untuk jam sekarang. Ketuk, jepret, beres.</p></li>
+<li class="card"><span class="n">3</span><h3>Selesai? Ketuk sekali</h3><p>Ketuk Selesai makan di notifikasi atau widget, atau tambahkan foto sesudah makan.</p></li></ol>
+    </section>
 
-    <h2>Ketentuan dan Kebijakan</h2>
-    <p><a href="privacy.html">Kebijakan Privasi →</a></p>
-    <p><a href="terms.html">Ketentuan Penggunaan →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Mencatat tanpa membuka aplikasi</h2>
+      <div class="card table">
+        <dl><div><dt>Notifikasi</dt><dd>Setelah foto sebelum makan, tandai Selesai makan langsung dari notifikasi</dd></div><div><dt>Widget Layar Utama</dt><dd>Lihat jumlah catatan hari ini dan makanan yang sedang disantap, lalu ketuk Selesai makan</dd></div><div><dt>Widget Layar Terkunci</dt><dd>Persegi panjang, lingkaran, dan satu baris</dd></div><div><dt>Tombol Tindakan · Siri · Pintasan</dt><dd>Catat Selesai makan dengan satu tombol atau satu kalimat</dd></div><div><dt>Simpan ke Foto</dt><dd>Aktifkan di Pengaturan untuk album Sekki terpisah bagi makanan dan olahraga</dd></div><div><dt>Mode olahraga</dt><dd>Catatan olahraga dipisah dari makanan, dengan jumlah latihan bulan ini sekilas</dd></div></dl>
+      </div>
+      <p class="muted">Tombol Selesai makan di widget memerlukan iOS 17 atau versi lebih baru.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Kebijakan Privasi</a> · <a href="terms.html">Ketentuan Penggunaan</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Mencatat itu gratis. Sekki Pro melihat lebih dalam.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Gratis</h3>
+          <ul><li>Catatan foto dengan pemilahan otomatis, foto sebelum dan sesudah, catatan</li><li>Beruntun, total hari, statistik mingguan dan bulanan, pencapaian</li><li>Pengingat untuk waktu makan pilihanmu, Selesai makan tanpa membuka aplikasi</li><li>Widget, tombol Tindakan, Siri, dan Pintasan</li><li>Berbagi makanan dan olahraga dengan teman, emoji dan komentar</li><li>Buat satu grup, gabung ke grup lain sebanyak apa pun</li><li>Pengenalan makanan di perangkat</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Banyak grup untuk keluarga, kantor, atau teman olahraga</li><li>Bandingkan makanan beberapa minggu lalu dan hari ini berdampingan</li><li>Lihat makanan yang paling sering kamu santap</li><li>Kunci aplikasi dengan Face ID atau Touch ID</li></ul>
+          <p class="muted">Langganan tahunan atau bulanan, atau sekali beli seumur hidup</p>
+        </div>
+      </div>
+      <p class="muted">Langganan diperpanjang otomatis kecuali dibatalkan setidaknya 24 jam sebelum periode berakhir. Batalkan kapan saja di Pengaturan &gt; Akun Apple &gt; Langganan. Ketentuan layanan: m1zz.github.io/RoutineCamera/id/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Pertanyaan umum</h2>
+      <div class="faq"><details><summary>Di mana fotoku disimpan?</summary><p>Di perangkatmu. Jika Simpan ke Foto Otomatis diaktifkan di Pengaturan, foto juga masuk ke album Sekki di app Foto. Selama Bagikan Makananku aktif (awalnya aktif), foto diunggah ke iCloud supaya teman yang kamu tambahkan bisa melihatnya. Matikan di Pengaturan &gt; Akun &amp; Berbagi.</p></details>
+<details><summary>Bagaimana cara menambah teman?</summary><p>Di layar Teman, bagikan kode enam karakter milikmu dan masukkan kode temanmu. Beberapa kode bisa ditempel sekaligus, dipisahkan koma.</p></details>
+<details><summary>Bagaimana cara menyemangati teman?</summary><p>Buka salah satu makanan temanmu dan tinggalkan emoji atau komentar singkat. Kalau dia belum mencatat, ketuk kotak kosongnya untuk mencolek pelan.</p></details>
+<details><summary>Apakah beruntunku putus kalau melewatkan satu kali makan?</summary><p>Tidak. Catat waktu makan apa pun hari itu, termasuk camilan, dan beruntunmu berlanjut. Meski melewatkan satu hari penuh, total hari tercatat tidak berkurang.</p></details>
+<details><summary>Notifikasi tidak masuk.</summary><p>Periksa di Pengaturan iOS &gt; Notifikasi bahwa notifikasi Sekki diizinkan, dan perangkat sudah masuk ke iCloud. Jam pengingat bisa diubah di pengaturan aplikasi.</p></details>
+<details><summary>Apakah pengenalan makanan mengirim fotoku ke server?</summary><p>Tidak. Prosesnya di perangkat, jadi foto tidak pernah keluar dari ponsel. Gratis tanpa batas.</p></details>
+<details><summary>Bagaimana cara menghapus akun dan data?</summary><p>Buka Teman &gt; Akun &gt; Hapus Akun. Akun dan data makanan di server akan dihapus dan tidak bisa dipulihkan. Kalau ada kendala, kirim email ke kami.</p></details>
+<details><summary>Bagaimana cara membatalkan langganan?</summary><p>Di Pengaturan &gt; Akun Apple &gt; Langganan. Langganan diperpanjang otomatis kecuali dibatalkan setidaknya 24 jam sebelum periode berakhir. Pembelian seumur hidup cukup dibayar sekali.</p></details></div>
+      <p class="contact">Laporan bug, ide fitur, atau pertanyaan soal akun: kirim email ke <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> atau DM Instagram @lee25_ios. Biasanya kami membalas dalam satu atau dua hari.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Mulai<br>dari makan siang hari ini</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Unduh gratis di App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Bahasa"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id" aria-current="page">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Kebijakan Privasi</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

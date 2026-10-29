@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Podpora</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: fotodeník jídla, kterému stačí jedna fotka před jídlem</title>
+  <meta name="description" content="Jedna fotka před jídlem a Sekki ji zařadí k snídani, obědu nebo večeři. Jedno jídlo denně udrží sérii a přátelé se navzájem povzbuzují.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/cs/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: fotodeník jídla, kterému stačí jedna fotka před jídlem">
+  <meta property="og:description" content="Jedna fotka před jídlem a Sekki ji zařadí k snídani, obědu nebo večeři. Jedno jídlo denně udrží sérii a přátelé se navzájem povzbuzují.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/cs/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/cs/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Fotodeník jídla pro snídani, oběd a večeři</p>
+  <a class="skip" href="#main">Přejít na obsah</a>
+  <header class="bar">
+    <a class="brand" href="../cs/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Jazyk</a>
+  </header>
 
-    <p>Vyfoťte jídlo před jídlem a je zapsáno. Sekki ho zařadí ke snídani, obědu, večeři nebo svačině, udrží vaši sérii i ve dnech, kdy zapíšete jen jedno jídlo, a přátelům umožní, aby se navzájem povzbuzovali.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Jedna fotka před jídlem.<br>A je zapsáno.</h1>
+        <p class="lead">Sekki se podívá, kdy jste fotili, a zařadí fotku k snídani, obědu, večeři nebo svačině. Stačí zapsat jedno jídlo denně a série běží dál.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Stáhnout zdarma v App Storu</a><a class="try" href="#try">Vyzkoušejte si to ↓</a></div>
+        <p class="muted small">Zápisy, statistiky, widgety i sdílení s přáteli jsou zdarma.</p>
+      </div>
+      <div class="phone"><img src="../img/cs/01-feed.jpg" alt="Jedna fotka před jídlem. A je zapsáno." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Kontakt</h2>
-    <p>Hlášení chyb, nápady na nové funkce i dotazy k účtu jsou vždy vítané.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Napsat e-mail</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-mail: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Obvykle odpovídáme do jednoho až dvou dnů.
-    </p>
 
-    <h2>Časté dotazy</h2>
+    <section class="reveal" id="try">
+      <h2>Vyzkoušejte si to</h2>
+      <p class="muted">Zvolte čas a klepněte na tlačítko zápisu. Stejně jako v aplikaci už tlačítko ukazuje jídlo pro tu dobu.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Vyzkoušejte si to&quot;, &quot;lead&quot;: &quot;Zvolte čas a klepněte na tlačítko zápisu. Stejně jako v aplikaci už tlačítko ukazuje jídlo pro tu dobu.&quot;, &quot;clock&quot;: &quot;Fotka pořízena v&quot;, &quot;record&quot;: &quot;Zapsat: {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Snídaně&quot;, &quot;lunch&quot;: &quot;Oběd&quot;, &quot;dinner&quot;: &quot;Večeře&quot;, &quot;snack&quot;: &quot;Svačina&quot;}, &quot;today&quot;: &quot;Dnes · {n}&quot;, &quot;empty&quot;: &quot;Dnes zatím nic zapsáno&quot;, &quot;streak&quot;: &quot;Série {n} dní&quot;, &quot;total&quot;: &quot;Celkem {n} dní&quot;, &quot;before&quot;: &quot;Před&quot;, &quot;ateAll&quot;: &quot;Snězeno&quot;, &quot;kept&quot;: &quot;Stačí jedno jídlo: dnešek už se počítá do série.&quot;, &quot;rule&quot;: &quot;Stejná pravidla jako v aplikaci: 5 až 10 h snídaně, 11 až 15 h oběd, 16 až 21 h večeře. V jinou dobu, nebo když je jídlo už zapsané, jde o svačinu.&quot;, &quot;reset&quot;: &quot;Začít znovu&quot;, &quot;note&quot;: &quot;Fotky v ukázce jsou ilustrační.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Kde jsou uložené moje fotky?</h3>
-      <p>Ve vašem zařízení. Pokud v Nastavení zapnete volbu „Automaticky ukládat do Fotek“, ukládají se také do alb Sekki ve Fotkách. Dokud je zapnutá volba „Sdílet moje jídla“ (na začátku je zapnutá), nahrávají se do iCloudu, aby je viděli přátelé, které přidáte. Vypnout ji můžete v části Nastavení &gt; Účet a sdílení.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Vzdali jste deník jídla po třech dnech?</h2>
+      <p>Jednou vynecháte snídani, zapomenete na večeři a prázdná políčka začnou otravovat, dokud aplikaci nesmažete. Sekki prázdná políčka nemá. Hromadí se jen zapsaná jídla v pořadí a jediná fotka stačí, aby se den počítal.</p>
+    </section>
 
-    <div class="card">
-      <h3>Jak přidám přátele?</h3>
-      <p>Na obrazovce Přátelé sdílejte svůj šestimístný kód pro přátele a zadejte kód svého přítele. Můžete také vložit více kódů najednou, oddělených čárkami.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Vyfoťte a jídlo je zařazené</h2>
+        <p>Podle času pořízení zařadí Sekki fotku k snídani, obědu, večeři nebo svačině. Přidejte fotky před a po jídle, zapište bez fotky nebo napište poznámku.<br>Jídlo se rozpozná zdarma přímo v zařízení a fotky nikdy neopustí telefon.</p>
+      </div>
+      <div class="phone"><img src="../img/cs/02-detail.jpg" alt="Vyfoťte a jídlo je zařazené" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Jak povzbudím přítele?</h3>
-      <p>Otevřete jídlo přítele a zanechte emoji nebo krátký komentář. Pokud přítel ještě žádné jídlo nezapsal, klepnutím na prázdné políčko mu pošlete jemné šťouchnutí.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Záznam, který nikdy neubývá</h2>
+        <p>Jedno jídlo denně udrží sérii a celkový počet zapsaných dní nikdy neklesne. Týdenní a měsíční statistiky ukazují, kolik dní a jídel jste zapsali, ne procento splnění.<br>Cestou sbíráte úspěchy jako Série 7 dní nebo Ranní ptáče.</p>
+      </div>
+      <div class="phone"><img src="../img/cs/03-stats.jpg" alt="Záznam, který nikdy neubývá" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Jak smažu svůj účet a data?</h3>
-      <p>Přejděte na Přátelé, poté na Účet a zvolte Smazat účet. Váš účet i data jídel uložená na serveru se smažou a nelze je obnovit. Pokud by se cokoli pokazilo, stačí nám napsat.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Jen jídla, která chcete, bez otevírání aplikace</h2>
+        <p>Vyberte, na která jídla chcete připomínky, a nastavte časy podle svého dne. Po fotce před jídlem označíte Snězeno přímo z oznámení.<br>Zapisujte i tlačítkem Akce, přes Siri, Zkratky nebo widget a přidávejte přátele kódem, abyste se povzbuzovali emoji a komentáři.</p>
+      </div>
+      <div class="phone"><img src="../img/cs/04-settings.jpg" alt="Jen jídla, která chcete, bez otevírání aplikace" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Nechodí mi oznámení</h3>
-      <p>Zkontrolujte, zda jsou pro Sekki povolená oznámení v Nastavení iOS v části Oznámení a zda je vaše zařízení přihlášené k iCloudu. Časy připomínek jídel můžete změnit v Nastavení aplikace.</p>
-    </div>
+    <section class="reveal">
+      <h2>Začnete ve třech krocích</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Vyberte jídla</h3><p>Při prvním spuštění se Sekki zeptá, na která jídla upozorňovat. Změníte to v Nastavení.</p></li>
+<li class="card"><span class="n">2</span><h3>Fotka před jídlem</h3><p>Tlačítko zápisu už ukazuje jídlo pro aktuální čas. Klepnout, vyfotit, hotovo.</p></li>
+<li class="card"><span class="n">3</span><h3>Dojedeno? Klepněte</h3><p>Klepněte na Snězeno v oznámení nebo widgetu, nebo přidejte fotku po jídle.</p></li></ol>
+    </section>
 
-    <h2>Podmínky a zásady</h2>
-    <p><a href="privacy.html">Zásady ochrany osobních údajů →</a></p>
-    <p><a href="terms.html">Podmínky použití →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Zapisování bez otevírání aplikace</h2>
+      <div class="card table">
+        <dl><div><dt>Oznámení</dt><dd>Po fotce před jídlem označte Snězeno přímo z upozornění</dd></div><div><dt>Widget na ploše</dt><dd>Dnešní počet zápisů a právě probíhající jídlo, plus tlačítko Snězeno</dd></div><div><dt>Widgety na zamčené obrazovce</dt><dd>Obdélníkový, kruhový a v řádku</dd></div><div><dt>Tlačítko Akce · Siri · Zkratky</dt><dd>Snězeno jedním stiskem nebo jednou větou</dd></div><div><dt>Ukládání do Fotek</dt><dd>Zapněte v Nastavení a jídla i cvičení se uloží do samostatných alb Sekki</dd></div><div><dt>Režim cvičení</dt><dd>Cvičení se ukládá odděleně od jídel a počet tréninků za měsíc vidíte hned</dd></div></dl>
+      </div>
+      <p class="muted">Tlačítko Snězeno ve widgetu vyžaduje iOS 17 nebo novější.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Zásady ochrany osobních údajů</a> · <a href="terms.html">Podmínky použití</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Zápisy jsou zdarma. Sekki Pro jde hlouběji.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Zdarma</h3>
+          <ul><li>Zápisy s fotkou a automatickým zařazením, fotky před a po, poznámky</li><li>Série, celkový počet dní, týdenní a měsíční statistiky, úspěchy</li><li>Připomínky vybraných jídel a Snězeno bez otevírání aplikace</li><li>Widgety, tlačítko Akce, Siri a Zkratky</li><li>Sdílení jídel a cvičení s přáteli, emoji a komentáře</li><li>Vytvořit jednu skupinu, přidat se k libovolnému počtu dalších</li><li>Rozpoznávání jídla v zařízení</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Více skupin pro rodinu, práci nebo partu z posilovny</li><li>Porovnání jídel z doby před pár týdny a dnes vedle sebe</li><li>Jídla, která jíte nejčastěji</li><li>Zamčení aplikace pomocí Face ID nebo Touch ID</li></ul>
+          <p class="muted">Roční nebo měsíční předplatné, nebo jednorázový doživotní nákup</p>
+        </div>
+      </div>
+      <p class="muted">Předplatné se automaticky obnovuje, pokud ho nezrušíte alespoň 24 hodin před koncem období. Zrušit ho můžete kdykoli v Nastavení &gt; Apple účet &gt; Předplatná. Podmínky služby: m1zz.github.io/RoutineCamera/cs/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Časté dotazy</h2>
+      <div class="faq"><details><summary>Kde jsou uložené moje fotky?</summary><p>Ve vašem zařízení. Když v Nastavení zapnete Automaticky ukládat do Fotek, uloží se i do alb Sekki ve Fotkách. Dokud je zapnuté Sdílet moje jídla (na začátku je zapnuté), nahrávají se na iCloud, aby je viděli přidaní přátelé. Vypnout to můžete v Nastavení &gt; Účet a sdílení.</p></details>
+<details><summary>Jak přidám přátele?</summary><p>Na obrazovce Přátelé sdílejte svůj šestimístný kód a zadejte kód přítele. Více kódů můžete vložit najednou, oddělené čárkou.</p></details>
+<details><summary>Jak povzbudím přítele?</summary><p>Otevřete jídlo přítele a nechte emoji nebo krátký komentář. Pokud ještě nic nezapsal, klepněte na prázdné políčko a jemně ho šťouchněte.</p></details>
+<details><summary>Přeruší se série, když vynechám jídlo?</summary><p>Ne. Zapište ten den jakékoli jídlo, i svačinu, a série pokračuje. I když vynecháte celý den, celkový počet zapsaných dní neklesne.</p></details>
+<details><summary>Nechodí mi oznámení.</summary><p>Zkontrolujte v Nastavení iOS &gt; Oznámení, že má Sekki oznámení povolená a že je zařízení přihlášené k iCloudu. Časy připomínek změníte v nastavení aplikace.</p></details>
+<details><summary>Posílá rozpoznávání jídla fotky na server?</summary><p>Ne. Probíhá v zařízení, takže fotky nikdy neopustí telefon. Zdarma a bez omezení.</p></details>
+<details><summary>Jak smažu účet a data?</summary><p>V Přátelé &gt; Účet &gt; Smazat účet. Účet i data o jídlech na serveru se smažou a nelze je obnovit. Když něco nepůjde, napište nám.</p></details>
+<details><summary>Jak zruším předplatné?</summary><p>V Nastavení &gt; Apple účet &gt; Předplatná. Obnovuje se automaticky, pokud ho nezrušíte alespoň 24 hodin před koncem období. Doživotní nákup se platí jednou.</p></details></div>
+      <p class="contact">Chyby, nápady a dotazy k účtu pište na <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> nebo do DM na Instagramu @lee25_ios. Obvykle odpovídáme do jednoho až dvou dnů.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Začněte<br>dnešním obědem</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Stáhnout zdarma v App Storu</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Jazyk"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs" aria-current="page">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Zásady ochrany soukromí</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

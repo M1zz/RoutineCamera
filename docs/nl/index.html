@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Ondersteuning</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: het foto-eetdagboek waarvoor één foto voor het eten genoeg is</title>
+  <meta name="description" content="Eén foto voor het eten en Sekki zet hem bij ontbijt, lunch of avondeten. Eén maaltijd per dag houdt je reeks in stand, en vrienden moedigen elkaar aan.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/nl/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: het foto-eetdagboek waarvoor één foto voor het eten genoeg is">
+  <meta property="og:description" content="Eén foto voor het eten en Sekki zet hem bij ontbijt, lunch of avondeten. Eén maaltijd per dag houdt je reeks in stand, en vrienden moedigen elkaar aan.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/nl/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/nl/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../sitegen.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Een foto-eetdagboek voor ontbijt, lunch en avondeten</p>
+  <a class="skip" href="#main">Naar inhoud</a>
+  <header class="bar">
+    <a class="brand" href="../nl/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Taal</a>
+  </header>
 
-    <p>Maak één foto voordat je eet en je maaltijd staat erin. Sekki zet die bij ontbijt, lunch, avondeten of een tussendoortje, houdt je reeks gaande ook op dagen dat je maar één maaltijd vastlegt, en laat vrienden elkaar aanmoedigen.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Eén foto voor het eten.<br>En het staat erin.</h1>
+        <p class="lead">Sekki kijkt wanneer de foto is gemaakt en zet hem bij ontbijt, lunch, avondeten of een tussendoortje. Leg maar één maaltijd per dag vast en je reeks loopt door.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Gratis downloaden in de App Store</a><a class="try" href="#try">Probeer het zelf ↓</a></div>
+        <p class="muted small">Vastleggen, statistieken, widgets en delen met vrienden zijn gratis.</p>
+      </div>
+      <div class="phone"><img src="../img/nl/01-feed.jpg" alt="Eén foto voor het eten. En het staat erin." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Contact</h2>
-    <p>Bugmeldingen, ideeën voor functies en vragen over je account zijn altijd welkom.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Mail ons</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-mail: leeo@kakao.com · Instagram: @lee25_ios<br>
-      We antwoorden meestal binnen een à twee dagen.
-    </p>
 
-    <h2>Veelgestelde vragen</h2>
+    <section class="reveal" id="try">
+      <h2>Probeer het zelf</h2>
+      <p class="muted">Kies een tijd en tik op de vastlegknop. Net als in de app staat de maaltijd voor die tijd al op de knop.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Probeer het zelf&quot;, &quot;lead&quot;: &quot;Kies een tijd en tik op de vastlegknop. Net als in de app staat de maaltijd voor die tijd al op de knop.&quot;, &quot;clock&quot;: &quot;Foto gemaakt om&quot;, &quot;record&quot;: &quot;{meal} vastleggen&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Ontbijt&quot;, &quot;lunch&quot;: &quot;Lunch&quot;, &quot;dinner&quot;: &quot;Avondeten&quot;, &quot;snack&quot;: &quot;Tussendoortje&quot;}, &quot;today&quot;: &quot;Vandaag · {n}&quot;, &quot;empty&quot;: &quot;Vandaag nog niets vastgelegd&quot;, &quot;streak&quot;: &quot;{n} dagen op rij&quot;, &quot;total&quot;: &quot;{n} dagen in totaal&quot;, &quot;before&quot;: &quot;Voor&quot;, &quot;ateAll&quot;: &quot;Opgegeten&quot;, &quot;kept&quot;: &quot;Eén maaltijd is genoeg: vandaag telt al mee voor je reeks.&quot;, &quot;rule&quot;: &quot;Dezelfde regels als de app: van 5 tot 10 uur is ontbijt, van 11 tot 15 uur lunch, van 16 tot 21 uur avondeten. Op andere tijden, of als die maaltijd al is vastgelegd, wordt het een tussendoortje.&quot;, &quot;reset&quot;: &quot;Opnieuw&quot;, &quot;note&quot;: &quot;De foto&#x27;s in de demo zijn voorbeelden.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Waar worden mijn foto’s bewaard?</h3>
-      <p>Op je apparaat. Als je 'Automatisch bewaren in Foto’s' aanzet in Instellingen, worden ze ook bewaard in de Sekki-albums in Foto’s. Zolang 'Mijn maaltijden delen' aanstaat (dat is standaard zo), worden ze geüpload naar iCloud zodat de vrienden die je toevoegt ze kunnen zien. Je kunt het uitzetten via Instellingen &gt; Account en delen.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Ooit na drie dagen gestopt met een eetdagboek?</h2>
+      <p>Je slaat een ontbijt over, vergeet een avondeten, en de lege vakjes gaan zo irriteren dat je de app verwijdert. Sekki heeft geen lege vakjes. Alleen de maaltijden die je vastlegt stapelen zich op volgorde op, en één foto is genoeg om de dag te laten tellen.</p>
+    </section>
 
-    <div class="card">
-      <h3>Hoe voeg ik vrienden toe?</h3>
-      <p>Deel in het scherm Vrienden je vriendcode van zes tekens en voer de code van je vriend in. Je kunt ook meerdere codes tegelijk plakken, gescheiden door komma’s.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Foto maken, maaltijd staat goed</h2>
+        <p>Op basis van het tijdstip zet Sekki de foto bij ontbijt, lunch, avondeten of een tussendoortje. Voeg foto's van voor en na toe, leg vast zonder foto of schrijf een notitie.<br>Eten wordt gratis op het toestel herkend, en je foto's verlaten nooit je telefoon.</p>
+      </div>
+      <div class="phone"><img src="../img/nl/02-detail.jpg" alt="Foto maken, maaltijd staat goed" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Hoe moedig ik een vriend aan?</h3>
-      <p>Open de maaltijd van een vriend en laat een emoji of een korte reactie achter. Heeft iemand nog geen maaltijd vastgelegd, tik dan op het lege vakje om een vriendelijk seintje te sturen.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Een dagboek dat nooit krimpt</h2>
+        <p>Eén maaltijd per dag houdt je reeks in stand, en het totaal aantal vastgelegde dagen gaat nooit omlaag. Week- en maandstatistieken tonen hoeveel dagen en maaltijden je hebt vastgelegd, geen percentage.<br>Onderweg verzamel je prestaties als 7 dagen op rij en Vroege vogel.</p>
+      </div>
+      <div class="phone"><img src="../img/nl/03-stats.jpg" alt="Een dagboek dat nooit krimpt" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Hoe verwijder ik mijn account en gegevens?</h3>
-      <p>Ga naar Vrienden, dan Account, dan Account verwijderen. Je account en de maaltijdgegevens op de server worden verwijderd en kunnen niet worden hersteld. Gaat er iets mis, stuur ons dan gewoon een e-mail.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Alleen de maaltijden die jij kiest, zonder de app te openen</h2>
+        <p>Kies voor welke maaltijden je herinneringen wilt en stem de tijden af op je dag. Na de foto van vooraf tik je direct in de melding op Opgegeten.<br>Leg ook vast met de Actieknop, Siri, Opdrachten of een widget, en voeg vrienden toe met een code om elkaar aan te moedigen met emoji en reacties.</p>
+      </div>
+      <div class="phone"><img src="../img/nl/04-settings.jpg" alt="Alleen de maaltijden die jij kiest, zonder de app te openen" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Ik krijg geen meldingen</h3>
-      <p>Controleer of meldingen voor Sekki zijn toegestaan in iOS Instellingen, dan Meldingen, en of je apparaat is aangemeld bij iCloud. De tijden van je maaltijdherinneringen kun je wijzigen in de instellingen van de app.</p>
-    </div>
+    <section class="reveal">
+      <h2>In drie stappen aan de slag</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Kies je maaltijden</h3><p>De eerste keer vraagt Sekki aan welke maaltijden je herinnerd wilt worden. Aan te passen in Instellingen.</p></li>
+<li class="card"><span class="n">2</span><h3>Eén foto voor het eten</h3><p>De vastlegknop toont al de maaltijd van dit moment. Tikken, foto maken, klaar.</p></li>
+<li class="card"><span class="n">3</span><h3>Op? Eén tik</h3><p>Tik op Opgegeten in de melding of widget, of voeg een foto van na toe.</p></li></ol>
+    </section>
 
-    <h2>Voorwaarden en beleid</h2>
-    <p><a href="privacy.html">Privacybeleid →</a></p>
-    <p><a href="terms.html">Gebruiksvoorwaarden →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Vastleggen zonder de app te openen</h2>
+      <div class="card table">
+        <dl><div><dt>Melding</dt><dd>Na de foto van vooraf tik je direct op Opgegeten in de melding</dd></div><div><dt>Beginschermwidget</dt><dd>Zie het aantal van vandaag en de maaltijd die nu loopt, en tik op Opgegeten</dd></div><div><dt>Toegangsschermwidgets</dt><dd>Rechthoekig, rond en op één regel</dd></div><div><dt>Actieknop · Siri · Opdrachten</dt><dd>Opgegeten vastleggen met één druk of één zin</dd></div><div><dt>Bewaren in Foto's</dt><dd>Zet het aan in Instellingen voor aparte Sekki-albums voor maaltijden en workouts</dd></div><div><dt>Workoutmodus</dt><dd>Workouts staan los van maaltijden, met het aantal van deze maand in één oogopslag</dd></div></dl>
+      </div>
+      <p class="muted">De knop Opgegeten in de widget vereist iOS 17 of nieuwer.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Privacybeleid</a> · <a href="terms.html">Gebruiksvoorwaarden</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Vastleggen is gratis. Sekki Pro gaat dieper.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Gratis</h3>
+          <ul><li>Fotologboek met automatische indeling, foto's van voor en na, notities</li><li>Reeksen, totaal aantal dagen, week- en maandstatistieken, prestaties</li><li>Herinneringen voor gekozen maaltijden, Opgegeten zonder de app te openen</li><li>Widgets, Actieknop, Siri en Opdrachten</li><li>Maaltijden en workouts delen met vrienden, emoji en reacties</li><li>Eén groep maken, aan zoveel groepen meedoen als je wilt</li><li>Etensherkenning op het toestel</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Meerdere groepen voor familie, werk of je sportclub</li><li>Maaltijden van een paar weken terug naast die van nu vergelijken</li><li>Zien wat je het vaakst eet</li><li>De app vergrendelen met Face ID of Touch ID</li></ul>
+          <p class="muted">Jaar- of maandabonnement, of eenmalige aankoop voor altijd</p>
+        </div>
+      </div>
+      <p class="muted">Het abonnement wordt automatisch verlengd, tenzij je het minstens 24 uur voor het einde van de periode opzegt. Opzeggen kan altijd via Instellingen &gt; Apple Account &gt; Abonnementen. Servicevoorwaarden: m1zz.github.io/RoutineCamera/nl/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Veelgestelde vragen</h2>
+      <div class="faq"><details><summary>Waar worden mijn foto's bewaard?</summary><p>Op je toestel. Zet je Automatisch bewaren in Foto's aan in Instellingen, dan komen ze ook in de Sekki-albums in Foto's. Zolang Mijn maaltijden delen aan staat (dat staat het standaard), worden ze naar iCloud geüpload zodat vrienden die je hebt toegevoegd ze kunnen zien. Uitzetten kan via Instellingen &gt; Account en delen.</p></details>
+<details><summary>Hoe voeg ik vrienden toe?</summary><p>Deel op het scherm Vrienden je code van zes tekens en voer de code van je vriend in. Je kunt meerdere codes tegelijk plakken, gescheiden door komma's.</p></details>
+<details><summary>Hoe moedig ik een vriend aan?</summary><p>Open een maaltijd van je vriend en laat een emoji of korte reactie achter. Heeft je vriend nog niets vastgelegd, tik dan op het lege vakje voor een zacht porretje.</p></details>
+<details><summary>Ben ik mijn reeks kwijt als ik een maaltijd oversla?</summary><p>Nee. Leg die dag welke maaltijd dan ook vast, tussendoortjes inbegrepen, en je reeks loopt door. Zelfs als je een hele dag overslaat, gaat het totaal aantal vastgelegde dagen niet omlaag.</p></details>
+<details><summary>Ik krijg geen meldingen.</summary><p>Controleer in iOS-instellingen &gt; Berichtgeving of meldingen van Sekki zijn toegestaan en of het toestel bij iCloud is ingelogd. De herinneringstijden pas je aan in de instellingen van de app.</p></details>
+<details><summary>Stuurt de etensherkenning mijn foto's naar een server?</summary><p>Nee. Het gebeurt op je toestel, dus je foto's verlaten nooit je telefoon. Gratis en zonder limiet.</p></details>
+<details><summary>Hoe verwijder ik mijn account en gegevens?</summary><p>Ga naar Vrienden &gt; Account &gt; Account verwijderen. Je account en de maaltijdgegevens op de server worden verwijderd en zijn niet terug te halen. Gaat er iets mis, mail ons dan.</p></details>
+<details><summary>Hoe zeg ik mijn abonnement op?</summary><p>Via Instellingen &gt; Apple Account &gt; Abonnementen. Het wordt automatisch verlengd, tenzij je minstens 24 uur voor het einde van de periode opzegt. De aankoop voor altijd betaal je één keer.</p></details></div>
+      <p class="contact">Bugs, ideeën of vragen over je account: mail naar <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> of stuur een DM naar @lee25_ios op Instagram. We reageren meestal binnen een à twee dagen.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Begin<br>bij de lunch van vandaag</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Gratis downloaden in de App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Taal"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl" aria-current="page">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Privacybeleid</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

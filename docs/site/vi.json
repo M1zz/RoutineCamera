@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: nhật ký ăn uống bằng ảnh, chỉ cần chụp một tấm trước khi ăn",
+  "description": "Chụp một tấm trước khi ăn, Sekki tự xếp vào bữa sáng, bữa trưa hay bữa tối. Mỗi ngày một bữa là giữ được chuỗi, và bạn bè cổ vũ nhau.",
+  "hero": {
+    "headline": "Chụp một tấm trước khi ăn.\nVậy là ghi xong.",
+    "lead": "Sekki xem giờ chụp rồi tự xếp vào bữa sáng, bữa trưa, bữa tối hoặc ăn vặt. Mỗi ngày chỉ cần ghi một bữa, chuỗi vẫn không đứt.",
+    "cta": "Tải miễn phí trên App Store",
+    "note": "Ghi chép, thống kê, tiện ích và chia sẻ với bạn bè đều miễn phí."
+  },
+  "demo": {
+    "title": "Thử chụp xem",
+    "lead": "Chọn giờ chụp rồi nhấn nút ghi. Giống trong ứng dụng, nút đã ghi sẵn bữa của giờ đó.",
+    "clock": "Giờ chụp",
+    "record": "Ghi {meal}",
+    "meals": {
+      "breakfast": "Bữa sáng",
+      "lunch": "Bữa trưa",
+      "dinner": "Bữa tối",
+      "snack": "Ăn vặt"
+    },
+    "today": "Hôm nay · {n}",
+    "empty": "Hôm nay chưa ghi gì",
+    "streak": "Chuỗi {n} ngày",
+    "total": "Tổng {n} ngày",
+    "before": "Trước",
+    "ateAll": "Đã ăn xong",
+    "kept": "Một bữa là đủ: hôm nay đã được tính vào chuỗi.",
+    "rule": "Cùng quy tắc với ứng dụng: 5 đến 10 giờ là bữa sáng, 11 đến 15 giờ là bữa trưa, 16 đến 21 giờ là bữa tối. Giờ khác, hoặc bữa đã ghi rồi, sẽ thành ăn vặt.",
+    "reset": "Làm lại",
+    "note": "Ảnh trong bản thử là ảnh mẫu."
+  },
+  "problem": {
+    "title": "Bạn từng bỏ nhật ký ăn uống sau ba ngày?",
+    "text": "Bỏ một bữa sáng, quên một bữa tối, những ô trống bắt đầu gây khó chịu cho tới khi bạn xóa ứng dụng. Sekki không có ô trống. Chỉ những bữa bạn ghi được xếp theo thời gian, và chụp một bữa là ngày đó đã được tính."
+  },
+  "features": [
+    {
+      "title": "Chụp xong, bữa ăn tự vào chỗ",
+      "text": "Dựa vào giờ chụp, Sekki xếp ảnh vào bữa sáng, bữa trưa, bữa tối hoặc ăn vặt. Thêm ảnh trước và sau khi ăn, ghi không cần ảnh hoặc viết ghi chú.\nMón ăn được nhận diện ngay trên máy, miễn phí, và ảnh không bao giờ rời khỏi điện thoại.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Ghi chép không bao giờ giảm",
+      "text": "Mỗi ngày một bữa là giữ chuỗi, và tổng số ngày đã ghi không bao giờ giảm. Thống kê tuần và tháng cho thấy bạn đã ghi bao nhiêu ngày, bao nhiêu bữa thay vì tỉ lệ hoàn thành.\nDọc đường bạn còn gom được thành tích như Chuỗi 7 ngày hay Người dậy sớm.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Chỉ những bữa bạn chọn, không cần mở ứng dụng",
+      "text": "Chọn bữa muốn được nhắc và chỉnh giờ ăn theo nếp sống của bạn. Chụp ảnh trước khi ăn xong, bạn đánh dấu Đã ăn xong ngay từ thông báo.\nGhi bằng nút Tác vụ, Siri, Phím tắt hoặc tiện ích, và thêm bạn bằng mã để cổ vũ nhau bằng emoji và bình luận.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Bắt đầu trong ba bước",
+    "items": [
+      {
+        "title": "Chọn bữa cần theo dõi",
+        "text": "Lần đầu mở, Sekki hỏi bạn muốn nhắc bữa nào. Có thể đổi sau trong Cài đặt."
+      },
+      {
+        "title": "Chụp một tấm trước khi ăn",
+        "text": "Nút ghi đã hiện sẵn bữa của giờ hiện tại. Nhấn, chụp, xong."
+      },
+      {
+        "title": "Ăn xong thì chạm",
+        "text": "Chạm Đã ăn xong trong thông báo hoặc tiện ích, hoặc thêm ảnh sau khi ăn."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Ghi mà không cần mở ứng dụng",
+    "rows": [
+      ["Thông báo", "Sau ảnh trước khi ăn, đánh dấu Đã ăn xong ngay từ thông báo"],
+      ["Tiện ích Màn hình chính", "Xem số bữa hôm nay và bữa đang ăn, rồi chạm nút Đã ăn xong"],
+      ["Tiện ích Màn hình khóa", "Chữ nhật, tròn và một dòng"],
+      ["Nút Tác vụ · Siri · Phím tắt", "Ghi Đã ăn xong bằng một nút hoặc một câu"],
+      ["Lưu vào Ảnh", "Bật trong Cài đặt để có album Sekki riêng cho bữa ăn và tập luyện"],
+      ["Chế độ tập luyện", "Tập luyện được lưu riêng với bữa ăn, số buổi trong tháng hiện ngay"]
+    ],
+    "note": "Nút Đã ăn xong trên tiện ích cần iOS 17 trở lên."
+  },
+  "pricing": {
+    "title": "Ghi chép miễn phí. Sekki Pro cho bạn xem sâu hơn.",
+    "free": {
+      "name": "Miễn phí",
+      "items": [
+        "Ghi bằng ảnh và tự xếp bữa, ảnh trước và sau, ghi chú",
+        "Chuỗi, tổng số ngày, thống kê tuần và tháng, thành tích",
+        "Nhắc các bữa bạn chọn, Đã ăn xong không cần mở ứng dụng",
+        "Tiện ích, nút Tác vụ, Siri và Phím tắt",
+        "Chia sẻ bữa ăn và tập luyện với bạn bè, cổ vũ bằng emoji và bình luận",
+        "Tạo một nhóm, tham gia bao nhiêu nhóm khác cũng được",
+        "Nhận diện món ăn ngay trên máy"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Nhiều nhóm cho gia đình, công ty, hội tập luyện",
+        "So sánh song song bữa ăn vài tuần trước và bây giờ",
+        "Xem những món bạn ăn nhiều nhất",
+        "Khóa ứng dụng bằng Face ID hoặc Touch ID"
+      ],
+      "note": "Gói đăng ký theo năm hoặc tháng, hoặc mua một lần dùng trọn đời"
+    },
+    "note": "Gói đăng ký tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi hết kỳ. Hủy bất cứ lúc nào trong Cài đặt > Tài khoản Apple > Đăng ký. Điều khoản dịch vụ: m1zz.github.io/RoutineCamera/vi/terms.html"
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "items": [
+      {
+        "q": "Ảnh được lưu ở đâu?",
+        "a": "Trên thiết bị của bạn. Nếu bật Tự động lưu vào Ảnh trong Cài đặt, ảnh cũng vào album Sekki trong ứng dụng Ảnh. Khi Chia sẻ bữa ăn của tôi đang bật (mặc định là bật), ảnh được tải lên iCloud để bạn bè đã thêm xem được. Tắt trong Cài đặt > Tài khoản & chia sẻ."
+      },
+      {
+        "q": "Thêm bạn bè thế nào?",
+        "a": "Trong màn hình Bạn bè, chia sẻ mã 6 ký tự của bạn và nhập mã của bạn kia. Có thể dán nhiều mã cùng lúc, ngăn cách bằng dấu phẩy."
+      },
+      {
+        "q": "Cổ vũ bạn bè thế nào?",
+        "a": "Mở bữa ăn của bạn ấy và để lại emoji hoặc một bình luận ngắn. Nếu bạn ấy chưa ghi bữa nào, chạm vào ô trống để nhắc khẽ."
+      },
+      {
+        "q": "Bỏ một bữa có làm đứt chuỗi không?",
+        "a": "Không. Hôm đó chỉ cần ghi một bữa bất kỳ, kể cả ăn vặt, chuỗi vẫn tiếp tục. Kể cả bỏ cả ngày, tổng số ngày đã ghi cũng không giảm."
+      },
+      {
+        "q": "Tôi không nhận được thông báo.",
+        "a": "Kiểm tra trong Cài đặt iOS > Thông báo xem Sekki đã được cho phép chưa, và thiết bị đã đăng nhập iCloud chưa. Giờ nhắc bữa ăn đổi được trong cài đặt của ứng dụng."
+      },
+      {
+        "q": "Nhận diện món ăn có gửi ảnh lên máy chủ không?",
+        "a": "Không. Việc nhận diện diễn ra trên máy, nên ảnh không rời khỏi điện thoại. Miễn phí và không giới hạn."
+      },
+      {
+        "q": "Tôi muốn xóa tài khoản và dữ liệu.",
+        "a": "Vào Bạn bè > Tài khoản > Xóa tài khoản. Tài khoản và dữ liệu bữa ăn trên máy chủ sẽ bị xóa và không thể khôi phục. Nếu có vấn đề, hãy gửi email cho chúng tôi."
+      },
+      {
+        "q": "Hủy gói đăng ký thế nào?",
+        "a": "Trong Cài đặt > Tài khoản Apple > Đăng ký. Gói tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi hết kỳ. Gói trọn đời chỉ trả một lần."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Bắt đầu\ntừ bữa trưa hôm nay",
+    "cta": "Tải miễn phí trên App Store"
+  },
+  "ui": {
+    "skip": "Chuyển đến nội dung",
+    "languages": "Ngôn ngữ",
+    "privacy": "Chính sách quyền riêng tư",
+    "contact": "Báo lỗi, góp ý tính năng hay hỏi về tài khoản, hãy gửi email tới {email} hoặc nhắn tin Instagram @lee25_ios. Chúng tôi thường trả lời trong một hai ngày."
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: il diario fotografico dei pasti che chiede solo una foto prima di mangiare",
+  "description": "Una foto prima di mangiare e Sekki la mette tra colazione, pranzo o cena. Basta un pasto al giorno per tenere viva la serie, e gli amici si fanno il tifo.",
+  "hero": {
+    "headline": "Una foto prima di mangiare.\nE il pasto è registrato.",
+    "lead": "Sekki guarda l'ora della foto e la mette tra colazione, pranzo, cena o spuntino. Registra anche un solo pasto al giorno e la serie continua.",
+    "cta": "Scarica gratis su App Store",
+    "note": "Registrazione, statistiche, widget e condivisione con gli amici sono gratis."
+  },
+  "demo": {
+    "title": "Prova tu",
+    "lead": "Scegli un orario e tocca il pulsante di registrazione. Come nell'app, il pulsante indica già il pasto di quell'ora.",
+    "clock": "Foto scattata alle",
+    "record": "Registra {meal}",
+    "meals": {
+      "breakfast": "Colazione",
+      "lunch": "Pranzo",
+      "dinner": "Cena",
+      "snack": "Spuntino"
+    },
+    "today": "Oggi · {n}",
+    "empty": "Ancora nessuna registrazione oggi",
+    "streak": "Serie di {n} giorni",
+    "total": "{n} giorni registrati",
+    "before": "Prima",
+    "ateAll": "Finito",
+    "kept": "Basta un pasto: oggi conta già per la tua serie.",
+    "rule": "Stesse regole dell'app: dalle 5 alle 10 è colazione, dalle 11 alle 15 pranzo, dalle 16 alle 21 cena. In ogni altro orario, o se quel pasto è già registrato, diventa uno spuntino.",
+    "reset": "Ricomincia",
+    "note": "Le foto della demo sono d'esempio."
+  },
+  "problem": {
+    "title": "Hai mai mollato un diario alimentare dopo tre giorni?",
+    "text": "Salti una colazione, dimentichi una cena, e le caselle vuote iniziano a pesare finché non cancelli l'app. Sekki non ha caselle vuote. Si accumulano in ordine solo i pasti che registri, e basta una foto perché la giornata conti."
+  },
+  "features": [
+    {
+      "title": "Scatta, e il pasto è già al suo posto",
+      "text": "In base all'ora della foto, Sekki la mette tra colazione, pranzo, cena o spuntino. Aggiungi foto prima e dopo, registra senza foto o scrivi una nota.\nIl cibo viene riconosciuto gratis sul dispositivo, e le tue foto non lasciano mai il telefono.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Un diario che non si accorcia mai",
+      "text": "Un pasto al giorno tiene viva la serie, e il totale dei giorni registrati non scende mai. Le statistiche settimanali e mensili mostrano quanti giorni e pasti hai registrato, non una percentuale di successo.\nStrada facendo raccogli traguardi come Serie da 7 giorni o Mattiniero.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Solo i pasti che scegli, senza aprire l'app",
+      "text": "Scegli per quali pasti ricevere promemoria e regola gli orari sulla tua giornata. Dopo la foto di prima, segna Finito direttamente dalla notifica.\nRegistra anche con il tasto Azione, Siri, Comandi rapidi o un widget, e aggiungi amici con un codice per farvi il tifo con emoji e commenti.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Si parte in tre passi",
+    "items": [
+      {
+        "title": "Scegli i pasti",
+        "text": "Al primo avvio Sekki ti chiede quali pasti ricordarti. Puoi cambiarli nelle Impostazioni."
+      },
+      {
+        "title": "Una foto prima di mangiare",
+        "text": "Il pulsante di registrazione mostra già il pasto dell'ora. Tocca, scatta, fatto."
+      },
+      {
+        "title": "Finito? Un tocco",
+        "text": "Tocca Finito nella notifica o nel widget, oppure aggiungi una foto di dopo."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Registrare senza aprire l'app",
+    "rows": [
+      ["Notifica", "Dopo la foto di prima, segna Finito direttamente dall'avviso"],
+      ["Widget della schermata Home", "Vedi i pasti di oggi e quello in corso, poi tocca Finito"],
+      ["Widget della schermata di blocco", "Rettangolare, circolare e in linea"],
+      ["Tasto Azione · Siri · Comandi rapidi", "Segna Finito con un tasto o una frase"],
+      ["Salva in Foto", "Attivalo nelle Impostazioni per avere album Sekki separati per pasti e allenamenti"],
+      ["Modalità allenamento", "Gli allenamenti restano separati dai pasti, con quelli del mese a colpo d'occhio"]
+    ],
+    "note": "Il pulsante Finito del widget richiede iOS 17 o versioni successive."
+  },
+  "pricing": {
+    "title": "Registrare è gratis. Sekki Pro va più a fondo.",
+    "free": {
+      "name": "Gratis",
+      "items": [
+        "Registrazione con foto e smistamento automatico, foto prima e dopo, note",
+        "Serie, giorni totali, statistiche settimanali e mensili, traguardi",
+        "Promemoria per i pasti scelti, Finito senza aprire l'app",
+        "Widget, tasto Azione, Siri e Comandi rapidi",
+        "Condivisione di pasti e allenamenti con gli amici, emoji e commenti",
+        "Creare un gruppo, unirti a quanti ne vuoi",
+        "Riconoscimento del cibo sul dispositivo"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Più gruppi: famiglia, lavoro, compagni di palestra",
+        "Confrontare fianco a fianco i pasti di qualche settimana fa e di oggi",
+        "Vedere i cibi che mangi più spesso",
+        "Bloccare l'app con Face ID o Touch ID"
+      ],
+      "note": "Abbonamento annuale o mensile, oppure acquisto unico a vita"
+    },
+    "note": "L'abbonamento si rinnova automaticamente se non viene disdetto almeno 24 ore prima della fine del periodo. Disdici quando vuoi da Impostazioni > Account Apple > Abbonamenti. Termini di servizio: m1zz.github.io/RoutineCamera/it/terms.html"
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "items": [
+      {
+        "q": "Dove vengono salvate le mie foto?",
+        "a": "Sul tuo dispositivo. Se attivi Salva in Foto automaticamente nelle Impostazioni, finiscono anche negli album Sekki di Foto. Finché Condividi i miei pasti è attivo (all'inizio lo è), vengono caricate su iCloud perché gli amici aggiunti possano vederle. Puoi disattivarlo in Impostazioni > Account e condivisione."
+      },
+      {
+        "q": "Come aggiungo gli amici?",
+        "a": "Nella schermata Amici condividi il tuo codice di sei caratteri e inserisci quello del tuo amico. Puoi incollare più codici insieme separandoli con una virgola."
+      },
+      {
+        "q": "Come faccio il tifo per un amico?",
+        "a": "Apri un pasto del tuo amico e lascia un'emoji o un breve commento. Se non ha ancora registrato nulla, tocca la casella vuota per dargli un colpetto."
+      },
+      {
+        "q": "Se salto un pasto perdo la serie?",
+        "a": "No. Registra un qualsiasi pasto quel giorno, spuntini compresi, e la serie continua. Anche se salti un giorno intero, il totale dei giorni registrati non scende."
+      },
+      {
+        "q": "Non ricevo notifiche.",
+        "a": "Controlla in Impostazioni di iOS > Notifiche che le notifiche di Sekki siano consentite e che il dispositivo abbia effettuato l'accesso a iCloud. Gli orari dei promemoria si cambiano nelle impostazioni dell'app."
+      },
+      {
+        "q": "Il riconoscimento del cibo invia le foto a un server?",
+        "a": "No. Avviene sul dispositivo, quindi le foto non lasciano mai il telefono. Gratis e senza limiti."
+      },
+      {
+        "q": "Come elimino account e dati?",
+        "a": "Vai in Amici > Account > Elimina account. L'account e i dati dei pasti sul server vengono eliminati e non si possono recuperare. Se qualcosa non va, scrivici."
+      },
+      {
+        "q": "Come disdico l'abbonamento?",
+        "a": "In Impostazioni > Account Apple > Abbonamenti. Si rinnova automaticamente se non lo disdici almeno 24 ore prima della fine del periodo. L'acquisto a vita si paga una volta sola."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Inizia\ndal pranzo di oggi",
+    "cta": "Scarica gratis su App Store"
+  },
+  "ui": {
+    "skip": "Vai al contenuto",
+    "languages": "Lingua",
+    "privacy": "Informativa sulla privacy",
+    "contact": "Bug, idee o domande sull'account: scrivi a {email} o in DM a @lee25_ios su Instagram. Di solito rispondiamo entro un paio di giorni."
+  }
+}
