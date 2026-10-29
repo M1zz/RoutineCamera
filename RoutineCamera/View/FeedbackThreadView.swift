@@ -106,10 +106,10 @@ struct ReactionSummary: View {
                     ForEach(groups) { group in
                         HStack(spacing: 4) {
                             Text(group.emoji)
-                                .font(.system(size: 15))
+                                .scaledFont(size: 15)
                             if group.count > 1 {
                                 Text("\(group.count)")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .scaledFont(size: 13, weight: .medium)
                                     .foregroundColor(.secondary)
                             }
                         }
@@ -147,10 +147,10 @@ private struct FeedbackBubble: View {
             HStack(spacing: 6) {
                 if isMine { Spacer(minLength: 0) }
                 (isMine ? Text("나") : Text(verbatim: feedback.authorNickname))
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .foregroundColor(isMine ? .green : .blue)
                 Text(feedback.createdAt, style: .relative)
-                    .font(.system(size: 11))
+                    .scaledFont(size: 11)
                     .foregroundColor(.secondary)
                 if !isMine && !feedback.isRead {
                     Circle()
@@ -161,7 +161,7 @@ private struct FeedbackBubble: View {
             }
 
             Text(feedback.content)
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: isMine ? .trailing : .leading)
                 .multilineTextAlignment(isMine ? .trailing : .leading)
@@ -209,19 +209,19 @@ struct FeedbackThreadView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let errorMessage {
                 Label(errorMessage, systemImage: "exclamationmark.triangle")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.orange)
                     .fixedSize(horizontal: false, vertical: true)
             } else if isLoading && feedbacks.isEmpty {
                 HStack(spacing: 8) {
                     ProgressView().scaleEffect(0.7)
                     Text("불러오는 중…")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(.secondary)
                 }
             } else if feedbacks.isEmpty {
                 Text(emptyText)
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
             } else {
                 if hasReactions {
@@ -339,7 +339,7 @@ struct FriendFeedbackSection: View {
 
                 if let sendError {
                     Label(sendError, systemImage: "exclamationmark.triangle")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -358,7 +358,7 @@ struct FriendFeedbackSection: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(trimmedText.isEmpty ? Color.gray : Color.orange)
+                    .background(trimmedText.isEmpty ? Color.gray : Color.solidOrange)
                     .foregroundColor(.white)
                     .cornerRadius(12)
                 }

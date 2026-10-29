@@ -23,7 +23,7 @@ struct MealCareSelector: View {
                 } label: {
                     VStack(spacing: 8) {
                         Image(systemName: meal.symbolName)
-                            .font(.system(size: 22))
+                            .scaledFont(size: 22)
                             .foregroundColor(on ? meal.symbolColor : .secondary)
                         Text(meal.displayName)
                             .font(.subheadline.weight(.medium))

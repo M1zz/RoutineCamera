@@ -39,7 +39,7 @@ struct MealBackfillView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(estimate.dates)일 · 사진 \(estimate.photos)장")
-                                .font(.system(size: 15, weight: .semibold))
+                                .scaledFont(size: 15, weight: .semibold)
                             Text("업로드 약 \(estimate.megabytes)MB 예상 · Wi-Fi에서 실행하는 걸 권합니다")
                                 .font(.caption)
                                 .foregroundColor(.secondary)

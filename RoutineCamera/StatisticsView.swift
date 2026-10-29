@@ -716,7 +716,7 @@ struct ComparisonDayView: View {
                                             .scaledToFill()
                                     } else {
                                         Text("📷")
-                                            .font(.system(size: 32))
+                                            .scaledFont(size: 32)
                                     }
                                 } else {
                                     Text("기록 없음")
@@ -967,7 +967,8 @@ struct FoodConsumptionStatsView: View {
                             Text("#\(index + 1)")
                                 .font(.caption)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                // 노랑 바탕엔 흰 글자가 안 읽혀 1위만 검정 글자
+                                .foregroundColor(index == 0 ? .black : .white)
                                 .frame(width: 28, height: 28)
                                 .background(
                                     Circle()

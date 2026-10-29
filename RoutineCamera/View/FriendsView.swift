@@ -45,16 +45,16 @@ struct FriendsView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 32))
+                    .scaledFont(size: 32)
                     .foregroundColor(.blue)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("친구에게 보이는 이름")
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundColor(.secondary)
                     Text(settingsManager.displayNickname)
-                        .font(.system(size: 17, weight: .semibold))
+                        .scaledFont(size: 17, weight: .semibold)
                         .foregroundColor(.primary)
                         .lineLimit(1)
                 }
@@ -62,10 +62,10 @@ struct FriendsView: View {
                 Spacer()
 
                 Text("변경")
-                    .font(.system(size: 14, weight: .medium))
+                    .scaledFont(size: 14, weight: .medium)
                     .foregroundColor(.blue)
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(size: 12, weight: .semibold)
                     .foregroundColor(.secondary)
             }
             .padding(.vertical, 10)
@@ -86,7 +86,7 @@ struct FriendsView: View {
                     myNicknameRow
 
                     Text("내 친구 코드")
-                        .font(.system(size: 14, weight: .semibold))
+                        .scaledFont(size: 14, weight: .semibold)
                         .foregroundColor(.secondary)
 
                     HStack(spacing: 12) {
@@ -102,7 +102,7 @@ struct FriendsView: View {
                             .frame(maxWidth: .infinity)
                         } else {
                             Text(friendManager.myUserCode)
-                                .font(.system(size: 32, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 32, weight: .bold, design: .monospaced)
                                 .foregroundColor(.blue)
                                 .frame(maxWidth: .infinity)
                                 .accessibilityLabel("내 친구 코드")
@@ -112,7 +112,7 @@ struct FriendsView: View {
                                 UIPasteboard.general.string = friendManager.myUserCode
                             }) {
                                 Image(systemName: "doc.on.doc")
-                                    .font(.system(size: 20))
+                                    .scaledFont(size: 20)
                                     .foregroundColor(.blue)
                             }
                             .accessibilityLabel("친구 코드 복사")
@@ -126,7 +126,7 @@ struct FriendsView: View {
                     if !friendManager.myUserCode.isEmpty {
                         ShareLink(item: FriendInvite.message(code: friendManager.myUserCode)) {
                             Label("친구 초대하기", systemImage: "square.and.arrow.up")
-                                .font(.system(size: 15, weight: .semibold))
+                                .scaledFont(size: 15, weight: .semibold)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(Color.blue)
@@ -213,7 +213,7 @@ struct FriendsView: View {
 
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("친구 목록을 새로 고치지 못했어요")
-                                        .font(.system(size: 14, weight: .semibold))
+                                        .scaledFont(size: 14, weight: .semibold)
                                     Text(error)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -234,7 +234,7 @@ struct FriendsView: View {
                             HStack(spacing: 10) {
                                 ProgressView()
                                 Text("친구 목록을 불러오는 중...")
-                                    .font(.system(size: 14))
+                                    .scaledFont(size: 14)
                                     .foregroundColor(.secondary)
                             }
                             .padding(.vertical, 8)
@@ -277,7 +277,7 @@ struct FriendsView: View {
                             }
                         }) {
                             Image(systemName: "testtube.2")
-                                .font(.system(size: 20))
+                                .scaledFont(size: 20)
                                 .foregroundColor(friendManager.isLoading ? .gray : .orange)
                         }
                         .disabled(friendManager.isLoading)
@@ -289,7 +289,7 @@ struct FriendsView: View {
                             showingAccountSettings = true
                         }) {
                             Image(systemName: "person.circle")
-                                .font(.system(size: 20))
+                                .scaledFont(size: 20)
                                 .foregroundColor(.blue)
                         }
                         .accessibilityLabel("계정 설정")
@@ -302,7 +302,7 @@ struct FriendsView: View {
                             showingGroups = true
                         }) {
                             Image(systemName: "person.3")
-                                .font(.system(size: 20))
+                                .scaledFont(size: 20)
                         }
                         .accessibilityLabel("그룹")
 
@@ -310,7 +310,7 @@ struct FriendsView: View {
                             showingAddFriend = true
                         }) {
                             Image(systemName: "person.badge.plus")
-                                .font(.system(size: 20))
+                                .scaledFont(size: 20)
                         }
                         .accessibilityLabel("친구 요청 보내기")
                     }
@@ -392,17 +392,17 @@ struct FriendsView: View {
                 .accessibilityHidden(true)
 
             Text("아직 친구가 없어요")
-                .font(.system(size: 16, weight: .semibold))
+                .scaledFont(size: 16, weight: .semibold)
                 .foregroundColor(.secondary)
 
             Text("친구 코드로 요청을 보내면\n상대가 수락한 뒤 서로의 기록을 볼 수 있어요")
-                .font(.system(size: 13))
+                .scaledFont(size: 13)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
             Button(action: { showingAddFriend = true }) {
                 Label("친구 요청 보내기", systemImage: "person.badge.plus")
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledFont(size: 15, weight: .semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -429,20 +429,20 @@ struct FriendsView: View {
                         .frame(width: 50, height: 50)
 
                     Text(String(friend.name.prefix(1)))
-                        .font(.system(size: 24, weight: .bold))
+                        .scaledFont(size: 24, weight: .bold)
                         .foregroundColor(.blue)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(friend.name)
-                        .font(.system(size: 17, weight: .semibold))
+                        .scaledFont(size: 17, weight: .semibold)
                         .foregroundColor(.primary)
 
                     // 오늘 어떤 끼니를 올렸는지 + 친구 코드
                     HStack(spacing: 8) {
                         MealDotsView(recorded: Set((todayMeals[friend.id] ?? [:]).keys))
                         Text(friend.code)
-                            .font(.system(size: 13, design: .monospaced))
+                            .scaledFont(size: 13, design: .monospaced)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -450,7 +450,7 @@ struct FriendsView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .accessibilityHidden(true)
             }
@@ -517,7 +517,7 @@ struct MealDotsView: View {
             }
             if snackCount > 0 {
                 Text("+\(snackCount)")
-                    .font(.system(size: 10, weight: .semibold))
+                    .scaledFont(size: 10, weight: .semibold)
                     .foregroundColor(.secondary)
             }
         }
@@ -563,9 +563,9 @@ struct FriendsTodayStrip: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Text("오늘 친구들")
-                    .font(.system(size: 17, weight: .bold))
+                    .scaledFont(size: 17, weight: .bold)
                 Text("\(recordedCount)/\(friends.count)명 기록")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.secondary)
                 if isLoading {
                     ProgressView().scaleEffect(0.7)
@@ -642,10 +642,10 @@ struct FriendTodayCard: View {
                         .overlay(
                             VStack(spacing: 4) {
                                 Text(String(friend.name.prefix(1)))
-                                    .font(.system(size: 30, weight: .bold))
+                                    .scaledFont(size: 30, weight: .bold)
                                     .foregroundColor(hasRecord ? .green : .secondary)
                                 Text(hasRecord ? String(localized: "friend.loggedNoPhoto", defaultValue: "사진 없이 기록", comment: "Friend status: logged a meal without a photo") : String(localized: "아직 기록 전"))
-                                    .font(.system(size: 11))
+                                    .scaledFont(size: 11)
                                     .foregroundColor(.secondary)
                             }
                         )
@@ -657,7 +657,7 @@ struct FriendTodayCard: View {
                         Image(systemName: latest.mealType.symbolName)
                         Text(latest.mealType.displayName)
                     }
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(size: 11, weight: .semibold)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
                         .background(.ultraThinMaterial, in: Capsule())
@@ -671,7 +671,7 @@ struct FriendTodayCard: View {
             )
 
             Text(friend.name)
-                .font(.system(size: 13, weight: .semibold))
+                .scaledFont(size: 13, weight: .semibold)
                 .foregroundColor(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -680,7 +680,7 @@ struct FriendTodayCard: View {
                 MealDotsView(recorded: Set(meals.keys))
                 Spacer(minLength: 0)
                 Text(timeText ?? " ")
-                    .font(.system(size: 11))
+                    .scaledFont(size: 11)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -725,10 +725,10 @@ struct FriendWeekOverview: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("최근 7일")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(size: 14, weight: .semibold)
                 Spacer()
                 Text("\(days.filter { !(allMeals[$0]?.isEmpty ?? true) }.count)일 기록")
-                    .font(.system(size: 12))
+                    .scaledFont(size: 12)
                     .foregroundColor(.secondary)
             }
 
@@ -746,7 +746,7 @@ struct FriendWeekOverview: View {
                             .fill(meal.symbolColor)
                             .frame(width: 10, height: 8)
                         Text(meal.displayName)
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundColor(.secondary)
                     }
                 }
@@ -768,7 +768,7 @@ struct FriendWeekOverview: View {
         } label: {
             VStack(spacing: 5) {
                 Text(Self.weekdayFormatter.string(from: day))
-                    .font(.system(size: 11, weight: isToday ? .bold : .regular))
+                    .scaledFont(size: 11, weight: isToday ? .bold : .regular)
                     .foregroundColor(isToday ? .primary : .secondary)
                 ForEach(rows, id: \.self) { meal in
                     RoundedRectangle(cornerRadius: 4)
@@ -776,7 +776,7 @@ struct FriendWeekOverview: View {
                         .frame(width: 22, height: 14)
                 }
                 Text("\(Calendar.current.component(.day, from: day))")
-                    .font(.system(size: 10))
+                    .scaledFont(size: 10)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
@@ -809,15 +809,15 @@ struct FriendRequestRow: View {
                     .fill(Color.orange.opacity(0.12))
                     .frame(width: 44, height: 44)
                 Text(String(request.name.prefix(1)))
-                    .font(.system(size: 20, weight: .bold))
+                    .scaledFont(size: 20, weight: .bold)
                     .foregroundColor(.orange)
             }
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(request.name)
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
                 Text(request.code)
-                    .font(.system(size: 13, design: .monospaced))
+                    .scaledFont(size: 13, design: .monospaced)
                     .foregroundColor(.secondary)
             }
 
@@ -892,9 +892,9 @@ struct PendingFriendRow: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(pending.name)
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
                 Text(pending.isRejected ? "요청이 거절됐어요" : "수락 대기 중 · \(pending.code)")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(pending.isRejected ? .red : .secondary)
             }
 
@@ -981,17 +981,17 @@ struct AddFriendSheet: View {
                     .foregroundColor(.blue)
 
                 Text("친구 요청 보내기")
-                    .font(.system(size: 24, weight: .bold))
+                    .scaledFont(size: 24, weight: .bold)
 
                 Text("친구가 공유한 6자리 코드를 입력하세요.\n상대가 수락해야 서로의 기록을 볼 수 있어요.\n여러 명은 쉼표나 줄바꿈으로 구분해 한 번에 보낼 수 있습니다.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 40)
 
             TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
-                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .scaledFont(size: 20, weight: .bold, design: .monospaced)
                 .multilineTextAlignment(.center)
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)
@@ -1012,7 +1012,7 @@ struct AddFriendSheet: View {
                             .tint(.white)
                     }
                     Text(buttonTitle)
-                        .font(.system(size: 18, weight: .semibold))
+                        .scaledFont(size: 18, weight: .semibold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -1055,13 +1055,13 @@ struct AddFriendSheet: View {
                 .foregroundColor(failures.isEmpty ? .green : .orange)
 
             Text(headline(sent: sent, failures: failures))
-                .font(.system(size: 20, weight: .bold))
+                .scaledFont(size: 20, weight: .bold)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             if sent > 0 {
                 Text("상대가 수락하면 서로의 기록을 볼 수 있어요.\n보낸 요청은 친구 화면에서 확인할 수 있습니다.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
@@ -1072,7 +1072,7 @@ struct AddFriendSheet: View {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(failures, id: \.self) { failure in
                             Text(failure)
-                                .font(.system(size: 13))
+                                .scaledFont(size: 13)
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -1090,7 +1090,7 @@ struct AddFriendSheet: View {
                 dismiss()
             } label: {
                 Text("완료")
-                    .font(.system(size: 18, weight: .semibold))
+                    .scaledFont(size: 18, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -1103,7 +1103,7 @@ struct AddFriendSheet: View {
                 Button("코드 다시 입력") {
                     phase = .input
                 }
-                .font(.system(size: 15, weight: .semibold))
+                .scaledFont(size: 15, weight: .semibold)
             }
 
             Spacer()
@@ -1435,15 +1435,15 @@ struct TimelineView: View {
 
             if let loadError {
                 Text(loadError)
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledFont(size: 15, weight: .semibold)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 Button("다시 시도", action: onRetry)
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledFont(size: 15, weight: .semibold)
             } else {
                 Text(album == .exercise ? "아직 운동 기록이 없어요" : "아직 음식 기록이 없어요")
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledFont(size: 15, weight: .semibold)
                     .foregroundColor(.secondary)
             }
         }
@@ -1466,7 +1466,7 @@ struct TimelineView: View {
                 Button("이전 기록 더 보기") {
                     loadMorePastDates()
                 }
-                .font(.system(size: 14, weight: .semibold))
+                .scaledFont(size: 14, weight: .semibold)
                 .onAppear { loadMorePastDates() }
             } else if !recordedDates.isEmpty {
                 Text("더 이상 기록이 없어요")
@@ -1506,7 +1506,7 @@ struct NudgeTodayRow: View {
                 Text(album == .exercise
                      ? "\(friend.name)님이 오늘 아직 운동 기록이 없어요"
                      : "\(friend.name)님이 오늘 아직 음식 기록이 없어요")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(size: 14, weight: .semibold)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)
             }
@@ -1516,7 +1516,7 @@ struct NudgeTodayRow: View {
                     showingMealPicker = true
                 } label: {
                     Label("콕 찌르기", systemImage: "hand.point.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .scaledFont(size: 14, weight: .semibold)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(Capsule().fill(Color.orange.opacity(0.15)))
@@ -1526,7 +1526,7 @@ struct NudgeTodayRow: View {
 
                 if !pokedMeals.isEmpty {
                     Text("보냈어요")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(.secondary)
                 }
 
@@ -1744,9 +1744,9 @@ struct FriendMealCard: View {
             HStack(spacing: 8) {
                 Image(systemName: mealType.symbolName)
                     .foregroundColor(mealType.symbolColor)
-                    .font(.system(size: 20))
+                    .scaledFont(size: 20)
                 Text(mealType.displayName)
-                    .font(.system(size: 20, weight: .bold))
+                    .scaledFont(size: 20, weight: .bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
@@ -1755,7 +1755,7 @@ struct FriendMealCard: View {
                 // 식사 시간 (절대 잘리지 않게)
                 if let timeText = capturedTimeText {
                     Text(timeText)
-                        .font(.system(size: 14, weight: .medium))
+                        .scaledFont(size: 14, weight: .medium)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
@@ -1800,10 +1800,10 @@ struct FriendMealCard: View {
             if let memo = meal.memo, !memo.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("메모")
-                        .font(.system(size: 12, weight: .semibold))
+                        .scaledFont(size: 12, weight: .semibold)
                         .foregroundColor(.secondary)
                     Text(memo)
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.primary)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1823,11 +1823,11 @@ struct FriendMealCard: View {
                         Image(systemName: "bubble.left.fill")
                         Text("응원 남기기")
                     }
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(size: 14, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
-                    .background(Color.orange)
+                    .background(Color.solidOrange)
                     .cornerRadius(10)
                 }
                 .buttonStyle(.plain)
@@ -1870,10 +1870,10 @@ struct AccountSettingsSheet: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("iCloud 계정")
-                                .font(.system(size: 18, weight: .semibold))
+                                .scaledFont(size: 18, weight: .semibold)
 
                             Text(friendManager.myUserId.isEmpty ? "" : "연결됨")
-                                .font(.system(size: 14))
+                                .scaledFont(size: 14)
                                 .foregroundColor(.secondary)
                         }
                         .padding(.leading, 8)
@@ -1903,11 +1903,11 @@ struct AccountSettingsSheet: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("내 친구 코드")
-                                .font(.system(size: 14))
+                                .scaledFont(size: 14)
                                 .foregroundColor(.secondary)
 
                             Text(friendManager.myUserCode)
-                                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                                .scaledFont(size: 20, weight: .bold, design: .monospaced)
                                 .foregroundColor(.blue)
                         }
 
@@ -1997,10 +1997,10 @@ struct ICloudRequiredView: View {
             // 제목
             VStack(spacing: 12) {
                 Text("친구 기능")
-                    .font(.system(size: 32, weight: .bold))
+                    .scaledFont(size: 32, weight: .bold)
 
                 Text("친구와 식단을 공유하고\n서로의 식습관을 응원하세요")
-                    .font(.system(size: 16))
+                    .scaledFont(size: 16)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -2009,17 +2009,17 @@ struct ICloudRequiredView: View {
 
             VStack(spacing: 12) {
                 Image(systemName: friendManager.accountCheckFailed ? "icloud.slash" : "icloud")
-                    .font(.system(size: 32))
+                    .scaledFont(size: 32)
                     .foregroundColor(.secondary)
 
                 // 연결 문제와 로그인 안 됨을 구분한다 — 로그인한 사람에게 "로그인하세요" 라고 하지 않도록
                 Text(friendManager.accountCheckFailed ? "iCloud에 연결하지 못했어요" : "iCloud 로그인이 필요해요")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
 
                 Text(friendManager.accountCheckFailed
                      ? "인터넷 연결을 확인한 뒤 다시 시도해 주세요"
                      : "설정 앱에서 iCloud에 로그인하면\n친구 추가 및 식단 공유 기능을 사용할 수 있습니다")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -2028,10 +2028,10 @@ struct ICloudRequiredView: View {
 
             VStack(spacing: 16) {
                 Button("다시 시도") { friendManager.recheckAccount() }
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
                 if !friendManager.accountCheckFailed, let url = URL(string: UIApplication.openSettingsURLString) {
                     Link("설정 열기", destination: url)
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                 }
             }
             .padding(.bottom, 40)

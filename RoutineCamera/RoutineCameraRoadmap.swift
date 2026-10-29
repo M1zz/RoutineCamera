@@ -24,7 +24,7 @@ extension RoutineCameraSpec {
         .init(id: "a11y.largetext", status: .building,
               title: NSLocalizedString("큰 글씨에 맞춘 화면", comment: "Roadmap item: layouts for larger text"),
               detail: NSLocalizedString("글자 크기를 키워도 잘리지 않고 보기 좋게 다시 배치돼요.", comment: "Roadmap item detail: layouts for larger text")),
-        .init(id: "a11y.contrast", status: .planned,
+        .init(id: "a11y.contrast", status: .building,
               title: NSLocalizedString("보기 편한 색과 대비", comment: "Roadmap item: better colors and contrast"),
               detail: NSLocalizedString("대비를 높이거나 색을 구별하기 어려워도 기록한 끼니를 알아볼 수 있어요.", comment: "Roadmap item detail: better colors and contrast")),
         .init(id: "lang.english", status: .building,

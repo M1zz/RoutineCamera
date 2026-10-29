@@ -53,7 +53,7 @@ struct GroupsView: View {
                             }
                         } label: {
                             Image(systemName: "plus")
-                                .font(.system(size: 18, weight: .semibold))
+                                .scaledFont(size: 18, weight: .semibold)
                         }
                         .disabled(isLeaving)
                         .accessibilityLabel("그룹 만들기 또는 참여")
@@ -139,10 +139,10 @@ struct GroupsView: View {
                 .accessibilityHidden(true)
 
             Text("그룹 목록을 불러오지 못했어요")
-                .font(.system(size: 17, weight: .semibold))
+                .scaledFont(size: 17, weight: .semibold)
 
             Text(message)
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -150,7 +150,7 @@ struct GroupsView: View {
             Button("다시 시도") {
                 _Concurrency.Task { await friendManager.loadMyGroups() }
             }
-            .font(.system(size: 15, weight: .semibold))
+            .scaledFont(size: 15, weight: .semibold)
             .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -179,11 +179,11 @@ struct GroupsView: View {
                 .accessibilityHidden(true)
 
             Text("아직 그룹이 없어요")
-                .font(.system(size: 18, weight: .semibold))
+                .scaledFont(size: 18, weight: .semibold)
                 .foregroundColor(.secondary)
 
             Text("그룹을 만들어 초대 코드를 공유하거나\n받은 코드로 참여해보세요")
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
@@ -192,7 +192,7 @@ struct GroupsView: View {
                     startCreatingGroup()
                 } label: {
                     Label("그룹 만들기", systemImage: "plus.circle")
-                        .font(.system(size: 15, weight: .semibold))
+                        .scaledFont(size: 15, weight: .semibold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 12)
@@ -204,7 +204,7 @@ struct GroupsView: View {
                     showingJoin = true
                 } label: {
                     Label("코드로 참여", systemImage: "person.badge.key")
-                        .font(.system(size: 15, weight: .semibold))
+                        .scaledFont(size: 15, weight: .semibold)
                         .foregroundColor(.blue)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 12)
@@ -232,16 +232,16 @@ struct GroupsView: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(group.name)
-                                .font(.system(size: 17, weight: .semibold))
+                                .scaledFont(size: 17, weight: .semibold)
 
                             HStack(spacing: 6) {
                                 Text(group.inviteCode)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .scaledFont(size: 13, design: .monospaced)
                                     .foregroundColor(.secondary)
 
                                 if group.ownerId == friendManager.myUserId {
                                     Text("방장")
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .scaledFont(size: 11, weight: .semibold)
                                         .foregroundColor(.purple)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -250,7 +250,7 @@ struct GroupsView: View {
                                 }
 
                                 Label(group.visibility.title, systemImage: group.visibility.symbolName)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .scaledFont(size: 11, weight: .semibold)
                                     .foregroundColor(.secondary)
                                     .labelStyle(.titleAndIcon)
                             }
@@ -382,17 +382,17 @@ struct CreateGroupSheet: View {
                     .foregroundColor(.purple)
 
                 Text("그룹 만들기")
-                    .font(.system(size: 24, weight: .bold))
+                    .scaledFont(size: 24, weight: .bold)
 
                 Text("그룹을 만들면 6자리 초대 코드가 생겨요.\n코드를 받은 사람은 누구나 참여할 수 있습니다.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 40)
 
             TextField("예: 우리 회사 점심팀", text: $name)
-                .font(.system(size: 18))
+                .scaledFont(size: 18)
                 .multilineTextAlignment(.center)
                 .focused($isNameFocused)
                 .submitLabel(.done)
@@ -408,7 +408,7 @@ struct CreateGroupSheet: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("서로에게 보여줄 범위")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .foregroundColor(.secondary)
 
                 Picker("공개 범위", selection: $visibility) {
@@ -432,7 +432,7 @@ struct CreateGroupSheet: View {
 
             if case .failed(let message) = phase {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.orange)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -448,7 +448,7 @@ struct CreateGroupSheet: View {
                             .tint(.white)
                     }
                     Text(isWorking ? "그룹을 만드는 중..." : (isRetry ? "다시 시도" : "그룹 만들기"))
-                        .font(.system(size: 18, weight: .semibold))
+                        .scaledFont(size: 18, weight: .semibold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -481,7 +481,7 @@ struct CreateGroupSheet: View {
                 .foregroundColor(.green)
 
             Text("'\(group.name)' 그룹을 만들었어요")
-                .font(.system(size: 20, weight: .bold))
+                .scaledFont(size: 20, weight: .bold)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
@@ -491,13 +491,13 @@ struct CreateGroupSheet: View {
 
                 HStack(spacing: 10) {
                     Text(group.inviteCode)
-                        .font(.system(size: 30, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 30, weight: .bold, design: .monospaced)
 
                     Button {
                         UIPasteboard.general.string = group.inviteCode
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 18))
+                            .scaledFont(size: 18)
                     }
                     .accessibilityLabel("초대 코드 복사")
                 }
@@ -508,9 +508,9 @@ struct CreateGroupSheet: View {
 
             VStack(spacing: 4) {
                 Label(group.visibility.title, systemImage: group.visibility.symbolName)
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                 Text("이 코드를 공유하면 상대가 그룹에 참여할 수 있어요.")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.secondary)
             }
             .multilineTextAlignment(.center)
@@ -519,7 +519,7 @@ struct CreateGroupSheet: View {
                 dismiss()
             } label: {
                 Text("완료")
-                    .font(.system(size: 18, weight: .semibold))
+                    .scaledFont(size: 18, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -616,17 +616,17 @@ struct JoinGroupSheet: View {
                     .foregroundColor(.purple)
 
                 Text("그룹 코드 입력")
-                    .font(.system(size: 24, weight: .bold))
+                    .scaledFont(size: 24, weight: .bold)
 
                 Text("공유받은 6자리 그룹 코드를 입력하세요.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 40)
 
             TextField("예: ABC123", text: $code)
-                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .scaledFont(size: 20, weight: .bold, design: .monospaced)
                 .multilineTextAlignment(.center)
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)
@@ -645,7 +645,7 @@ struct JoinGroupSheet: View {
 
             if case .failed(let message) = phase {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.orange)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -661,7 +661,7 @@ struct JoinGroupSheet: View {
                             .tint(.white)
                     }
                     Text(isWorking ? "그룹을 찾는 중..." : (isRetry ? "다시 시도" : "그룹 참여"))
-                        .font(.system(size: 18, weight: .semibold))
+                        .scaledFont(size: 18, weight: .semibold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -694,11 +694,11 @@ struct JoinGroupSheet: View {
                 .foregroundColor(.green)
 
             Text("'\(group.name)' 그룹에 참여했어요")
-                .font(.system(size: 20, weight: .bold))
+                .scaledFont(size: 20, weight: .bold)
                 .multilineTextAlignment(.center)
 
             Text("이제 그룹 화면에서 멤버들의 기록을 볼 수 있어요.")
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
@@ -706,7 +706,7 @@ struct JoinGroupSheet: View {
                 dismiss()
             } label: {
                 Text("완료")
-                    .font(.system(size: 18, weight: .semibold))
+                    .scaledFont(size: 18, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -861,7 +861,7 @@ struct GroupFeedView: View {
                     move(days: -1)
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                 }
                 .accessibilityLabel("이전 날")
 
@@ -869,7 +869,7 @@ struct GroupFeedView: View {
 
                 VStack(spacing: 2) {
                     Text(date, format: .dateTime.month().day().weekday(.wide))
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                     Text("기록 \(recordedCount)명 · 멤버 \(members.count)명")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -881,7 +881,7 @@ struct GroupFeedView: View {
                     move(days: 1)
                 } label: {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                 }
                 .disabled(isToday)
                 .accessibilityLabel("다음 날")
@@ -890,7 +890,7 @@ struct GroupFeedView: View {
 
             HStack(spacing: 8) {
                 Label(current.visibility.title, systemImage: current.visibility.symbolName)
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(size: 12, weight: .semibold)
                     .foregroundColor(.purple)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -898,13 +898,13 @@ struct GroupFeedView: View {
                     .cornerRadius(6)
 
                 Text(current.inviteCode)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
 
                 Button {
                     UIPasteboard.general.string = current.inviteCode
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                 }
                 .accessibilityLabel("그룹 초대 코드 복사")
 
@@ -950,7 +950,7 @@ struct GroupFeedView: View {
                 Button("다시 시도") {
                     _Concurrency.Task { await loadMembers() }
                 }
-                .font(.system(size: 15, weight: .semibold))
+                .scaledFont(size: 15, weight: .semibold)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if members.isEmpty {
@@ -1013,7 +1013,7 @@ struct GroupFeedView: View {
                             .foregroundColor(.gray)
                             .accessibilityHidden(true)
                         Text("이 날은 아무도 기록하지 않았어요")
-                            .font(.system(size: 15, weight: .semibold))
+                            .scaledFont(size: 15, weight: .semibold)
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 40)
@@ -1099,27 +1099,27 @@ struct GroupMemberTile: View {
                     )
                     .overlay(
                         Text(String(member.nickname.prefix(1)))
-                            .font(.system(size: 22, weight: .bold))
+                            .scaledFont(size: 22, weight: .bold)
                             .foregroundColor(hasRecord ? .green : .secondary)
                     )
 
                 // 색만으로 구분하지 않는다 — 색각 이상에서도 읽히도록 기호를 함께 둔다
                 Image(systemName: hasRecord ? "checkmark.circle.fill" : "minus.circle.fill")
-                    .font(.system(size: 17))
+                    .scaledFont(size: 17)
                     .foregroundStyle(.white, hasRecord ? Color.green : Color.gray)
                     .offset(x: 2, y: 2)
             }
 
             // 이름이 길어도 "(나)" 가 잘려 나가지 않게 두 줄까지
             Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
-                .font(.system(size: 12, weight: hasRecord ? .semibold : .regular))
+                .scaledFont(size: 12, weight: hasRecord ? .semibold : .regular)
                 .foregroundColor(hasRecord ? .primary : .secondary)
                 .lineLimit(2)
                 .minimumScaleFactor(0.85)
                 .multilineTextAlignment(.center)
 
             Text(hasRecord ? "\(recorded.count)끼" : "미기록")
-                .font(.system(size: 10))
+                .scaledFont(size: 10)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -1205,12 +1205,12 @@ struct GroupMemberSection: View {
                         .fill(Color.blue.opacity(0.12))
                         .frame(width: 36, height: 36)
                     Text(String(member.nickname.prefix(1)))
-                        .font(.system(size: 16, weight: .bold))
+                        .scaledFont(size: 16, weight: .bold)
                         .foregroundColor(.blue)
                 }
 
                 Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
 
                 Spacer()
 

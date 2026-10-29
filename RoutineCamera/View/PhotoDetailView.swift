@@ -61,15 +61,15 @@ struct PhotoDetailView: View {
                                     .foregroundColor(.gray)
                                     .accessibilityHidden(true)
                                 Text("사진 없음")
-                                    .font(.system(size: 18))
+                                    .scaledFont(size: 18)
                                     .foregroundColor(.secondary)
                                 Text("탭하여 사진 추가")
-                                    .font(.system(size: 14))
+                                    .scaledFont(size: 14)
                                     .foregroundColor(.blue)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color(.systemGray6))
-                            .onTapGesture {
+                            .addPhotoTap {
                                 selectedPhotoType = .before
                                 showingAddPhotoSheet = true
                             }
@@ -88,15 +88,15 @@ struct PhotoDetailView: View {
                                     .foregroundColor(.gray)
                                     .accessibilityHidden(true)
                                 Text("사진 없음")
-                                    .font(.system(size: 18))
+                                    .scaledFont(size: 18)
                                     .foregroundColor(.secondary)
                                 Text("탭하여 사진 추가")
-                                    .font(.system(size: 14))
+                                    .scaledFont(size: 14)
                                     .foregroundColor(.blue)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color(.systemGray6))
-                            .onTapGesture {
+                            .addPhotoTap {
                                 selectedPhotoType = .before
                                 showingAddPhotoSheet = true
                             }
@@ -118,16 +118,16 @@ struct PhotoDetailView: View {
                                         .foregroundColor(.gray)
                                         .accessibilityHidden(true)
                                     Text("식전 사진 없음")
-                                        .font(.system(size: 18))
+                                        .scaledFont(size: 18)
                                         .foregroundColor(.secondary)
                                     Text("탭하여 사진 추가")
-                                        .font(.system(size: 14))
+                                        .scaledFont(size: 14)
                                         .foregroundColor(.blue)
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(Color(.systemGray6))
                                 .tag(0)
-                                .onTapGesture {
+                                .addPhotoTap {
                                     selectedPhotoType = .before
                                     showingAddPhotoSheet = true
                                 }
@@ -148,16 +148,16 @@ struct PhotoDetailView: View {
                                         .foregroundColor(.green)
                                         .accessibilityHidden(true)
                                     Text("식후 사진 없이 마쳤어요")
-                                        .font(.system(size: 18))
+                                        .scaledFont(size: 18)
                                         .foregroundColor(.secondary)
                                     Text("탭하여 식후 사진 추가")
-                                        .font(.system(size: 14))
+                                        .scaledFont(size: 14)
                                         .foregroundColor(.blue)
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(Color(.systemGray6))
                                 .tag(1)
-                                .onTapGesture {
+                                .addPhotoTap {
                                     selectedPhotoType = .after
                                     showingAddPhotoSheet = true
                                 }
@@ -168,34 +168,37 @@ struct PhotoDetailView: View {
                                         .foregroundColor(.gray)
                                         .accessibilityHidden(true)
                                     Text("식후 사진 없음")
-                                        .font(.system(size: 18))
+                                        .scaledFont(size: 18)
                                         .foregroundColor(.secondary)
                                     Text("탭하여 사진 추가")
-                                        .font(.system(size: 14))
+                                        .scaledFont(size: 14)
                                         .foregroundColor(.blue)
 
                                     // 식후는 찍지 않고 이 식사를 마치고 싶을 때
                                     if record.beforeImageData != nil {
-                                        Button {
-                                            mealStore.recordAteAll(date: date, mealType: mealType)
-                                            NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
-                                        } label: {
+                                        Button(action: finishWithoutAfterPhoto) {
                                             Label("식후 사진 없이 마치기", systemImage: "checkmark.circle")
-                                                .font(.system(size: 15, weight: .semibold))
+                                                .scaledFont(size: 15, weight: .semibold)
                                                 .padding(.horizontal, 16)
                                                 .padding(.vertical, 10)
                                                 .background(Capsule().fill(Color(.systemBackground)))
                                         }
                                         .padding(.top, 8)
-                                        .accessibilityHint("두 번 탭하면 식후 사진 없이 이 식사를 다 먹음으로 기록합니다")
+                                        // 칸 전체가 '사진 추가' 버튼으로 읽히므로, 이 버튼은 그 칸의 동작으로 옮긴다
+                                        .accessibilityHidden(true)
                                     }
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(Color(.systemGray6))
                                 .tag(1)
-                                .onTapGesture {
+                                .addPhotoTap {
                                     selectedPhotoType = .after
                                     showingAddPhotoSheet = true
+                                }
+                                .accessibilityActions {
+                                    if record.beforeImageData != nil {
+                                        Button("식후 사진 없이 마치기", action: finishWithoutAfterPhoto)
+                                    }
                                 }
                             }
                         }
@@ -213,14 +216,14 @@ struct PhotoDetailView: View {
                             let isExercise = SettingsManager.shared.albumType == .exercise
                             Image(systemName: isExercise ? "figure.run" : mealType.symbolName)
                                 .foregroundColor(isExercise ? .green : mealType.symbolColor)
-                                .font(.system(size: 24))
+                                .scaledFont(size: 24)
                             Text(isExercise ? String(localized: "slot.workout", defaultValue: "운동", comment: "Slot label in workout mode") : mealType.displayName)
-                                .font(.system(size: 24, weight: .bold))
+                                .scaledFont(size: 24, weight: .bold)
                                 .lineLimit(1)
                             // 식단 모드 + 식후 사진을 쓸 때만 식전/식후 표시
                             if !isExercise && SettingsManager.shared.useAfterPhoto {
                                 Text(currentPage == 0 ? "식전" : "식후")
-                                    .font(.system(size: 18, weight: .medium))
+                                    .scaledFont(size: 18, weight: .medium)
                                     .foregroundColor(.secondary)
                             }
                             Spacer(minLength: 8)
@@ -228,7 +231,7 @@ struct PhotoDetailView: View {
                             // 실제 기록 시각 (잘리지 않게 고정 폭)
                             if let captured = record.capturedAt {
                                 Text(timeFormatter.string(from: captured))
-                                    .font(.system(size: 15, weight: .medium))
+                                    .scaledFont(size: 15, weight: .medium)
                                     .foregroundColor(.secondary)
                                     .lineLimit(1)
                                     .fixedSize(horizontal: true, vertical: false)
@@ -238,10 +241,10 @@ struct PhotoDetailView: View {
                         if let memo = record.memo, !memo.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("메모")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .scaledFont(size: 14, weight: .semibold)
                                     .foregroundColor(.secondary)
                                 Text(memo)
-                                    .font(.system(size: 16))
+                                    .scaledFont(size: 16)
                             }
                         }
 
@@ -251,7 +254,7 @@ struct PhotoDetailView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     HStack {
                                         Text("식단 분석")
-                                            .font(.system(size: 14, weight: .semibold))
+                                            .scaledFont(size: 14, weight: .semibold)
                                             .foregroundColor(.secondary)
                                         Spacer()
                                         // 다시 분석하기 버튼 (식전 사진만 — 기기 안에서 무료로 분석)
@@ -265,10 +268,10 @@ struct PhotoDetailView: View {
                                                             .scaleEffect(0.7)
                                                     } else {
                                                         Image(systemName: "arrow.clockwise")
-                                                            .font(.system(size: 12))
+                                                            .scaledFont(size: 12)
                                                     }
                                                     Text(analyzingFood ? "분석 중" : "다시 분석")
-                                                        .font(.system(size: 13))
+                                                        .scaledFont(size: 13)
                                                 }
                                                 .foregroundColor(.blue)
                                             }
@@ -307,14 +310,14 @@ struct PhotoDetailView: View {
                                         }
                                         Text(buttonText)
                                     }
-                                    .font(.system(size: 16))
+                                    .scaledFont(size: 16)
                                     .foregroundColor(.blue)
                                 }
                                 .disabled(analyzingFood)
                             } else if currentPage == 1 {
                                 // 식후 사진 안내
                                 Text("식후 사진은 분석할 수 없습니다")
-                                    .font(.system(size: 14))
+                                    .scaledFont(size: 14)
                                     .foregroundColor(.secondary)
                                     .padding(.vertical, 8)
                             }
@@ -334,7 +337,7 @@ struct PhotoDetailView: View {
                                         mealStore.updateHidePhotoCountBadge(date: date, mealType: mealType, hide: newValue)
                                     }
                                 ))
-                                .font(.system(size: 16))
+                                .scaledFont(size: 16)
 
                                 Text("이 식사의 빨간색 1 알림을 표시하지 않습니다.")
                                     .font(.caption)
@@ -349,7 +352,7 @@ struct PhotoDetailView: View {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Text("피드백")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .scaledFont(size: 14, weight: .semibold)
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 if isLoadingFeedbacks {
@@ -421,7 +424,7 @@ struct PhotoDetailView: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
-                            .font(.system(size: 20))
+                            .scaledFont(size: 20)
                     }
                     .accessibilityLabel("더 보기")
                     .accessibilityHint("분석, 저장, 사진 추가, 메모, 삭제 메뉴를 엽니다")
@@ -491,6 +494,12 @@ struct PhotoDetailView: View {
             // 피드백 로드
             loadFeedbacks()
         }
+    }
+
+    // 식후는 찍지 않고 이 식사를 "다 먹음" 으로 마친다
+    private func finishWithoutAfterPhoto() {
+        mealStore.recordAteAll(date: date, mealType: mealType)
+        NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
     }
 
     // 식단 분석 — 기기 안(Vision)에서 무료로, 횟수 제한 없이
@@ -742,3 +751,16 @@ struct MemoEditorView: View {
 }
 
 // 커스텀 카메라 뷰
+
+private extension View {
+    /// 빈 사진 칸: 탭하면 사진을 더한다. 보이스오버·음성 명령에서는 '사진 추가' 버튼 하나로 읽힌다
+    /// (안에 '식후 사진 없이 마치기' 버튼이 있으면 그 버튼은 동작 목록으로 남는다)
+    func addPhotoTap(_ action: @escaping () -> Void) -> some View {
+        contentShape(Rectangle())
+            .onTapGesture(perform: action)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { action() }
+            .accessibilityInputLabels([Text("사진 추가")])
+    }
+}

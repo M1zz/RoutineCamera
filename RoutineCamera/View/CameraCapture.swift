@@ -244,6 +244,7 @@ struct CustomCameraView: View {
                     .disabled(cameraManager.isAccessDenied || cameraManager.isCapturing)
                     .opacity(cameraManager.isAccessDenied ? 0.3 : 1)
                     .accessibilityLabel("사진 촬영")
+                    .accessibilityInputLabels([Text("사진 촬영"), Text("촬영")])
 
                     Spacer()
                 }
@@ -396,11 +397,11 @@ private struct CameraPermissionNotice: View {
                 .accessibilityHidden(true)
 
             Text("카메라 권한이 꺼져 있어요")
-                .font(.system(size: 17, weight: .semibold))
+                .scaledFont(size: 17, weight: .semibold)
                 .foregroundColor(.white)
 
             Text("설정에서 카메라를 켜면 바로 찍을 수 있어요.\n사진앨범에서 고르거나 사진 없이 기록할 수도 있어요.")
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.white.opacity(0.75))
                 .multilineTextAlignment(.center)
 
@@ -410,7 +411,7 @@ private struct CameraPermissionNotice: View {
                 }
             } label: {
                 Text("설정 열기")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(size: 16, weight: .semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -443,6 +444,7 @@ struct PreviewView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 18))
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
+                    .accessibilityLabel("찍은 사진")
 
                 Spacer()
 
@@ -451,7 +453,7 @@ struct PreviewView: View {
                     Button("다시 찍기") {
                         onRetake()
                     }
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                     .foregroundColor(.white)
                     .padding(.vertical, 14)
                     .frame(maxWidth: .infinity)
@@ -463,7 +465,7 @@ struct PreviewView: View {
                     Button("사용하기") {
                         onConfirm()
                     }
-                    .font(.system(size: 17, weight: .bold))
+                    .scaledFont(size: 17, weight: .bold)
                     .foregroundColor(.white)
                     .padding(.vertical, 14)
                     .frame(maxWidth: .infinity)

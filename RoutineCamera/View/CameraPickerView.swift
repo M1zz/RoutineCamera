@@ -87,13 +87,13 @@ struct CameraPickerView: View {
                         Button("취소") {
                             dismiss()
                         }
-                        .font(.system(size: 17))
+                        .scaledFont(size: 17)
 
                         Spacer()
                     }
                     .padding(.horizontal, 16)
                 }
-                .frame(height: 52)
+                .frame(minHeight: 52)
 
                 if canEditTarget {
                     recordTargetButton
@@ -127,29 +127,37 @@ struct CameraPickerView: View {
                     selectedTab = 0
                 }) {
                     VStack(spacing: 4) {
-                        Image(systemName: "camera.fill")
-                            .font(.system(size: 24))
+                        // 고른 쪽은 채운 아이콘 — 색을 구별하지 못해도 보인다
+                        Image(systemName: "camera")
+                            .symbolVariant(selectedTab == 0 ? .fill : .none)
+                            .scaledFont(size: 24)
+                            .accessibilityHidden(true)
                         Text("카메라")
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .foregroundColor(selectedTab == 0 ? .blue : .gray)
                 }
+                // 보이스오버에서도 지금 보고 있는 쪽을 '선택됨' 으로 알린다
+                .accessibilityAddTraits(selectedTab == 0 ? .isSelected : [])
 
                 Button(action: {
                     selectedTab = 1
                 }) {
                     VStack(spacing: 4) {
                         Image(systemName: "photo.on.rectangle")
-                            .font(.system(size: 24))
+                            .symbolVariant(selectedTab == 1 ? .fill : .none)
+                            .scaledFont(size: 24)
+                            .accessibilityHidden(true)
                         Text("사진앨범")
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .foregroundColor(selectedTab == 1 ? .blue : .gray)
                 }
+                .accessibilityAddTraits(selectedTab == 1 ? .isSelected : [])
             }
             .background(Color(.systemBackground))
             .overlay(
@@ -245,10 +253,10 @@ struct CameraPickerView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(size: 12, weight: .semibold)
                     .foregroundColor(.secondary)
             }
-            .font(.system(size: 15, weight: .semibold))
+            .scaledFont(size: 15, weight: .semibold)
             .foregroundColor(.primary)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -322,13 +330,13 @@ struct CameraPickerView: View {
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: type.symbolName)
-                    .font(.system(size: 20))
+                    .scaledFont(size: 20)
                     .foregroundColor(target == nil && !selected ? .secondary : type.symbolColor)
                 Text(title)
-                    .font(.system(size: 14, weight: selected ? .bold : .regular))
+                    .scaledFont(size: 14, weight: selected ? .bold : .regular)
                 if target == nil && !selected {
                     Text("기록됨")
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundColor(.secondary)
                 }
             }
@@ -382,9 +390,9 @@ struct CameraPickerView: View {
     private func headerActionLabel(_ title: LocalizedStringKey, systemImage: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
+                .scaledFont(size: 16, weight: .semibold)
             Text(title)
-                .font(.system(size: 16, weight: .semibold))
+                .scaledFont(size: 16, weight: .semibold)
         }
         .foregroundColor(.blue)
         .frame(maxWidth: .infinity)

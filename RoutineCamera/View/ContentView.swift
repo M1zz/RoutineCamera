@@ -168,12 +168,14 @@ struct ContentView: View {
                                 ? String(localized: "친구", comment: "Toolbar button: friends")
                                 : String(localized: "친구, 받은 요청 \(friendManager.incomingRequests.count)건",
                                          comment: "Toolbar friends button with pending request count (VoiceOver)"))
+            .accessibilityInputLabels([Text("친구")])
             Menu {
                 Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
                 Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
+            .accessibilityLabel("더 보기")
         }
     }
 
@@ -194,7 +196,7 @@ struct ContentView: View {
                 }
                 .frame(height: 6)
                 Text("\(recordedDays)/\(goalManager.goalDays)일")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(size: 12, weight: .medium)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -370,9 +372,9 @@ struct ContentView: View {
                             } label: {
                                 HStack(spacing: 5) {
                                     Image(systemName: "arrow.up")
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .scaledFont(size: 13, weight: .semibold)
                                     Text("오늘")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .scaledFont(size: 15, weight: .semibold)
                                 }
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 14)
@@ -383,6 +385,7 @@ struct ContentView: View {
                             .padding(.trailing, 16)
                             .padding(.bottom, 24)
                             .accessibilityLabel("오늘로 이동")
+                            .accessibilityInputLabels([Text("오늘"), Text("오늘로 이동")])
                             .accessibilityHint("두 번 탭하여 오늘 날짜로 스크롤")
                         }
                     }
@@ -487,14 +490,14 @@ struct RecordNowBanner: View {
         Button(action: onTap) {
             HStack(spacing: 8) {
                 Image(systemName: "camera.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(size: 14, weight: .semibold)
                 Text("\(mealType.displayName) 기록할 시간이에요")
-                    .font(.system(size: 15, weight: .semibold))
-                    .lineLimit(1)
+                    .scaledFont(size: 15, weight: .semibold)
+                    .lineLimit(2)
                     .minimumScaleFactor(0.8)
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .opacity(0.7)
             }
             .foregroundColor(.white)

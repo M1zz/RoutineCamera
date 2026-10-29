@@ -208,7 +208,7 @@ struct SettingsView: View {
                     Button("다시 등록") {
                         friendManager.syncFriendMealSubscriptions()
                     }
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                 }
             case .ready, .unknown:
                 caption("친구가 사진을 올리면 알려 드려요. 한 친구가 여러 끼를 한꺼번에 올려도 알림은 하나로 모아요.")
@@ -229,31 +229,31 @@ struct SettingsView: View {
                 case .ready:
                     Label("켜짐", systemImage: "checkmark.circle.fill")
                         .labelStyle(.titleAndIcon)
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.green)
                 case .registering:
                     ProgressView().scaleEffect(0.7)
                 case .failed:
                     Label("꺼짐", systemImage: "exclamationmark.triangle.fill")
                         .labelStyle(.titleAndIcon)
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.orange)
                 case .unknown:
                     Text("확인 중")
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .foregroundColor(.secondary)
                 }
             }
 
             if case .failed(let reason) = friendManager.pushSubscriptionState {
                 Text(reason)
-                    .font(.system(size: 12))
+                    .scaledFont(size: 12)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Button("다시 등록") {
                     friendManager.retryFeedbackSubscription()
                 }
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
             }
         }
         .accessibilityElement(children: .combine)

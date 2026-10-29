@@ -229,7 +229,7 @@ struct MealPhotoView: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 22, height: 22)
-                        .background(Color.orange)
+                        .background(Color.solidOrange)
                         .clipShape(Circle())
                         .padding(6)
                 }
@@ -532,9 +532,9 @@ struct EmptyMealFeedbackSheet: View {
                 Button(action: onRecord) {
                     HStack(spacing: 8) {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 14, weight: .semibold))
+                            .scaledFont(size: 14, weight: .semibold)
                         Text("지금 기록하기")
-                            .font(.system(size: 16, weight: .semibold))
+                            .scaledFont(size: 16, weight: .semibold)
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

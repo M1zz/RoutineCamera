@@ -238,15 +238,15 @@ struct MomentsView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: isExercise ? "figure.run" : "camera.fill")
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Text(recordButtonTitle)
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Spacer()
             }
             .foregroundColor(.white)
             .padding(.vertical, 16)
             .padding(.horizontal, 18)
-            .background(isExercise ? Color.green : Color.blue)
+            .background(isExercise ? Color.solidGreen : Color.blue)
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
@@ -289,7 +289,7 @@ struct MomentsView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
                     Text(isExercise ? AlbumType.exercise.displayName : record.mealType.displayName)
                         .font(.subheadline.weight(.semibold))
@@ -352,14 +352,14 @@ struct MomentsView: View {
                     .frame(width: 72, height: 72)
                     .overlay(
                         Image(systemName: "camera")
-                            .font(.system(size: 22))
+                            .scaledFont(size: 22)
                             .foregroundColor(meal.symbolColor.opacity(0.5))
                     )
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         Image(systemName: meal.symbolName)
-                            .font(.system(size: 13))
+                            .scaledFont(size: 13)
                             .foregroundColor(meal.symbolColor.opacity(0.6))
                         Text(meal.displayName)
                             .font(.subheadline.weight(.semibold))
@@ -370,7 +370,7 @@ struct MomentsView: View {
                     }
 
                     (now < at ? Text("곧 \(meal.displayName) 시간이에요") : Text("지금 남기면 여기에 들어가요"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundColor(.secondary.opacity(0.8))
                 }
                 Spacer(minLength: 0)
@@ -399,7 +399,7 @@ struct MomentsView: View {
                 .frame(width: size, height: size)
                 .overlay(
                     Image(systemName: isExercise ? "figure.run" : (record.ateAll ? "checkmark.circle.fill" : record.mealType.symbolName))
-                        .font(.system(size: 26))
+                        .scaledFont(size: 26)
                         .foregroundColor(isExercise ? .green : (record.ateAll ? .green : record.mealType.symbolColor.opacity(0.6)))
                 )
         }
@@ -408,9 +408,9 @@ struct MomentsView: View {
     private func tag(_ text: LocalizedStringKey, system: String, color: Color) -> some View {
         HStack(spacing: 3) {
             Image(systemName: system)
-                .font(.system(size: 10))
+                .scaledFont(size: 10)
             Text(text)
-                .font(.system(size: 11, weight: .medium))
+                .scaledFont(size: 11, weight: .medium)
         }
         .foregroundColor(color)
         .padding(.horizontal, 7)

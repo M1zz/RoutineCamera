@@ -132,7 +132,7 @@ struct ExerciseGridView: View {
             ZStack {
                 Color.green.opacity(0.15)
                 Image(systemName: "figure.run")
-                    .font(.system(size: 30))
+                    .scaledFont(size: 30)
                     .foregroundColor(.green)
             }
         }
@@ -140,7 +140,7 @@ struct ExerciseGridView: View {
 
     private func dateBadge(_ date: Date) -> some View {
         Text(dateLabel(date))
-            .font(.system(size: 12, weight: .semibold))
+            .scaledFont(size: 12, weight: .semibold)
             .foregroundColor(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
@@ -173,15 +173,15 @@ struct ExerciseGridView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "figure.run")
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Text("운동 기록하기")
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Spacer()
             }
             .foregroundColor(.white)
             .padding(.vertical, 16)
             .padding(.horizontal, 18)
-            .background(Color.green)
+            .background(Color.solidGreen)
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
