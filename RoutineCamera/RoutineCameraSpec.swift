@@ -35,7 +35,9 @@ enum RoutineCameraSpec: LeeoAppSpec {
                 productID: SubscriptionManager.giftProductID,
                 grantsProductID: SubscriptionManager.lifetimeID,
                 containerIdentifier: "iCloud.com.Ysoup.FeedbackHub"
-            )
+            ),
+            // 개발자 응원하기(팁). 소모성이고 아무것도 열지 않는다 — productIDs 에 넣지 않는다.
+            tipJar: LeeoTipJarConfig(productIDs: SubscriptionManager.tipProductIDs)
         )
     )
 

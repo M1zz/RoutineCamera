@@ -41,6 +41,10 @@ struct SettingsView: View {
                 if let gift = subscription.gift {
                     GiftRows(gift: gift, isPro: subscription.isPro)
                 }
+                // 개발자 응원하기 — 팁 상품이 App Store 에서 와야 줄이 선다.
+                if let tipJar = subscription.tipJar {
+                    Section { LeeoTipJarLink<RoutineCameraSpec>(tipJar: tipJar) }
+                }
                 screenSection
                 displaySection
                 caredMealsSection

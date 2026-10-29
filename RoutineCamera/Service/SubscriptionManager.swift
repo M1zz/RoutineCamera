@@ -64,6 +64,14 @@ final class SubscriptionManager: ObservableObject {
     /// ⚠️ `productIDs` 에 넣지 않는다. 넣으면 선물을 산 사람 자신이 프로가 된다.
     static let giftProductID = "com.ysoup.routinecamera.gift.pro"
 
+    /// 팁(개발자 응원하기) — 소모성 상품 셋, 작은 것부터. 기능을 열지 않는다.
+    /// ⚠️ `productIDs` 에 넣지 않는다. 넣으면 팁을 낸 사람이 프로가 된다.
+    static let tipProductIDs = [
+        "com.ysoup.routinecamera.tip.small",
+        "com.ysoup.routinecamera.tip.medium",
+        "com.ysoup.routinecamera.tip.large",
+    ]
+
     let store: LeeoStore
     private var cancellable: AnyCancellable?
 
@@ -78,6 +86,9 @@ final class SubscriptionManager: ObservableObject {
 
     /// 프로 선물 엔진. 받은 선물은 LeeoStore 가 권한에 합치므로 `isPro` 가 그대로 따라온다.
     var gift: LeeoGiftStore? { store.gift }
+
+    /// 팁 엔진. 상품 로드·결제 갱신은 LeeoStore 가 맡는다.
+    var tipJar: LeeoTipJar? { store.tipJar }
 
     /// 개수 제한이 있는 기능 — current 는 지금까지 쓴 개수
     func evaluate(_ feature: ProFeature, current: Int = 0) -> LeeoGateDecision {

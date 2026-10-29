@@ -51,6 +51,66 @@
       "productID": "com.ysoup.routinecamera.gift.pro",
       "referenceName": "Gift Sekki Pro",
       "type": "Consumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "31000003",
+      "localizations": [
+        {
+          "description": "작은 응원을 보내요",
+          "displayName": "작은 팁",
+          "locale": "ko"
+        },
+        {
+          "description": "Send a small thank-you",
+          "displayName": "Small Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.tip.small",
+      "referenceName": "Small Tip",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "4.99",
+      "familyShareable": false,
+      "internalID": "31000004",
+      "localizations": [
+        {
+          "description": "조금 더 큰 응원을 보내요",
+          "displayName": "중간 팁",
+          "locale": "ko"
+        },
+        {
+          "description": "Send a medium thank-you",
+          "displayName": "Medium Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.tip.medium",
+      "referenceName": "Medium Tip",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "9.99",
+      "familyShareable": false,
+      "internalID": "31000005",
+      "localizations": [
+        {
+          "description": "큰 응원을 보내요",
+          "displayName": "큰 팁",
+          "locale": "ko"
+        },
+        {
+          "description": "Send a big thank-you",
+          "displayName": "Large Tip",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.tip.large",
+      "referenceName": "Large Tip",
+      "type": "Consumable"
     }
   ],
   "settings": {
