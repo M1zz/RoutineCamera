@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: ruokapäiväkirja, jolle riittää yksi kuva ennen syömistä",
+  "description": "Yksi kuva ennen syömistä, ja Sekki lajittelee sen aamiaiseksi, lounaaksi tai illalliseksi. Yksi ateria päivässä pitää putken, ja kaverit kannustavat toisiaan.",
+  "hero": {
+    "headline": "Yksi kuva ennen syömistä.\nSiinä se.",
+    "lead": "Sekki katsoo, milloin kuva otettiin, ja lajittelee sen aamiaiseksi, lounaaksi, illalliseksi tai välipalaksi. Kirjaa vaikka vain yksi ateria päivässä, niin putkesi jatkuu.",
+    "cta": "Lataa ilmaiseksi App Storesta",
+    "note": "Kirjaaminen, tilastot, widgetit ja jakaminen kavereille ovat ilmaisia."
+  },
+  "demo": {
+    "title": "Kokeile itse",
+    "lead": "Valitse kellonaika ja napauta kirjauspainiketta. Kuten sovelluksessa, painike kertoo jo kyseisen ajan aterian.",
+    "clock": "Kuva otettu klo",
+    "record": "Kirjaa: {meal}",
+    "meals": {
+      "breakfast": "Aamiainen",
+      "lunch": "Lounas",
+      "dinner": "Illallinen",
+      "snack": "Välipala"
+    },
+    "today": "Tänään · {n}",
+    "empty": "Tänään ei vielä kirjauksia",
+    "streak": "{n} päivän putki",
+    "total": "Yhteensä {n} päivää",
+    "before": "Ennen",
+    "ateAll": "Syöty",
+    "kept": "Yksi ateria riittää: tämä päivä lasketaan jo putkeen.",
+    "rule": "Samat säännöt kuin sovelluksessa: klo 5–10 aamiainen, 11–15 lounas ja 16–21 illallinen. Muina aikoina tai jo kirjatun aterian kohdalla tulee välipala.",
+    "reset": "Aloita alusta",
+    "note": "Kokeilun kuvat ovat esimerkkejä."
+  },
+  "problem": {
+    "title": "Jäikö ruokapäiväkirja kolmen päivän kokeiluksi?",
+    "text": "Jätät aamiaisen väliin, unohdat illallisen, ja tyhjät ruudut alkavat ärsyttää, kunnes poistat sovelluksen. Sekissä ei ole tyhjiä ruutuja. Vain kirjaamasi ateriat kertyvät järjestyksessä, ja yksi kuva riittää siihen, että päivä lasketaan."
+  },
+  "features": [
+    {
+      "title": "Ota kuva, niin ateria on paikallaan",
+      "text": "Kuvausajan perusteella Sekki lajittelee kuvan aamiaiseksi, lounaaksi, illalliseksi tai välipalaksi. Lisää kuvat ennen ja jälkeen, kirjaa ilman kuvaa tai kirjoita muistiinpano.\nRuoka tunnistetaan ilmaiseksi laitteella, eivätkä kuvasi koskaan lähde puhelimesta.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Päiväkirja, joka ei koskaan kutistu",
+      "text": "Yksi ateria päivässä pitää putken, eikä kirjattujen päivien kokonaismäärä koskaan laske. Viikko- ja kuukausitilastot näyttävät, montako päivää ja ateriaa olet kirjannut, eivät prosenttia.\nMatkan varrella keräät saavutuksia, kuten 7 päivän putki ja Aamuvirkku.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Vain valitsemasi ateriat, avaamatta sovellusta",
+      "text": "Valitse, mistä aterioista haluat muistutuksen, ja sovita ajat päivääsi. Kun olet ottanut kuvan ennen syömistä, merkitset Syöty suoraan ilmoituksesta.\nKirjaa myös Toimintopainikkeella, Sirillä, Pikakomennoilla tai widgetillä, ja lisää kavereita koodilla, niin voitte kannustaa toisianne emojeilla ja kommenteilla.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Alkuun kolmella askeleella",
+    "items": [
+      {
+        "title": "Valitse ateriat",
+        "text": "Ensimmäisellä kerralla Sekki kysyy, mistä aterioista muistuttaa. Voit muuttaa sitä asetuksissa."
+      },
+      {
+        "title": "Kuva ennen syömistä",
+        "text": "Kirjauspainikkeessa lukee jo nykyisen ajan ateria. Napauta, kuvaa, valmis."
+      },
+      {
+        "title": "Napauta, kun olet syönyt",
+        "text": "Napauta Syöty ilmoituksessa tai widgetissä, tai lisää kuva jälkeenpäin."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Kirjaaminen avaamatta sovellusta",
+    "rows": [
+      ["Ilmoitus", "Kuvan jälkeen merkitse Syöty suoraan ilmoituksesta"],
+      ["Kotinäytön widget", "Näe päivän kirjaukset ja meneillään oleva ateria, ja napauta Syöty"],
+      ["Lukitusnäytön widgetit", "Suorakulmainen, pyöreä ja rivinä"],
+      ["Toimintopainike · Siri · Pikakomennot", "Syöty yhdellä painalluksella tai lauseella"],
+      ["Tallennus Kuviin", "Laita päälle asetuksista, niin ateriat ja treenit tallentuvat omiin Sekki-albumeihinsa"],
+      ["Treenitila", "Treenit pysyvät erillään aterioista, ja kuun treenimäärä näkyy heti"]
+    ],
+    "note": "Widgetin Syöty-painike vaatii iOS 17:n tai uudemman."
+  },
+  "pricing": {
+    "title": "Kirjaaminen on ilmaista. Sekki Pro menee syvemmälle.",
+    "free": {
+      "name": "Ilmainen",
+      "items": [
+        "Kuvakirjaus automaattisella lajittelulla, kuvat ennen ja jälkeen, muistiinpanot",
+        "Putket, päivät yhteensä, viikko- ja kuukausitilastot, saavutukset",
+        "Muistutukset valituista aterioista ja Syöty avaamatta sovellusta",
+        "Widgetit, Toimintopainike, Siri ja Pikakomennot",
+        "Aterioiden ja treenien jakaminen kavereille, emojit ja kommentit",
+        "Yhden ryhmän luominen, liittyminen niin moneen kuin haluat",
+        "Ruoan tunnistus laitteella"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Useita ryhmiä perheelle, työpaikalle tai treeniporukalle",
+        "Vertaa muutaman viikon takaisia aterioita tämänpäiväisiin rinnakkain",
+        "Näe, mitä syöt useimmin",
+        "Lukitse sovellus Face ID:llä tai Touch ID:llä"
+      ],
+      "note": "Vuosi- tai kuukausitilaus tai kertaosto loppuelämäksi"
+    },
+    "note": "Tilaus uusiutuu automaattisesti, ellei sitä peruta vähintään 24 tuntia ennen jakson päättymistä. Peru milloin tahansa: Asetukset > Apple-tili > Tilaukset. Käyttöehdot: m1zz.github.io/RoutineCamera/fi/terms.html"
+  },
+  "faq": {
+    "title": "Usein kysyttyä",
+    "items": [
+      {
+        "q": "Mihin kuvani tallennetaan?",
+        "a": "Laitteellesi. Jos laitat asetuksista päälle Tallenna Kuviin automaattisesti, ne tallentuvat myös Kuvien Sekki-albumeihin. Niin kauan kuin Jaa ateriani on päällä (se on aluksi päällä), ne ladataan iCloudiin, jotta lisäämäsi kaverit näkevät ne. Voit laittaa sen pois kohdassa Asetukset > Tili ja jakaminen."
+      },
+      {
+        "q": "Miten lisään kavereita?",
+        "a": "Jaa Kaverit-näytöllä kuusimerkkinen koodisi ja syötä kaverisi koodi. Voit liittää useita koodeja kerralla pilkuilla erotettuina."
+      },
+      {
+        "q": "Miten kannustan kaveria?",
+        "a": "Avaa kaverin ateria ja jätä emoji tai lyhyt kommentti. Jos kaveri ei ole vielä kirjannut mitään, napauta tyhjää ruutua ja tönäise kevyesti."
+      },
+      {
+        "q": "Katkeaako putki, jos jätän aterian väliin?",
+        "a": "Ei. Kirjaa sinä päivänä mikä tahansa ateria, välipalat mukaan lukien, ja putki jatkuu. Vaikka koko päivä jäisi väliin, kirjattujen päivien kokonaismäärä ei laske."
+      },
+      {
+        "q": "En saa ilmoituksia.",
+        "a": "Tarkista iOS:n Asetukset > Ilmoitukset, että Sekin ilmoitukset on sallittu ja että laite on kirjautunut iCloudiin. Muistutusten ajat muutat sovelluksen asetuksista."
+      },
+      {
+        "q": "Lähettääkö ruoan tunnistus kuvani palvelimelle?",
+        "a": "Ei. Se tapahtuu laitteella, joten kuvat eivät koskaan lähde puhelimesta. Ilmainen ja rajaton."
+      },
+      {
+        "q": "Miten poistan tilini ja tietoni?",
+        "a": "Kohdassa Kaverit > Tili > Poista tili. Tili ja palvelimelle tallennetut ateriatiedot poistetaan, eikä niitä voi palauttaa. Jos jokin menee pieleen, lähetä meille sähköpostia."
+      },
+      {
+        "q": "Miten peruutan tilauksen?",
+        "a": "Kohdassa Asetukset > Apple-tili > Tilaukset. Se uusiutuu automaattisesti, ellet peru sitä vähintään 24 tuntia ennen jakson päättymistä. Elinikäinen osto maksetaan kerran."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Aloita\ntämänpäiväisestä lounaasta",
+    "cta": "Lataa ilmaiseksi App Storesta"
+  },
+  "ui": {
+    "skip": "Siirry sisältöön",
+    "languages": "Kieli",
+    "privacy": "Tietosuojakäytäntö",
+    "contact": "Virheet, ideat ja tiliä koskevat kysymykset: kirjoita osoitteeseen {email} tai lähetä DM Instagramissa @lee25_ios. Vastaamme yleensä päivän tai kahden sisällä."
+  }
+}

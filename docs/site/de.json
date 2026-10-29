@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: das Foto-Essenstagebuch, das nur ein Foto vor dem Essen braucht",
+  "description": "Ein Foto vor dem Essen, und Sekki ordnet es Frühstück, Mittag- oder Abendessen zu. Eine Mahlzeit am Tag hält die Serie, und Freunde feuern sich an.",
+  "hero": {
+    "headline": "Ein Foto vor dem Essen.\nMehr braucht es nicht.",
+    "lead": "Sekki schaut, wann das Foto entstand, und ordnet es Frühstück, Mittagessen, Abendessen oder Snack zu. Schon eine Mahlzeit am Tag hält deine Serie am Laufen.",
+    "cta": "Kostenlos im App Store laden",
+    "note": "Eintragen, Statistiken, Widgets und Teilen mit Freunden sind kostenlos."
+  },
+  "demo": {
+    "title": "Probier es selbst",
+    "lead": "Wähl eine Uhrzeit und tipp auf die Eintragen-Taste. Wie in der App zeigt die Taste schon die passende Mahlzeit an.",
+    "clock": "Foto um",
+    "record": "{meal} eintragen",
+    "meals": {
+      "breakfast": "Frühstück",
+      "lunch": "Mittagessen",
+      "dinner": "Abendessen",
+      "snack": "Snack"
+    },
+    "today": "Heute · {n}",
+    "empty": "Heute noch nichts eingetragen",
+    "streak": "{n} Tage in Folge",
+    "total": "{n} Tage insgesamt",
+    "before": "Vorher",
+    "ateAll": "Fertig gegessen",
+    "kept": "Eine Mahlzeit reicht: Heute zählt schon für deine Serie.",
+    "rule": "Dieselben Regeln wie in der App: 5 bis 10 Uhr ist Frühstück, 11 bis 15 Uhr Mittagessen, 16 bis 21 Uhr Abendessen. Zu anderen Zeiten oder bei schon eingetragenen Mahlzeiten wird es ein Snack.",
+    "reset": "Von vorn",
+    "note": "Die Fotos in der Demo sind Beispiele."
+  },
+  "problem": {
+    "title": "Ein Essenstagebuch nach drei Tagen aufgegeben?",
+    "text": "Einmal das Frühstück ausgelassen, zweimal das Abendessen vergessen, und die leeren Felder nerven, bis die App gelöscht ist. Sekki hat keine leeren Felder. Nur eingetragene Mahlzeiten sammeln sich der Reihe nach, und ein einziges Foto lässt den Tag zählen."
+  },
+  "features": [
+    {
+      "title": "Foto machen, Mahlzeit steht",
+      "text": "Nach der Aufnahmezeit ordnet Sekki das Foto Frühstück, Mittagessen, Abendessen oder Snack zu. Füg Vorher- und Nachher-Fotos hinzu, trag ohne Foto ein oder schreib eine Notiz.\nDas Essen wird kostenlos auf dem Gerät erkannt, und deine Fotos verlassen nie dein iPhone.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Ein Tagebuch, das nicht schrumpft",
+      "text": "Eine Mahlzeit am Tag hält die Serie, und die Gesamtzahl eingetragener Tage sinkt nie. Wochen- und Monatsstatistik zeigen, an wie vielen Tagen und zu wie vielen Mahlzeiten du eingetragen hast, statt einer Erfüllungsquote.\nUnterwegs sammelst du Erfolge wie 7 Tage in Folge oder Frühaufsteher.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Nur die Mahlzeiten, die dir wichtig sind, ohne die App zu öffnen",
+      "text": "Wähl, an welche Mahlzeiten du erinnert werden willst, und pass die Uhrzeiten an deinen Alltag an. Nach dem Vorher-Foto markierst du Fertig gegessen direkt in der Mitteilung.\nEintragen geht auch über die Aktionstaste, Siri, Kurzbefehle oder ein Widget, und mit einem Code fügst du Freunde hinzu und feuerst euch mit Emojis und Kommentaren an.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "In drei Schritten loslegen",
+    "items": [
+      {
+        "title": "Mahlzeiten wählen",
+        "text": "Beim ersten Start fragt Sekki, an welche Mahlzeiten es dich erinnern soll. Änderbar in den Einstellungen."
+      },
+      {
+        "title": "Foto vor dem Essen",
+        "text": "Die Eintragen-Taste zeigt schon die Mahlzeit zur aktuellen Uhrzeit. Tippen, knipsen, fertig."
+      },
+      {
+        "title": "Nach dem Essen tippen",
+        "text": "In der Mitteilung oder im Widget auf Fertig gegessen tippen oder ein Nachher-Foto ergänzen."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Eintragen, ohne die App zu öffnen",
+    "rows": [
+      ["Mitteilung", "Nach dem Vorher-Foto direkt aus der Mitteilung Fertig gegessen markieren"],
+      ["Home-Bildschirm-Widget", "Heutige Einträge und die laufende Mahlzeit sehen, dann Fertig gegessen tippen"],
+      ["Sperrbildschirm-Widgets", "Rechteckig, rund und einzeilig"],
+      ["Aktionstaste · Siri · Kurzbefehle", "Fertig gegessen mit einem Tastendruck oder einem Satz"],
+      ["In Fotos speichern", "In den Einstellungen einschalten, dann landen Mahlzeiten und Workouts in eigenen Sekki-Alben"],
+      ["Workout-Modus", "Workouts liegen getrennt von Mahlzeiten, mit der Zahl der Trainings im Monat auf einen Blick"]
+    ],
+    "note": "Die Taste Fertig gegessen im Widget braucht iOS 17 oder neuer."
+  },
+  "pricing": {
+    "title": "Eintragen ist kostenlos. Sekki Pro geht tiefer.",
+    "free": {
+      "name": "Kostenlos",
+      "items": [
+        "Foto-Einträge mit automatischer Zuordnung, Vorher- und Nachher-Fotos, Notizen",
+        "Serien, Gesamttage, Wochen- und Monatsstatistik, Erfolge",
+        "Erinnerungen an deine Mahlzeiten, Fertig gegessen ohne App",
+        "Widgets, Aktionstaste, Siri und Kurzbefehle",
+        "Mahlzeiten und Workouts mit Freunden teilen, Emojis und Kommentare",
+        "Eine Gruppe erstellen, beliebig vielen beitreten",
+        "Essenserkennung auf dem Gerät"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Mehrere Gruppen für Familie, Arbeit oder die Trainingsrunde",
+        "Mahlzeiten von vor ein paar Wochen und heute nebeneinander vergleichen",
+        "Sehen, was du am häufigsten isst",
+        "App mit Face ID oder Touch ID sperren"
+      ],
+      "note": "Jahres- oder Monatsabo oder ein einmaliger Kauf auf Lebenszeit"
+    },
+    "note": "Abos verlängern sich automatisch, wenn sie nicht mindestens 24 Stunden vor Ablauf gekündigt werden. Kündigen jederzeit unter Einstellungen > Apple Account > Abonnements. Nutzungsbedingungen: m1zz.github.io/RoutineCamera/de/terms.html"
+  },
+  "faq": {
+    "title": "Häufige Fragen",
+    "items": [
+      {
+        "q": "Wo werden meine Fotos gespeichert?",
+        "a": "Auf deinem Gerät. Schaltest du in den Einstellungen Automatisch in Fotos speichern ein, landen sie auch in den Sekki-Alben in Fotos. Solange Meine Mahlzeiten teilen an ist (anfangs ist es an), werden sie in iCloud hochgeladen, damit hinzugefügte Freunde sie sehen. Ausschalten kannst du das unter Einstellungen > Account & Teilen."
+      },
+      {
+        "q": "Wie füge ich Freunde hinzu?",
+        "a": "Teil auf dem Freunde-Bildschirm deinen sechsstelligen Code und gib den Code deines Freundes ein. Mehrere Codes kannst du durch Kommas getrennt auf einmal einfügen."
+      },
+      {
+        "q": "Wie feuere ich Freunde an?",
+        "a": "Öffne eine Mahlzeit deines Freundes und hinterlass ein Emoji oder einen kurzen Kommentar. Hat er noch nichts eingetragen, tipp auf das leere Feld, um ihn sanft anzustupsen."
+      },
+      {
+        "q": "Reißt die Serie, wenn ich eine Mahlzeit auslasse?",
+        "a": "Nein. Trag an dem Tag irgendeine Mahlzeit ein, Snacks inklusive, und die Serie läuft weiter. Selbst wenn ein ganzer Tag ausfällt, sinkt die Gesamtzahl eingetragener Tage nicht."
+      },
+      {
+        "q": "Ich bekomme keine Mitteilungen.",
+        "a": "Prüf unter iOS-Einstellungen > Mitteilungen, ob Mitteilungen für Sekki erlaubt sind, und ob das Gerät bei iCloud angemeldet ist. Die Erinnerungszeiten änderst du in den Einstellungen der App."
+      },
+      {
+        "q": "Schickt die Essenserkennung meine Fotos an einen Server?",
+        "a": "Nein. Sie läuft auf dem Gerät, deine Fotos verlassen nie dein iPhone. Kostenlos und ohne Limit."
+      },
+      {
+        "q": "Wie lösche ich meinen Account und meine Daten?",
+        "a": "Unter Freunde > Account > Account löschen. Account und Mahlzeitendaten auf dem Server werden gelöscht und lassen sich nicht wiederherstellen. Klappt etwas nicht, schreib uns."
+      },
+      {
+        "q": "Wie kündige ich das Abo?",
+        "a": "Unter Einstellungen > Apple Account > Abonnements. Es verlängert sich automatisch, wenn du nicht mindestens 24 Stunden vor Ablauf kündigst. Der Kauf auf Lebenszeit wird einmal bezahlt."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Fang mit dem\nheutigen Mittagessen an",
+    "cta": "Kostenlos im App Store laden"
+  },
+  "ui": {
+    "skip": "Zum Inhalt springen",
+    "languages": "Sprache",
+    "privacy": "Datenschutzerklärung",
+    "contact": "Fehler, Ideen oder Fragen zum Account: schreib an {email} oder per DM an @lee25_ios auf Instagram. Wir antworten meist innerhalb von ein, zwei Tagen."
+  }
+}

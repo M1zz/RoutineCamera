@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: fotodeník jídla, kterému stačí jedna fotka před jídlem",
+  "description": "Jedna fotka před jídlem a Sekki ji zařadí k snídani, obědu nebo večeři. Jedno jídlo denně udrží sérii a přátelé se navzájem povzbuzují.",
+  "hero": {
+    "headline": "Jedna fotka před jídlem.\nA je zapsáno.",
+    "lead": "Sekki se podívá, kdy jste fotili, a zařadí fotku k snídani, obědu, večeři nebo svačině. Stačí zapsat jedno jídlo denně a série běží dál.",
+    "cta": "Stáhnout zdarma v App Storu",
+    "note": "Zápisy, statistiky, widgety i sdílení s přáteli jsou zdarma."
+  },
+  "demo": {
+    "title": "Vyzkoušejte si to",
+    "lead": "Zvolte čas a klepněte na tlačítko zápisu. Stejně jako v aplikaci už tlačítko ukazuje jídlo pro tu dobu.",
+    "clock": "Fotka pořízena v",
+    "record": "Zapsat: {meal}",
+    "meals": {
+      "breakfast": "Snídaně",
+      "lunch": "Oběd",
+      "dinner": "Večeře",
+      "snack": "Svačina"
+    },
+    "today": "Dnes · {n}",
+    "empty": "Dnes zatím nic zapsáno",
+    "streak": "Série {n} dní",
+    "total": "Celkem {n} dní",
+    "before": "Před",
+    "ateAll": "Snězeno",
+    "kept": "Stačí jedno jídlo: dnešek už se počítá do série.",
+    "rule": "Stejná pravidla jako v aplikaci: 5 až 10 h snídaně, 11 až 15 h oběd, 16 až 21 h večeře. V jinou dobu, nebo když je jídlo už zapsané, jde o svačinu.",
+    "reset": "Začít znovu",
+    "note": "Fotky v ukázce jsou ilustrační."
+  },
+  "problem": {
+    "title": "Vzdali jste deník jídla po třech dnech?",
+    "text": "Jednou vynecháte snídani, zapomenete na večeři a prázdná políčka začnou otravovat, dokud aplikaci nesmažete. Sekki prázdná políčka nemá. Hromadí se jen zapsaná jídla v pořadí a jediná fotka stačí, aby se den počítal."
+  },
+  "features": [
+    {
+      "title": "Vyfoťte a jídlo je zařazené",
+      "text": "Podle času pořízení zařadí Sekki fotku k snídani, obědu, večeři nebo svačině. Přidejte fotky před a po jídle, zapište bez fotky nebo napište poznámku.\nJídlo se rozpozná zdarma přímo v zařízení a fotky nikdy neopustí telefon.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Záznam, který nikdy neubývá",
+      "text": "Jedno jídlo denně udrží sérii a celkový počet zapsaných dní nikdy neklesne. Týdenní a měsíční statistiky ukazují, kolik dní a jídel jste zapsali, ne procento splnění.\nCestou sbíráte úspěchy jako Série 7 dní nebo Ranní ptáče.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Jen jídla, která chcete, bez otevírání aplikace",
+      "text": "Vyberte, na která jídla chcete připomínky, a nastavte časy podle svého dne. Po fotce před jídlem označíte Snězeno přímo z oznámení.\nZapisujte i tlačítkem Akce, přes Siri, Zkratky nebo widget a přidávejte přátele kódem, abyste se povzbuzovali emoji a komentáři.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Začnete ve třech krocích",
+    "items": [
+      {
+        "title": "Vyberte jídla",
+        "text": "Při prvním spuštění se Sekki zeptá, na která jídla upozorňovat. Změníte to v Nastavení."
+      },
+      {
+        "title": "Fotka před jídlem",
+        "text": "Tlačítko zápisu už ukazuje jídlo pro aktuální čas. Klepnout, vyfotit, hotovo."
+      },
+      {
+        "title": "Dojedeno? Klepněte",
+        "text": "Klepněte na Snězeno v oznámení nebo widgetu, nebo přidejte fotku po jídle."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Zapisování bez otevírání aplikace",
+    "rows": [
+      ["Oznámení", "Po fotce před jídlem označte Snězeno přímo z upozornění"],
+      ["Widget na ploše", "Dnešní počet zápisů a právě probíhající jídlo, plus tlačítko Snězeno"],
+      ["Widgety na zamčené obrazovce", "Obdélníkový, kruhový a v řádku"],
+      ["Tlačítko Akce · Siri · Zkratky", "Snězeno jedním stiskem nebo jednou větou"],
+      ["Ukládání do Fotek", "Zapněte v Nastavení a jídla i cvičení se uloží do samostatných alb Sekki"],
+      ["Režim cvičení", "Cvičení se ukládá odděleně od jídel a počet tréninků za měsíc vidíte hned"]
+    ],
+    "note": "Tlačítko Snězeno ve widgetu vyžaduje iOS 17 nebo novější."
+  },
+  "pricing": {
+    "title": "Zápisy jsou zdarma. Sekki Pro jde hlouběji.",
+    "free": {
+      "name": "Zdarma",
+      "items": [
+        "Zápisy s fotkou a automatickým zařazením, fotky před a po, poznámky",
+        "Série, celkový počet dní, týdenní a měsíční statistiky, úspěchy",
+        "Připomínky vybraných jídel a Snězeno bez otevírání aplikace",
+        "Widgety, tlačítko Akce, Siri a Zkratky",
+        "Sdílení jídel a cvičení s přáteli, emoji a komentáře",
+        "Vytvořit jednu skupinu, přidat se k libovolnému počtu dalších",
+        "Rozpoznávání jídla v zařízení"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Více skupin pro rodinu, práci nebo partu z posilovny",
+        "Porovnání jídel z doby před pár týdny a dnes vedle sebe",
+        "Jídla, která jíte nejčastěji",
+        "Zamčení aplikace pomocí Face ID nebo Touch ID"
+      ],
+      "note": "Roční nebo měsíční předplatné, nebo jednorázový doživotní nákup"
+    },
+    "note": "Předplatné se automaticky obnovuje, pokud ho nezrušíte alespoň 24 hodin před koncem období. Zrušit ho můžete kdykoli v Nastavení > Apple účet > Předplatná. Podmínky služby: m1zz.github.io/RoutineCamera/cs/terms.html"
+  },
+  "faq": {
+    "title": "Časté dotazy",
+    "items": [
+      {
+        "q": "Kde jsou uložené moje fotky?",
+        "a": "Ve vašem zařízení. Když v Nastavení zapnete Automaticky ukládat do Fotek, uloží se i do alb Sekki ve Fotkách. Dokud je zapnuté Sdílet moje jídla (na začátku je zapnuté), nahrávají se na iCloud, aby je viděli přidaní přátelé. Vypnout to můžete v Nastavení > Účet a sdílení."
+      },
+      {
+        "q": "Jak přidám přátele?",
+        "a": "Na obrazovce Přátelé sdílejte svůj šestimístný kód a zadejte kód přítele. Více kódů můžete vložit najednou, oddělené čárkou."
+      },
+      {
+        "q": "Jak povzbudím přítele?",
+        "a": "Otevřete jídlo přítele a nechte emoji nebo krátký komentář. Pokud ještě nic nezapsal, klepněte na prázdné políčko a jemně ho šťouchněte."
+      },
+      {
+        "q": "Přeruší se série, když vynechám jídlo?",
+        "a": "Ne. Zapište ten den jakékoli jídlo, i svačinu, a série pokračuje. I když vynecháte celý den, celkový počet zapsaných dní neklesne."
+      },
+      {
+        "q": "Nechodí mi oznámení.",
+        "a": "Zkontrolujte v Nastavení iOS > Oznámení, že má Sekki oznámení povolená a že je zařízení přihlášené k iCloudu. Časy připomínek změníte v nastavení aplikace."
+      },
+      {
+        "q": "Posílá rozpoznávání jídla fotky na server?",
+        "a": "Ne. Probíhá v zařízení, takže fotky nikdy neopustí telefon. Zdarma a bez omezení."
+      },
+      {
+        "q": "Jak smažu účet a data?",
+        "a": "V Přátelé > Účet > Smazat účet. Účet i data o jídlech na serveru se smažou a nelze je obnovit. Když něco nepůjde, napište nám."
+      },
+      {
+        "q": "Jak zruším předplatné?",
+        "a": "V Nastavení > Apple účet > Předplatná. Obnovuje se automaticky, pokud ho nezrušíte alespoň 24 hodin před koncem období. Doživotní nákup se platí jednou."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Začněte\ndnešním obědem",
+    "cta": "Stáhnout zdarma v App Storu"
+  },
+  "ui": {
+    "skip": "Přejít na obsah",
+    "languages": "Jazyk",
+    "privacy": "Zásady ochrany soukromí",
+    "contact": "Chyby, nápady a dotazy k účtu pište na {email} nebo do DM na Instagramu @lee25_ios. Obvykle odpovídáme do jednoho až dvou dnů."
+  }
+}

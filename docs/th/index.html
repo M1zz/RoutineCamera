@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — ช่วยเหลือ</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: บันทึกมื้ออาหารด้วยรูป แค่ถ่ายหนึ่งรูปก่อนกิน</title>
+  <meta name="description" content="ถ่ายรูปหนึ่งรูปก่อนกิน Sekki จะแยกเป็นมื้อเช้า มื้อกลางวัน หรือมื้อเย็นให้เอง บันทึกแค่วันละมื้อก็ต่อเนื่องได้ และเชียร์มื้ออาหารกับเพื่อนได้">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/th/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Thonburi", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: บันทึกมื้ออาหารด้วยรูป แค่ถ่ายหนึ่งรูปก่อนกิน">
+  <meta property="og:description" content="ถ่ายรูปหนึ่งรูปก่อนกิน Sekki จะแยกเป็นมื้อเช้า มื้อกลางวัน หรือมื้อเย็นให้เอง บันทึกแค่วันละมื้อก็ต่อเนื่องได้ และเชียร์มื้ออาหารกับเพื่อนได้">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/th/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/th/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">ไดอารี่อาหารด้วยรูปถ่าย สำหรับมื้อเช้า มื้อกลางวัน และมื้อเย็น</p>
+  <a class="skip" href="#main">ข้ามไปยังเนื้อหา</a>
+  <header class="bar">
+    <a class="brand" href="../th/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">ภาษา</a>
+  </header>
 
-    <p>ถ่ายรูปก่อนกินแค่รูปเดียว มื้อนี้ก็ถูกบันทึกแล้ว Sekki จะจัดเข้ามื้อเช้า มื้อกลางวัน มื้อเย็น หรือของว่างให้เอง รักษาความต่อเนื่องของคุณไว้แม้วันที่บันทึกแค่มื้อเดียว และให้เพื่อน ๆ ส่งกำลังใจถึงกันได้</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>ถ่ายหนึ่งรูปก่อนกิน<br>แค่นั้นก็บันทึกเสร็จ</h1>
+        <p class="lead">Sekki ดูเวลาที่ถ่าย แล้วแยกเป็นมื้อเช้า มื้อกลางวัน มื้อเย็น หรือของว่างให้เอง บันทึกแค่วันละมื้อ ความต่อเนื่องก็ไม่ขาด</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">ดาวน์โหลดฟรีบน App Store</a><a class="try" href="#try">ลองถ่ายดู ↓</a></div>
+        <p class="muted small">การบันทึก สถิติ วิดเจ็ต และการแชร์กับเพื่อน ใช้ได้ฟรีทั้งหมด</p>
+      </div>
+      <div class="phone"><img src="../img/th/01-feed.jpg" alt="ถ่ายหนึ่งรูปก่อนกิน แค่นั้นก็บันทึกเสร็จ" width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>ติดต่อเรา</h2>
-    <p>ยินดีรับทั้งรายงานบั๊ก ไอเดียฟีเจอร์ใหม่ และคำถามเกี่ยวกับบัญชี</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 ส่งอีเมลหาเรา</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 DM อินสตาแกรม</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      อีเมล: leeo@kakao.com · อินสตาแกรม: @lee25_ios<br>
-      ปกติเราจะตอบกลับภายใน 1-2 วัน
-    </p>
 
-    <h2>คำถามที่พบบ่อย</h2>
+    <section class="reveal" id="try">
+      <h2>ลองถ่ายดู</h2>
+      <p class="muted">เลือกเวลาที่ถ่าย แล้วกดปุ่มบันทึก เหมือนในแอป ปุ่มจะบอกมื้อของเวลานั้นไว้ก่อนเลย</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;ลองถ่ายดู&quot;, &quot;lead&quot;: &quot;เลือกเวลาที่ถ่าย แล้วกดปุ่มบันทึก เหมือนในแอป ปุ่มจะบอกมื้อของเวลานั้นไว้ก่อนเลย&quot;, &quot;clock&quot;: &quot;เวลาที่ถ่าย&quot;, &quot;record&quot;: &quot;บันทึก{meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;มื้อเช้า&quot;, &quot;lunch&quot;: &quot;มื้อกลางวัน&quot;, &quot;dinner&quot;: &quot;มื้อเย็น&quot;, &quot;snack&quot;: &quot;ของว่าง&quot;}, &quot;today&quot;: &quot;วันนี้ · {n} รายการ&quot;, &quot;empty&quot;: &quot;วันนี้ยังไม่มีบันทึก&quot;, &quot;streak&quot;: &quot;ต่อเนื่อง {n} วัน&quot;, &quot;total&quot;: &quot;รวม {n} วัน&quot;, &quot;before&quot;: &quot;ก่อนกิน&quot;, &quot;ateAll&quot;: &quot;กินหมดแล้ว&quot;, &quot;kept&quot;: &quot;แค่มื้อเดียวก็พอ วันนี้นับเข้าความต่อเนื่องแล้ว&quot;, &quot;rule&quot;: &quot;ใช้กฎเดียวกับแอป 5 ถึง 10 โมงเป็นมื้อเช้า 11 โมงถึงบ่ายสามเป็นมื้อกลางวัน 4 โมงเย็นถึง 3 ทุ่มเป็นมื้อเย็น เวลาอื่นหรือมื้อที่บันทึกไปแล้วจะเป็นของว่าง&quot;, &quot;reset&quot;: &quot;เริ่มใหม่&quot;, &quot;note&quot;: &quot;รูปในเดโมเป็นตัวอย่าง&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>รูปของฉันถูกเก็บไว้ที่ไหน</h3>
-      <p>เก็บไว้ในอุปกรณ์ของคุณ หากเปิด "บันทึกลงแอปรูปภาพอัตโนมัติ" ในการตั้งค่า รูปจะถูกบันทึกลงอัลบั้ม Sekki ในแอปรูปภาพด้วย ขณะที่ "แชร์มื้ออาหารของฉัน" เปิดอยู่ (เปิดไว้ตั้งแต่แรก) รูปจะถูกอัปโหลดไปยัง iCloud เพื่อให้เพื่อนที่คุณเพิ่มดูได้ คุณปิดได้ที่ การตั้งค่า &gt; บัญชีและการแชร์</p>
-    </div>
+    <section class="problem reveal">
+      <h2>เคยเลิกจดบันทึกอาหารหลังผ่านไปสามวันไหม</h2>
+      <p>ข้ามมื้อเช้าไปวันหนึ่ง ลืมบันทึกมื้อเย็นอีกวัน ช่องว่างเริ่มกวนใจจนสุดท้ายก็ลบแอปทิ้ง Sekki ไม่มีช่องว่าง มีแค่มื้อที่บันทึกเรียงตามเวลา และถ่ายแค่มื้อเดียว วันนั้นก็นับว่าบันทึกแล้ว</p>
+    </section>
 
-    <div class="card">
-      <h3>เพิ่มเพื่อนได้อย่างไร</h3>
-      <p>ในหน้าเพื่อน ให้แชร์รหัสเพื่อน 6 หลักของคุณ แล้วกรอกรหัสของเพื่อน คุณยังวางหลายรหัสพร้อมกันได้โดยคั่นด้วยจุลภาค</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>ถ่ายปุ๊บ มื้อก็ถูกจัดให้</h2>
+        <p>Sekki ดูเวลาที่ถ่ายแล้วจัดเป็นมื้อเช้า มื้อกลางวัน มื้อเย็น หรือของว่าง เพิ่มรูปก่อนกินและหลังกิน บันทึกแบบไม่มีรูป หรือเขียนโน้ตก็ได้<br>แอปวิเคราะห์อาหารในรูปบนเครื่องฟรี และรูปไม่ออกไปจากโทรศัพท์ของคุณ</p>
+      </div>
+      <div class="phone"><img src="../img/th/02-detail.jpg" alt="ถ่ายปุ๊บ มื้อก็ถูกจัดให้" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>ส่งกำลังใจให้เพื่อนได้อย่างไร</h3>
-      <p>เปิดมื้ออาหารของเพื่อน แล้วส่งอีโมจิหรือความคิดเห็นสั้น ๆ ได้เลย หากเพื่อนยังไม่ได้บันทึกมื้อไหน ให้แตะช่องว่างของมื้อนั้นเพื่อสะกิดเบา ๆ</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>บันทึกที่ไม่มีวันลดลง</h2>
+        <p>บันทึกวันละมื้อก็ต่อเนื่องได้ และจำนวนวันที่บันทึกรวมไม่มีวันลดลง สถิติรายสัปดาห์และรายเดือนบอกว่าบันทึกไปกี่วัน กี่มื้อ แทนที่จะเป็นเปอร์เซ็นต์ความสำเร็จ<br>ระหว่างทางยังสะสมความสำเร็จอย่าง ต่อเนื่อง 7 วัน และ คนตื่นเช้า ได้ด้วย</p>
+      </div>
+      <div class="phone"><img src="../img/th/03-stats.jpg" alt="บันทึกที่ไม่มีวันลดลง" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>ลบบัญชีและข้อมูลของฉันได้อย่างไร</h3>
-      <p>ไปที่เพื่อน แล้วเลือกบัญชี จากนั้นเลือกลบบัญชี บัญชีของคุณและข้อมูลมื้ออาหารบนเซิร์ฟเวอร์จะถูกลบและกู้คืนไม่ได้ หากมีปัญหาใด ๆ ส่งอีเมลมาหาเราได้เลย</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>เฉพาะมื้อที่คุณเลือก ไม่ต้องเปิดแอป</h2>
+        <p>เลือกมื้อที่อยากให้เตือน และตั้งเวลาให้เข้ากับชีวิตประจำวัน ถ่ายรูปก่อนกินไว้ แล้วกดกินหมดแล้วจากการแจ้งเตือนได้ทันที<br>บันทึกผ่านปุ่มการทำงาน Siri คำสั่งลัด หรือวิดเจ็ตก็ได้ เพิ่มเพื่อนด้วยรหัสแล้วเชียร์กันด้วยอีโมจิและคอมเมนต์</p>
+      </div>
+      <div class="phone"><img src="../img/th/04-settings.jpg" alt="เฉพาะมื้อที่คุณเลือก ไม่ต้องเปิดแอป" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>ฉันไม่ได้รับการแจ้งเตือน</h3>
-      <p>ตรวจสอบว่าอนุญาตการแจ้งเตือนของ Sekki ในการตั้งค่า iOS ที่การแจ้งเตือนแล้ว และอุปกรณ์ลงชื่อเข้าใช้ iCloud อยู่ คุณเปลี่ยนเวลาเตือนมื้ออาหารได้ในการตั้งค่าของแอป</p>
-    </div>
+    <section class="reveal">
+      <h2>เริ่มได้ใน 3 ขั้นตอน</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>เลือกมื้อที่จะดูแล</h3><p>เปิดครั้งแรก Sekki จะถามว่าให้เตือนมื้อไหน เปลี่ยนภายหลังได้ในการตั้งค่า</p></li>
+<li class="card"><span class="n">2</span><h3>ถ่ายหนึ่งรูปก่อนกิน</h3><p>ปุ่มบันทึกจะแสดงมื้อของเวลาตอนนั้นไว้แล้ว กด ถ่าย เสร็จ</p></li>
+<li class="card"><span class="n">3</span><h3>กินเสร็จแล้วแตะ</h3><p>แตะกินหมดแล้วในการแจ้งเตือนหรือวิดเจ็ต หรือเพิ่มรูปหลังกิน</p></li></ol>
+    </section>
 
-    <h2>ข้อกำหนดและนโยบาย</h2>
-    <p><a href="privacy.html">นโยบายความเป็นส่วนตัว →</a></p>
-    <p><a href="terms.html">ข้อกำหนดการใช้บริการ →</a></p>
+    <section class="reveal" id="commands">
+      <h2>บันทึกโดยไม่ต้องเปิดแอป</h2>
+      <div class="card table">
+        <dl><div><dt>การแจ้งเตือน</dt><dd>หลังถ่ายรูปก่อนกิน กดกินหมดแล้วจากการแจ้งเตือนได้เลย</dd></div><div><dt>วิดเจ็ตหน้าจอโฮม</dt><dd>ดูจำนวนบันทึกวันนี้และมื้อที่กำลังกิน แล้วแตะปุ่มกินหมดแล้ว</dd></div><div><dt>วิดเจ็ตหน้าจอล็อก</dt><dd>แบบสี่เหลี่ยม วงกลม และบรรทัดเดียว</dd></div><div><dt>ปุ่มการทำงาน · Siri · คำสั่งลัด</dt><dd>บันทึกกินหมดแล้วด้วยปุ่มเดียวหรือประโยคเดียว</dd></div><div><dt>บันทึกลงแอปรูปภาพ</dt><dd>เปิดในการตั้งค่า แล้วมื้ออาหารกับการออกกำลังกายจะแยกอัลบั้ม Sekki กัน</dd></div><div><dt>โหมดออกกำลังกาย</dt><dd>บันทึกการออกกำลังกายแยกจากอาหาร และเห็นจำนวนครั้งของเดือนนี้ในทันที</dd></div></dl>
+      </div>
+      <p class="muted">ปุ่มกินหมดแล้วบนวิดเจ็ตใช้ได้กับ iOS 17 ขึ้นไป</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">นโยบายความเป็นส่วนตัว</a> · <a href="terms.html">ข้อกำหนดการใช้บริการ</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>บันทึกฟรี อยากดูลึกขึ้นมี Sekki Pro</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>ฟรี</h3>
+          <ul><li>บันทึกด้วยรูปและแยกมื้ออัตโนมัติ รูปก่อนกินและหลังกิน โน้ต</li><li>ความต่อเนื่อง จำนวนวันรวม สถิติรายสัปดาห์และรายเดือน ความสำเร็จ</li><li>แจ้งเตือนมื้อที่เลือก และกดกินหมดแล้วโดยไม่ต้องเปิดแอป</li><li>วิดเจ็ต ปุ่มการทำงาน Siri และคำสั่งลัด</li><li>แชร์มื้ออาหารและการออกกำลังกายกับเพื่อน เชียร์ด้วยอีโมจิและคอมเมนต์</li><li>สร้างกลุ่มได้ 1 กลุ่ม เข้าร่วมกลุ่มอื่นได้ไม่จำกัด</li><li>วิเคราะห์อาหารบนเครื่อง</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>หลายกลุ่มสำหรับครอบครัว ที่ทำงาน หรือเพื่อนออกกำลังกาย</li><li>เทียบมื้ออาหารเมื่อหลายสัปดาห์ก่อนกับตอนนี้แบบเคียงข้างกัน</li><li>ดูอาหารที่กินบ่อยที่สุด</li><li>ล็อกแอปด้วย Face ID หรือ Touch ID</li></ul>
+          <p class="muted">สมัครสมาชิกรายปีหรือรายเดือน หรือซื้อครั้งเดียวใช้ได้ตลอดชีพ</p>
+        </div>
+      </div>
+      <p class="muted">การสมัครสมาชิกจะต่ออายุอัตโนมัติ เว้นแต่ยกเลิกอย่างน้อย 24 ชั่วโมงก่อนสิ้นสุดรอบ ยกเลิกได้ทุกเมื่อที่ การตั้งค่า &gt; บัญชี Apple &gt; การสมัครรับ ข้อกำหนดการให้บริการ: m1zz.github.io/RoutineCamera/th/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>คำถามที่พบบ่อย</h2>
+      <div class="faq"><details><summary>รูปเก็บไว้ที่ไหน</summary><p>เก็บไว้ในเครื่องของคุณ ถ้าเปิด บันทึกลงแอปรูปภาพอัตโนมัติ ในการตั้งค่า รูปจะไปอยู่ในอัลบั้ม Sekki ของแอปรูปภาพด้วย ขณะที่ แชร์มื้ออาหารของฉัน เปิดอยู่ (เปิดไว้ตั้งแต่แรก) รูปจะอัปโหลดขึ้น iCloud ให้เพื่อนที่เพิ่มไว้ดูได้ ปิดได้ที่ การตั้งค่า &gt; บัญชีและการแชร์</p></details>
+<details><summary>เพิ่มเพื่อนอย่างไร</summary><p>ในหน้าเพื่อน แชร์รหัส 6 ตัวของคุณ แล้วใส่รหัสของเพื่อน วางหลายรหัสพร้อมกันได้โดยคั่นด้วยจุลภาค</p></details>
+<details><summary>เชียร์เพื่อนอย่างไร</summary><p>เปิดมื้ออาหารของเพื่อนแล้วฝากอีโมจิหรือคอมเมนต์สั้นๆ ถ้าเพื่อนยังไม่ได้บันทึก แตะช่องที่ว่างอยู่เพื่อสะกิดเบาๆ</p></details>
+<details><summary>ข้ามไปหนึ่งมื้อแล้วความต่อเนื่องจะขาดไหม</summary><p>ไม่ขาด วันนั้นบันทึกมื้อไหนก็ได้สักมื้อ รวมถึงของว่าง ความต่อเนื่องก็ยังไปต่อ ต่อให้ข้ามไปทั้งวัน จำนวนวันที่บันทึกรวมก็ไม่ลดลง</p></details>
+<details><summary>ไม่ได้รับการแจ้งเตือน</summary><p>ตรวจสอบใน การตั้งค่า iOS &gt; การแจ้งเตือน ว่าอนุญาตให้ Sekki แจ้งเตือนแล้ว และเครื่องลงชื่อเข้า iCloud อยู่ เปลี่ยนเวลาเตือนมื้ออาหารได้ในการตั้งค่าของแอป</p></details>
+<details><summary>การวิเคราะห์อาหารส่งรูปไปที่เซิร์ฟเวอร์ไหม</summary><p>ไม่ วิเคราะห์บนเครื่อง รูปจึงไม่ออกไปจากโทรศัพท์ ใช้ฟรีและไม่จำกัดจำนวนครั้ง</p></details>
+<details><summary>อยากลบบัญชีและข้อมูล</summary><p>ไปที่ เพื่อน &gt; บัญชี &gt; ลบบัญชี บัญชีและข้อมูลมื้ออาหารบนเซิร์ฟเวอร์จะถูกลบและกู้คืนไม่ได้ ถ้ามีปัญหา ส่งอีเมลมาบอกได้เลย</p></details>
+<details><summary>ยกเลิกการสมัครสมาชิกอย่างไร</summary><p>ที่ การตั้งค่า &gt; บัญชี Apple &gt; การสมัครรับ จะต่ออายุอัตโนมัติ เว้นแต่ยกเลิกอย่างน้อย 24 ชั่วโมงก่อนสิ้นสุดรอบ แบบตลอดชีพจ่ายครั้งเดียว</p></details></div>
+      <p class="contact">แจ้งปัญหา เสนอฟีเจอร์ หรือสอบถามเรื่องบัญชี ส่งอีเมลมาที่ <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> หรือ DM ทาง Instagram @lee25_ios ปกติตอบภายใน 1 ถึง 2 วัน</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>เริ่มจาก<br>มื้อกลางวันวันนี้</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">ดาวน์โหลดฟรีบน App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="ภาษา"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th" aria-current="page">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">นโยบายความเป็นส่วนตัว</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

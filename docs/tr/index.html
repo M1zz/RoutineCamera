@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Destek</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: yemekten önce tek fotoğrafın yettiği yemek fotoğraf günlüğü</title>
+  <meta name="description" content="Yemekten önce bir fotoğraf çek, Sekki onu kahvaltı, öğle ya da akşam yemeğine ayırsın. Günde bir öğün serini korur, arkadaşlar birbirini destekler.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/tr/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: yemekten önce tek fotoğrafın yettiği yemek fotoğraf günlüğü">
+  <meta property="og:description" content="Yemekten önce bir fotoğraf çek, Sekki onu kahvaltı, öğle ya da akşam yemeğine ayırsın. Günde bir öğün serini korur, arkadaşlar birbirini destekler.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/tr/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/tr/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Kahvaltı, öğle ve akşam yemeği için fotoğraflı yemek günlüğü</p>
+  <a class="skip" href="#main">İçeriğe geç</a>
+  <header class="bar">
+    <a class="brand" href="../tr/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Dil</a>
+  </header>
 
-    <p>Yemekten önce tek bir fotoğraf çekin, öğününüz kaydedilsin. Sekki fotoğrafı kahvaltı, öğle yemeği, akşam yemeği veya atıştırmalık olarak sınıflandırır, günde yalnızca bir öğün kaydetseniz bile serinizi sürdürür ve arkadaşlarınızın birbirini desteklemesini sağlar.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Yemekten önce bir fotoğraf.<br>Kayıt tamam.</h1>
+        <p class="lead">Sekki fotoğrafın ne zaman çekildiğine bakar ve onu kahvaltı, öğle yemeği, akşam yemeği ya da atıştırmalık olarak ayırır. Günde tek bir öğün kaydetsen bile serin sürer.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">App Store'dan ücretsiz indir</a><a class="try" href="#try">Kendin dene ↓</a></div>
+        <p class="muted small">Kayıt, istatistikler, widget'lar ve arkadaşlarla paylaşım ücretsiz.</p>
+      </div>
+      <div class="phone"><img src="../img/tr/01-feed.jpg" alt="Yemekten önce bir fotoğraf. Kayıt tamam." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Bize Ulaşın</h2>
-    <p>Hata bildirimleri, özellik önerileri ve hesapla ilgili sorular için yazabilirsiniz.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 E-posta Gönderin</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-posta: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Genellikle bir iki gün içinde yanıt veriyoruz.
-    </p>
 
-    <h2>Sık Sorulan Sorular</h2>
+    <section class="reveal" id="try">
+      <h2>Kendin dene</h2>
+      <p class="muted">Bir saat seç ve kaydet düğmesine dokun. Uygulamadaki gibi, düğme o saatin öğününü baştan gösterir.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Kendin dene&quot;, &quot;lead&quot;: &quot;Bir saat seç ve kaydet düğmesine dokun. Uygulamadaki gibi, düğme o saatin öğününü baştan gösterir.&quot;, &quot;clock&quot;: &quot;Çekim saati&quot;, &quot;record&quot;: &quot;{meal} kaydet&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Kahvaltı&quot;, &quot;lunch&quot;: &quot;Öğle Yemeği&quot;, &quot;dinner&quot;: &quot;Akşam Yemeği&quot;, &quot;snack&quot;: &quot;Atıştırmalık&quot;}, &quot;today&quot;: &quot;Bugün · {n}&quot;, &quot;empty&quot;: &quot;Bugün henüz kayıt yok&quot;, &quot;streak&quot;: &quot;{n} Gün Seri&quot;, &quot;total&quot;: &quot;Toplam {n} gün&quot;, &quot;before&quot;: &quot;Önce&quot;, &quot;ateAll&quot;: &quot;Bitti&quot;, &quot;kept&quot;: &quot;Tek öğün yeter: bugün serine çoktan sayıldı.&quot;, &quot;rule&quot;: &quot;Uygulamayla aynı kurallar: 5 ile 10 arası kahvaltı, 11 ile 15 arası öğle yemeği, 16 ile 21 arası akşam yemeği. Başka saatler ya da zaten kaydedilmiş bir öğün atıştırmalık olarak girer.&quot;, &quot;reset&quot;: &quot;Baştan başla&quot;, &quot;note&quot;: &quot;Denemedeki fotoğraflar örnektir.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Fotoğraflarım nerede saklanıyor?</h3>
-      <p>Cihazınızda. Ayarlar'da "Fotoğraflar'a Otomatik Kaydet" seçeneğini açarsanız fotoğraflar ayrıca Fotoğraflar'daki Sekki albümlerine de kaydedilir. "Öğünlerimi Paylaş" açık olduğu sürece (başlangıçta açıktır), eklediğiniz arkadaşlarınızın görebilmesi için iCloud'a yüklenir. Bunu Ayarlar &gt; Hesap ve Paylaşım bölümünden kapatabilirsiniz.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Yemek günlüğünü üç günde bıraktın mı?</h2>
+      <p>Bir kahvaltıyı atlarsın, bir akşam yemeğini unutursun, boş kutular gözüne batmaya başlar ve sonunda uygulamayı silersin. Sekki'de boş kutu yok. Yalnızca kaydettiğin öğünler sırayla birikir, tek bir fotoğraf o günün sayılmasına yeter.</p>
+    </section>
 
-    <div class="card">
-      <h3>Nasıl arkadaş eklerim?</h3>
-      <p>Arkadaşlar ekranında altı karakterlik arkadaş kodunuzu paylaşın ve arkadaşınızın kodunu girin. Virgülle ayırarak birden çok kodu tek seferde de yapıştırabilirsiniz.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Çek, öğün yerini bulsun</h2>
+        <p>Çekim saatine göre Sekki fotoğrafı kahvaltı, öğle yemeği, akşam yemeği ya da atıştırmalık olarak ayırır. Önce ve sonra fotoğrafları ekle, fotoğrafsız kaydet ya da not yaz.<br>Yemek, cihazında ücretsiz olarak tanınır ve fotoğrafların telefonundan hiç çıkmaz.</p>
+      </div>
+      <div class="phone"><img src="../img/tr/02-detail.jpg" alt="Çek, öğün yerini bulsun" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Bir arkadaşıma nasıl destek olurum?</h3>
-      <p>Arkadaşınızın öğününü açıp bir emoji veya kısa bir yorum bırakın. Henüz öğün kaydetmediyse boş kutuya dokunarak nazik bir dürtme gönderebilirsiniz.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Hiç azalmayan bir günlük</h2>
+        <p>Günde bir öğün serini korur, toplam kayıtlı gün sayın asla düşmez. Haftalık ve aylık istatistikler başarı yüzdesi yerine kaç gün ve kaç öğün kaydettiğini gösterir.<br>Yol boyunca 7 Gün Seri ve Erkenci Kuş gibi başarılar toplarsın.</p>
+      </div>
+      <div class="phone"><img src="../img/tr/03-stats.jpg" alt="Hiç azalmayan bir günlük" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Hesabımı ve verilerimi nasıl silerim?</h3>
-      <p>Arkadaşlar, ardından Hesap, ardından Hesabı Sil yolunu izleyin. Hesabınız ve sunucuda saklanan öğün verileriniz silinir ve geri alınamaz. Bir sorun çıkarsa bize e-posta göndermeniz yeterli.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Yalnızca seçtiğin öğünler, uygulamayı açmadan</h2>
+        <p>Hangi öğünler için hatırlatma istediğini seç, saatleri gününe göre ayarla. Önce fotoğrafını çektikten sonra Bitti'yi doğrudan bildirimden işaretlersin.<br>Eylem düğmesi, Siri, Kestirmeler ya da bir widget ile de kaydet, arkadaşlarını kodla ekleyip emoji ve yorumlarla birbirinizi destekleyin.</p>
+      </div>
+      <div class="phone"><img src="../img/tr/04-settings.jpg" alt="Yalnızca seçtiğin öğünler, uygulamayı açmadan" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Bildirim almıyorum</h3>
-      <p>iOS Ayarlar, ardından Bildirimler bölümünde Sekki için bildirimlere izin verildiğinden ve cihazınızda iCloud oturumunun açık olduğundan emin olun. Öğün hatırlatma saatlerini uygulamanın Ayarlar bölümünden değiştirebilirsiniz.</p>
-    </div>
+    <section class="reveal">
+      <h2>Üç adımda başla</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Öğünlerini seç</h3><p>İlk açılışta Sekki hangi öğünleri hatırlatacağını sorar. Ayarlar'dan değiştirebilirsin.</p></li>
+<li class="card"><span class="n">2</span><h3>Yemekten önce bir fotoğraf</h3><p>Kaydet düğmesi şu anki saatin öğününü zaten gösterir. Dokun, çek, bitti.</p></li>
+<li class="card"><span class="n">3</span><h3>Bitince bir dokunuş</h3><p>Bildirimde ya da widget'ta Bitti'ye dokun veya sonra fotoğrafı ekle.</p></li></ol>
+    </section>
 
-    <h2>Koşullar ve Politikalar</h2>
-    <p><a href="privacy.html">Gizlilik Politikası →</a></p>
-    <p><a href="terms.html">Kullanım Koşulları →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Uygulamayı açmadan kaydetmek</h2>
+      <div class="card table">
+        <dl><div><dt>Bildirim</dt><dd>Önce fotoğrafından sonra Bitti'yi doğrudan bildirimden işaretle</dd></div><div><dt>Ana ekran widget'ı</dt><dd>Bugünkü kayıt sayısını ve yemekte olduğun öğünü gör, Bitti'ye dokun</dd></div><div><dt>Kilitli ekran widget'ları</dt><dd>Dikdörtgen, yuvarlak ve tek satır</dd></div><div><dt>Eylem düğmesi · Siri · Kestirmeler</dt><dd>Tek dokunuşla ya da tek cümleyle Bitti</dd></div><div><dt>Fotoğraflar'a kaydet</dt><dd>Ayarlar'dan açınca öğünler ve egzersizler ayrı Sekki albümlerine kaydedilir</dd></div><div><dt>Egzersiz modu</dt><dd>Egzersizler öğünlerden ayrı tutulur, bu ayki antrenman sayısı bir bakışta görünür</dd></div></dl>
+      </div>
+      <p class="muted">Widget'taki Bitti düğmesi iOS 17 veya sonrasını gerektirir.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Gizlilik Politikası</a> · <a href="terms.html">Kullanım Koşulları</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Kayıt ücretsiz. Sekki Pro daha derine iner.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Ücretsiz</h3>
+          <ul><li>Otomatik öğün ayırmalı fotoğraf kaydı, önce ve sonra fotoğrafları, notlar</li><li>Seriler, toplam gün, haftalık ve aylık istatistikler, başarılar</li><li>Seçtiğin öğünler için hatırlatma, uygulamayı açmadan Bitti</li><li>Widget'lar, Eylem düğmesi, Siri ve Kestirmeler</li><li>Öğün ve egzersizleri arkadaşlarla paylaşma, emoji ve yorumlar</li><li>Bir grup oluşturma, istediğin kadar gruba katılma</li><li>Cihazda yemek tanıma</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Aile, iş ya da spor arkadaşları için birden çok grup</li><li>Birkaç hafta önceki ve bugünkü öğünleri yan yana karşılaştırma</li><li>En sık yediğin yemekleri görme</li><li>Uygulamayı Face ID ya da Touch ID ile kilitleme</li></ul>
+          <p class="muted">Yıllık ya da aylık abonelik veya tek seferlik ömür boyu satın alma</p>
+        </div>
+      </div>
+      <p class="muted">Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. İstediğin zaman Ayarlar &gt; Apple Hesabı &gt; Abonelikler'den iptal edebilirsin. Hizmet koşulları: m1zz.github.io/RoutineCamera/tr/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Sık sorulan sorular</h2>
+      <div class="faq"><details><summary>Fotoğraflarım nerede saklanıyor?</summary><p>Cihazında. Ayarlar'da Fotoğraflar'a Otomatik Kaydet'i açarsan Fotoğraflar'daki Sekki albümlerine de kaydedilir. Öğünlerimi Paylaş açık olduğu sürece (başta açıktır) eklediğin arkadaşlar görebilsin diye iCloud'a yüklenir. Ayarlar &gt; Hesap ve Paylaşım'dan kapatabilirsin.</p></details>
+<details><summary>Arkadaş nasıl eklerim?</summary><p>Arkadaşlar ekranında altı karakterlik kodunu paylaş ve arkadaşının kodunu gir. Birden çok kodu virgülle ayırarak tek seferde yapıştırabilirsin.</p></details>
+<details><summary>Bir arkadaşımı nasıl desteklerim?</summary><p>Arkadaşının bir öğününü aç ve bir emoji ya da kısa bir yorum bırak. Henüz kayıt yapmadıysa boş kutuya dokunarak onu nazikçe dürt.</p></details>
+<details><summary>Bir öğünü atlarsam serim bozulur mu?</summary><p>Hayır. O gün atıştırmalık dahil herhangi bir öğün kaydedersen serin devam eder. Bütün bir günü atlasan bile toplam kayıtlı gün sayısı düşmez.</p></details>
+<details><summary>Bildirim gelmiyor.</summary><p>iOS Ayarlar &gt; Bildirimler'de Sekki bildirimlerine izin verildiğini ve cihazın iCloud'a giriş yaptığını kontrol et. Hatırlatma saatlerini uygulamanın ayarlarından değiştirebilirsin.</p></details>
+<details><summary>Yemek tanıma fotoğraflarımı sunucuya gönderiyor mu?</summary><p>Hayır. Cihazda çalışır, fotoğrafların telefonundan hiç çıkmaz. Ücretsiz ve sınırsız.</p></details>
+<details><summary>Hesabımı ve verilerimi nasıl silerim?</summary><p>Arkadaşlar &gt; Hesap &gt; Hesabı Sil yolunu izle. Hesabın ve sunucudaki öğün verileri silinir ve geri getirilemez. Bir sorun olursa bize e-posta gönder.</p></details>
+<details><summary>Aboneliği nasıl iptal ederim?</summary><p>Ayarlar &gt; Apple Hesabı &gt; Abonelikler'den. Dönem bitmeden en az 24 saat önce iptal etmezsen otomatik yenilenir. Ömür boyu satın alma bir kez ödenir.</p></details></div>
+      <p class="contact">Hata, fikir ya da hesapla ilgili soruların için <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> adresine yaz veya Instagram'da @lee25_ios hesabına DM gönder. Genellikle bir iki gün içinde yanıtlıyoruz.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Bugünkü öğle yemeğinden<br>başla</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">App Store'dan ücretsiz indir</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Dil"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr" aria-current="page">Türkçe</a></nav>
+    <p><a href="privacy.html">Gizlilik Politikası</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

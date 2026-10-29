@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Tuki</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: ruokapäiväkirja, jolle riittää yksi kuva ennen syömistä</title>
+  <meta name="description" content="Yksi kuva ennen syömistä, ja Sekki lajittelee sen aamiaiseksi, lounaaksi tai illalliseksi. Yksi ateria päivässä pitää putken, ja kaverit kannustavat toisiaan.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/fi/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: ruokapäiväkirja, jolle riittää yksi kuva ennen syömistä">
+  <meta property="og:description" content="Yksi kuva ennen syömistä, ja Sekki lajittelee sen aamiaiseksi, lounaaksi tai illalliseksi. Yksi ateria päivässä pitää putken, ja kaverit kannustavat toisiaan.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/fi/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/fi/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Kuvapohjainen ruokapäiväkirja aamiaiselle, lounaalle ja illalliselle</p>
+  <a class="skip" href="#main">Siirry sisältöön</a>
+  <header class="bar">
+    <a class="brand" href="../fi/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Kieli</a>
+  </header>
 
-    <p>Ota yksi kuva ennen syömistä, ja ateriasi on kirjattu. Sekki lajittelee sen aamiaiseen, lounaaseen, illalliseen tai välipalaan, pitää putkesi käynnissä, vaikka kirjaisit päivässä vain yhden aterian, ja antaa kavereiden kannustaa toisiaan.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Yksi kuva ennen syömistä.<br>Siinä se.</h1>
+        <p class="lead">Sekki katsoo, milloin kuva otettiin, ja lajittelee sen aamiaiseksi, lounaaksi, illalliseksi tai välipalaksi. Kirjaa vaikka vain yksi ateria päivässä, niin putkesi jatkuu.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Lataa ilmaiseksi App Storesta</a><a class="try" href="#try">Kokeile itse ↓</a></div>
+        <p class="muted small">Kirjaaminen, tilastot, widgetit ja jakaminen kavereille ovat ilmaisia.</p>
+      </div>
+      <div class="phone"><img src="../img/fi/01-feed.jpg" alt="Yksi kuva ennen syömistä. Siinä se." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Ota yhteyttä</h2>
-    <p>Virheraportit, ominaisuusideat ja tiliä koskevat kysymykset ovat kaikki tervetulleita.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Lähetä sähköpostia</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      Sähköposti: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Vastaamme yleensä yhden tai kahden päivän kuluessa.
-    </p>
 
-    <h2>Usein kysyttyä</h2>
+    <section class="reveal" id="try">
+      <h2>Kokeile itse</h2>
+      <p class="muted">Valitse kellonaika ja napauta kirjauspainiketta. Kuten sovelluksessa, painike kertoo jo kyseisen ajan aterian.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Kokeile itse&quot;, &quot;lead&quot;: &quot;Valitse kellonaika ja napauta kirjauspainiketta. Kuten sovelluksessa, painike kertoo jo kyseisen ajan aterian.&quot;, &quot;clock&quot;: &quot;Kuva otettu klo&quot;, &quot;record&quot;: &quot;Kirjaa: {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Aamiainen&quot;, &quot;lunch&quot;: &quot;Lounas&quot;, &quot;dinner&quot;: &quot;Illallinen&quot;, &quot;snack&quot;: &quot;Välipala&quot;}, &quot;today&quot;: &quot;Tänään · {n}&quot;, &quot;empty&quot;: &quot;Tänään ei vielä kirjauksia&quot;, &quot;streak&quot;: &quot;{n} päivän putki&quot;, &quot;total&quot;: &quot;Yhteensä {n} päivää&quot;, &quot;before&quot;: &quot;Ennen&quot;, &quot;ateAll&quot;: &quot;Syöty&quot;, &quot;kept&quot;: &quot;Yksi ateria riittää: tämä päivä lasketaan jo putkeen.&quot;, &quot;rule&quot;: &quot;Samat säännöt kuin sovelluksessa: klo 5–10 aamiainen, 11–15 lounas ja 16–21 illallinen. Muina aikoina tai jo kirjatun aterian kohdalla tulee välipala.&quot;, &quot;reset&quot;: &quot;Aloita alusta&quot;, &quot;note&quot;: &quot;Kokeilun kuvat ovat esimerkkejä.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Missä kuvani säilytetään?</h3>
-      <p>Laitteellasi. Jos otat Asetuksissa käyttöön asetuksen ”Tallenna Kuviin automaattisesti”, ne tallennetaan myös Kuvien Sekki-albumeihin. Kun ”Jaa ateriani” on päällä (se on aluksi päällä), ne ladataan iCloudiin, jotta lisäämäsi kaverit näkevät ne. Voit poistaa sen käytöstä kohdassa Asetukset &gt; Tili ja jakaminen.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Jäikö ruokapäiväkirja kolmen päivän kokeiluksi?</h2>
+      <p>Jätät aamiaisen väliin, unohdat illallisen, ja tyhjät ruudut alkavat ärsyttää, kunnes poistat sovelluksen. Sekissä ei ole tyhjiä ruutuja. Vain kirjaamasi ateriat kertyvät järjestyksessä, ja yksi kuva riittää siihen, että päivä lasketaan.</p>
+    </section>
 
-    <div class="card">
-      <h3>Miten lisään kavereita?</h3>
-      <p>Jaa Kaverit-näkymässä kuusimerkkinen kaverikoodisi ja anna kaverisi koodi. Voit myös liittää useita koodeja kerralla pilkuilla erotettuina.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Ota kuva, niin ateria on paikallaan</h2>
+        <p>Kuvausajan perusteella Sekki lajittelee kuvan aamiaiseksi, lounaaksi, illalliseksi tai välipalaksi. Lisää kuvat ennen ja jälkeen, kirjaa ilman kuvaa tai kirjoita muistiinpano.<br>Ruoka tunnistetaan ilmaiseksi laitteella, eivätkä kuvasi koskaan lähde puhelimesta.</p>
+      </div>
+      <div class="phone"><img src="../img/fi/02-detail.jpg" alt="Ota kuva, niin ateria on paikallaan" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Miten kannustan kaveria?</h3>
-      <p>Avaa kaverin ateria ja jätä emoji tai lyhyt kommentti. Jos kaveri ei ole vielä kirjannut ateriaa, napauta tyhjää paikkaa, niin lähetät lempeän muistutuksen.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Päiväkirja, joka ei koskaan kutistu</h2>
+        <p>Yksi ateria päivässä pitää putken, eikä kirjattujen päivien kokonaismäärä koskaan laske. Viikko- ja kuukausitilastot näyttävät, montako päivää ja ateriaa olet kirjannut, eivät prosenttia.<br>Matkan varrella keräät saavutuksia, kuten 7 päivän putki ja Aamuvirkku.</p>
+      </div>
+      <div class="phone"><img src="../img/fi/03-stats.jpg" alt="Päiväkirja, joka ei koskaan kutistu" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Miten poistan tilini ja tietoni?</h3>
-      <p>Siirry kohtaan Kaverit, sitten Tili ja valitse Poista tili. Tilisi ja palvelimelle tallennetut ateriatiedot poistetaan, eikä niitä voi palauttaa. Jos jokin menee pieleen, lähetä meille sähköpostia.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Vain valitsemasi ateriat, avaamatta sovellusta</h2>
+        <p>Valitse, mistä aterioista haluat muistutuksen, ja sovita ajat päivääsi. Kun olet ottanut kuvan ennen syömistä, merkitset Syöty suoraan ilmoituksesta.<br>Kirjaa myös Toimintopainikkeella, Sirillä, Pikakomennoilla tai widgetillä, ja lisää kavereita koodilla, niin voitte kannustaa toisianne emojeilla ja kommenteilla.</p>
+      </div>
+      <div class="phone"><img src="../img/fi/04-settings.jpg" alt="Vain valitsemasi ateriat, avaamatta sovellusta" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>En saa ilmoituksia</h3>
-      <p>Tarkista, että Sekin ilmoitukset on sallittu iOS:n Asetuksissa kohdassa Ilmoitukset ja että laitteesi on kirjautunut iCloudiin. Ateriamuistutusten ajat voit muuttaa apin Asetuksissa.</p>
-    </div>
+    <section class="reveal">
+      <h2>Alkuun kolmella askeleella</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Valitse ateriat</h3><p>Ensimmäisellä kerralla Sekki kysyy, mistä aterioista muistuttaa. Voit muuttaa sitä asetuksissa.</p></li>
+<li class="card"><span class="n">2</span><h3>Kuva ennen syömistä</h3><p>Kirjauspainikkeessa lukee jo nykyisen ajan ateria. Napauta, kuvaa, valmis.</p></li>
+<li class="card"><span class="n">3</span><h3>Napauta, kun olet syönyt</h3><p>Napauta Syöty ilmoituksessa tai widgetissä, tai lisää kuva jälkeenpäin.</p></li></ol>
+    </section>
 
-    <h2>Ehdot ja käytännöt</h2>
-    <p><a href="privacy.html">Tietosuojakäytäntö →</a></p>
-    <p><a href="terms.html">Käyttöehdot →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Kirjaaminen avaamatta sovellusta</h2>
+      <div class="card table">
+        <dl><div><dt>Ilmoitus</dt><dd>Kuvan jälkeen merkitse Syöty suoraan ilmoituksesta</dd></div><div><dt>Kotinäytön widget</dt><dd>Näe päivän kirjaukset ja meneillään oleva ateria, ja napauta Syöty</dd></div><div><dt>Lukitusnäytön widgetit</dt><dd>Suorakulmainen, pyöreä ja rivinä</dd></div><div><dt>Toimintopainike · Siri · Pikakomennot</dt><dd>Syöty yhdellä painalluksella tai lauseella</dd></div><div><dt>Tallennus Kuviin</dt><dd>Laita päälle asetuksista, niin ateriat ja treenit tallentuvat omiin Sekki-albumeihinsa</dd></div><div><dt>Treenitila</dt><dd>Treenit pysyvät erillään aterioista, ja kuun treenimäärä näkyy heti</dd></div></dl>
+      </div>
+      <p class="muted">Widgetin Syöty-painike vaatii iOS 17:n tai uudemman.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Tietosuojakäytäntö</a> · <a href="terms.html">Käyttöehdot</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Kirjaaminen on ilmaista. Sekki Pro menee syvemmälle.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Ilmainen</h3>
+          <ul><li>Kuvakirjaus automaattisella lajittelulla, kuvat ennen ja jälkeen, muistiinpanot</li><li>Putket, päivät yhteensä, viikko- ja kuukausitilastot, saavutukset</li><li>Muistutukset valituista aterioista ja Syöty avaamatta sovellusta</li><li>Widgetit, Toimintopainike, Siri ja Pikakomennot</li><li>Aterioiden ja treenien jakaminen kavereille, emojit ja kommentit</li><li>Yhden ryhmän luominen, liittyminen niin moneen kuin haluat</li><li>Ruoan tunnistus laitteella</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Useita ryhmiä perheelle, työpaikalle tai treeniporukalle</li><li>Vertaa muutaman viikon takaisia aterioita tämänpäiväisiin rinnakkain</li><li>Näe, mitä syöt useimmin</li><li>Lukitse sovellus Face ID:llä tai Touch ID:llä</li></ul>
+          <p class="muted">Vuosi- tai kuukausitilaus tai kertaosto loppuelämäksi</p>
+        </div>
+      </div>
+      <p class="muted">Tilaus uusiutuu automaattisesti, ellei sitä peruta vähintään 24 tuntia ennen jakson päättymistä. Peru milloin tahansa: Asetukset &gt; Apple-tili &gt; Tilaukset. Käyttöehdot: m1zz.github.io/RoutineCamera/fi/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Usein kysyttyä</h2>
+      <div class="faq"><details><summary>Mihin kuvani tallennetaan?</summary><p>Laitteellesi. Jos laitat asetuksista päälle Tallenna Kuviin automaattisesti, ne tallentuvat myös Kuvien Sekki-albumeihin. Niin kauan kuin Jaa ateriani on päällä (se on aluksi päällä), ne ladataan iCloudiin, jotta lisäämäsi kaverit näkevät ne. Voit laittaa sen pois kohdassa Asetukset &gt; Tili ja jakaminen.</p></details>
+<details><summary>Miten lisään kavereita?</summary><p>Jaa Kaverit-näytöllä kuusimerkkinen koodisi ja syötä kaverisi koodi. Voit liittää useita koodeja kerralla pilkuilla erotettuina.</p></details>
+<details><summary>Miten kannustan kaveria?</summary><p>Avaa kaverin ateria ja jätä emoji tai lyhyt kommentti. Jos kaveri ei ole vielä kirjannut mitään, napauta tyhjää ruutua ja tönäise kevyesti.</p></details>
+<details><summary>Katkeaako putki, jos jätän aterian väliin?</summary><p>Ei. Kirjaa sinä päivänä mikä tahansa ateria, välipalat mukaan lukien, ja putki jatkuu. Vaikka koko päivä jäisi väliin, kirjattujen päivien kokonaismäärä ei laske.</p></details>
+<details><summary>En saa ilmoituksia.</summary><p>Tarkista iOS:n Asetukset &gt; Ilmoitukset, että Sekin ilmoitukset on sallittu ja että laite on kirjautunut iCloudiin. Muistutusten ajat muutat sovelluksen asetuksista.</p></details>
+<details><summary>Lähettääkö ruoan tunnistus kuvani palvelimelle?</summary><p>Ei. Se tapahtuu laitteella, joten kuvat eivät koskaan lähde puhelimesta. Ilmainen ja rajaton.</p></details>
+<details><summary>Miten poistan tilini ja tietoni?</summary><p>Kohdassa Kaverit &gt; Tili &gt; Poista tili. Tili ja palvelimelle tallennetut ateriatiedot poistetaan, eikä niitä voi palauttaa. Jos jokin menee pieleen, lähetä meille sähköpostia.</p></details>
+<details><summary>Miten peruutan tilauksen?</summary><p>Kohdassa Asetukset &gt; Apple-tili &gt; Tilaukset. Se uusiutuu automaattisesti, ellet peru sitä vähintään 24 tuntia ennen jakson päättymistä. Elinikäinen osto maksetaan kerran.</p></details></div>
+      <p class="contact">Virheet, ideat ja tiliä koskevat kysymykset: kirjoita osoitteeseen <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> tai lähetä DM Instagramissa @lee25_ios. Vastaamme yleensä päivän tai kahden sisällä.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Aloita<br>tämänpäiväisestä lounaasta</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Lataa ilmaiseksi App Storesta</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Kieli"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi" aria-current="page">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Tietosuojakäytäntö</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

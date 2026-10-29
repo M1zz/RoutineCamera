@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: diari foto makanan yang cukup satu jepretan sebelum makan",
+  "description": "Satu foto sebelum makan, Sekki langsung memasukkannya ke sarapan, makan siang, atau makan malam. Sehari satu kali makan sudah menjaga beruntunmu.",
+  "hero": {
+    "headline": "Satu foto sebelum makan.\nSelesai dicatat.",
+    "lead": "Sekki melihat jam foto diambil, lalu memasukkannya ke sarapan, makan siang, makan malam, atau camilan. Cukup catat satu kali makan sehari, beruntunmu tetap jalan.",
+    "cta": "Unduh gratis di App Store",
+    "note": "Pencatatan, statistik, widget, dan berbagi dengan teman semuanya gratis."
+  },
+  "demo": {
+    "title": "Coba sendiri",
+    "lead": "Pilih jam lalu ketuk tombol catat. Sama seperti di aplikasi, tombolnya sudah menunjukkan waktu makan untuk jam itu.",
+    "clock": "Foto diambil jam",
+    "record": "Catat {meal}",
+    "meals": {
+      "breakfast": "Sarapan",
+      "lunch": "Makan Siang",
+      "dinner": "Makan Malam",
+      "snack": "Camilan"
+    },
+    "today": "Hari ini · {n}",
+    "empty": "Belum ada catatan hari ini",
+    "streak": "Beruntun {n} hari",
+    "total": "Total {n} hari",
+    "before": "Sebelum",
+    "ateAll": "Selesai makan",
+    "kept": "Satu kali makan sudah cukup: hari ini sudah masuk beruntunmu.",
+    "rule": "Aturannya sama dengan aplikasi: pukul 5 sampai 10 sarapan, 11 sampai 15 makan siang, 16 sampai 21 makan malam. Di luar jam itu, atau waktu makan yang sudah dicatat, masuk sebagai camilan.",
+    "reset": "Ulangi",
+    "note": "Foto di demo ini hanya contoh."
+  },
+  "problem": {
+    "title": "Pernah berhenti mencatat makanan setelah tiga hari?",
+    "text": "Sekali lewat sarapan, lupa makan malam, lalu kotak-kotak kosong mulai mengganggu sampai aplikasinya dihapus. Sekki tidak punya kotak kosong. Hanya makanan yang kamu catat yang tersusun berurutan, dan satu foto saja sudah membuat hari itu terhitung."
+  },
+  "features": [
+    {
+      "title": "Jepret, waktu makannya langsung tertata",
+      "text": "Dari jam foto diambil, Sekki memasukkannya ke sarapan, makan siang, makan malam, atau camilan. Tambahkan foto sebelum dan sesudah, catat tanpa foto, atau tulis catatan.\nMakanan dikenali langsung di perangkat secara gratis, dan fotomu tidak pernah keluar dari ponsel.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Catatan yang tidak pernah berkurang",
+      "text": "Satu kali makan sehari menjaga beruntunmu, dan total hari tercatat tidak pernah turun. Statistik mingguan dan bulanan menunjukkan berapa hari dan berapa kali makan yang kamu catat, bukan persentase.\nSepanjang jalan kamu mengumpulkan pencapaian seperti Beruntun 7 Hari dan Si Pagi.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Hanya waktu makan pilihanmu, tanpa membuka aplikasi",
+      "text": "Pilih waktu makan yang ingin diingatkan, lalu atur jamnya sesuai harimu. Setelah foto sebelum makan, tandai Selesai makan langsung dari notifikasi.\nCatat juga lewat tombol Tindakan, Siri, Pintasan, atau widget, dan tambahkan teman dengan kode untuk saling menyemangati lewat emoji dan komentar.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Mulai dalam tiga langkah",
+    "items": [
+      {
+        "title": "Pilih waktu makanmu",
+        "text": "Saat pertama dibuka, Sekki menanyakan waktu makan mana yang perlu diingatkan. Bisa diubah di Pengaturan."
+      },
+      {
+        "title": "Foto sebelum makan",
+        "text": "Tombol catat sudah menampilkan waktu makan untuk jam sekarang. Ketuk, jepret, beres."
+      },
+      {
+        "title": "Selesai? Ketuk sekali",
+        "text": "Ketuk Selesai makan di notifikasi atau widget, atau tambahkan foto sesudah makan."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Mencatat tanpa membuka aplikasi",
+    "rows": [
+      ["Notifikasi", "Setelah foto sebelum makan, tandai Selesai makan langsung dari notifikasi"],
+      ["Widget Layar Utama", "Lihat jumlah catatan hari ini dan makanan yang sedang disantap, lalu ketuk Selesai makan"],
+      ["Widget Layar Terkunci", "Persegi panjang, lingkaran, dan satu baris"],
+      ["Tombol Tindakan · Siri · Pintasan", "Catat Selesai makan dengan satu tombol atau satu kalimat"],
+      ["Simpan ke Foto", "Aktifkan di Pengaturan untuk album Sekki terpisah bagi makanan dan olahraga"],
+      ["Mode olahraga", "Catatan olahraga dipisah dari makanan, dengan jumlah latihan bulan ini sekilas"]
+    ],
+    "note": "Tombol Selesai makan di widget memerlukan iOS 17 atau versi lebih baru."
+  },
+  "pricing": {
+    "title": "Mencatat itu gratis. Sekki Pro melihat lebih dalam.",
+    "free": {
+      "name": "Gratis",
+      "items": [
+        "Catatan foto dengan pemilahan otomatis, foto sebelum dan sesudah, catatan",
+        "Beruntun, total hari, statistik mingguan dan bulanan, pencapaian",
+        "Pengingat untuk waktu makan pilihanmu, Selesai makan tanpa membuka aplikasi",
+        "Widget, tombol Tindakan, Siri, dan Pintasan",
+        "Berbagi makanan dan olahraga dengan teman, emoji dan komentar",
+        "Buat satu grup, gabung ke grup lain sebanyak apa pun",
+        "Pengenalan makanan di perangkat"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Banyak grup untuk keluarga, kantor, atau teman olahraga",
+        "Bandingkan makanan beberapa minggu lalu dan hari ini berdampingan",
+        "Lihat makanan yang paling sering kamu santap",
+        "Kunci aplikasi dengan Face ID atau Touch ID"
+      ],
+      "note": "Langganan tahunan atau bulanan, atau sekali beli seumur hidup"
+    },
+    "note": "Langganan diperpanjang otomatis kecuali dibatalkan setidaknya 24 jam sebelum periode berakhir. Batalkan kapan saja di Pengaturan > Akun Apple > Langganan. Ketentuan layanan: m1zz.github.io/RoutineCamera/id/terms.html"
+  },
+  "faq": {
+    "title": "Pertanyaan umum",
+    "items": [
+      {
+        "q": "Di mana fotoku disimpan?",
+        "a": "Di perangkatmu. Jika Simpan ke Foto Otomatis diaktifkan di Pengaturan, foto juga masuk ke album Sekki di app Foto. Selama Bagikan Makananku aktif (awalnya aktif), foto diunggah ke iCloud supaya teman yang kamu tambahkan bisa melihatnya. Matikan di Pengaturan > Akun & Berbagi."
+      },
+      {
+        "q": "Bagaimana cara menambah teman?",
+        "a": "Di layar Teman, bagikan kode enam karakter milikmu dan masukkan kode temanmu. Beberapa kode bisa ditempel sekaligus, dipisahkan koma."
+      },
+      {
+        "q": "Bagaimana cara menyemangati teman?",
+        "a": "Buka salah satu makanan temanmu dan tinggalkan emoji atau komentar singkat. Kalau dia belum mencatat, ketuk kotak kosongnya untuk mencolek pelan."
+      },
+      {
+        "q": "Apakah beruntunku putus kalau melewatkan satu kali makan?",
+        "a": "Tidak. Catat waktu makan apa pun hari itu, termasuk camilan, dan beruntunmu berlanjut. Meski melewatkan satu hari penuh, total hari tercatat tidak berkurang."
+      },
+      {
+        "q": "Notifikasi tidak masuk.",
+        "a": "Periksa di Pengaturan iOS > Notifikasi bahwa notifikasi Sekki diizinkan, dan perangkat sudah masuk ke iCloud. Jam pengingat bisa diubah di pengaturan aplikasi."
+      },
+      {
+        "q": "Apakah pengenalan makanan mengirim fotoku ke server?",
+        "a": "Tidak. Prosesnya di perangkat, jadi foto tidak pernah keluar dari ponsel. Gratis tanpa batas."
+      },
+      {
+        "q": "Bagaimana cara menghapus akun dan data?",
+        "a": "Buka Teman > Akun > Hapus Akun. Akun dan data makanan di server akan dihapus dan tidak bisa dipulihkan. Kalau ada kendala, kirim email ke kami."
+      },
+      {
+        "q": "Bagaimana cara membatalkan langganan?",
+        "a": "Di Pengaturan > Akun Apple > Langganan. Langganan diperpanjang otomatis kecuali dibatalkan setidaknya 24 jam sebelum periode berakhir. Pembelian seumur hidup cukup dibayar sekali."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Mulai\ndari makan siang hari ini",
+    "cta": "Unduh gratis di App Store"
+  },
+  "ui": {
+    "skip": "Lewati ke konten",
+    "languages": "Bahasa",
+    "privacy": "Kebijakan Privasi",
+    "contact": "Laporan bug, ide fitur, atau pertanyaan soal akun: kirim email ke {email} atau DM Instagram @lee25_ios. Biasanya kami membalas dalam satu atau dua hari."
+  }
+}

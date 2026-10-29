@@ -1,0 +1,155 @@
+{
+  "title": "Sekki: dziennik posiłków ze zdjęć, któremu wystarczy jedno zdjęcie przed jedzeniem",
+  "description": "Jedno zdjęcie przed jedzeniem, a Sekki przypisze je do śniadania, obiadu lub kolacji. Jeden posiłek dziennie utrzymuje serię, a znajomi kibicują sobie nawzajem.",
+  "hero": {
+    "headline": "Jedno zdjęcie przed jedzeniem.\nI zapisane.",
+    "lead": "Sekki sprawdza, kiedy zrobiono zdjęcie, i przypisuje je do śniadania, obiadu, kolacji albo przekąski. Zapisz choćby jeden posiłek dziennie, a seria trwa dalej.",
+    "cta": "Pobierz za darmo z App Store",
+    "note": "Zapisywanie, statystyki, widżety i udostępnianie znajomym są za darmo."
+  },
+  "demo": {
+    "title": "Wypróbuj sam",
+    "lead": "Wybierz godzinę i stuknij przycisk zapisu. Tak jak w aplikacji, przycisk od razu pokazuje posiłek dla tej pory.",
+    "clock": "Zdjęcie o",
+    "record": "Zapisz: {meal}",
+    "meals": {
+      "breakfast": "Śniadanie",
+      "lunch": "Obiad",
+      "dinner": "Kolacja",
+      "snack": "Przekąska"
+    },
+    "today": "Dziś · {n}",
+    "empty": "Dziś jeszcze nic nie zapisano",
+    "streak": "{n} dni z rzędu",
+    "total": "Łącznie {n} dni",
+    "before": "Przed",
+    "ateAll": "Zjedzone",
+    "kept": "Wystarczy jeden posiłek: dzisiejszy dzień już liczy się do serii.",
+    "rule": "Te same zasady co w aplikacji: od 5 do 10 śniadanie, od 11 do 15 obiad, od 16 do 21 kolacja. O innej porze albo gdy posiłek jest już zapisany, trafia jako przekąska.",
+    "reset": "Od nowa",
+    "note": "Zdjęcia w demo są przykładowe."
+  },
+  "problem": {
+    "title": "Rzuciłeś dziennik jedzenia po trzech dniach?",
+    "text": "Pominiesz śniadanie, zapomnisz o kolacji i puste pola zaczynają drażnić, aż w końcu usuwasz aplikację. Sekki nie ma pustych pól. Po kolei zbierają się tylko zapisane posiłki, a jedno zdjęcie wystarczy, żeby dzień się liczył."
+  },
+  "features": [
+    {
+      "title": "Zrób zdjęcie, a posiłek trafi na miejsce",
+      "text": "Na podstawie godziny Sekki przypisuje zdjęcie do śniadania, obiadu, kolacji albo przekąski. Dodaj zdjęcia przed i po, zapisz bez zdjęcia lub dopisz notatkę.\nJedzenie jest rozpoznawane za darmo na urządzeniu, a zdjęcia nigdy nie opuszczają telefonu.",
+      "shot": "02-detail"
+    },
+    {
+      "title": "Dziennik, który nigdy nie maleje",
+      "text": "Jeden posiłek dziennie utrzymuje serię, a łączna liczba zapisanych dni nigdy nie spada. Statystyki tygodniowe i miesięczne pokazują, ile dni i posiłków zapisałeś, a nie procent wykonania.\nPo drodze zbierasz osiągnięcia, takie jak 7 dni z rzędu czy Ranny ptaszek.",
+      "shot": "03-stats"
+    },
+    {
+      "title": "Tylko wybrane posiłki, bez otwierania aplikacji",
+      "text": "Wybierz, o których posiłkach chcesz przypomnień, i dopasuj godziny do swojego dnia. Po zdjęciu przed jedzeniem oznaczysz Zjedzone prosto z powiadomienia.\nZapisuj też przyciskiem czynności, przez Siri, Skróty lub widżet, a znajomych dodawaj kodem i kibicujcie sobie emoji i komentarzami.",
+      "shot": "04-settings"
+    }
+  ],
+  "steps": {
+    "title": "Zacznij w trzech krokach",
+    "items": [
+      {
+        "title": "Wybierz posiłki",
+        "text": "Przy pierwszym uruchomieniu Sekki zapyta, o których posiłkach przypominać. Zmienisz to w Ustawieniach."
+      },
+      {
+        "title": "Zdjęcie przed jedzeniem",
+        "text": "Przycisk zapisu pokazuje już posiłek dla bieżącej godziny. Stuknij, zrób zdjęcie, gotowe."
+      },
+      {
+        "title": "Zjedzone? Jedno stuknięcie",
+        "text": "Stuknij Zjedzone w powiadomieniu lub widżecie albo dodaj zdjęcie po jedzeniu."
+      }
+    ]
+  },
+  "reference": {
+    "title": "Zapisywanie bez otwierania aplikacji",
+    "rows": [
+      ["Powiadomienie", "Po zdjęciu przed jedzeniem oznacz Zjedzone prosto z powiadomienia"],
+      ["Widżet ekranu początkowego", "Zobacz dzisiejszą liczbę zapisów i trwający posiłek, potem stuknij Zjedzone"],
+      ["Widżety ekranu blokady", "Prostokątny, okrągły i w jednej linii"],
+      ["Przycisk czynności · Siri · Skróty", "Zjedzone jednym naciśnięciem lub jednym zdaniem"],
+      ["Zapis w Zdjęciach", "Włącz w Ustawieniach, aby posiłki i treningi trafiały do osobnych albumów Sekki"],
+      ["Tryb treningu", "Treningi są oddzielone od posiłków, a liczbę treningów w miesiącu widać od razu"]
+    ],
+    "note": "Przycisk Zjedzone w widżecie wymaga iOS 17 lub nowszego."
+  },
+  "pricing": {
+    "title": "Zapisywanie jest za darmo. Sekki Pro idzie głębiej.",
+    "free": {
+      "name": "Za darmo",
+      "items": [
+        "Zapisy ze zdjęciem i automatycznym przypisaniem, zdjęcia przed i po, notatki",
+        "Serie, łączna liczba dni, statystyki tygodniowe i miesięczne, osiągnięcia",
+        "Przypomnienia o wybranych posiłkach i Zjedzone bez otwierania aplikacji",
+        "Widżety, przycisk czynności, Siri i Skróty",
+        "Udostępnianie posiłków i treningów znajomym, emoji i komentarze",
+        "Utworzenie jednej grupy, dołączanie do dowolnej liczby innych",
+        "Rozpoznawanie jedzenia na urządzeniu"
+      ]
+    },
+    "pro": {
+      "name": "Sekki Pro",
+      "items": [
+        "Wiele grup: rodzina, praca, ekipa z siłowni",
+        "Porównanie posiłków sprzed kilku tygodni i dzisiejszych obok siebie",
+        "Potrawy, które jesz najczęściej",
+        "Blokada aplikacji przez Face ID lub Touch ID"
+      ],
+      "note": "Subskrypcja roczna lub miesięczna albo jednorazowy zakup dożywotni"
+    },
+    "note": "Subskrypcja odnawia się automatycznie, jeśli nie anulujesz jej co najmniej 24 godziny przed końcem okresu. Anulujesz w dowolnej chwili w Ustawieniach > Konto Apple > Subskrypcje. Warunki usługi: m1zz.github.io/RoutineCamera/pl/terms.html"
+  },
+  "faq": {
+    "title": "Częste pytania",
+    "items": [
+      {
+        "q": "Gdzie są zapisywane moje zdjęcia?",
+        "a": "Na Twoim urządzeniu. Jeśli w Ustawieniach włączysz Zapisuj automatycznie w Zdjęciach, trafią też do albumów Sekki w Zdjęciach. Dopóki włączone jest Udostępniaj moje posiłki (na początku jest włączone), są wysyłane do iCloud, żeby dodani znajomi mogli je oglądać. Wyłączysz to w Ustawieniach > Konto i udostępnianie."
+      },
+      {
+        "q": "Jak dodać znajomych?",
+        "a": "Na ekranie Znajomi udostępnij swój sześcioznakowy kod i wpisz kod znajomego. Możesz wkleić kilka kodów naraz, oddzielając je przecinkami."
+      },
+      {
+        "q": "Jak kibicować znajomemu?",
+        "a": "Otwórz posiłek znajomego i zostaw emoji albo krótki komentarz. Jeśli jeszcze nic nie zapisał, stuknij puste pole, żeby go delikatnie szturchnąć."
+      },
+      {
+        "q": "Czy seria przepada, gdy pominę posiłek?",
+        "a": "Nie. Zapisz tego dnia dowolny posiłek, także przekąskę, a seria trwa dalej. Nawet jeśli pominiesz cały dzień, łączna liczba zapisanych dni nie spada."
+      },
+      {
+        "q": "Nie dostaję powiadomień.",
+        "a": "Sprawdź w Ustawieniach iOS > Powiadomienia, czy Sekki ma pozwolenie na powiadomienia, oraz czy urządzenie jest zalogowane do iCloud. Godziny przypomnień zmienisz w ustawieniach aplikacji."
+      },
+      {
+        "q": "Czy rozpoznawanie jedzenia wysyła zdjęcia na serwer?",
+        "a": "Nie. Działa na urządzeniu, więc zdjęcia nigdy nie opuszczają telefonu. Za darmo i bez limitu."
+      },
+      {
+        "q": "Jak usunąć konto i dane?",
+        "a": "Wejdź w Znajomi > Konto > Usuń konto. Konto i dane posiłków na serwerze zostaną usunięte bez możliwości odzyskania. Jeśli coś pójdzie nie tak, napisz do nas."
+      },
+      {
+        "q": "Jak anulować subskrypcję?",
+        "a": "W Ustawieniach > Konto Apple > Subskrypcje. Odnawia się automatycznie, jeśli nie anulujesz jej co najmniej 24 godziny przed końcem okresu. Zakup dożywotni opłacasz raz."
+      }
+    ]
+  },
+  "closing": {
+    "headline": "Zacznij\nod dzisiejszego obiadu",
+    "cta": "Pobierz za darmo z App Store"
+  },
+  "ui": {
+    "skip": "Przejdź do treści",
+    "languages": "Język",
+    "privacy": "Polityka prywatności",
+    "contact": "Błędy, pomysły lub pytania o konto: napisz na {email} albo wyślij DM do @lee25_ios na Instagramie. Zwykle odpowiadamy w ciągu dnia lub dwóch."
+  }
+}

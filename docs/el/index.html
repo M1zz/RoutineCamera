@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Υποστήριξη</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: ημερολόγιο γευμάτων με φωτογραφίες, αρκεί μία λήψη πριν φας</title>
+  <meta name="description" content="Μία φωτογραφία πριν φας και το Sekki τη βάζει στο πρωινό, το μεσημεριανό ή το βραδινό. Ένα γεύμα τη μέρα κρατά το σερί σου, και οι φίλοι σε εμψυχώνουν.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/el/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: ημερολόγιο γευμάτων με φωτογραφίες, αρκεί μία λήψη πριν φας">
+  <meta property="og:description" content="Μία φωτογραφία πριν φας και το Sekki τη βάζει στο πρωινό, το μεσημεριανό ή το βραδινό. Ένα γεύμα τη μέρα κρατά το σερί σου, και οι φίλοι σε εμψυχώνουν.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/el/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/el/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Ένα φωτογραφικό ημερολόγιο γευμάτων για πρωινό, μεσημεριανό και βραδινό</p>
+  <a class="skip" href="#main">Μετάβαση στο περιεχόμενο</a>
+  <header class="bar">
+    <a class="brand" href="../el/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Γλώσσα</a>
+  </header>
 
-    <p>Τράβηξε μία φωτογραφία πριν φας και το γεύμα σου καταγράφεται. Το Sekki την τοποθετεί στο πρωινό, στο μεσημεριανό, στο βραδινό ή στα σνακ, κρατά το σερί σου ακόμη και τις ημέρες που καταγράφεις μόνο ένα γεύμα και αφήνει τους φίλους να ενθαρρύνουν ο ένας τον άλλον.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Μία φωτογραφία πριν φας.<br>Και η καταγραφή έγινε.</h1>
+        <p class="lead">Το Sekki βλέπει την ώρα της λήψης και τη βάζει στο πρωινό, το μεσημεριανό, το βραδινό ή στα σνακ. Κατάγραψε έστω ένα γεύμα τη μέρα και το σερί συνεχίζεται.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Δωρεάν λήψη στο App Store</a><a class="try" href="#try">Δοκίμασέ το ↓</a></div>
+        <p class="muted small">Η καταγραφή, τα στατιστικά, τα widget και η κοινοποίηση με φίλους είναι δωρεάν.</p>
+      </div>
+      <div class="phone"><img src="../img/el/01-feed.jpg" alt="Μία φωτογραφία πριν φας. Και η καταγραφή έγινε." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Επικοινωνία</h2>
-    <p>Αναφορές σφαλμάτων, ιδέες για νέες λειτουργίες και ερωτήσεις για τον λογαριασμό σου είναι όλα ευπρόσδεκτα.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Στείλε μας email</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      Email: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Συνήθως απαντάμε μέσα σε μία με δύο ημέρες.
-    </p>
 
-    <h2>Συχνές ερωτήσεις</h2>
+    <section class="reveal" id="try">
+      <h2>Δοκίμασέ το</h2>
+      <p class="muted">Διάλεξε ώρα και πάτα το κουμπί καταγραφής. Όπως στην εφαρμογή, το κουμπί δείχνει ήδη το γεύμα εκείνης της ώρας.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Δοκίμασέ το&quot;, &quot;lead&quot;: &quot;Διάλεξε ώρα και πάτα το κουμπί καταγραφής. Όπως στην εφαρμογή, το κουμπί δείχνει ήδη το γεύμα εκείνης της ώρας.&quot;, &quot;clock&quot;: &quot;Ώρα λήψης&quot;, &quot;record&quot;: &quot;Καταγραφή: {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Πρωινό&quot;, &quot;lunch&quot;: &quot;Μεσημεριανό&quot;, &quot;dinner&quot;: &quot;Βραδινό&quot;, &quot;snack&quot;: &quot;Σνακ&quot;}, &quot;today&quot;: &quot;Σήμερα · {n}&quot;, &quot;empty&quot;: &quot;Καμία καταγραφή σήμερα ακόμα&quot;, &quot;streak&quot;: &quot;{n} ημέρες σερί&quot;, &quot;total&quot;: &quot;{n} ημέρες συνολικά&quot;, &quot;before&quot;: &quot;Πριν&quot;, &quot;ateAll&quot;: &quot;Τελείωσα&quot;, &quot;kept&quot;: &quot;Ένα γεύμα αρκεί: το σήμερα μετράει ήδη στο σερί σου.&quot;, &quot;rule&quot;: &quot;Ίδιοι κανόνες με την εφαρμογή: 5 με 10 είναι πρωινό, 11 με 15 μεσημεριανό, 16 με 21 βραδινό. Άλλη ώρα, ή γεύμα που έχει ήδη καταγραφεί, μπαίνει ως σνακ.&quot;, &quot;reset&quot;: &quot;Από την αρχή&quot;, &quot;note&quot;: &quot;Οι φωτογραφίες της επίδειξης είναι ενδεικτικές.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Πού αποθηκεύονται οι φωτογραφίες μου;</h3>
-      <p>Στη συσκευή σου. Αν ενεργοποιήσεις την «Αυτόματη αποθήκευση στις Φωτογραφίες» στις Ρυθμίσεις, αποθηκεύονται επίσης στα άλμπουμ του Sekki στις Φωτογραφίες. Όσο είναι ενεργή η «Κοινοποίηση των γευμάτων μου» (είναι ενεργή από την αρχή), ανεβαίνουν στο iCloud ώστε να τις βλέπουν οι φίλοι που προσθέτεις. Μπορείς να την απενεργοποιήσεις από Ρυθμίσεις &gt; Λογαριασμός · Κοινοποίηση.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Παράτησες ημερολόγιο διατροφής μετά από τρεις μέρες;</h2>
+      <p>Παραλείπεις ένα πρωινό, ξεχνάς ένα βραδινό, και τα κενά κουτάκια αρχίζουν να σε εκνευρίζουν μέχρι να σβήσεις την εφαρμογή. Το Sekki δεν έχει κενά κουτάκια. Μαζεύονται με τη σειρά μόνο τα γεύματα που καταγράφεις, και μία φωτογραφία αρκεί για να μετρήσει η μέρα.</p>
+    </section>
 
-    <div class="card">
-      <h3>Πώς προσθέτω φίλους;</h3>
-      <p>Στην οθόνη Φίλοι, μοιράσου τον κωδικό φίλου σου των έξι χαρακτήρων και εισήγαγε τον κωδικό του φίλου σου. Μπορείς επίσης να επικολλήσεις πολλούς κωδικούς μαζί, χωρισμένους με κόμματα.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Τράβα φωτογραφία, το γεύμα μπαίνει στη θέση του</h2>
+        <p>Ανάλογα με την ώρα λήψης, το Sekki τη βάζει στο πρωινό, το μεσημεριανό, το βραδινό ή στα σνακ. Πρόσθεσε φωτογραφίες πριν και μετά, κατάγραψε χωρίς φωτογραφία ή γράψε μια σημείωση.<br>Το φαγητό αναγνωρίζεται δωρεάν στη συσκευή και οι φωτογραφίες σου δεν φεύγουν ποτέ από το κινητό.</p>
+      </div>
+      <div class="phone"><img src="../img/el/02-detail.jpg" alt="Τράβα φωτογραφία, το γεύμα μπαίνει στη θέση του" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Πώς ενθαρρύνω έναν φίλο;</h3>
-      <p>Άνοιξε ένα γεύμα του φίλου σου και άφησε ένα emoji ή ένα σύντομο σχόλιο. Αν δεν έχει καταγράψει ακόμη γεύμα, πάτα την κενή θέση για να στείλεις ένα διακριτικό σκούντημα.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Ένα ημερολόγιο που δεν μικραίνει ποτέ</h2>
+        <p>Ένα γεύμα τη μέρα κρατά το σερί, και ο συνολικός αριθμός ημερών καταγραφής δεν πέφτει ποτέ. Τα εβδομαδιαία και μηνιαία στατιστικά δείχνουν πόσες μέρες και πόσα γεύματα κατέγραψες, όχι ποσοστό επιτυχίας.<br>Στην πορεία μαζεύεις επιτεύγματα όπως 7 ημέρες σερί ή Πρωινός τύπος.</p>
+      </div>
+      <div class="phone"><img src="../img/el/03-stats.jpg" alt="Ένα ημερολόγιο που δεν μικραίνει ποτέ" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Πώς διαγράφω τον λογαριασμό και τα δεδομένα μου;</h3>
-      <p>Πήγαινε στα Φίλοι, μετά στον Λογαριασμό και μετά στη Διαγραφή λογαριασμού. Ο λογαριασμός σου και τα δεδομένα γευμάτων που είναι αποθηκευμένα στον διακομιστή διαγράφονται και δεν μπορούν να ανακτηθούν. Αν κάτι πάει στραβά, στείλε μας email.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Μόνο τα γεύματα που διαλέγεις, χωρίς να ανοίξεις την εφαρμογή</h2>
+        <p>Διάλεξε για ποια γεύματα θέλεις υπενθύμιση και ρύθμισε τις ώρες στο πρόγραμμά σου. Μετά τη φωτογραφία πριν το φαγητό, σημειώνεις Τελείωσα απευθείας από την ειδοποίηση.<br>Κατάγραψε και με το κουμπί Δράσης, το Siri, τις Συντομεύσεις ή ένα widget, και πρόσθεσε φίλους με κωδικό για να εμψυχώνεστε με emoji και σχόλια.</p>
+      </div>
+      <div class="phone"><img src="../img/el/04-settings.jpg" alt="Μόνο τα γεύματα που διαλέγεις, χωρίς να ανοίξεις την εφαρμογή" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Δεν λαμβάνω ειδοποιήσεις</h3>
-      <p>Έλεγξε ότι οι ειδοποιήσεις επιτρέπονται για το Sekki στις Ρυθμίσεις του iOS, στην ενότητα Ειδοποιήσεις, και ότι η συσκευή σου είναι συνδεδεμένη στο iCloud. Μπορείς να αλλάξεις τις ώρες των υπενθυμίσεων γευμάτων στις Ρυθμίσεις της εφαρμογής.</p>
-    </div>
+    <section class="reveal">
+      <h2>Ξεκινάς σε τρία βήματα</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Διάλεξε τα γεύματα</h3><p>Την πρώτη φορά το Sekki ρωτά για ποια γεύματα να σου θυμίζει. Αλλάζει από τις Ρυθμίσεις.</p></li>
+<li class="card"><span class="n">2</span><h3>Φωτογραφία πριν φας</h3><p>Το κουμπί καταγραφής δείχνει ήδη το γεύμα της τρέχουσας ώρας. Πάτα, τράβα, έτοιμο.</p></li>
+<li class="card"><span class="n">3</span><h3>Τελείωσες; Ένα πάτημα</h3><p>Πάτα Τελείωσα στην ειδοποίηση ή στο widget, ή πρόσθεσε φωτογραφία μετά.</p></li></ol>
+    </section>
 
-    <h2>Όροι και πολιτικές</h2>
-    <p><a href="privacy.html">Πολιτική απορρήτου →</a></p>
-    <p><a href="terms.html">Όροι χρήσης →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Καταγραφή χωρίς να ανοίξεις την εφαρμογή</h2>
+      <div class="card table">
+        <dl><div><dt>Ειδοποίηση</dt><dd>Μετά τη φωτογραφία πριν το φαγητό, σημείωσε Τελείωσα από την ειδοποίηση</dd></div><div><dt>Widget οθόνης Αφετηρίας</dt><dd>Δες τις σημερινές καταγραφές και το γεύμα σε εξέλιξη, και πάτα Τελείωσα</dd></div><div><dt>Widget οθόνης κλειδώματος</dt><dd>Ορθογώνιο, κυκλικό και σε μία γραμμή</dd></div><div><dt>Κουμπί Δράσης · Siri · Συντομεύσεις</dt><dd>Τελείωσα με ένα πάτημα ή μία φράση</dd></div><div><dt>Αποθήκευση στις Φωτογραφίες</dt><dd>Ενεργοποίησέ το στις Ρυθμίσεις για χωριστά άλμπουμ Sekki για γεύματα και προπονήσεις</dd></div><div><dt>Λειτουργία προπόνησης</dt><dd>Οι προπονήσεις κρατιούνται χωριστά από τα γεύματα, με τις φορές του μήνα με μια ματιά</dd></div></dl>
+      </div>
+      <p class="muted">Το κουμπί Τελείωσα στο widget χρειάζεται iOS 17 ή νεότερο.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Πολιτική απορρήτου</a> · <a href="terms.html">Όροι χρήσης</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Η καταγραφή είναι δωρεάν. Το Sekki Pro πάει πιο βαθιά.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Δωρεάν</h3>
+          <ul><li>Καταγραφή με φωτογραφίες και αυτόματη ταξινόμηση, πριν και μετά, σημειώσεις</li><li>Σερί, συνολικές ημέρες, εβδομαδιαία και μηνιαία στατιστικά, επιτεύγματα</li><li>Υπενθυμίσεις για τα γεύματα που διαλέγεις, Τελείωσα χωρίς άνοιγμα της εφαρμογής</li><li>Widget, κουμπί Δράσης, Siri και Συντομεύσεις</li><li>Κοινοποίηση γευμάτων και προπονήσεων με φίλους, emoji και σχόλια</li><li>Δημιουργία μίας ομάδας, συμμετοχή σε όσες θέλεις</li><li>Αναγνώριση φαγητού στη συσκευή</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Πολλές ομάδες για οικογένεια, δουλειά ή παρέα του γυμναστηρίου</li><li>Σύγκριση γευμάτων πριν από λίγες εβδομάδες και σήμερα δίπλα δίπλα</li><li>Τα φαγητά που τρως πιο συχνά</li><li>Κλείδωμα της εφαρμογής με Face ID ή Touch ID</li></ul>
+          <p class="muted">Ετήσια ή μηνιαία συνδρομή, ή εφάπαξ αγορά εφ' όρου ζωής</p>
+        </div>
+      </div>
+      <p class="muted">Η συνδρομή ανανεώνεται αυτόματα, εκτός αν ακυρωθεί τουλάχιστον 24 ώρες πριν το τέλος της περιόδου. Ακύρωσέ τη όποτε θέλεις στις Ρυθμίσεις &gt; Λογαριασμός Apple &gt; Συνδρομές. Όροι υπηρεσίας: m1zz.github.io/RoutineCamera/el/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Συχνές ερωτήσεις</h2>
+      <div class="faq"><details><summary>Πού αποθηκεύονται οι φωτογραφίες μου;</summary><p>Στη συσκευή σου. Αν ενεργοποιήσεις την Αυτόματη αποθήκευση στις Φωτογραφίες στις Ρυθμίσεις, μπαίνουν και στα άλμπουμ Sekki των Φωτογραφιών. Όσο είναι ενεργή η Κοινοποίηση των γευμάτων μου (είναι ενεργή από την αρχή), ανεβαίνουν στο iCloud για να τις βλέπουν οι φίλοι που πρόσθεσες. Απενεργοποιείται στις Ρυθμίσεις &gt; Λογαριασμός · Κοινοποίηση.</p></details>
+<details><summary>Πώς προσθέτω φίλους;</summary><p>Στην οθόνη Φίλοι, μοιράσου τον κωδικό σου των έξι χαρακτήρων και πληκτρολόγησε τον κωδικό του φίλου σου. Μπορείς να επικολλήσεις πολλούς κωδικούς μαζί, χωρισμένους με κόμμα.</p></details>
+<details><summary>Πώς εμψυχώνω έναν φίλο;</summary><p>Άνοιξε ένα γεύμα του φίλου σου και άφησε ένα emoji ή ένα σύντομο σχόλιο. Αν δεν έχει καταγράψει ακόμα, πάτα το κενό κουτάκι για ένα διακριτικό σκούντημα.</p></details>
+<details><summary>Χάνω το σερί αν παραλείψω ένα γεύμα;</summary><p>Όχι. Κατάγραψε όποιο γεύμα θες εκείνη τη μέρα, μαζί με τα σνακ, και το σερί συνεχίζεται. Ακόμα κι αν χάσεις ολόκληρη μέρα, ο συνολικός αριθμός ημερών δεν μειώνεται.</p></details>
+<details><summary>Δεν μου έρχονται ειδοποιήσεις.</summary><p>Έλεγξε στις Ρυθμίσεις iOS &gt; Γνωστοποιήσεις ότι επιτρέπονται για το Sekki και ότι η συσκευή είναι συνδεδεμένη στο iCloud. Τις ώρες υπενθύμισης τις αλλάζεις στις ρυθμίσεις της εφαρμογής.</p></details>
+<details><summary>Η αναγνώριση φαγητού στέλνει τις φωτογραφίες σε διακομιστή;</summary><p>Όχι. Γίνεται στη συσκευή, οπότε οι φωτογραφίες δεν φεύγουν ποτέ από το κινητό. Δωρεάν και χωρίς όριο.</p></details>
+<details><summary>Πώς διαγράφω τον λογαριασμό και τα δεδομένα μου;</summary><p>Πήγαινε Φίλοι &gt; Λογαριασμός &gt; Διαγραφή λογαριασμού. Ο λογαριασμός και τα δεδομένα γευμάτων στον διακομιστή διαγράφονται οριστικά. Αν κάτι πάει στραβά, στείλε μας email.</p></details>
+<details><summary>Πώς ακυρώνω τη συνδρομή;</summary><p>Στις Ρυθμίσεις &gt; Λογαριασμός Apple &gt; Συνδρομές. Ανανεώνεται αυτόματα, εκτός αν την ακυρώσεις τουλάχιστον 24 ώρες πριν το τέλος της περιόδου. Η αγορά εφ' όρου ζωής πληρώνεται μία φορά.</p></details></div>
+      <p class="contact">Σφάλματα, ιδέες ή ερωτήσεις για τον λογαριασμό: γράψε στο <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> ή στείλε DM στο @lee25_ios στο Instagram. Συνήθως απαντάμε σε μία με δύο μέρες.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Ξεκίνα<br>από το σημερινό μεσημεριανό</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Δωρεάν λήψη στο App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Γλώσσα"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el" aria-current="page">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Πολιτική απορρήτου</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

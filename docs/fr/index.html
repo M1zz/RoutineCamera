@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Assistance</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki : le journal photo de repas qui ne demande qu&#x27;une photo avant de manger</title>
+  <meta name="description" content="Une photo avant de manger, et Sekki la range en petit-déjeuner, déjeuner ou dîner. Un repas par jour suffit à garder votre série, et vos amis vous encouragent.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/fr/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki : le journal photo de repas qui ne demande qu&#x27;une photo avant de manger">
+  <meta property="og:description" content="Une photo avant de manger, et Sekki la range en petit-déjeuner, déjeuner ou dîner. Un repas par jour suffit à garder votre série, et vos amis vous encouragent.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/fr/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/fr/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Le journal photo de vos petits-déjeuners, déjeuners et dîners</p>
+  <a class="skip" href="#main">Aller au contenu</a>
+  <header class="bar">
+    <a class="brand" href="../fr/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Langue</a>
+  </header>
 
-    <p>Une photo avant de manger, et votre repas est enregistré. Sekki le range dans petit-déjeuner, déjeuner, dîner ou collation, garde votre série même les jours où vous n’enregistrez qu’un repas, et permet à vos amis de s’encourager mutuellement.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Une photo avant de manger.<br>C'est noté.</h1>
+        <p class="lead">Sekki regarde l'heure de la photo et la range en petit-déjeuner, déjeuner, dîner ou collation. Un seul repas noté par jour, et votre série continue.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Télécharger gratuitement sur l'App Store</a><a class="try" href="#try">Essayez vous-même ↓</a></div>
+        <p class="muted small">Le journal, les statistiques, les widgets et le partage avec vos amis sont gratuits.</p>
+      </div>
+      <div class="phone"><img src="../img/fr/01-feed.jpg" alt="Une photo avant de manger. C&#x27;est noté." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Nous contacter</h2>
-    <p>Signalements de bugs, idées de fonctionnalités et questions sur votre compte : tout est le bienvenu.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Nous écrire</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Message Instagram</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-mail : leeo@kakao.com · Instagram : @lee25_ios<br>
-      Nous répondons généralement sous un à deux jours.
-    </p>
 
-    <h2>Questions fréquentes</h2>
+    <section class="reveal" id="try">
+      <h2>Essayez vous-même</h2>
+      <p class="muted">Choisissez une heure et touchez le bouton d'enregistrement. Comme dans l'app, il indique déjà le repas correspondant.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Essayez vous-même&quot;, &quot;lead&quot;: &quot;Choisissez une heure et touchez le bouton d&#x27;enregistrement. Comme dans l&#x27;app, il indique déjà le repas correspondant.&quot;, &quot;clock&quot;: &quot;Photo prise à&quot;, &quot;record&quot;: &quot;Enregistrer : {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Petit-déjeuner&quot;, &quot;lunch&quot;: &quot;Déjeuner&quot;, &quot;dinner&quot;: &quot;Dîner&quot;, &quot;snack&quot;: &quot;Collation&quot;}, &quot;today&quot;: &quot;Aujourd&#x27;hui · {n}&quot;, &quot;empty&quot;: &quot;Rien d&#x27;enregistré aujourd&#x27;hui&quot;, &quot;streak&quot;: &quot;{n} jours d&#x27;affilée&quot;, &quot;total&quot;: &quot;{n} jours au total&quot;, &quot;before&quot;: &quot;Avant&quot;, &quot;ateAll&quot;: &quot;Terminé&quot;, &quot;kept&quot;: &quot;Un repas suffit : aujourd&#x27;hui compte déjà dans votre série.&quot;, &quot;rule&quot;: &quot;Les mêmes règles que l&#x27;app : de 5 h à 10 h c&#x27;est le petit-déjeuner, de 11 h à 15 h le déjeuner, de 16 h à 21 h le dîner. À toute autre heure, ou pour un repas déjà noté, c&#x27;est une collation.&quot;, &quot;reset&quot;: &quot;Recommencer&quot;, &quot;note&quot;: &quot;Les photos de la démo sont des exemples.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Où sont stockées mes photos ?</h3>
-      <p>Sur votre appareil. Si vous activez « Enregistrer automatiquement dans Photos » dans Réglages, elles sont aussi enregistrées dans les albums Sekki de Photos. Tant que « Partager mes repas » est activé (c’est le cas au départ), elles sont envoyées sur iCloud pour que les amis que vous ajoutez puissent les voir. Vous pouvez le désactiver dans Réglages &gt; Compte et partage.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Vous avez déjà lâché un journal alimentaire au bout de trois jours ?</h2>
+      <p>Un petit-déjeuner sauté, un dîner oublié, et les cases vides finissent par agacer jusqu'à ce qu'on supprime l'app. Sekki n'a pas de cases vides. Seuls les repas notés s'empilent dans l'ordre, et une seule photo suffit pour que la journée compte.</p>
+    </section>
 
-    <div class="card">
-      <h3>Comment ajouter des amis ?</h3>
-      <p>Dans l’écran Amis, partagez votre code ami à six caractères et saisissez celui de votre ami. Vous pouvez aussi coller plusieurs codes à la fois, séparés par des virgules.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Une photo, et le repas est rangé</h2>
+        <p>Selon l'heure de la photo, Sekki la classe en petit-déjeuner, déjeuner, dîner ou collation. Ajoutez des photos avant et après, notez un repas sans photo ou écrivez une note.<br>Les plats sont reconnus gratuitement sur l'appareil, et vos photos ne quittent jamais votre téléphone.</p>
+      </div>
+      <div class="phone"><img src="../img/fr/02-detail.jpg" alt="Une photo, et le repas est rangé" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Comment encourager un ami ?</h3>
-      <p>Ouvrez le repas d’un ami et laissez un emoji ou un court commentaire. S’il n’a pas encore enregistré de repas, touchez l’emplacement vide pour lui envoyer un petit rappel.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Un journal qui ne rétrécit jamais</h2>
+        <p>Un repas par jour garde la série, et le total de jours notés ne baisse jamais. Les statistiques de la semaine et du mois montrent combien de jours et de repas vous avez notés, pas un taux de réussite.<br>En chemin, vous débloquez des succès comme 7 jours d'affilée ou Lève-tôt.</p>
+      </div>
+      <div class="phone"><img src="../img/fr/03-stats.jpg" alt="Un journal qui ne rétrécit jamais" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Comment supprimer mon compte et mes données ?</h3>
-      <p>Allez dans Amis, puis Compte, puis Supprimer le compte. Votre compte et les données de repas stockées sur le serveur sont supprimés et ne peuvent pas être récupérés. En cas de problème, écrivez-nous simplement.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Seulement les repas choisis, sans ouvrir l'app</h2>
+        <p>Choisissez les repas pour lesquels vous voulez un rappel et réglez les horaires sur votre rythme. Après la photo d'avant, marquez Terminé directement depuis la notification.<br>Notez aussi avec le bouton Action, Siri, Raccourcis ou un widget, et ajoutez des amis par code pour vous encourager avec des emojis et des commentaires.</p>
+      </div>
+      <div class="phone"><img src="../img/fr/04-settings.jpg" alt="Seulement les repas choisis, sans ouvrir l&#x27;app" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Je ne reçois pas de notifications</h3>
-      <p>Vérifiez que les notifications sont autorisées pour Sekki dans Réglages iOS, puis Notifications, et que votre appareil est connecté à iCloud. Vous pouvez modifier les heures de rappel des repas dans les réglages de l’app.</p>
-    </div>
+    <section class="reveal">
+      <h2>Trois étapes pour commencer</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Choisissez vos repas</h3><p>Au premier lancement, Sekki demande quels repas vous rappeler. Modifiable dans les Réglages.</p></li>
+<li class="card"><span class="n">2</span><h3>Une photo avant de manger</h3><p>Le bouton d'enregistrement affiche déjà le repas de l'heure. Touchez, photographiez, c'est fait.</p></li>
+<li class="card"><span class="n">3</span><h3>Un toucher à la fin</h3><p>Touchez Terminé dans la notification ou le widget, ou ajoutez une photo d'après.</p></li></ol>
+    </section>
 
-    <h2>Conditions et politiques</h2>
-    <p><a href="privacy.html">Politique de confidentialité →</a></p>
-    <p><a href="terms.html">Conditions d’utilisation →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Noter sans ouvrir l'app</h2>
+      <div class="card table">
+        <dl><div><dt>Notification</dt><dd>Après la photo d'avant, marquez Terminé depuis l'alerte</dd></div><div><dt>Widget de l'écran d'accueil</dt><dd>Voyez le nombre de repas du jour et celui en cours, puis touchez Terminé</dd></div><div><dt>Widgets de l'écran verrouillé</dt><dd>Rectangulaire, circulaire et en ligne</dd></div><div><dt>Bouton Action · Siri · Raccourcis</dt><dd>Marquez Terminé d'une pression ou d'une phrase</dd></div><div><dt>Enregistrer dans Photos</dt><dd>Activez-le dans les Réglages pour des albums Sekki séparés pour les repas et le sport</dd></div><div><dt>Mode sport</dt><dd>Le sport est rangé à part des repas, avec le nombre de séances du mois en un coup d'œil</dd></div></dl>
+      </div>
+      <p class="muted">Le bouton Terminé du widget nécessite iOS 17 ou version ultérieure.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Politique de confidentialité</a> · <a href="terms.html">Conditions d’utilisation</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../pl/" hreflang="pl" lang="pl">Polski</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Noter est gratuit. Sekki Pro va plus loin.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Gratuit</h3>
+          <ul><li>Journal photo avec classement automatique, photos avant et après, notes</li><li>Séries, total de jours, statistiques hebdomadaires et mensuelles, succès</li><li>Rappels pour les repas choisis, Terminé sans ouvrir l'app</li><li>Widgets, bouton Action, Siri et Raccourcis</li><li>Partage des repas et du sport avec vos amis, emojis et commentaires</li><li>Créer un groupe, en rejoindre autant que vous voulez</li><li>Reconnaissance des plats sur l'appareil</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Plusieurs groupes : famille, bureau, partenaires de sport</li><li>Comparer côte à côte vos repas d'il y a quelques semaines et d'aujourd'hui</li><li>Voir les plats que vous mangez le plus</li><li>Verrouiller l'app avec Face ID ou Touch ID</li></ul>
+          <p class="muted">Abonnement annuel ou mensuel, ou achat unique à vie</p>
+        </div>
+      </div>
+      <p class="muted">L'abonnement se renouvelle automatiquement sauf résiliation au moins 24 heures avant la fin de la période. Résiliez à tout moment dans Réglages &gt; Compte Apple &gt; Abonnements. Conditions d'utilisation : m1zz.github.io/RoutineCamera/fr/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Questions fréquentes</h2>
+      <div class="faq"><details><summary>Où sont stockées mes photos ?</summary><p>Sur votre appareil. Si vous activez Enregistrer automatiquement dans Photos dans les Réglages, elles vont aussi dans les albums Sekki de Photos. Tant que Partager mes repas est activé (c'est le cas au départ), elles sont envoyées sur iCloud pour que vos amis puissent les voir. Désactivez-le dans Réglages &gt; Compte et partage.</p></details>
+<details><summary>Comment ajouter des amis ?</summary><p>Sur l'écran Amis, partagez votre code à six caractères et saisissez celui de votre ami. Vous pouvez coller plusieurs codes à la fois, séparés par des virgules.</p></details>
+<details><summary>Comment encourager un ami ?</summary><p>Ouvrez un repas de votre ami et laissez un emoji ou un petit commentaire. S'il n'a encore rien noté, touchez la case vide pour lui faire signe.</p></details>
+<details><summary>Est-ce que je perds ma série si je saute un repas ?</summary><p>Non. Notez n'importe quel repas ce jour-là, collations comprises, et la série continue. Même si vous sautez une journée entière, le total de jours notés ne baisse pas.</p></details>
+<details><summary>Je ne reçois pas de notifications.</summary><p>Vérifiez dans Réglages iOS &gt; Notifications que Sekki est autorisé, et que l'appareil est connecté à iCloud. Les heures de rappel se changent dans les réglages de l'app.</p></details>
+<details><summary>La reconnaissance des plats envoie-t-elle mes photos à un serveur ?</summary><p>Non. Elle se fait sur l'appareil, vos photos ne quittent jamais votre téléphone. Gratuit et sans limite.</p></details>
+<details><summary>Comment supprimer mon compte et mes données ?</summary><p>Allez dans Amis &gt; Compte &gt; Supprimer le compte. Le compte et les données de repas stockés sur le serveur sont supprimés définitivement. En cas de souci, écrivez-nous.</p></details>
+<details><summary>Comment résilier l'abonnement ?</summary><p>Dans Réglages &gt; Compte Apple &gt; Abonnements. Il se renouvelle automatiquement sauf résiliation au moins 24 heures avant la fin de la période. L'achat à vie se paie une seule fois.</p></details></div>
+      <p class="contact">Bug, idée ou question sur votre compte : écrivez à <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> ou en DM à @lee25_ios sur Instagram. Nous répondons généralement sous un ou deux jours.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Commencez<br>par le déjeuner d'aujourd'hui</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Télécharger gratuitement sur l'App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Langue"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr" aria-current="page">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Politique de confidentialité</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>

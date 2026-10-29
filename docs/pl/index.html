@@ -1,12 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sekki — Pomoc</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sekki: dziennik posiłków ze zdjęć, któremu wystarczy jedno zdjęcie przed jedzeniem</title>
+  <meta name="description" content="Jedno zdjęcie przed jedzeniem, a Sekki przypisze je do śniadania, obiadu lub kolacji. Jeden posiłek dziennie utrzymuje serię, a znajomi kibicują sobie nawzajem.">
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0d0f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-itunes-app" content="app-id=6755164924">
+  <link rel="canonical" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="ko" href="https://m1zz.github.io/RoutineCamera/">
   <link rel="alternate" hreflang="en" href="https://m1zz.github.io/RoutineCamera/en/">
-  <link rel="alternate" hreflang="en-GB" href="https://m1zz.github.io/RoutineCamera/en/">
   <link rel="alternate" hreflang="zh-Hans" href="https://m1zz.github.io/RoutineCamera/zh-Hans/">
   <link rel="alternate" hreflang="zh-Hant" href="https://m1zz.github.io/RoutineCamera/zh-Hant/">
   <link rel="alternate" hreflang="ja" href="https://m1zz.github.io/RoutineCamera/ja/">
@@ -28,121 +32,159 @@
   <link rel="alternate" hreflang="pl" href="https://m1zz.github.io/RoutineCamera/pl/">
   <link rel="alternate" hreflang="sv" href="https://m1zz.github.io/RoutineCamera/sv/">
   <link rel="alternate" hreflang="tr" href="https://m1zz.github.io/RoutineCamera/tr/">
-  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/en/">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --accent: #0a84ff;
-      --card: #f5f5f7;
-      --bg: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f5f5f7;
-        --secondary: #98989d;
-        --card: #1c1c1e;
-        --bg: #000000;
-      }
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    .container { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
-    .app-icon { font-size: 56px; }
-    h1 { font-size: 28px; margin: 12px 0 4px; }
-    .tagline { color: var(--secondary); font-size: 16px; margin-bottom: 40px; }
-    h2 { font-size: 20px; margin: 40px 0 12px; }
-    p, li { font-size: 16px; color: var(--text); }
-    ul { padding-left: 22px; margin: 8px 0; }
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 12px 0;
-    }
-    .card h3 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 15px; color: var(--secondary); }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .contact-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      margin: 8px 8px 0 0;
-    }
-    .contact-btn:hover { text-decoration: none; opacity: 0.9; }
-    footer {
-      margin-top: 64px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card);
-      color: var(--secondary);
-      font-size: 13px;
-    }
-  </style>
+  <link rel="alternate" hreflang="x-default" href="https://m1zz.github.io/RoutineCamera/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sekki: dziennik posiłków ze zdjęć, któremu wystarczy jedno zdjęcie przed jedzeniem">
+  <meta property="og:description" content="Jedno zdjęcie przed jedzeniem, a Sekki przypisze je do śniadania, obiadu lub kolacji. Jeden posiłek dziennie utrzymuje serię, a znajomi kibicują sobie nawzajem.">
+  <meta property="og:url" content="https://m1zz.github.io/RoutineCamera/pl/">
+  <meta property="og:image" content="https://m1zz.github.io/RoutineCamera/img/pl/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../demo.css">
+  <style>:root{--accent:#007AFF}@media (prefers-color-scheme:dark){:root{--accent:#0A84FF}}</style>
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
-  <div class="container">
-    <div class="app-icon">🍽️</div>
-    <h1>Sekki</h1>
-    <p class="tagline">Dziennik posiłków ze zdjęć: śniadanie, obiad i kolacja</p>
+  <a class="skip" href="#main">Przejdź do treści</a>
+  <header class="bar">
+    <a class="brand" href="../pl/"><img src="../icon.png" alt="" width="32" height="32">Sekki</a>
+    <a class="lang-link" href="#languages">Język</a>
+  </header>
 
-    <p>Zrób jedno zdjęcie przed jedzeniem, a posiłek jest zapisany. Sekki przypisuje go do śniadania, obiadu, kolacji albo przekąski, podtrzymuje Twoją serię nawet wtedy, gdy zapiszesz tylko jeden posiłek dziennie, i pozwala znajomym dopingować się nawzajem.</p>
+  <main id="main">
+    <section class="hero">
+      <div class="copy">
+        <h1>Jedno zdjęcie przed jedzeniem.<br>I zapisane.</h1>
+        <p class="lead">Sekki sprawdza, kiedy zrobiono zdjęcie, i przypisuje je do śniadania, obiadu, kolacji albo przekąski. Zapisz choćby jeden posiłek dziennie, a seria trwa dalej.</p>
+        <div class="actions"><a class="cta" href="https://apps.apple.com/app/id6755164924">Pobierz za darmo z App Store</a><a class="try" href="#try">Wypróbuj sam ↓</a></div>
+        <p class="muted small">Zapisywanie, statystyki, widżety i udostępnianie znajomym są za darmo.</p>
+      </div>
+      <div class="phone"><img src="../img/pl/01-feed.jpg" alt="Jedno zdjęcie przed jedzeniem. I zapisane." width="600" height="1303" decoding="async"></div>
+    </section>
 
-    <h2>Kontakt</h2>
-    <p>Zgłoszenia błędów, pomysły na funkcje i pytania o konto są zawsze mile widziane.</p>
-    <a class="contact-btn" href="mailto:leeo@kakao.com">📧 Napisz e-mail</a>
-    <a class="contact-btn" href="https://instagram.com/lee25_ios" target="_blank" rel="noopener">📷 Instagram DM</a>
-    <p style="margin-top:8px; color: var(--secondary); font-size: 14px;">
-      E-mail: leeo@kakao.com · Instagram: @lee25_ios<br>
-      Zwykle odpowiadamy w ciągu jednego lub dwóch dni.
-    </p>
 
-    <h2>Najczęstsze pytania</h2>
+    <section class="reveal" id="try">
+      <h2>Wypróbuj sam</h2>
+      <p class="muted">Wybierz godzinę i stuknij przycisk zapisu. Tak jak w aplikacji, przycisk od razu pokazuje posiłek dla tej pory.</p>
+      <div id="demo" class="card demo-card" data-text="{&quot;title&quot;: &quot;Wypróbuj sam&quot;, &quot;lead&quot;: &quot;Wybierz godzinę i stuknij przycisk zapisu. Tak jak w aplikacji, przycisk od razu pokazuje posiłek dla tej pory.&quot;, &quot;clock&quot;: &quot;Zdjęcie o&quot;, &quot;record&quot;: &quot;Zapisz: {meal}&quot;, &quot;meals&quot;: {&quot;breakfast&quot;: &quot;Śniadanie&quot;, &quot;lunch&quot;: &quot;Obiad&quot;, &quot;dinner&quot;: &quot;Kolacja&quot;, &quot;snack&quot;: &quot;Przekąska&quot;}, &quot;today&quot;: &quot;Dziś · {n}&quot;, &quot;empty&quot;: &quot;Dziś jeszcze nic nie zapisano&quot;, &quot;streak&quot;: &quot;{n} dni z rzędu&quot;, &quot;total&quot;: &quot;Łącznie {n} dni&quot;, &quot;before&quot;: &quot;Przed&quot;, &quot;ateAll&quot;: &quot;Zjedzone&quot;, &quot;kept&quot;: &quot;Wystarczy jeden posiłek: dzisiejszy dzień już liczy się do serii.&quot;, &quot;rule&quot;: &quot;Te same zasady co w aplikacji: od 5 do 10 śniadanie, od 11 do 15 obiad, od 16 do 21 kolacja. O innej porze albo gdy posiłek jest już zapisany, trafia jako przekąska.&quot;, &quot;reset&quot;: &quot;Od nowa&quot;, &quot;note&quot;: &quot;Zdjęcia w demo są przykładowe.&quot;}"></div>
+    </section>
 
-    <div class="card">
-      <h3>Gdzie są przechowywane moje zdjęcia?</h3>
-      <p>Na Twoim urządzeniu. Jeśli w Ustawieniach włączysz opcję „Zapisuj automatycznie w Zdjęciach”, trafią też do albumów Sekki w aplikacji Zdjęcia. Gdy opcja „Udostępniaj moje posiłki” jest włączona (na początku jest), zdjęcia są przesyłane do iCloud, aby mogli je zobaczyć dodani przez Ciebie znajomi. Możesz ją wyłączyć w sekcji Ustawienia &gt; Konto i udostępnianie.</p>
-    </div>
+    <section class="problem reveal">
+      <h2>Rzuciłeś dziennik jedzenia po trzech dniach?</h2>
+      <p>Pominiesz śniadanie, zapomnisz o kolacji i puste pola zaczynają drażnić, aż w końcu usuwasz aplikację. Sekki nie ma pustych pól. Po kolei zbierają się tylko zapisane posiłki, a jedno zdjęcie wystarczy, żeby dzień się liczył.</p>
+    </section>
 
-    <div class="card">
-      <h3>Jak dodać znajomych?</h3>
-      <p>Na ekranie Znajomi udostępnij swój sześcioznakowy kod znajomego i wpisz kod swojego znajomego. Możesz też wkleić kilka kodów naraz, oddzielonych przecinkami.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Zrób zdjęcie, a posiłek trafi na miejsce</h2>
+        <p>Na podstawie godziny Sekki przypisuje zdjęcie do śniadania, obiadu, kolacji albo przekąski. Dodaj zdjęcia przed i po, zapisz bez zdjęcia lub dopisz notatkę.<br>Jedzenie jest rozpoznawane za darmo na urządzeniu, a zdjęcia nigdy nie opuszczają telefonu.</p>
+      </div>
+      <div class="phone"><img src="../img/pl/02-detail.jpg" alt="Zrób zdjęcie, a posiłek trafi na miejsce" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Jak dopingować znajomego?</h3>
-      <p>Otwórz posiłek znajomego i zostaw emoji albo krótki komentarz. Jeśli znajomy nie zapisał jeszcze posiłku, dotknij pustego miejsca, aby delikatnie mu o tym przypomnieć.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Dziennik, który nigdy nie maleje</h2>
+        <p>Jeden posiłek dziennie utrzymuje serię, a łączna liczba zapisanych dni nigdy nie spada. Statystyki tygodniowe i miesięczne pokazują, ile dni i posiłków zapisałeś, a nie procent wykonania.<br>Po drodze zbierasz osiągnięcia, takie jak 7 dni z rzędu czy Ranny ptaszek.</p>
+      </div>
+      <div class="phone"><img src="../img/pl/03-stats.jpg" alt="Dziennik, który nigdy nie maleje" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Jak usunąć konto i dane?</h3>
-      <p>Wejdź w Znajomi, potem Konto, a następnie Usuń konto. Konto i dane posiłków zapisane na serwerze zostaną usunięte bez możliwości odzyskania. Jeśli coś pójdzie nie tak, napisz do nas.</p>
-    </div>
+    <section class="feature reveal">
+      <div class="copy">
+        <h2>Tylko wybrane posiłki, bez otwierania aplikacji</h2>
+        <p>Wybierz, o których posiłkach chcesz przypomnień, i dopasuj godziny do swojego dnia. Po zdjęciu przed jedzeniem oznaczysz Zjedzone prosto z powiadomienia.<br>Zapisuj też przyciskiem czynności, przez Siri, Skróty lub widżet, a znajomych dodawaj kodem i kibicujcie sobie emoji i komentarzami.</p>
+      </div>
+      <div class="phone"><img src="../img/pl/04-settings.jpg" alt="Tylko wybrane posiłki, bez otwierania aplikacji" width="600" height="1303" loading="lazy" decoding="async"></div>
+    </section>
 
-    <div class="card">
-      <h3>Nie dostaję powiadomień</h3>
-      <p>Sprawdź, czy w Ustawieniach iOS, w sekcji Powiadomienia, dla Sekki są one dozwolone i czy urządzenie jest zalogowane w iCloud. Godziny przypomnień o posiłkach możesz zmienić w Ustawieniach aplikacji.</p>
-    </div>
+    <section class="reveal">
+      <h2>Zacznij w trzech krokach</h2>
+      <ol class="steps"><li class="card"><span class="n">1</span><h3>Wybierz posiłki</h3><p>Przy pierwszym uruchomieniu Sekki zapyta, o których posiłkach przypominać. Zmienisz to w Ustawieniach.</p></li>
+<li class="card"><span class="n">2</span><h3>Zdjęcie przed jedzeniem</h3><p>Przycisk zapisu pokazuje już posiłek dla bieżącej godziny. Stuknij, zrób zdjęcie, gotowe.</p></li>
+<li class="card"><span class="n">3</span><h3>Zjedzone? Jedno stuknięcie</h3><p>Stuknij Zjedzone w powiadomieniu lub widżecie albo dodaj zdjęcie po jedzeniu.</p></li></ol>
+    </section>
 
-    <h2>Regulaminy i zasady</h2>
-    <p><a href="privacy.html">Polityka prywatności →</a></p>
-    <p><a href="terms.html">Regulamin →</a></p>
+    <section class="reveal" id="commands">
+      <h2>Zapisywanie bez otwierania aplikacji</h2>
+      <div class="card table">
+        <dl><div><dt>Powiadomienie</dt><dd>Po zdjęciu przed jedzeniem oznacz Zjedzone prosto z powiadomienia</dd></div><div><dt>Widżet ekranu początkowego</dt><dd>Zobacz dzisiejszą liczbę zapisów i trwający posiłek, potem stuknij Zjedzone</dd></div><div><dt>Widżety ekranu blokady</dt><dd>Prostokątny, okrągły i w jednej linii</dd></div><div><dt>Przycisk czynności · Siri · Skróty</dt><dd>Zjedzone jednym naciśnięciem lub jednym zdaniem</dd></div><div><dt>Zapis w Zdjęciach</dt><dd>Włącz w Ustawieniach, aby posiłki i treningi trafiały do osobnych albumów Sekki</dd></div><div><dt>Tryb treningu</dt><dd>Treningi są oddzielone od posiłków, a liczbę treningów w miesiącu widać od razu</dd></div></dl>
+      </div>
+      <p class="muted">Przycisk Zjedzone w widżecie wymaga iOS 17 lub nowszego.</p>
+    </section>
 
-    <footer>
-      © 2026 Sekki · <a href="privacy.html">Polityka prywatności</a> · <a href="terms.html">Regulamin</a> · <a href="../" hreflang="ko" lang="ko">한국어</a>
-    <br>
-      <span class="langs"><a href="../" hreflang="ko" lang="ko">한국어</a> · <a href="../en/" hreflang="en" lang="en">English</a> · <a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a> · <a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a> · <a href="../ja/" hreflang="ja" lang="ja">日本語</a> · <a href="../ru/" hreflang="ru" lang="ru">Русский</a> · <a href="../es/" hreflang="es" lang="es">Español</a> · <a href="../de/" hreflang="de" lang="de">Deutsch</a> · <a href="../fr/" hreflang="fr" lang="fr">Français</a> · <a href="../it/" hreflang="it" lang="it">Italiano</a> · <a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a> · <a href="../th/" hreflang="th" lang="th">ไทย</a> · <a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a> · <a href="../cs/" hreflang="cs" lang="cs">Čeština</a> · <a href="../da/" hreflang="da" lang="da">Dansk</a> · <a href="../el/" hreflang="el" lang="el">Ελληνικά</a> · <a href="../fi/" hreflang="fi" lang="fi">Suomi</a> · <a href="../id/" hreflang="id" lang="id">Indonesia</a> · <a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a> · <a href="../nl/" hreflang="nl" lang="nl">Nederlands</a> · <a href="../sv/" hreflang="sv" lang="sv">Svenska</a> · <a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></span>
-    </footer>
-  </div>
+
+    <section class="reveal" id="pricing">
+      <h2>Zapisywanie jest za darmo. Sekki Pro idzie głębiej.</h2>
+      <div class="plans">
+        <div class="card plan free">
+          <h3>Za darmo</h3>
+          <ul><li>Zapisy ze zdjęciem i automatycznym przypisaniem, zdjęcia przed i po, notatki</li><li>Serie, łączna liczba dni, statystyki tygodniowe i miesięczne, osiągnięcia</li><li>Przypomnienia o wybranych posiłkach i Zjedzone bez otwierania aplikacji</li><li>Widżety, przycisk czynności, Siri i Skróty</li><li>Udostępnianie posiłków i treningów znajomym, emoji i komentarze</li><li>Utworzenie jednej grupy, dołączanie do dowolnej liczby innych</li><li>Rozpoznawanie jedzenia na urządzeniu</li></ul>
+          
+        </div>
+        <div class="card plan pro">
+          <h3>Sekki Pro</h3>
+          <ul><li>Wiele grup: rodzina, praca, ekipa z siłowni</li><li>Porównanie posiłków sprzed kilku tygodni i dzisiejszych obok siebie</li><li>Potrawy, które jesz najczęściej</li><li>Blokada aplikacji przez Face ID lub Touch ID</li></ul>
+          <p class="muted">Subskrypcja roczna lub miesięczna albo jednorazowy zakup dożywotni</p>
+        </div>
+      </div>
+      <p class="muted">Subskrypcja odnawia się automatycznie, jeśli nie anulujesz jej co najmniej 24 godziny przed końcem okresu. Anulujesz w dowolnej chwili w Ustawieniach &gt; Konto Apple &gt; Subskrypcje. Warunki usługi: m1zz.github.io/RoutineCamera/pl/terms.html</p>
+    </section>
+
+    <section class="reveal" id="faq">
+      <h2>Częste pytania</h2>
+      <div class="faq"><details><summary>Gdzie są zapisywane moje zdjęcia?</summary><p>Na Twoim urządzeniu. Jeśli w Ustawieniach włączysz Zapisuj automatycznie w Zdjęciach, trafią też do albumów Sekki w Zdjęciach. Dopóki włączone jest Udostępniaj moje posiłki (na początku jest włączone), są wysyłane do iCloud, żeby dodani znajomi mogli je oglądać. Wyłączysz to w Ustawieniach &gt; Konto i udostępnianie.</p></details>
+<details><summary>Jak dodać znajomych?</summary><p>Na ekranie Znajomi udostępnij swój sześcioznakowy kod i wpisz kod znajomego. Możesz wkleić kilka kodów naraz, oddzielając je przecinkami.</p></details>
+<details><summary>Jak kibicować znajomemu?</summary><p>Otwórz posiłek znajomego i zostaw emoji albo krótki komentarz. Jeśli jeszcze nic nie zapisał, stuknij puste pole, żeby go delikatnie szturchnąć.</p></details>
+<details><summary>Czy seria przepada, gdy pominę posiłek?</summary><p>Nie. Zapisz tego dnia dowolny posiłek, także przekąskę, a seria trwa dalej. Nawet jeśli pominiesz cały dzień, łączna liczba zapisanych dni nie spada.</p></details>
+<details><summary>Nie dostaję powiadomień.</summary><p>Sprawdź w Ustawieniach iOS &gt; Powiadomienia, czy Sekki ma pozwolenie na powiadomienia, oraz czy urządzenie jest zalogowane do iCloud. Godziny przypomnień zmienisz w ustawieniach aplikacji.</p></details>
+<details><summary>Czy rozpoznawanie jedzenia wysyła zdjęcia na serwer?</summary><p>Nie. Działa na urządzeniu, więc zdjęcia nigdy nie opuszczają telefonu. Za darmo i bez limitu.</p></details>
+<details><summary>Jak usunąć konto i dane?</summary><p>Wejdź w Znajomi &gt; Konto &gt; Usuń konto. Konto i dane posiłków na serwerze zostaną usunięte bez możliwości odzyskania. Jeśli coś pójdzie nie tak, napisz do nas.</p></details>
+<details><summary>Jak anulować subskrypcję?</summary><p>W Ustawieniach &gt; Konto Apple &gt; Subskrypcje. Odnawia się automatycznie, jeśli nie anulujesz jej co najmniej 24 godziny przed końcem okresu. Zakup dożywotni opłacasz raz.</p></details></div>
+      <p class="contact">Błędy, pomysły lub pytania o konto: napisz na <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> albo wyślij DM do @lee25_ios na Instagramie. Zwykle odpowiadamy w ciągu dnia lub dwóch.</p>
+    </section>
+
+    <section class="closing reveal">
+      <h2>Zacznij<br>od dzisiejszego obiadu</h2>
+      <a class="cta" href="https://apps.apple.com/app/id6755164924">Pobierz za darmo z App Store</a>
+    </section>
+  </main>
+
+  <footer>
+    <nav id="languages" class="langs" aria-label="Język"><a href="../" hreflang="ko" lang="ko">한국어</a>
+<a href="../en/" hreflang="en" lang="en">English</a>
+<a href="../zh-Hans/" hreflang="zh-Hans" lang="zh-Hans">简体中文</a>
+<a href="../zh-Hant/" hreflang="zh-Hant" lang="zh-Hant">繁體中文</a>
+<a href="../ja/" hreflang="ja" lang="ja">日本語</a>
+<a href="../ru/" hreflang="ru" lang="ru">Русский</a>
+<a href="../es/" hreflang="es" lang="es">Español</a>
+<a href="../de/" hreflang="de" lang="de">Deutsch</a>
+<a href="../fr/" hreflang="fr" lang="fr">Français</a>
+<a href="../it/" hreflang="it" lang="it">Italiano</a>
+<a href="../pt-BR/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+<a href="../th/" hreflang="th" lang="th">ไทย</a>
+<a href="../vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+<a href="../cs/" hreflang="cs" lang="cs">Čeština</a>
+<a href="../da/" hreflang="da" lang="da">Dansk</a>
+<a href="../el/" hreflang="el" lang="el">Ελληνικά</a>
+<a href="../fi/" hreflang="fi" lang="fi">Suomi</a>
+<a href="../id/" hreflang="id" lang="id">Indonesia</a>
+<a href="../nb/" hreflang="nb" lang="nb">Norsk bokmål</a>
+<a href="../nl/" hreflang="nl" lang="nl">Nederlands</a>
+<a href="../pl/" hreflang="pl" lang="pl" aria-current="page">Polski</a>
+<a href="../sv/" hreflang="sv" lang="sv">Svenska</a>
+<a href="../tr/" hreflang="tr" lang="tr">Türkçe</a></nav>
+    <p><a href="privacy.html">Polityka prywatności</a> · <a href="mailto:leeo@kakao.com">leeo@kakao.com</a> · © 2026 Sekki</p>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  </script>
+  <script src="../demo.js"></script>
 </body>
 </html>
