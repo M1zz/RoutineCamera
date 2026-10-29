@@ -1,5 +1,175 @@
 # 릴리스 노트
 
+## 1.2.2
+
+### 앱스토어 (한국어, ko)
+
+고마울 때 개발자에게 작은 팁을 보낼 수 있어요
+친구에게 Pro를 선물할 수 있어요
+VoiceOver와 음성 제어로 더 편하게 쓸 수 있어요
+큰 글씨와 높은 대비에서도 보기 편해졌어요
+
+### App Store (English, en)
+
+Leave a small tip if the app helps you
+You can now gift Pro to a friend
+Better with VoiceOver and Voice Control
+Larger text and contrast look clearer
+
+### App Store (en-GB)
+
+Leave a small tip if the app helps you
+You can now gift Pro to a friend
+Better with VoiceOver and Voice Control
+Larger text and contrast look clearer
+
+### App Store (중국어 간체, zh-Hans)
+
+想表达感谢时，可以给开发者一点小费
+现在可以把 Pro 送给朋友了
+使用旁白和语音控制时更加顺手
+大字体和增强对比度下看得更清楚
+
+### App Store (중국어 번체, zh-Hant)
+
+想表達感謝時，可以給開發者一點小費
+現在可以把 Pro 送給朋友了
+使用旁白和語音控制時更加順手
+大字體和增加對比下看得更清楚
+
+### App Store (일본어, ja)
+
+気に入ったら開発者に小さなチップを送れます
+友だちにProをプレゼントできるようになりました
+VoiceOverや音声コントロールで使いやすくなりました
+大きな文字やコントラスト強調でも見やすくなりました
+
+### App Store (러시아어, ru)
+
+Можно оставить разработчику чаевые
+Теперь Pro можно подарить другу
+Удобно с VoiceOver и Управлением голосом
+Удобнее с крупным текстом и контрастом
+
+### App Store (스페인어, es)
+
+Deja una pequeña propina si te gusta
+Ya puedes regalar Pro a un amigo
+Mejor con VoiceOver y Control por voz
+Mejor con texto grande y alto contraste
+
+### App Store (독일어, de)
+
+Sag Danke mit einem kleinen Trinkgeld
+Verschenke Pro an Freunde
+Besser mit VoiceOver und Sprachsteuerung
+Großer Text und Kontrast verbessert
+
+### App Store (프랑스어, fr)
+
+Dites merci avec un petit pourboire
+Offrez Pro à un ami
+Pensé pour VoiceOver et Contrôle vocal
+Mieux en gros texte et contraste élevé
+
+### App Store (이탈리아어, it)
+
+Lascia una piccola mancia se ti piace
+Ora puoi regalare Pro a un amico
+VoiceOver e Controllo vocale migliorati
+Testo grande e contrasto migliorati
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+Deixe uma gorjeta se o app te ajudar
+Presenteie um amigo com o Pro
+Melhor com VoiceOver e Controle por Voz
+Melhor com texto grande e alto contraste
+
+### App Store (태국어, th)
+
+ส่งทิปให้นักพัฒนาได้เมื่ออยากขอบคุณ
+ส่ง Pro เป็นของขวัญให้เพื่อนได้แล้ว
+รองรับ VoiceOver และการควบคุมด้วยเสียง
+ตัวใหญ่และคอนทราสต์สูงอ่านง่ายขึ้น
+
+### App Store (베트남어, vi)
+
+Gửi nhà phát triển chút tiền tip cảm ơn
+Giờ bạn có thể tặng Pro cho bạn bè
+Dùng tốt hơn với VoiceOver và Khẩu lệnh
+Rõ hơn với chữ lớn và tương phản cao
+
+### App Store (체코어, cs)
+
+Poděkujte vývojáři malým spropitným
+Pro teď můžete darovat kamarádovi
+Lepší s VoiceOverem a Ovládáním hlasem
+Lepší s velkým písmem a kontrastem
+
+### App Store (덴마크어, da)
+
+Sig tak med lidt drikkepenge
+Nu kan du give Pro i gave til en ven
+Bedre med VoiceOver og Stemmestyring
+Bedre med stor tekst og høj kontrast
+
+### App Store (그리스어, el)
+
+Πείτε ευχαριστώ με ένα μικρό φιλοδώρημα
+Χαρίστε το Pro σε έναν φίλο
+Καλύτερο με VoiceOver και έλεγχο φωνής
+Βελτιωμένο μεγάλο κείμενο και αντίθεση
+
+### App Store (핀란드어, fi)
+
+Kiitä kehittäjää pienellä tipillä
+Voit nyt antaa Pron lahjaksi ystävälle
+Parempi VoiceOverilla ja ääniohjauksella
+Suuri teksti ja kontrasti selkeämpiä
+
+### App Store (인도네시아어, id)
+
+Beri tip kecil untuk berterima kasih
+Kini Pro bisa dihadiahkan ke teman
+Mendukung VoiceOver dan Kontrol Suara
+Teks besar dan kontras lebih jelas
+
+### App Store (Norsk bokmål, nb)
+
+Si takk med litt tips til utvikleren
+Nå kan du gi Pro i gave til en venn
+Bedre med VoiceOver og Talekontroll
+Bedre med stor tekst og høy kontrast
+
+### App Store (네덜란드어, nl)
+
+Bedank de maker met een kleine fooi
+Geef Pro cadeau aan een vriend
+Beter met VoiceOver en Stembediening
+Beter met grote tekst en hoog contrast
+
+### App Store (폴란드어, pl)
+
+Podziękuj twórcy drobnym napiwkiem
+Podaruj Pro znajomemu
+Lepiej z VoiceOver i Sterowaniem głosem
+Lepiej z dużym tekstem i kontrastem
+
+### App Store (스웨덴어, sv)
+
+Tacka utvecklaren med lite dricks
+Nu kan du ge bort Pro till en vän
+Bättre med VoiceOver och Röststyrning
+Bättre med stor text och hög kontrast
+
+### App Store (튀르키예어, tr)
+
+Geliştiriciye küçük bir bahşiş bırakın
+Pro'yu bir arkadaşınıza hediye edin
+VoiceOver ve Sesle Denetim ile kolay
+Büyük yazı ve yüksek kontrastta daha net
+
 ## 1.2.1
 
 ### 앱스토어 (한국어, ko)
