@@ -31,9 +31,9 @@ final class MealBackfillManager: ObservableObject {
 
         var title: String {
             switch self {
-            case .quarter: return "최근 3개월"
-            case .year: return "최근 1년"
-            case .all: return "전체 기록"
+            case .quarter: return String(localized: "최근 3개월", comment: "Backfill range: last 3 months")
+            case .year: return String(localized: "최근 1년", comment: "Backfill range: last year")
+            case .all: return String(localized: "전체 기록", comment: "Backfill range: all records")
             }
         }
 
@@ -104,11 +104,11 @@ final class MealBackfillManager: ObservableObject {
         guard !isRunning else { return }
 
         guard FriendManager.shared.isSignedIn else {
-            summary = "iCloud 계정을 확인할 수 없습니다. 설정에서 iCloud에 로그인한 뒤 다시 시도해주세요."
+            summary = String(localized: "iCloud 계정을 확인할 수 없습니다. 설정에서 iCloud에 로그인한 뒤 다시 시도해주세요.", comment: "Backfill error: not signed in to iCloud")
             return
         }
         guard SettingsManager.shared.shareMealsToCloud else {
-            summary = "먼저 설정에서 '내 식단 공유'를 켜주세요."
+            summary = String(localized: "먼저 설정에서 '내 식단 공유'를 켜주세요.", comment: "Backfill error: meal sharing is off")
             return
         }
 
@@ -186,15 +186,15 @@ final class MealBackfillManager: ObservableObject {
 
     private func makeSummary() -> String {
         if isCancelled {
-            return "중단했어요. \(uploaded)일 올림 · \(skipped)일 건너뜀. 다시 실행하면 이어서 올립니다."
+            return String(localized: "중단했어요. \(uploaded)일 올림 · \(skipped)일 건너뜀. 다시 실행하면 이어서 올립니다.", comment: "Backfill summary: cancelled; days uploaded, days skipped")
         }
         if failed > 0 {
-            return "\(uploaded)일 올림 · \(skipped)일 건너뜀 · \(failed)일 실패. 다시 실행하면 실패한 날만 재시도합니다."
+            return String(localized: "\(uploaded)일 올림 · \(skipped)일 건너뜀 · \(failed)일 실패. 다시 실행하면 실패한 날만 재시도합니다.", comment: "Backfill summary: some days failed; uploaded, skipped, failed")
         }
         if uploaded == 0 {
-            return "이미 모두 올라가 있어요."
+            return String(localized: "이미 모두 올라가 있어요.", comment: "Backfill summary: nothing to upload")
         }
-        return "\(uploaded)일치를 올렸어요. 이제 친구가 그 날짜의 기록도 볼 수 있습니다."
+        return String(localized: "\(uploaded)일치를 올렸어요. 이제 친구가 그 날짜의 기록도 볼 수 있습니다.", comment: "Backfill summary: success; number of days uploaded")
     }
 
     private func targetDates(range: Range) -> [Date] {

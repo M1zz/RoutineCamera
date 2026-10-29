@@ -18,6 +18,8 @@
 
 import Foundation
 import CloudKit
+import LeeoKit
+import Combine
 
 // MARK: - 모델
 
@@ -55,15 +57,15 @@ enum GroupVisibility: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .record: return "기록 여부만"
-        case .full: return "먹은 것까지"
+        case .record: return String(localized: "기록 여부만", comment: "Group visibility option: members see only whether a meal was logged")
+        case .full: return String(localized: "먹은 것까지", comment: "Group visibility option: members see photos and notes")
         }
     }
 
     var summary: String {
         switch self {
-        case .record: return "누가 어떤 끼니를 기록했는지만 보여줍니다. 사진과 메모는 서로 보이지 않아요."
-        case .full: return "사진과 메모까지 그대로 보여줍니다. 무엇을 얼마나 먹었는지 서로 확인할 수 있어요."
+        case .record: return String(localized: "누가 어떤 끼니를 기록했는지만 보여줍니다. 사진과 메모는 서로 보이지 않아요.", comment: "Group visibility summary: record only")
+        case .full: return String(localized: "사진과 메모까지 그대로 보여줍니다. 무엇을 얼마나 먹었는지 서로 확인할 수 있어요.", comment: "Group visibility summary: full")
         }
     }
 
@@ -132,15 +134,15 @@ extension FriendManager {
 
         guard code.count == 6 else {
             throw NSError(domain: "FriendManager", code: -1,
-                          userInfo: [NSLocalizedDescriptionKey: "6자리 코드를 입력해주세요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "6자리 코드를 입력해주세요.", comment: "Error: friend code must be 6 characters")])
         }
         guard code != myUserCode else {
             throw NSError(domain: "FriendManager", code: -2,
-                          userInfo: [NSLocalizedDescriptionKey: "자신의 코드는 추가할 수 없습니다."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "자신의 코드는 추가할 수 없습니다.", comment: "Error: tried to add own friend code")])
         }
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -5,
-                          userInfo: [NSLocalizedDescriptionKey: "iCloud 계정을 확인할 수 없습니다."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "iCloud 계정을 확인할 수 없습니다.", comment: "Error: iCloud account unavailable")])
         }
 
         isLoading = true
@@ -150,29 +152,31 @@ extension FriendManager {
         do {
             guard let record = try await findUserRecord(byCode: code) else {
                 throw NSError(domain: "FriendManager", code: -3,
-                              userInfo: [NSLocalizedDescriptionKey: "존재하지 않는 코드입니다. 친구 앱에 지금 표시된 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "존재하지 않는 코드입니다. 친구 앱에 지금 표시된 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요.", comment: "Error: friend code not found")])
             }
 
             let friendId = String(record.recordID.recordName.dropFirst("user_".count))
             guard friendId != myUserId else {
                 throw NSError(domain: "FriendManager", code: -2,
-                              userInfo: [NSLocalizedDescriptionKey: "자신의 코드는 추가할 수 없습니다."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "자신의 코드는 추가할 수 없습니다.", comment: "Error: tried to add own friend code")])
             }
             if friends.contains(where: { $0.id == friendId }) {
                 throw NSError(domain: "FriendManager", code: -4,
-                              userInfo: [NSLocalizedDescriptionKey: "이미 추가된 친구입니다."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "이미 추가된 친구입니다.", comment: "Error: already friends")])
             }
             if pendingFriends.contains(where: { $0.id == friendId && !$0.isRejected }) {
                 throw NSError(domain: "FriendManager", code: -6,
-                              userInfo: [NSLocalizedDescriptionKey: "이미 요청을 보냈어요. 상대의 수락을 기다리는 중입니다."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "이미 요청을 보냈어요. 상대의 수락을 기다리는 중입니다.", comment: "Error: friend request already sent")])
             }
 
-            let nickname = (record["nickname"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "친구"
+            let nickname = (record["nickname"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "friend.fallbackName", defaultValue: "친구", comment: "Fallback name for a friend without a nickname")
             // 상대가 먼저 보낸 요청이 있으면 바로 성사
             let alreadyRequestedByThem = incomingRequests.contains { $0.id == friendId }
             let state: FriendLinkState = alreadyRequestedByThem ? .accepted : .requested
 
             try await saveMyLink(otherId: friendId, otherCode: code, otherNickname: nickname, state: state)
+            // 차단했던 사람을 코드로 다시 추가하면 차단을 푼다
+            unblock(friendId)
             await refreshSocialGraph()
 
             print("✅ 친구 요청 \(alreadyRequestedByThem ? "수락(맞요청)" : "전송"): \(nickname) (\(code))")
@@ -180,6 +184,82 @@ extension FriendManager {
             errorMessage = error.localizedDescription
             throw error
         }
+    }
+
+    // MARK: - 이름 바꾸기
+
+    /// 내 이름이 적힌 곳(친구 연결의 ownerNickname, 그룹 멤버의 nickname)을 새 이름으로.
+    /// 실패해도 다음에 이름을 바꿀 때 다시 맞춰지므로 조용히 넘어간다.
+    func propagateMyNickname(_ nickname: String) async {
+        guard !myUserId.isEmpty else { return }
+        var changed: [CKRecord] = []
+
+        let links = (try? await fetchAll(query: CKQuery(recordType: Self.friendLinkRecordType,
+                                                        predicate: NSPredicate(format: "ownerId == %@", myUserId)))) ?? []
+        for link in links where link["ownerNickname"] as? String != nickname {
+            link["ownerNickname"] = nickname
+            changed.append(link)
+        }
+        let memberships = (try? await fetchAll(query: CKQuery(recordType: Self.groupMemberRecordType,
+                                                              predicate: NSPredicate(format: "userId == %@", myUserId)))) ?? []
+        for member in memberships where member["nickname"] as? String != nickname {
+            member["nickname"] = nickname
+            changed.append(member)
+        }
+        guard !changed.isEmpty else { return }
+
+        for start in stride(from: 0, to: changed.count, by: 100) {
+            let chunk = Array(changed[start..<min(start + 100, changed.count)])
+            _ = try? await database.modifyRecords(saving: chunk, deleting: [], savePolicy: .changedKeys, atomically: false)
+        }
+        print("✅ [CloudKit] 새 이름을 친구·그룹 \(changed.count)곳에 반영")
+    }
+
+    // MARK: - 차단 · 신고 (다른 사람이 올린 글·사진을 보는 앱이라 꼭 있어야 한다)
+
+    private static let blockedUsersKey = "blockedUserIds_v1"
+
+    /// 차단한 사람 — 그 사람의 댓글·반응을 보이지 않게 하고, 요청도 다시 뜨지 않는다 (이 기기 기준)
+    var blockedUserIds: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: Self.blockedUsersKey) ?? [])
+    }
+
+    func isBlocked(_ userId: String) -> Bool {
+        blockedUserIds.contains(userId)
+    }
+
+    /// 차단 — 끊음(거절) 링크를 남겨 서로 친구가 아니게 하고, 그 사람의 글을 숨긴다.
+    func blockUser(id userId: String, code: String, name: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+
+        try await saveMyLink(otherId: userId, otherCode: code, otherNickname: name, state: .rejected)
+        var blocked = blockedUserIds
+        blocked.insert(userId)
+        UserDefaults.standard.set(Array(blocked), forKey: Self.blockedUsersKey)
+        objectWillChange.send()
+        await refreshSocialGraph()
+        print("🚫 차단: \(name)")
+    }
+
+    func unblock(_ userId: String) {
+        var blocked = blockedUserIds
+        guard blocked.remove(userId) != nil else { return }
+        UserDefaults.standard.set(Array(blocked), forKey: Self.blockedUsersKey)
+        objectWillChange.send()
+    }
+
+    /// 신고 — 개발자에게 바로 전달된다 (FeedbackHub). 무엇을 왜 신고했는지 함께 보낸다.
+    func reportUser(id userId: String, name: String, reason: String, content: String? = nil) async throws {
+        var lines = [
+            "[사용자 신고]",
+            "사유: \(reason)",
+            "신고 대상: \(name) (\(userId))",
+            "신고한 사람: \(myUserId)",
+        ]
+        if let content, !content.isEmpty { lines.append("내용: \(content)") }
+        try await LeeoFeedbackService(spec: RoutineCameraSpec.self)
+            .submit(type: LeeoFeedbackType.other.rawValue, message: lines.joined(separator: "\n"), deviceInfo: "")
     }
 
     /// 받은 요청 수락 → 내 쪽 링크 생성으로 양방향 성립
@@ -215,11 +295,11 @@ extension FriendManager {
     }
 
     /// 내 쪽 링크 저장 (내가 만든 레코드이므로 덮어쓰기 가능 — 거절 후 재요청도 같은 레코드를 갱신)
-    private func saveMyLink(otherId: String, otherCode: String, otherNickname: String,
+    func saveMyLink(otherId: String, otherCode: String, otherNickname: String,
                             state: FriendLinkState, isLegacy: Bool = false) async throws {
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -5,
-                          userInfo: [NSLocalizedDescriptionKey: "iCloud 계정을 확인할 수 없습니다."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "iCloud 계정을 확인할 수 없습니다.", comment: "Error: iCloud account unavailable")])
         }
 
         let recordID = CKRecord.ID(recordName: Self.friendLinkName(owner: myUserId, other: otherId))
@@ -275,7 +355,7 @@ extension FriendManager {
                 let isMutual = reverseAlive || link.isLegacy
                 let displayName = reverse?.ownerNickname.isEmpty == false
                     ? reverse!.ownerNickname
-                    : (link.otherNickname.isEmpty ? "친구" : link.otherNickname)
+                    : (link.otherNickname.isEmpty ? String(localized: "friend.fallbackName", defaultValue: "친구", comment: "Fallback name for a friend without a nickname") : link.otherNickname)
 
                 if isMutual {
                     accepted.append(Friend(id: otherId, code: link.otherCode,
@@ -292,7 +372,7 @@ extension FriendManager {
                 guard mine[ownerId] == nil else { continue } // 내가 이미 응답한 요청
                 requests.append(FriendRequest(id: ownerId,
                                               code: link.ownerCode,
-                                              name: link.ownerNickname.isEmpty ? "친구" : link.ownerNickname,
+                                              name: link.ownerNickname.isEmpty ? String(localized: "friend.fallbackName", defaultValue: "친구", comment: "Fallback name for a friend without a nickname") : link.ownerNickname,
                                               createdAt: link.createdAt))
             }
 
@@ -302,6 +382,8 @@ extension FriendManager {
 
             socialError = nil
             print("✅ [CloudKit] 친구 \(friends.count)명 / 받은 요청 \(incomingRequests.count)건 / 보낸 요청 \(pendingFriends.count)건")
+            // 친구가 늘거나 줄면 친구 기록 알림 구독도 따라간다
+            syncFriendMealSubscriptions()
         } catch {
             socialError = Self.readableMessage(for: error)
             print("❌ [CloudKit] 친구 관계 조회 실패(기존 목록 유지): \(error.localizedDescription)")
@@ -375,21 +457,111 @@ extension FriendManager {
                 )
 
                 let info = CKSubscription.NotificationInfo()
-                info.title = "친구 소식이 있어요 👋"
-                info.alertBody = "친구 요청이 오거나 보낸 요청이 수락됐어요. 친구 화면에서 확인해 보세요!"
+                info.title = String(localized: "친구 소식이 있어요 👋", comment: "Push title: friend request or acceptance")
+                info.alertBody = String(localized: "친구 요청이 오거나 보낸 요청이 수락됐어요. 친구 화면에서 확인해 보세요!", comment: "Push body: friend request or acceptance")
                 info.soundName = "default"
                 subscription.notificationInfo = info
 
                 _ = try await database.save(subscription)
                 UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
                 print("📡 [CloudKit] 친구 요청 푸시 구독 등록 완료")
-            } catch let error as CKError where error.code == .serverRejectedRequest {
-                UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
-                print("📡 [CloudKit] 친구 요청 구독이 이미 존재함 - 스킵")
             } catch {
-                print("❌ [CloudKit] 친구 요청 구독 등록 실패: \(error.localizedDescription)")
+                // 거절됐다고 "이미 있음" 으로 단정하지 않는다 — 서버에 정말 있는지 확인한 뒤에만 도장을 찍는다.
+                // (스키마 인덱스가 없을 때도 같은 오류가 와서, 예전엔 친구 요청 알림이 영영 안 왔다)
+                if (try? await database.subscription(for: "friendlink-sub-\(userId)")) != nil {
+                    UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
+                    print("📡 [CloudKit] 친구 요청 구독이 이미 서버에 있음")
+                } else {
+                    print("❌ [CloudKit] 친구 요청 구독 등록 실패 (다음 실행에 다시 시도): \(error.localizedDescription)")
+                }
             }
         }
+    }
+
+    // MARK: - 친구 기록 알림
+
+    nonisolated static let friendMealSubscriptionPrefix = "friendmeal-sub-"
+    nonisolated static let notifyFriendMealsKey = "notifyFriendMeals"
+
+    /// 친구가 기록을 올리면 오는 푸시 구독을 지금 친구 목록·설정에 맞춘다.
+    ///
+    /// 친구마다 구독 하나(`ownerId == 친구`)를 둔다 — 알림 제목에 친구 이름을 넣을 수 있고,
+    /// 이미 Queryable 인 `Meal.ownerId` 만 써서 운영 스키마를 건드리지 않는다.
+    /// 로컬 도장 대신 서버의 구독 목록을 직접 읽어 맞추므로, 한 번 실패해도 다음 호출에 되살아난다.
+    func syncFriendMealSubscriptions() {
+        let previous = friendMealSyncTask
+        friendMealSyncTask = _Concurrency.Task {
+            await previous?.value
+            await performFriendMealSubscriptionSync()
+        }
+    }
+
+    private func performFriendMealSubscriptionSync() async {
+        guard !myUserId.isEmpty else { return }
+
+        let enabled = notifyFriendMeals
+        let targets = enabled ? friends : []
+        let prefix = "\(Self.friendMealSubscriptionPrefix)\(myUserId)-"
+        if enabled { friendMealPushState = .registering }
+
+        do {
+            var existingTitles: [CKSubscription.ID: String] = [:]
+            for subscription in try await database.allSubscriptions() where subscription.subscriptionID.hasPrefix(prefix) {
+                existingTitles[subscription.subscriptionID] = subscription.notificationInfo?.title ?? ""
+            }
+
+            var toSave: [CKSubscription] = []
+            var wantedIDs = Set<CKSubscription.ID>()
+            for friend in targets {
+                let subscription = Self.friendMealSubscription(id: prefix + friend.id, friend: friend)
+                wantedIDs.insert(subscription.subscriptionID)
+                // 이미 같은 제목(=같은 이름)으로 걸려 있으면 그대로 둔다
+                if existingTitles[subscription.subscriptionID] != subscription.notificationInfo?.title {
+                    toSave.append(subscription)
+                }
+            }
+
+            // 친구에서 빠진 사람 + 이름이 바뀌어 다시 만들 구독은 먼저 지운다
+            let savingIDs = Set(toSave.map(\.subscriptionID))
+            let toDelete = existingTitles.keys.filter { !wantedIDs.contains($0) || savingIDs.contains($0) }
+
+            if !toDelete.isEmpty {
+                let (_, deleteResults) = try await database.modifySubscriptions(saving: [], deleting: Array(toDelete))
+                for (_, result) in deleteResults {
+                    if case .failure(let error) = result { throw error }
+                }
+            }
+            if !toSave.isEmpty {
+                let (saveResults, _) = try await database.modifySubscriptions(saving: toSave, deleting: [])
+                for (_, result) in saveResults {
+                    if case .failure(let error) = result { throw error }
+                }
+            }
+
+            friendMealPushState = enabled ? .ready : .unknown
+            print("📡 [CloudKit] 친구 기록 알림 구독 맞춤: 등록 \(toSave.count) / 삭제 \(toDelete.count) / 대상 \(targets.count)명")
+        } catch {
+            friendMealPushState = enabled ? .failed(Self.readableMessage(for: error)) : .unknown
+            print("❌ [CloudKit] 친구 기록 알림 구독 실패: \(error.localizedDescription)")
+        }
+    }
+
+    private static func friendMealSubscription(id: CKSubscription.ID, friend: Friend) -> CKQuerySubscription {
+        let subscription = CKQuerySubscription(
+            recordType: mealRecordType,
+            predicate: NSPredicate(format: "ownerId == %@", friend.id),
+            subscriptionID: id,
+            options: [.firesOnRecordCreation]
+        )
+
+        let info = CKSubscription.NotificationInfo()
+        info.title = String(localized: "\(friend.name)님이 새 기록을 올렸어요 📸", comment: "Push title: friend posted a new meal; argument is the friend's name")
+        info.alertBody = String(localized: "친구 화면에서 사진을 보고 응원해 보세요", comment: "Push body: friend posted a new meal")
+        info.soundName = "default"
+        // 예전 기록을 한꺼번에 올려도 알림이 줄줄이 쌓이지 않게, 같은 친구의 알림은 하나로 합친다
+        info.collapseIDKey = "ownerId"
+        subscription.notificationInfo = info
+        return subscription
     }
 
     // MARK: - 그룹
@@ -443,11 +615,11 @@ extension FriendManager {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             throw NSError(domain: "FriendManager", code: -1,
-                          userInfo: [NSLocalizedDescriptionKey: "그룹 이름을 입력해주세요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "그룹 이름을 입력해주세요.", comment: "Error: group name empty")])
         }
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -5,
-                          userInfo: [NSLocalizedDescriptionKey: "iCloud 계정을 확인할 수 없습니다."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "iCloud 계정을 확인할 수 없습니다.", comment: "Error: iCloud account unavailable")])
         }
 
         isLoading = true
@@ -459,25 +631,46 @@ extension FriendManager {
             let groupId = "group_\(UUID().uuidString)"
             let now = Date()
 
-            let record = CKRecord(recordType: Self.groupRecordType,
-                                  recordID: CKRecord.ID(recordName: groupId))
-            record["name"] = trimmed
-            record["ownerId"] = myUserId
-            record["inviteCode"] = inviteCode
-            record["visibility"] = visibility.rawValue
-            record["createdAtTS"] = now.timeIntervalSince1970
-            _ = try await database.save(record)
+            func makeRecord(includeVisibility: Bool) -> CKRecord {
+                let record = CKRecord(recordType: Self.groupRecordType,
+                                      recordID: CKRecord.ID(recordName: groupId))
+                record["name"] = trimmed
+                record["ownerId"] = myUserId
+                record["inviteCode"] = inviteCode
+                record["createdAtTS"] = now.timeIntervalSince1970
+                if includeVisibility { record["visibility"] = visibility.rawValue }
+                return record
+            }
+
+            var savedVisibility = visibility
+            do {
+                _ = try await database.save(makeRecord(includeVisibility: true))
+            } catch where Self.isUnknownField(error, named: "visibility") {
+                // 운영 스키마에 visibility 필드가 아직 배포되지 않은 경우.
+                // 값이 없는 그룹은 전체 공개로 읽히므로, 사용자가 "기록 여부만"을 골랐다면
+                // 조용히 더 많이 공개해버리는 대신 만들지 않고 알린다.
+                guard visibility == .full else {
+                    throw NSError(domain: "FriendManager", code: -8, userInfo: [
+                        NSLocalizedDescriptionKey: String(localized: "지금은 '기록 여부만' 그룹을 만들 수 없어요. iCloud 설정이 업데이트될 때까지 '먹은 것까지'로 만들어주세요.", comment: "Error: record-only group not available yet")
+                    ])
+                }
+                _ = try await database.save(makeRecord(includeVisibility: false))
+                savedVisibility = .full
+                print("⚠️ visibility 필드가 운영 스키마에 없어 전체 공개로 저장")
+            }
 
             try await saveMyMembership(groupId: groupId)
             await loadMyGroups()
 
-            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(visibility.rawValue))")
+            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(savedVisibility.rawValue))")
             return FriendGroup(id: groupId, name: trimmed, ownerId: myUserId,
                                inviteCode: inviteCode, createdAt: now,
-                               visibility: visibility, memberCount: 1)
+                               visibility: savedVisibility, memberCount: 1)
         } catch {
-            errorMessage = error.localizedDescription
-            throw error
+            let message = Self.readableMessage(for: error)
+            errorMessage = message
+            throw NSError(domain: "FriendManager", code: -9,
+                          userInfo: [NSLocalizedDescriptionKey: message])
         }
     }
 
@@ -488,11 +681,11 @@ extension FriendManager {
 
         guard code.count == 6 else {
             throw NSError(domain: "FriendManager", code: -1,
-                          userInfo: [NSLocalizedDescriptionKey: "6자리 그룹 코드를 입력해주세요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "6자리 그룹 코드를 입력해주세요.", comment: "Error: group code must be 6 characters")])
         }
         guard !myUserId.isEmpty else {
             throw NSError(domain: "FriendManager", code: -5,
-                          userInfo: [NSLocalizedDescriptionKey: "iCloud 계정을 확인할 수 없습니다."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "iCloud 계정을 확인할 수 없습니다.", comment: "Error: iCloud account unavailable")])
         }
 
         isLoading = true
@@ -503,11 +696,11 @@ extension FriendManager {
             guard let record = try await findGroupRecord(byInviteCode: code),
                   let group = Self.parseGroup(record) else {
                 throw NSError(domain: "FriendManager", code: -3,
-                              userInfo: [NSLocalizedDescriptionKey: "존재하지 않는 그룹 코드입니다. 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "존재하지 않는 그룹 코드입니다. 코드가 맞는지, 서로 같은 경로(TestFlight/앱스토어)로 설치한 앱인지 확인해주세요.", comment: "Error: group code not found")])
             }
             guard !groups.contains(where: { $0.id == group.id }) else {
                 throw NSError(domain: "FriendManager", code: -4,
-                              userInfo: [NSLocalizedDescriptionKey: "이미 참여 중인 그룹입니다."])
+                              userInfo: [NSLocalizedDescriptionKey: String(localized: "이미 참여 중인 그룹입니다.", comment: "Error: already in group")])
             }
 
             try await saveMyMembership(groupId: group.id)
@@ -546,7 +739,7 @@ extension FriendManager {
     func updateGroupVisibility(_ group: FriendGroup, to visibility: GroupVisibility) async throws -> FriendGroup {
         guard group.ownerId == myUserId else {
             throw NSError(domain: "FriendManager", code: -7,
-                          userInfo: [NSLocalizedDescriptionKey: "그룹을 만든 사람만 공개 범위를 바꿀 수 있어요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "그룹을 만든 사람만 공개 범위를 바꿀 수 있어요.", comment: "Error: only the group owner can change visibility")])
         }
         guard group.visibility != visibility else { return group }
 
@@ -570,6 +763,10 @@ extension FriendManager {
             var updated = group
             updated.visibility = visibility
             return updated
+        } catch where Self.isUnknownField(error, named: "visibility") {
+            throw NSError(domain: "FriendManager", code: -8, userInfo: [
+                NSLocalizedDescriptionKey: String(localized: "아직 공개 범위를 바꿀 수 없어요. iCloud 설정이 업데이트된 뒤 다시 시도해주세요.", comment: "Error: visibility change not available yet")
+            ])
         } catch let error as CKError {
             throw Self.lookupError(from: error)
         }
@@ -583,10 +780,15 @@ extension FriendManager {
         let dateString = dateFormatter.string(from: date)
         var owners: [CKRecord.ID: (userId: String, mealType: MealType)] = [:]
 
+        // 음식과 운동 둘 다 센다. 운동만 하는 멤버가 "미기록"으로 보이면 안 된다 —
+        // 그룹 화면이 답해야 하는 건 "오늘 뭐라도 남겼나"이지 "밥을 먹었나"가 아니다.
         for userId in userIds {
-            for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))")
-                owners[id] = (userId, mealType)
+            for album in AlbumType.allCases {
+                for mealType in MealType.allCases {
+                    let id = CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album))
+                    owners[id] = (userId, mealType)
+                }
             }
         }
 
@@ -617,7 +819,7 @@ extension FriendManager {
             guard let userId = record["userId"] as? String else { return nil }
             return GroupMemberInfo(
                 id: userId,
-                nickname: (record["nickname"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "멤버",
+                nickname: (record["nickname"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "멤버", comment: "Fallback name for a group member without a nickname"),
                 joinedAt: Date(timeIntervalSince1970: record["joinedAtTS"] as? TimeInterval ?? 0)
             )
         }.sorted { $0.joinedAt < $1.joinedAt }
@@ -627,15 +829,18 @@ extension FriendManager {
     /// (사람 × 끼니) 레코드 ID를 묶어서 요청하므로 쿼리 인덱스가 필요 없고, 사람 수만큼 왕복하지도 않는다.
     func loadGroupMeals(userIds: [String], date: Date) async throws -> [String: [MealType: MealRecord]] {
         let dateString = dateFormatter.string(from: date)
+        // 음식·운동을 섞은 결과라 친구 화면(음식만)과 캐시 키를 나눈다.
+        // 같은 키를 쓰면 그룹을 본 뒤 친구의 음식 타임라인에 운동 기록이 섞여 보였다.
+        let cacheDateKey = dateString + "_group"
         var out: [String: [MealType: MealRecord]] = [:]
         var missing: [String] = []
 
-        // 1. 기존 캐시(친구 화면과 공유) 먼저
+        // 1. 그룹 캐시 먼저
         for userId in userIds {
-            let cacheKey = "\(userId)_\(dateString)" as NSString
+            let cacheKey = "\(userId)_\(cacheDateKey)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[userId] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: userId, dateString: dateString, date: date) {
+            } else if let disk = loadFromDiskCache(friendId: userId, dateString: cacheDateKey, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[userId] = disk
             } else {
@@ -644,26 +849,34 @@ extension FriendManager {
         }
         guard !missing.isEmpty else { return out }
 
-        // 2. 남은 사람들의 레코드 ID를 100개씩 묶어 조회
+        // 2. 남은 사람들의 레코드 ID를 100개씩 묶어 조회 (음식·운동 모두)
         var recordIDs: [CKRecord.ID] = []
         for userId in missing {
-            for mealType in MealType.allCases {
-                recordIDs.append(CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))"))
+            for album in AlbumType.allCases {
+                for mealType in MealType.allCases {
+                    recordIDs.append(CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album)))
+                }
             }
         }
 
         let fetched = try await fetchRecordsInChunks(recordIDs)
 
         // 3. 사람별로 정리 + 캐시 저장
+        //    한 끼니 자리에는 하나만 담을 수 있어 음식을 우선하고, 없으면 운동으로 채운다.
+        //    (운동만 하는 멤버의 하루가 통째로 비어 보이지 않게)
         for userId in missing {
             var meals: [MealType: MealRecord] = [:]
-            for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(userId)_\(dateString)_\(Self.mealKey(mealType))")
-                guard case .success(let record)? = fetched[id] else { continue }
-                meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
+            for album in [AlbumType.diet, .exercise] {
+                for mealType in MealType.allCases where meals[mealType] == nil {
+                    let id = CKRecord.ID(recordName: Self.mealRecordName(
+                        userId: userId, dateString: dateString, mealType: mealType, album: album))
+                    guard case .success(let record)? = fetched[id] else { continue }
+                    meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
+                }
             }
             out[userId] = meals
-            cacheMeals(meals, friendId: userId, dateString: dateString)
+            cacheMeals(meals, friendId: userId, dateString: cacheDateKey)
         }
 
         print("🌐 [CloudKit] 그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")
@@ -672,16 +885,18 @@ extension FriendManager {
 
     /// 한 친구의 여러 날짜 식단을 한 번에 조회.
     /// 기록이 없는 날도 빈 값으로 돌려주므로, 화면에서 "없는 날"을 숨기면서도 같은 날을 다시 요청하지 않는다.
-    func loadFriendMealsBatch(friendId: String, dates: [Date]) async throws -> [Date: [MealType: MealRecord]] {
+    func loadFriendMealsBatch(friendId: String, dates: [Date],
+                              album: AlbumType = .diet) async throws -> [Date: [MealType: MealRecord]] {
         var out: [Date: [MealType: MealRecord]] = [:]
         var missing: [Date] = []
 
         for date in dates {
-            let dateString = dateFormatter.string(from: date)
-            let cacheKey = "\(friendId)_\(dateString)" as NSString
+            // 캐시 키에 앨범을 섞는다 — 음식 탭이 받아 둔 것을 운동 탭이 쓰면 안 된다
+            let cacheDateKey = dateFormatter.string(from: date) + album.recordSuffix
+            let cacheKey = "\(friendId)_\(cacheDateKey)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[date] = cached.meals
-            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: dateString, date: date) {
+            } else if let disk = loadFromDiskCache(friendId: friendId, dateString: cacheDateKey, date: date) {
                 memoryCache.setObject(CachedMealData(meals: disk), forKey: cacheKey)
                 out[date] = disk
             } else {
@@ -694,7 +909,8 @@ extension FriendManager {
         for date in missing {
             let dateString = dateFormatter.string(from: date)
             for mealType in MealType.allCases {
-                recordIDs.append(CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))"))
+                recordIDs.append(CKRecord.ID(recordName: Self.mealRecordName(
+                    userId: friendId, dateString: dateString, mealType: mealType, album: album)))
             }
         }
 
@@ -704,12 +920,13 @@ extension FriendManager {
             let dateString = dateFormatter.string(from: date)
             var meals: [MealType: MealRecord] = [:]
             for mealType in MealType.allCases {
-                let id = CKRecord.ID(recordName: "meal_\(friendId)_\(dateString)_\(Self.mealKey(mealType))")
+                let id = CKRecord.ID(recordName: Self.mealRecordName(
+                    userId: friendId, dateString: dateString, mealType: mealType, album: album))
                 guard case .success(let record)? = fetched[id] else { continue }
                 meals[mealType] = Self.mealRecord(from: record, date: date, mealType: mealType)
             }
             out[date] = meals
-            cacheMeals(meals, friendId: friendId, dateString: dateString)
+            cacheMeals(meals, friendId: friendId, dateString: dateString + album.recordSuffix)
         }
 
         print("🌐 [CloudKit] 친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")
@@ -804,8 +1021,34 @@ extension FriendManager {
         return out
     }
 
+    /// 운영(Production) 스키마에 아직 배포되지 않은 필드 때문에 저장이 막혔는지.
+    /// CloudKit은 개발 환경에서만 필드를 자동으로 만들어 준다.
+    static func isUnknownField(_ error: Error, named field: String) -> Bool {
+        var messages = [error.localizedDescription]
+        if let partials = (error as? CKError)?.partialErrorsByItemID {
+            messages.append(contentsOf: partials.values.map { $0.localizedDescription })
+        }
+        return messages.contains { $0.contains("'\(field)'") && $0.contains("schema") }
+    }
+
+
+    /// 운영 스키마에 레코드 타입·필드가 아직 배포되지 않아 저장이 막힌 경우인지.
+    /// (Development 환경에서만 스키마가 자동 생성된다)
+    static func isProductionSchemaError(_ error: Error) -> Bool {
+        var messages = [error.localizedDescription]
+        if let partials = (error as? CKError)?.partialErrorsByItemID {
+            messages.append(contentsOf: partials.values.map { $0.localizedDescription })
+        }
+        return messages.contains { $0.contains("production schema") }
+    }
+
     /// 조회 실패를 사용자에게 보여줄 문구로 (CKError는 원인별 안내, 그 외는 원문)
     static func readableMessage(for error: Error) -> String {
+        if isProductionSchemaError(error) {
+            // 사용자가 할 수 있는 일이 없다 — 원문 대신 상황만 알리고 로그에 원인을 남긴다
+            print("❌ [CloudKit] 운영 스키마 미배포: \(error.localizedDescription)")
+            return String(localized: "iCloud 저장소 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해주세요.", comment: "Error: iCloud schema not ready")
+        }
         if let ckError = error as? CKError {
             return lookupError(from: ckError).localizedDescription
         }

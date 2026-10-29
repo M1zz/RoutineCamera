@@ -1,12 +1,430 @@
 # 릴리스 노트
 
-## 1.0.7 (2026.09.01)
+## 1.2.2
+
+### 앱스토어 (한국어, ko)
+
+고마울 때 개발자에게 작은 팁을 보낼 수 있어요
+친구에게 Pro를 선물할 수 있어요
+VoiceOver와 음성 제어로 더 편하게 쓸 수 있어요
+큰 글씨와 높은 대비에서도 보기 편해졌어요
+
+### App Store (English, en)
+
+Leave a small tip if the app helps you
+You can now gift Pro to a friend
+Better with VoiceOver and Voice Control
+Larger text and contrast look clearer
+
+### App Store (en-GB)
+
+Leave a small tip if the app helps you
+You can now gift Pro to a friend
+Better with VoiceOver and Voice Control
+Larger text and contrast look clearer
+
+### App Store (중국어 간체, zh-Hans)
+
+想表达感谢时，可以给开发者一点小费
+现在可以把 Pro 送给朋友了
+使用旁白和语音控制时更加顺手
+大字体和增强对比度下看得更清楚
+
+### App Store (중국어 번체, zh-Hant)
+
+想表達感謝時，可以給開發者一點小費
+現在可以把 Pro 送給朋友了
+使用旁白和語音控制時更加順手
+大字體和增加對比下看得更清楚
+
+### App Store (일본어, ja)
+
+気に入ったら開発者に小さなチップを送れます
+友だちにProをプレゼントできるようになりました
+VoiceOverや音声コントロールで使いやすくなりました
+大きな文字やコントラスト強調でも見やすくなりました
+
+### App Store (러시아어, ru)
+
+Можно оставить разработчику чаевые
+Теперь Pro можно подарить другу
+Удобно с VoiceOver и Управлением голосом
+Удобнее с крупным текстом и контрастом
+
+### App Store (스페인어, es)
+
+Deja una pequeña propina si te gusta
+Ya puedes regalar Pro a un amigo
+Mejor con VoiceOver y Control por voz
+Mejor con texto grande y alto contraste
+
+### App Store (독일어, de)
+
+Sag Danke mit einem kleinen Trinkgeld
+Verschenke Pro an Freunde
+Besser mit VoiceOver und Sprachsteuerung
+Großer Text und Kontrast verbessert
+
+### App Store (프랑스어, fr)
+
+Dites merci avec un petit pourboire
+Offrez Pro à un ami
+Pensé pour VoiceOver et Contrôle vocal
+Mieux en gros texte et contraste élevé
+
+### App Store (이탈리아어, it)
+
+Lascia una piccola mancia se ti piace
+Ora puoi regalare Pro a un amico
+VoiceOver e Controllo vocale migliorati
+Testo grande e contrasto migliorati
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+Deixe uma gorjeta se o app te ajudar
+Presenteie um amigo com o Pro
+Melhor com VoiceOver e Controle por Voz
+Melhor com texto grande e alto contraste
+
+### App Store (태국어, th)
+
+ส่งทิปให้นักพัฒนาได้เมื่ออยากขอบคุณ
+ส่ง Pro เป็นของขวัญให้เพื่อนได้แล้ว
+รองรับ VoiceOver และการควบคุมด้วยเสียง
+ตัวใหญ่และคอนทราสต์สูงอ่านง่ายขึ้น
+
+### App Store (베트남어, vi)
+
+Gửi nhà phát triển chút tiền tip cảm ơn
+Giờ bạn có thể tặng Pro cho bạn bè
+Dùng tốt hơn với VoiceOver và Khẩu lệnh
+Rõ hơn với chữ lớn và tương phản cao
+
+### App Store (체코어, cs)
+
+Poděkujte vývojáři malým spropitným
+Pro teď můžete darovat kamarádovi
+Lepší s VoiceOverem a Ovládáním hlasem
+Lepší s velkým písmem a kontrastem
+
+### App Store (덴마크어, da)
+
+Sig tak med lidt drikkepenge
+Nu kan du give Pro i gave til en ven
+Bedre med VoiceOver og Stemmestyring
+Bedre med stor tekst og høj kontrast
+
+### App Store (그리스어, el)
+
+Πείτε ευχαριστώ με ένα μικρό φιλοδώρημα
+Χαρίστε το Pro σε έναν φίλο
+Καλύτερο με VoiceOver και έλεγχο φωνής
+Βελτιωμένο μεγάλο κείμενο και αντίθεση
+
+### App Store (핀란드어, fi)
+
+Kiitä kehittäjää pienellä tipillä
+Voit nyt antaa Pron lahjaksi ystävälle
+Parempi VoiceOverilla ja ääniohjauksella
+Suuri teksti ja kontrasti selkeämpiä
+
+### App Store (인도네시아어, id)
+
+Beri tip kecil untuk berterima kasih
+Kini Pro bisa dihadiahkan ke teman
+Mendukung VoiceOver dan Kontrol Suara
+Teks besar dan kontras lebih jelas
+
+### App Store (Norsk bokmål, nb)
+
+Si takk med litt tips til utvikleren
+Nå kan du gi Pro i gave til en venn
+Bedre med VoiceOver og Talekontroll
+Bedre med stor tekst og høy kontrast
+
+### App Store (네덜란드어, nl)
+
+Bedank de maker met een kleine fooi
+Geef Pro cadeau aan een vriend
+Beter met VoiceOver en Stembediening
+Beter met grote tekst en hoog contrast
+
+### App Store (폴란드어, pl)
+
+Podziękuj twórcy drobnym napiwkiem
+Podaruj Pro znajomemu
+Lepiej z VoiceOver i Sterowaniem głosem
+Lepiej z dużym tekstem i kontrastem
+
+### App Store (스웨덴어, sv)
+
+Tacka utvecklaren med lite dricks
+Nu kan du ge bort Pro till en vän
+Bättre med VoiceOver och Röststyrning
+Bättre med stor text och hög kontrast
+
+### App Store (튀르키예어, tr)
+
+Geliştiriciye küçük bir bahşiş bırakın
+Pro'yu bir arkadaşınıza hediye edin
+VoiceOver ve Sesle Denetim ile kolay
+Büyük yazı ve yüksek kontrastta daha net
+
+## 1.2.1
+
+### 앱스토어 (한국어, ko)
+
+이제 영어와 일본어 등 22개 언어로도 쓸 수 있어요
+알림이나 위젯에서 다 먹었다고 하면 식단에 남아요
+지운 식사가 알림 때문에 다시 생기지 않아요
+
+### App Store (English, en)
+
+Sekki now speaks 22 more languages
+Finish a meal right from a reminder
+Deleted meals no longer come back
+
+### App Store (English UK, en-GB)
+
+Sekki now speaks 22 more languages
+Finish a meal right from a reminder
+Deleted meals no longer come back
+
+### App Store (중국어 간체, zh-Hans)
+
+Sekki 现已支持简体中文
+在提醒或小组件中点“吃完了”即可记入饮食
+删除的餐食不会再因提醒而出现
+
+### App Store (중국어 번체, zh-Hant)
+
+Sekki 現在支援繁體中文了
+在通知或小工具標示吃完，就會記進餐點
+刪除的餐點不會再因通知而出現
+
+### App Store (일본어, ja)
+
+Sekkiが日本語に対応しました
+通知やウィジェットで完食を記録できます
+削除した食事が通知で復活しなくなりました
+
+### App Store (러시아어, ru)
+
+Sekki теперь говорит по-русски
+Отмечайте «Съедено» прямо из напоминания
+Удалённые записи больше не появляются
+
+### App Store (스페인어, es)
+
+Sekki ya está disponible en español
+Marca la comida como hecha en el aviso
+Las comidas eliminadas ya no reaparecen
+
+### App Store (독일어, de)
+
+Sekki gibt es jetzt auf Deutsch
+Mahlzeit direkt per Erinnerung abhaken
+Gelöschte Mahlzeiten bleiben gelöscht
+
+### App Store (프랑스어, fr)
+
+Sekki est désormais en français
+Validez un repas depuis un rappel
+Un repas supprimé ne revient plus
+
+### App Store (이탈리아어, it)
+
+Sekki ora è disponibile in italiano
+Segna un pasto finito dal promemoria
+I pasti eliminati non ricompaiono più
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+O Sekki agora está em português
+Conclua a refeição direto pelo aviso
+Refeições apagadas não voltam mais
+
+### App Store (태국어, th)
+
+ตอนนี้ใช้ Sekki เป็นภาษาไทยได้แล้ว
+กดว่ากินหมดจากการแจ้งเตือนได้เลย
+มื้อที่ลบไปแล้วจะไม่กลับมาอีก
+
+### App Store (베트남어, vi)
+
+Sekki nay đã có tiếng Việt
+Đánh dấu đã ăn xong ngay từ thông báo
+Bữa ăn đã xóa sẽ không hiện lại nữa
+
+### App Store (체코어, cs)
+
+Sekki je teď i v češtině
+Snědené jídlo označíte z upozornění
+Smazaná jídla se už nevracejí
+
+### App Store (덴마크어, da)
+
+Sekki findes nu på dansk
+Markér måltidet som spist i påmindelsen
+Slettede måltider dukker ikke op igen
+
+### App Store (그리스어, el)
+
+Το Sekki μιλάει πλέον ελληνικά
+Σημείωσε ότι έφαγες από την υπενθύμιση
+Τα διαγραμμένα γεύματα δεν επιστρέφουν
+
+### App Store (핀란드어, fi)
+
+Sekki on nyt saatavilla suomeksi
+Merkitse ateria syödyksi muistutuksesta
+Poistetut ateriat eivät enää palaa
+
+### App Store (인도네시아어, id)
+
+Sekki kini hadir dalam bahasa Indonesia
+Tandai sudah makan dari pengingat
+Makanan yang dihapus tidak muncul lagi
+
+### App Store (Norsk bokmål, nb)
+
+Sekki finnes nå på norsk
+Merk måltidet som spist fra varselet
+Slettede måltider dukker ikke opp igjen
+
+### App Store (네덜란드어, nl)
+
+Sekki is er nu in het Nederlands
+Vink je maaltijd af in de herinnering
+Gewiste maaltijden komen niet terug
+
+### App Store (폴란드어, pl)
+
+Sekki jest już dostępne po polsku
+Odhacz posiłek prosto z powiadomienia
+Usunięte posiłki już nie wracają
+
+### App Store (스웨덴어, sv)
+
+Sekki finns nu på svenska
+Bocka av måltiden direkt i påminnelsen
+Raderade måltider dyker inte upp igen
+
+### App Store (튀르키예어, tr)
+
+Sekki artık Türkçe
+Öğünü doğrudan bildirimden tamamlayın
+Silinen öğünler artık geri gelmiyor
+
+
+## 1.2.0
+
+### 앱스토어 (한국어)
+
+세끼 프로로 그룹 여러 개와 자세한 통계를 써요
+위젯에서 오늘 챙긴 끼니를 바로 볼 수 있어요
+깜빡한 식사도 날짜와 시간을 골라 남길 수 있어요
+친구를 초대하고 차단이나 신고도 할 수 있어요
+설정에서 보낸 의견과 답장을 볼 수 있어요
+
+### 개발 메모 (노출 안 함)
+
+- 세끼 프로: 연간(US$14.99)·월간(US$1.99) 구독 + 평생(US$39.99). OpenAI·코인 삭제, 음식 분석은 기기 안 무료
+- 친구: 업로드 재시도, 지운 끼니 서버 삭제, 끊기·차단·신고, 초대 링크, 이름 반영, 알림 권한 확인
+- 위젯 끼니 체크, 기록 시각 지정, 사진 촬영 경로 정리, 앱 켤 때마다 전체 재업로드하던 문제
+- 잘리던 화면 14곳 정리, 간식1·2·3 은 '간식'으로
+- (1.1.1 은 출시하지 않고 이 버전에 합쳤다)
+
+- LeeoKit 2.7.0 → 3.16.2: 보낸 의견 · 답장 행(LeeoSentFeedbackRow), 유형별 질문(LeeoFeedbackPrompt),
+  계약의 legal 링크(개인정보 · 지원 · 약관 · 데이터 삭제)가 LeeoSupportSection 에 자동으로 붙는다.
+- 수익모델 계약: paywall → monetization(.freemiumSubscription), 상품 ID 그대로.
+
+## 1.0.10 (2026.09.16)
+
+### 앱스토어 (한국어)
+
+운동 기록을 사진 격자로 한눈에 볼 수 있어요
+사진마다 날짜가 있어 언제 운동했는지 바로 보여요
+달마다 모아 보여 이번 달 운동 횟수를 알 수 있어요
+
+### 상세 변경 내역
+
+**운동 앨범: 인스타그램식 3열 격자 (신규)**
+- "인스타 피드처럼 깍두기 모양으로, 날짜+사진으로 한눈에 많이 보고 싶다"는 피드백 반영
+- 운동 앨범은 보기 설정(순간 피드 / 날짜별)과 상관없이 3열 정사각형 격자로 보인다.
+  예전엔 날짜별 보기는 하루에 큰 사진 한 장, 순간 피드는 72pt 썸네일 목록이라 몇 날밖에 안 보였다
+- 칸마다 왼쪽 아래에 날짜(오늘 / 어제 / 9.14 (월)), 월별 머리글에 그 달 운동 횟수
+- 사진 없이 남긴 기록은 초록 달리기 아이콘 칸
+- 칸을 누르면 기존 상세 화면, 길게 누르면 삭제
+- "운동 기록하기"는 같은 시간대에 이미 기록이 있으면 다음 빈 칸에 담아 앞 기록을 덮지 않는다
+- 식단 화면은 바뀌지 않았다
+
+## 1.0.8 (2026.09.03)
 
 ### 앱스토어 "새로운 기능" (짧은 버전)
 
 ```
-친구 화면과 운동 기록을 다듬었어요.
+친구 화면에서 음식과 운동을 나눠서 봐요
+친구 기록에 주고받은 응원이 모두 보여요
+이모지를 눌러 간편하게 응원할 수 있어요
+친구가 응원을 남기면 알림이 옵니다
+그룹에서 오늘 기록한 사람이 한눈에 보여요
+```
 
+### 상세 변경 내역
+
+**친구 화면: 음식 / 운동 (신규)**
+- 상단 탭이 "타임라인 / 그리드"(보기 방식)에서 "음식 / 운동"(무엇을 보는지)으로 바뀌었습니다
+- 지금까지 운동 기록은 친구에게 아예 올라가지 않았습니다. 이제 운동도 공유되고 따로 볼 수 있습니다
+- 같은 날 같은 끼니라도 음식 응원과 운동 응원은 서로 섞이지 않습니다
+- 그룹의 "오늘 기록함" 판정은 음식과 운동을 합쳐서 셉니다.
+  운동만 하는 사람이 미기록으로 보이던 문제가 없어집니다
+- 그리드 보기는 없앴습니다. 그리드의 빈 칸으로 하던 콕 찌르기는
+  타임라인 맨 위의 "오늘 아직 기록이 없어요" 줄로 옮겼습니다
+- 운동 **이력**은 자동으로 올라가지 않습니다. 업데이트 이후의 기록부터 공유됩니다
+
+**응원을 대화처럼 (신규)**
+- 친구 식단에 남긴 응원이 그 자리에 목록으로 남습니다. 예전에는 쓰기만 되고 다시 볼 수 없었습니다
+- 내가 남긴 글은 오른쪽 초록으로, 다른 사람 글은 왼쪽으로 구분됩니다
+- 보낸 뒤에도 화면이 닫히지 않습니다 — 방금 남긴 글이 목록에 뜨는 것을 그 자리에서 확인합니다
+- 내 식단 상세의 "내가 보낸 피드백"은 그날 그 끼니에 **남에게** 보낸 글까지 딸려 나오고 있었습니다
+  (이 식사와 무관한 글). 그 끼니의 대화만 보이도록 고쳤습니다
+
+**이모지 반응 (신규)**
+- 응원 화면에 이모지 줄이 생겼습니다. 누르면 바로 전송됩니다 (👍 🔥 😍 👏 🤤 💪 🎉 🥲)
+- 같은 이모지가 여러 개면 하나로 묶여 개수와 함께 보입니다 (👍 2)
+- 이미 남긴 이모지를 다시 누르면 취소됩니다
+- 아직 업데이트하지 않은 친구의 앱에서는 짧은 메시지로 읽혀 깨지지 않습니다
+
+**친구 응원 알림 (수정)**
+- 친구가 응원을 남겨도 알림이 오지 않던 문제를 고쳤습니다
+- 원인은 알림 등록이 실패해도 성공한 것으로 기록해 두고 다시 시도하지 않던 것이었습니다
+- 설정 → 알림에 "친구 응원 알림" 상태가 표시되고, 꺼져 있으면 직접 다시 등록할 수 있습니다
+
+**그룹 구성원 그리드**
+- 멤버 전원이 타일로 깔리고, 그날 기록한 사람은 초록, 안 한 사람은 회색으로 보입니다
+- 색만으로 구분하지 않도록 체크·빼기 기호를 함께 표시합니다
+- 사진까지 공개하는 그룹에서도 맨 위에 같은 그리드가 뜹니다.
+  예전에는 기록이 있는 멤버만 보여서 안 올린 사람이 화면에서 사라졌습니다
+- 기록한 사람이 앞, 그 안에서는 이름순
+- 예전 목록의 끼니 이름 칩(아침·점심·저녁)은 타일에서 "N끼"로 줄었습니다.
+  음성 안내에는 끼니 이름이 그대로 들어갑니다
+
+### 배포 준비 (사용자에게 보이지 않음)
+
+- 버전을 `Config/Version.xcconfig` 한 곳에서 정하도록 통일 (앱·위젯 두 타겟이 어긋나던 위험 제거)
+- `deploy.env`, `scripts/predeploy.sh` 추가 — 배포 전에 테스트와 Release 빌드를 통과해야 아카이브를 만든다
+
+## 1.0.7 (2026.09.02)
+
+### 앱스토어 "새로운 기능" (짧은 버전)
+
+```
+친구 화면과 기록 방식을 다듬었어요.
+
+설정에서 식후 사진 남기기를 끄면 식전 사진 한 장으로 기록이 끝나요
+식후 촬영 안내와 다 드셨어요 알림도 받지 않습니다
+친구 화면을 열면 친구에게 보이는 내 이름이 맨 위에 바로 보여요. 이름은 계정 설정에서 언제든 바꿀 수 있습니다
 식사 시간이 다가오면 피드에 자리가 미리 잡혀요. 기록하면 그 자리에 채워지고, 안 하면 조용히 사라집니다
 친구 기록의 사진이 잘리지 않고 원본 비율 그대로 보여요
 친구가 몇 시에 먹었는지 실제 기록한 시각이 보입니다
@@ -15,9 +433,26 @@
 운동을 저녁에 해도 저녁 자리에 기록됩니다. 하루에 여러 번 기록할 수도 있어요
 운동 기록에 아침, 점심 같은 끼니 이름 대신 운동이라고 표시돼요
 사진을 한 장만 남겼을 때 무엇이 비었는지 알려줍니다. 식전 사진 기록 필요, 식후 사진 기록 필요
+그룹 만들기와 참여 화면에서 키보드가 내려가지 않던 문제를 고쳤어요
+저장에 실패했을 때 알 수 없는 영어 오류 대신 무엇이 문제인지 한글로 알려드려요
 ```
 
 ### 상세 변경 내역
+
+**식후 사진 남기기 옵션 (신규)**
+- 설정 → 화면에 "식후 사진 남기기" 토글 추가 (식단 모드 전용, 기본 켜짐 — 기존 사용자는 동작 변화 없음)
+- 끄면 카메라의 식전/식후 선택이 사라지고 항상 한 장만 저장
+- "다 드셨어요?" 알림을 예약하지 않고, 끄는 즉시 이미 예약된 알림도 모두 취소
+- 사진 위 빨간 "1" 뱃지(= 식후 사진이 아직 없다는 표시) 숨김
+- 상세 화면에서 식후 페이지, "식전/식후" 라벨, "식전/식후 사진 알림 가리기" 토글 제거
+- 순간 피드에서 "식후 사진 기록 필요" 대신 "기록 완료"로 표시 — 사진 한 장이 곧 마감이므로 미마감 상태 자체가 없음
+
+**친구에게 보이는 이름**
+- 친구 화면 맨 위에 "친구에게 보이는 이름" 카드 추가 — 화면을 열면 바로 확인 가능
+- 카드를 누르면 계정 설정이 열리고 거기서 이름 변경
+- 계정 설정 시트에 이름 편집 행 추가, 설정 화면의 "닉네임" 행도 같은 문구로 정리
+- 이름을 한 글자 칠 때마다 iCloud에 업로드하던 문제 수정 — 입력이 멈추고 1초 뒤 한 번만 저장
+- 공백만 남기거나 비우면 기본 이름으로 되돌리고, 20자로 제한
 
 **곧 다가올 끼니 자리 미리 잡기 (신규)**
 - 식사 시각 1시간 전부터 순간 피드에 점선 셀이 뜹니다. 기록됐을 때 셀이 생길 바로 그 자리(시간순 위치)입니다
@@ -52,9 +487,18 @@
 - "기록 필요" → 무엇이 비었는지 그대로 표시: **"식후 사진 기록 필요"**, **"식전 사진 기록 필요"**
 - 사진을 넣었는데도 기록이 필요하다고 나와 헷갈리던 문제 해결
 
+**그룹 만들기/참여 화면**
+- 다른 곳을 눌러도 키보드가 내려가지 않던 문제 수정 — 빈 곳 탭, 아래로 스크롤, 키보드 위 완료 버튼, 리턴 키 모두로 닫힘
+- 만들기/참여 버튼을 누르는 순간에도 키보드가 내려감
+- 입력 영역이 스크롤되어 키보드가 버튼을 가리지 않음
+
+**저장 실패 안내**
+- iCloud 저장소 준비가 안 되어 실패했을 때 영어 원문 대신 "iCloud 저장소 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해주세요."로 안내 (피드백, 콕 찌르기, 그룹 만들기 공통)
+- 그룹 공개 범위 설정이 서버에 아직 반영되지 않은 경우, "먹은 것까지" 그룹은 정상 생성되도록 처리
+- 단, "기록 여부만"을 고른 경우에는 의도보다 많이 공개되지 않도록 그룹을 만들지 않고 안내
+
 **문서**
 - 이용약관 페이지 추가 (자동갱신, 해지 방법, 환불 절차, 코인 성격, AI 분석 안내)
-
 
 ## 1.0.6 (2026.08.20)
 

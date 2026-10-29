@@ -9,13 +9,25 @@ import SwiftUI
 
 struct GroupsView: View {
     @ObservedObject var friendManager = FriendManager.shared
+    @ObservedObject private var subscription = SubscriptionManager.shared
     @Environment(\.dismiss) var dismiss
 
     @State private var showingCreate = false
+    @State private var showingPaywall = false
     @State private var showingJoin = false
     @State private var leaveTarget: FriendGroup?
     @State private var isLeaving = false
     @State private var leaveError: String?
+
+    // 무료는 그룹 하나까지 만든다 (참여는 제한 없음) — 넘으면 세끼 프로 안내
+    private func startCreatingGroup() {
+        let owned = friendManager.groups.filter { $0.ownerId == friendManager.myUserId }.count
+        if subscription.allows(.groupCreate, current: owned) {
+            showingCreate = true
+        } else {
+            showingPaywall = true
+        }
+    }
 
     var body: some View {
         NavigationView {
@@ -30,7 +42,7 @@ struct GroupsView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
                             Button {
-                                showingCreate = true
+                                startCreatingGroup()
                             } label: {
                                 Label("그룹 만들기", systemImage: "plus.circle")
                             }
@@ -41,7 +53,7 @@ struct GroupsView: View {
                             }
                         } label: {
                             Image(systemName: "plus")
-                                .font(.system(size: 18, weight: .semibold))
+                                .scaledFont(size: 18, weight: .semibold)
                         }
                         .disabled(isLeaving)
                         .accessibilityLabel("그룹 만들기 또는 참여")
@@ -52,6 +64,7 @@ struct GroupsView: View {
                         try await friendManager.createGroup(name: name, visibility: visibility)
                     }
                 }
+                .proPaywall(isPresented: $showingPaywall, lead: .groupCreate)
                 .sheet(isPresented: $showingJoin) {
                     JoinGroupSheet { code in
                         try await friendManager.joinGroup(inviteCode: code)
@@ -111,7 +124,7 @@ struct GroupsView: View {
         } else {
             VStack(spacing: 0) {
                 if let error = friendManager.groupsError {
-                    warningBanner("목록을 새로 고치지 못했어요. \(error)")
+                    warningBanner(String(localized: "목록을 새로 고치지 못했어요. \(error)", comment: "Banner: group list refresh failed; argument is the error message"))
                 }
                 groupList
             }
@@ -126,10 +139,10 @@ struct GroupsView: View {
                 .accessibilityHidden(true)
 
             Text("그룹 목록을 불러오지 못했어요")
-                .font(.system(size: 17, weight: .semibold))
+                .scaledFont(size: 17, weight: .semibold)
 
             Text(message)
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -137,7 +150,7 @@ struct GroupsView: View {
             Button("다시 시도") {
                 _Concurrency.Task { await friendManager.loadMyGroups() }
             }
-            .font(.system(size: 15, weight: .semibold))
+            .scaledFont(size: 15, weight: .semibold)
             .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -166,20 +179,20 @@ struct GroupsView: View {
                 .accessibilityHidden(true)
 
             Text("아직 그룹이 없어요")
-                .font(.system(size: 18, weight: .semibold))
+                .scaledFont(size: 18, weight: .semibold)
                 .foregroundColor(.secondary)
 
             Text("그룹을 만들어 초대 코드를 공유하거나\n받은 코드로 참여해보세요")
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
             HStack(spacing: 12) {
                 Button {
-                    showingCreate = true
+                    startCreatingGroup()
                 } label: {
                     Label("그룹 만들기", systemImage: "plus.circle")
-                        .font(.system(size: 15, weight: .semibold))
+                        .scaledFont(size: 15, weight: .semibold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 12)
@@ -191,7 +204,7 @@ struct GroupsView: View {
                     showingJoin = true
                 } label: {
                     Label("코드로 참여", systemImage: "person.badge.key")
-                        .font(.system(size: 15, weight: .semibold))
+                        .scaledFont(size: 15, weight: .semibold)
                         .foregroundColor(.blue)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 12)
@@ -219,16 +232,16 @@ struct GroupsView: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(group.name)
-                                .font(.system(size: 17, weight: .semibold))
+                                .scaledFont(size: 17, weight: .semibold)
 
                             HStack(spacing: 6) {
                                 Text(group.inviteCode)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .scaledFont(size: 13, design: .monospaced)
                                     .foregroundColor(.secondary)
 
                                 if group.ownerId == friendManager.myUserId {
                                     Text("방장")
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .scaledFont(size: 11, weight: .semibold)
                                         .foregroundColor(.purple)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -237,7 +250,7 @@ struct GroupsView: View {
                                 }
 
                                 Label(group.visibility.title, systemImage: group.visibility.symbolName)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .scaledFont(size: 11, weight: .semibold)
                                     .foregroundColor(.secondary)
                                     .labelStyle(.titleAndIcon)
                             }
@@ -278,7 +291,7 @@ struct GroupsView: View {
 
 /// 화면 전체를 덮는 진행 표시 — 무슨 일이 진행 중인지 문구로 밝힌다
 struct StatusOverlay: View {
-    let text: String
+    let text: LocalizedStringKey
 
     var body: some View {
         ZStack {
@@ -309,6 +322,7 @@ struct CreateGroupSheet: View {
     @State private var name = ""
     @State private var visibility: GroupVisibility = .full
     @State private var phase: Phase = .input
+    @FocusState private var isNameFocused: Bool
     @Environment(\.dismiss) var dismiss
 
     enum Phase: Equatable {
@@ -340,12 +354,27 @@ struct CreateGroupSheet: View {
                     Button("취소") { dismiss() }
                         .disabled(isWorking)
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") { isNameFocused = false }
+                }
             }
             .interactiveDismissDisabled(isWorking)
         }
     }
 
     private var inputView: some View {
+        ScrollView {
+            inputContent
+        }
+        .scrollDismissesKeyboard(.interactively)
+        // 빈 곳을 누르면 키보드가 내려가도록 (스크롤 제스처와 충돌하지 않는 탭 제스처)
+        .simultaneousGesture(
+            TapGesture().onEnded { isNameFocused = false }
+        )
+    }
+
+    private var inputContent: some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Image(systemName: "person.3.sequence")
@@ -353,18 +382,21 @@ struct CreateGroupSheet: View {
                     .foregroundColor(.purple)
 
                 Text("그룹 만들기")
-                    .font(.system(size: 24, weight: .bold))
+                    .scaledFont(size: 24, weight: .bold)
 
                 Text("그룹을 만들면 6자리 초대 코드가 생겨요.\n코드를 받은 사람은 누구나 참여할 수 있습니다.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 40)
 
             TextField("예: 우리 회사 점심팀", text: $name)
-                .font(.system(size: 18))
+                .scaledFont(size: 18)
                 .multilineTextAlignment(.center)
+                .focused($isNameFocused)
+                .submitLabel(.done)
+                .onSubmit { isNameFocused = false }
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
@@ -376,7 +408,7 @@ struct CreateGroupSheet: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("서로에게 보여줄 범위")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .foregroundColor(.secondary)
 
                 Picker("공개 범위", selection: $visibility) {
@@ -400,7 +432,7 @@ struct CreateGroupSheet: View {
 
             if case .failed(let message) = phase {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.orange)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -416,7 +448,7 @@ struct CreateGroupSheet: View {
                             .tint(.white)
                     }
                     Text(isWorking ? "그룹을 만드는 중..." : (isRetry ? "다시 시도" : "그룹 만들기"))
-                        .font(.system(size: 18, weight: .semibold))
+                        .scaledFont(size: 18, weight: .semibold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -449,7 +481,7 @@ struct CreateGroupSheet: View {
                 .foregroundColor(.green)
 
             Text("'\(group.name)' 그룹을 만들었어요")
-                .font(.system(size: 20, weight: .bold))
+                .scaledFont(size: 20, weight: .bold)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
@@ -459,13 +491,13 @@ struct CreateGroupSheet: View {
 
                 HStack(spacing: 10) {
                     Text(group.inviteCode)
-                        .font(.system(size: 30, weight: .bold, design: .monospaced))
+                        .scaledFont(size: 30, weight: .bold, design: .monospaced)
 
                     Button {
                         UIPasteboard.general.string = group.inviteCode
                     } label: {
                         Image(systemName: "doc.on.doc")
-                            .font(.system(size: 18))
+                            .scaledFont(size: 18)
                     }
                     .accessibilityLabel("초대 코드 복사")
                 }
@@ -476,9 +508,9 @@ struct CreateGroupSheet: View {
 
             VStack(spacing: 4) {
                 Label(group.visibility.title, systemImage: group.visibility.symbolName)
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                 Text("이 코드를 공유하면 상대가 그룹에 참여할 수 있어요.")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.secondary)
             }
             .multilineTextAlignment(.center)
@@ -487,7 +519,7 @@ struct CreateGroupSheet: View {
                 dismiss()
             } label: {
                 Text("완료")
-                    .font(.system(size: 18, weight: .semibold))
+                    .scaledFont(size: 18, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -503,6 +535,7 @@ struct CreateGroupSheet: View {
 
     private func create() {
         guard !isWorking else { return }
+        isNameFocused = false
         phase = .working
 
         _Concurrency.Task {
@@ -524,6 +557,7 @@ struct JoinGroupSheet: View {
 
     @State private var code = ""
     @State private var phase: Phase = .input
+    @FocusState private var isCodeFocused: Bool
     @Environment(\.dismiss) var dismiss
 
     enum Phase: Equatable {
@@ -555,12 +589,26 @@ struct JoinGroupSheet: View {
                     Button("취소") { dismiss() }
                         .disabled(isWorking)
                 }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") { isCodeFocused = false }
+                }
             }
             .interactiveDismissDisabled(isWorking)
         }
     }
 
     private var inputView: some View {
+        ScrollView {
+            inputContent
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .simultaneousGesture(
+            TapGesture().onEnded { isCodeFocused = false }
+        )
+    }
+
+    private var inputContent: some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Image(systemName: "person.badge.key")
@@ -568,21 +616,24 @@ struct JoinGroupSheet: View {
                     .foregroundColor(.purple)
 
                 Text("그룹 코드 입력")
-                    .font(.system(size: 24, weight: .bold))
+                    .scaledFont(size: 24, weight: .bold)
 
                 Text("공유받은 6자리 그룹 코드를 입력하세요.")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.top, 40)
 
             TextField("예: ABC123", text: $code)
-                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .scaledFont(size: 20, weight: .bold, design: .monospaced)
                 .multilineTextAlignment(.center)
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)
                 .disableAutocorrection(true)
+                .focused($isCodeFocused)
+                .submitLabel(.done)
+                .onSubmit { isCodeFocused = false }
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
@@ -594,7 +645,7 @@ struct JoinGroupSheet: View {
 
             if case .failed(let message) = phase {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundColor(.orange)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -610,7 +661,7 @@ struct JoinGroupSheet: View {
                             .tint(.white)
                     }
                     Text(isWorking ? "그룹을 찾는 중..." : (isRetry ? "다시 시도" : "그룹 참여"))
-                        .font(.system(size: 18, weight: .semibold))
+                        .scaledFont(size: 18, weight: .semibold)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -643,11 +694,11 @@ struct JoinGroupSheet: View {
                 .foregroundColor(.green)
 
             Text("'\(group.name)' 그룹에 참여했어요")
-                .font(.system(size: 20, weight: .bold))
+                .scaledFont(size: 20, weight: .bold)
                 .multilineTextAlignment(.center)
 
             Text("이제 그룹 화면에서 멤버들의 기록을 볼 수 있어요.")
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
@@ -655,7 +706,7 @@ struct JoinGroupSheet: View {
                 dismiss()
             } label: {
                 Text("완료")
-                    .font(.system(size: 18, weight: .semibold))
+                    .scaledFont(size: 18, weight: .semibold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -671,6 +722,7 @@ struct JoinGroupSheet: View {
 
     private func join() {
         guard !isWorking else { return }
+        isCodeFocused = false
         phase = .working
 
         _Concurrency.Task {
@@ -716,11 +768,17 @@ struct GroupFeedView: View {
         members.filter { !(mealsByUser[$0.id]?.isEmpty ?? true) }
     }
 
-    private var recordedCount: Int {
+    /// 공개 범위와 무관하게 "이 사람이 그 날 기록했나"를 하나로 본다.
+    /// 사진까지 공개하는 그룹은 기록 여부를 따로 안 불러오므로 사진 목록에서 끌어낸다.
+    private var recordedMeals: [String: Set<MealType>] {
         switch current.visibility {
-        case .full: return membersWithRecords.count
-        case .record: return members.filter { !(recordedByUser[$0.id]?.isEmpty ?? true) }.count
+        case .record: return recordedByUser
+        case .full: return mealsByUser.mapValues { Set($0.keys) }
         }
+    }
+
+    private var recordedCount: Int {
+        members.filter { !(recordedMeals[$0.id]?.isEmpty ?? true) }.count
     }
 
     var body: some View {
@@ -803,7 +861,7 @@ struct GroupFeedView: View {
                     move(days: -1)
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                 }
                 .accessibilityLabel("이전 날")
 
@@ -811,7 +869,7 @@ struct GroupFeedView: View {
 
                 VStack(spacing: 2) {
                     Text(date, format: .dateTime.month().day().weekday(.wide))
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                     Text("기록 \(recordedCount)명 · 멤버 \(members.count)명")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -823,7 +881,7 @@ struct GroupFeedView: View {
                     move(days: 1)
                 } label: {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                 }
                 .disabled(isToday)
                 .accessibilityLabel("다음 날")
@@ -832,7 +890,7 @@ struct GroupFeedView: View {
 
             HStack(spacing: 8) {
                 Label(current.visibility.title, systemImage: current.visibility.symbolName)
-                    .font(.system(size: 12, weight: .semibold))
+                    .scaledFont(size: 12, weight: .semibold)
                     .foregroundColor(.purple)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -840,13 +898,13 @@ struct GroupFeedView: View {
                     .cornerRadius(6)
 
                 Text(current.inviteCode)
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .scaledFont(size: 14, weight: .bold, design: .monospaced)
 
                 Button {
                     UIPasteboard.general.string = current.inviteCode
                 } label: {
                     Image(systemName: "doc.on.doc")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                 }
                 .accessibilityLabel("그룹 초대 코드 복사")
 
@@ -892,7 +950,7 @@ struct GroupFeedView: View {
                 Button("다시 시도") {
                     _Concurrency.Task { await loadMembers() }
                 }
-                .font(.system(size: 15, weight: .semibold))
+                .scaledFont(size: 15, weight: .semibold)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if members.isEmpty {
@@ -909,41 +967,57 @@ struct GroupFeedView: View {
         }
     }
 
-    /// 기록 여부만 공개하는 그룹 — 멤버 전원을 O/X로 보여준다 (누가 안 했는지가 핵심)
+    /// 멤버 그리드 — 올린 사람은 초록, 안 올린 사람은 회색.
+    /// 두 공개 범위 모두 맨 위에 둔다. "오늘 누가 아직 안 했나"가 그룹의 핵심이라
+    /// 사진을 공개하는 그룹에서도 기록 없는 멤버가 화면에서 사라지면 안 된다.
+    private var memberGrid: some View {
+        GroupMemberGrid(
+            members: members,
+            myUserId: friendManager.myUserId,
+            recordedByUser: recordedMeals
+        )
+        .padding(.horizontal)
+        .padding(.vertical, 14)
+    }
+
+    /// 기록 여부만 공개하는 그룹 — 그리드가 화면 전부다
     private var statusList: some View {
-        List {
-            Section {
-                ForEach(members) { member in
-                    GroupStatusRow(
-                        member: member,
-                        isMe: member.id == friendManager.myUserId,
-                        recorded: recordedByUser[member.id] ?? []
-                    )
-                }
-            } footer: {
+        ScrollView {
+            VStack(spacing: 12) {
+                memberGrid
+
                 Text("이 그룹은 기록 여부만 공유합니다. 사진과 메모는 서로 보이지 않아요.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
             }
         }
-        .listStyle(.plain)
         .refreshable { await loadDay() }
     }
 
-    /// 사진까지 공개하는 그룹 — 그 날 기록이 있는 멤버만
+    /// 사진까지 공개하는 그룹 — 위에 멤버 그리드, 아래에 기록이 있는 멤버의 사진
     @ViewBuilder private var photoFeed: some View {
-        if membersWithRecords.isEmpty {
-            VStack(spacing: 8) {
-                Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 40))
-                    .foregroundColor(.gray)
-                    .accessibilityHidden(true)
-                Text("이 날은 아무도 기록하지 않았어요")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                memberGrid
+
+                Divider()
+                    .padding(.horizontal)
+
+                if membersWithRecords.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 36))
+                            .foregroundColor(.gray)
+                            .accessibilityHidden(true)
+                        Text("이 날은 아무도 기록하지 않았어요")
+                            .scaledFont(size: 15, weight: .semibold)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 40)
+                } else {
                     ForEach(membersWithRecords) { member in
                         GroupMemberSection(
                             member: member,
@@ -952,10 +1026,10 @@ struct GroupFeedView: View {
                         )
                     }
                 }
-                .padding(.vertical, 12)
             }
-            .refreshable { await loadDay() }
+            .padding(.vertical, 12)
         }
+        .refreshable { await loadDay() }
     }
 
     // MARK: 로딩
@@ -977,7 +1051,7 @@ struct GroupFeedView: View {
             loadError = nil
             await loadDay()
         } catch {
-            loadError = "멤버를 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
+            loadError = String(localized: "멤버를 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))", comment: "Error: group members failed to load; argument is the reason")
         }
     }
 
@@ -997,61 +1071,123 @@ struct GroupFeedView: View {
             }
             loadError = nil
         } catch {
-            loadError = "기록을 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))"
+            loadError = String(localized: "기록을 불러오지 못했어요.\n\(FriendManager.readableMessage(for: error))", comment: "Error: group day entries failed to load; argument is the reason")
         }
     }
 }
 
-/// 기록 여부만 보여주는 행
-struct GroupStatusRow: View {
+/// 멤버 한 명 타일 — 그 날 기록했는지를 색으로 보여준다
+struct GroupMemberTile: View {
     let member: GroupMemberInfo
     let isMe: Bool
+    /// 그 날 기록한 끼니들 (비어 있으면 안 올림)
     let recorded: Set<MealType>
 
     private var hasRecord: Bool { !recorded.isEmpty }
 
+    private var tint: Color { hasRecord ? .green : .gray }
+
     var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
+        VStack(spacing: 6) {
+            ZStack(alignment: .bottomTrailing) {
                 Circle()
-                    .fill(hasRecord ? Color.green.opacity(0.15) : Color.gray.opacity(0.15))
-                    .frame(width: 40, height: 40)
+                    .fill(tint.opacity(hasRecord ? 0.18 : 0.12))
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle().stroke(hasRecord ? Color.green.opacity(0.7) : Color.clear,
+                                        lineWidth: 2)
+                    )
+                    .overlay(
+                        Text(String(member.nickname.prefix(1)))
+                            .scaledFont(size: 22, weight: .bold)
+                            .foregroundColor(hasRecord ? .green : .secondary)
+                    )
 
-                Image(systemName: hasRecord ? "checkmark" : "minus")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(hasRecord ? .green : .secondary)
+                // 색만으로 구분하지 않는다 — 색각 이상에서도 읽히도록 기호를 함께 둔다
+                Image(systemName: hasRecord ? "checkmark.circle.fill" : "minus.circle.fill")
+                    .scaledFont(size: 17)
+                    .foregroundStyle(.white, hasRecord ? Color.green : Color.gray)
+                    .offset(x: 2, y: 2)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(isMe ? "\(member.nickname) (나)" : member.nickname)
-                    .font(.system(size: 16, weight: .semibold))
+            // 이름이 길어도 "(나)" 가 잘려 나가지 않게 두 줄까지
+            Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
+                .scaledFont(size: 12, weight: hasRecord ? .semibold : .regular)
+                .foregroundColor(hasRecord ? .primary : .secondary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .multilineTextAlignment(.center)
 
-                if hasRecord {
-                    HStack(spacing: 4) {
-                        ForEach(MealType.allCases.filter { recorded.contains($0) }, id: \.self) { mealType in
-                            Text(mealType.rawValue)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(4)
-                        }
-                    }
-                } else {
-                    Text("아직 기록 없음")
-                        .font(.system(size: 13))
-                        .foregroundColor(.secondary)
-                }
-            }
-
-            Spacer()
+            Text(hasRecord ? "\(recorded.count)끼" : "미기록")
+                .scaledFont(size: 10)
+                .foregroundColor(.secondary)
         }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(hasRecord
-                            ? "\(member.nickname), 기록함, \(recorded.map(\.rawValue).joined(separator: ", "))"
-                            : "\(member.nickname), 아직 기록 없음")
+        .frame(maxWidth: .infinity)
+        .opacity(hasRecord ? 1 : 0.65)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        let name = isMe
+            ? String(localized: "\(member.nickname), 나", comment: "VoiceOver: member name followed by 'me' marker")
+            : member.nickname
+        return hasRecord
+            ? String(localized: "\(name), 기록함, \(recorded.map(\.displayName).joined(separator: ", "))", comment: "VoiceOver: member logged meals; arguments are name and meal list")
+            : String(localized: "\(name), 아직 기록 없음", comment: "VoiceOver: member has not logged yet; argument is name")
+    }
+}
+
+/// 구성원 전체를 한눈에 — 올린 사람은 초록, 안 올린 사람은 회색
+struct GroupMemberGrid: View {
+    let members: [GroupMemberInfo]
+    let myUserId: String
+    /// 멤버별 그 날 기록한 끼니
+    let recordedByUser: [String: Set<MealType>]
+
+    private let columns = [GridItem(.adaptive(minimum: 76), spacing: 12)]
+
+    /// 안 올린 사람이 뒤로 가지 않게 — 올린 사람 먼저, 그 안에서는 이름순.
+    /// "누가 아직 안 했나"를 보는 화면이라 미기록도 같은 화면에 남아 있어야 한다.
+    private var sorted: [GroupMemberInfo] {
+        members.sorted { lhs, rhs in
+            let lhsHas = !(recordedByUser[lhs.id]?.isEmpty ?? true)
+            let rhsHas = !(recordedByUser[rhs.id]?.isEmpty ?? true)
+            if lhsHas != rhsHas { return lhsHas }
+            return lhs.nickname.localizedCaseInsensitiveCompare(rhs.nickname) == .orderedAscending
+        }
+    }
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 14) {
+            ForEach(sorted) { member in
+                GroupMemberTile(
+                    member: member,
+                    isMe: member.id == myUserId,
+                    recorded: recordedByUser[member.id] ?? []
+                )
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+}
+
+#Preview("멤버 그리드") {
+    let members = ["지우", "현호", "민서", "태윤", "서연", "준"].enumerated().map { index, name in
+        GroupMemberInfo(id: "u\(index)", nickname: name, joinedAt: Date())
+    }
+    return ScrollView {
+        GroupMemberGrid(
+            members: members,
+            myUserId: "u1",
+            recordedByUser: [
+                "u0": [.breakfast, .lunch, .dinner],
+                "u1": [.lunch],
+                "u3": [.breakfast, .dinner],
+                // u2, u4, u5 는 미기록 — 회색으로 뒤에 모인다
+            ]
+        )
+        .padding()
     }
 }
 
@@ -1069,12 +1205,12 @@ struct GroupMemberSection: View {
                         .fill(Color.blue.opacity(0.12))
                         .frame(width: 36, height: 36)
                     Text(String(member.nickname.prefix(1)))
-                        .font(.system(size: 16, weight: .bold))
+                        .scaledFont(size: 16, weight: .bold)
                         .foregroundColor(.blue)
                 }
 
-                Text(isMe ? "\(member.nickname) (나)" : member.nickname)
-                    .font(.system(size: 16, weight: .semibold))
+                Text(isMe ? String(localized: "\(member.nickname) (나)", comment: "Member name marked as the current user") : member.nickname)
+                    .scaledFont(size: 16, weight: .semibold)
 
                 Spacer()
 

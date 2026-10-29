@@ -20,19 +20,25 @@ public struct WidgetSnapshot: Codable, Sendable, Equatable {
     public let lastRecordedAt: Date?        // 오늘 마지막 기록 시각
     public let needsRecordCount: Int        // 날이 지나 "기록 필요"로 남은 기록 수
     public let generatedAt: Date
+    public let recordedMealTypes: [String]? // 오늘 기록한 끼니 (MealType.rawValue) — 이전 버전 스냅샷엔 없음
+    public let caredMealTypes: [String]?    // 챙기기로 한 주요 끼니 (아침→저녁 순)
 
     public init(todayCount: Int,
                 inProgressMealType: String? = nil,
                 inProgressSince: Date? = nil,
                 lastRecordedAt: Date? = nil,
                 needsRecordCount: Int = 0,
-                generatedAt: Date) {
+                generatedAt: Date,
+                recordedMealTypes: [String]? = nil,
+                caredMealTypes: [String]? = nil) {
         self.todayCount = todayCount
         self.inProgressMealType = inProgressMealType
         self.inProgressSince = inProgressSince
         self.lastRecordedAt = lastRecordedAt
         self.needsRecordCount = needsRecordCount
         self.generatedAt = generatedAt
+        self.recordedMealTypes = recordedMealTypes
+        self.caredMealTypes = caredMealTypes
     }
 }
 
@@ -41,20 +47,40 @@ public struct ResolvedWidgetState: Sendable, Equatable {
     public let todayCount: Int
     public let inProgressMeal: String?   // 대기열에 이미 다먹음이 쌓였으면 nil (버튼 누른 직후 반영)
     public let needsRecordCount: Int
+    public let recordedMeals: Set<String>  // 오늘 기록한 끼니 (대기열의 다먹음 포함)
+    public let caredMeals: [String]        // 위젯에 체크로 보여줄 주요 끼니 (아침→저녁 순)
 
-    public init(todayCount: Int, inProgressMeal: String?, needsRecordCount: Int) {
+    public init(todayCount: Int,
+                inProgressMeal: String?,
+                needsRecordCount: Int,
+                recordedMeals: Set<String> = [],
+                caredMeals: [String] = WidgetStateResolver.defaultCaredMeals) {
         self.todayCount = todayCount
         self.inProgressMeal = inProgressMeal
         self.needsRecordCount = needsRecordCount
+        self.recordedMeals = recordedMeals
+        self.caredMeals = caredMeals
+    }
+
+    /// 챙길 끼니 중 오늘 기록한 수
+    public var caredDoneCount: Int { caredMeals.filter { recordedMeals.contains($0) }.count }
+
+    /// 주요 끼니가 아닌(간식) 기록 수
+    public var snackCount: Int {
+        recordedMeals.filter { !WidgetStateResolver.defaultCaredMeals.contains($0) }.count
     }
 }
 
 public enum WidgetStateResolver {
 
+    /// 스냅샷에 챙길 끼니가 없을 때(이전 버전 앱) 쓰는 기본값
+    public static let defaultCaredMeals = [MealType.breakfast, .lunch, .dinner].map(\.rawValue)
+
     /// 위젯 표시 상태 계산.
     /// - 대기열의 다먹음이 "먹는 중"인 끼니에 붙는 경우는 기존 기록을 마감하는 것이라 기록 수가 늘지 않는다.
     /// - 그 외 끼니의 다먹음은 새 기록이 되므로 수가 늘어난다.
     /// - 스냅샷이 없으면(앱을 아직 안 켠 경우) fallbackTodayCount 로 개수만 센다.
+    /// - 스냅샷이 어제 만들어졌으면(자정 이후 앱을 안 연 경우) 오늘 기록은 없는 것으로 본다.
     public static func resolve(snapshot: WidgetSnapshot?,
                               pending: [PendingAteAll],
                               fallbackTodayCount: Int = 0,
@@ -64,10 +90,22 @@ public enum WidgetStateResolver {
             calendar.isDate(Date(timeIntervalSince1970: $0.date), inSameDayAs: now)
         }
 
+        let pendingMeals = Set(pendingToday.map(\.mealType))
+
         guard let snapshot else {
             return ResolvedWidgetState(todayCount: fallbackTodayCount + pendingToday.count,
                                        inProgressMeal: nil,
-                                       needsRecordCount: 0)
+                                       needsRecordCount: 0,
+                                       recordedMeals: pendingMeals)
+        }
+
+        let caredMeals = snapshot.caredMealTypes.flatMap { $0.isEmpty ? nil : $0 } ?? defaultCaredMeals
+        guard calendar.isDate(snapshot.generatedAt, inSameDayAs: now) else {
+            return ResolvedWidgetState(todayCount: pendingToday.count,
+                                       inProgressMeal: nil,
+                                       needsRecordCount: snapshot.needsRecordCount,
+                                       recordedMeals: pendingMeals,
+                                       caredMeals: caredMeals)
         }
 
         let resolvesInProgress = snapshot.inProgressMealType.map { meal in
@@ -78,7 +116,9 @@ public enum WidgetStateResolver {
         return ResolvedWidgetState(
             todayCount: snapshot.todayCount + added,
             inProgressMeal: resolvesInProgress ? nil : snapshot.inProgressMealType,
-            needsRecordCount: snapshot.needsRecordCount
+            needsRecordCount: snapshot.needsRecordCount,
+            recordedMeals: Set(snapshot.recordedMealTypes ?? []).union(pendingMeals),
+            caredMeals: caredMeals
         )
     }
 

@@ -22,7 +22,7 @@ struct FoodTagsView: View {
             FlowLayout(spacing: 6) {
                 ForEach(tagsToShow, id: \.self) { item in
                     Text(item)
-                        .font(.system(size: 14))
+                        .scaledFont(size: 14)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(Color.blue.opacity(0.15))
@@ -34,7 +34,7 @@ struct FoodTagsView: View {
             // 설명 (있을 경우)
             if let desc = description, !desc.isEmpty {
                 Text(desc)
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .lineLimit(showFullAnalysis ? nil : 2)
             }
@@ -48,9 +48,9 @@ struct FoodTagsView: View {
                 }) {
                     HStack(spacing: 4) {
                         Text(showFullAnalysis ? "접기" : "전체보기")
-                            .font(.system(size: 13))
+                            .scaledFont(size: 13)
                         Image(systemName: showFullAnalysis ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                     }
                     .foregroundColor(.blue)
                 }

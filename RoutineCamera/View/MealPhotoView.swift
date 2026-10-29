@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 import AVFoundation
 import Photos
 
@@ -29,7 +30,7 @@ struct MealPhotoView: View {
 
     // 운동 모드에서는 슬롯(아침/점심/…)이 저장 위치일 뿐이므로 화면에는 "운동"으로 보여준다
     private var isExerciseMode: Bool { SettingsManager.shared.albumType == .exercise }
-    private var slotLabel: String { isExerciseMode ? "운동" : mealType.rawValue }
+    private var slotLabel: String { isExerciseMode ? String(localized: "slot.workout", defaultValue: "운동", comment: "Slot label in workout mode") : mealType.displayName }
     private var slotSymbolName: String { isExerciseMode ? "figure.run" : mealType.symbolName }
     private var slotSymbolColor: Color { isExerciseMode ? .green : mealType.symbolColor }
 
@@ -203,7 +204,8 @@ struct MealPhotoView: View {
     private func photoCountBadge(for record: MealRecord) -> some View {
         // 사진 없이 기록한 경우에는 뱃지를 표시하지 않음
         // 개별 식사의 숨기기 설정이나 전역 설정이 꺼져있으면 표시하지 않음
-        if !record.recordedWithoutPhoto && !record.hidePhotoCountBadge && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount {
+        // 이 뱃지는 "식후 사진이 아직 없다"는 뜻이므로, 식후를 쓰지 않거나 "다 먹음"으로 마친 식사에는 표시하지 않는다
+        if !record.recordedWithoutPhoto && !record.ateAll && !record.hidePhotoCountBadge && SettingsManager.shared.albumType == .diet && SettingsManager.shared.showRemainingPhotoCount && SettingsManager.shared.useAfterPhoto {
             let photoCount = (record.beforeImageData != nil ? 1 : 0) + (record.afterImageData != nil ? 1 : 0)
             if photoCount == 1 {
                 Text("1")
@@ -227,7 +229,7 @@ struct MealPhotoView: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 22, height: 22)
-                        .background(Color.orange)
+                        .background(Color.solidOrange)
                         .clipShape(Circle())
                         .padding(6)
                 }
@@ -329,7 +331,8 @@ struct MealPhotoView: View {
     private func loadUnreadFeedbackCount() {
         Task {
             do {
-                let count = try await FriendManager.shared.getUnreadFeedbackCount(date: date, mealType: mealType)
+                let count = try await FriendManager.shared.getUnreadFeedbackCount(
+                    date: date, mealType: mealType, album: SettingsManager.shared.albumType)
                 await MainActor.run {
                     self.unreadFeedbackCount = count
                 }
@@ -364,7 +367,8 @@ struct MealPhotoView: View {
     @ViewBuilder
     private var overlayContent: some View {
         if let record = mealRecord {
-            if let imageData = record.thumbnailImageData, let uiImage = UIImage(data: imageData) {
+            // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게 푼다 (한 화면에 칸이 여러 개라 메모리가 치솟는다)
+            if let imageData = record.thumbnailImageData, let uiImage = MealImageResizer.downsampledImage(from: imageData, maxPixel: 600) {
                 // 사진이 있는 경우
                 photoContentView(record: record, image: uiImage)
             } else if record.recordedWithoutPhoto {
@@ -384,23 +388,23 @@ struct MealPhotoView: View {
     private var accessibilityStatus: String {
         if let record = mealRecord, record.isComplete {
             var parts: [String] = []
-            parts.append(record.recordedWithoutPhoto ? "사진 없이 기록 완료" : "기록 완료")
-            if let memo = record.memo, !memo.isEmpty { parts.append("메모 있음") }
-            if unreadFeedbackCount > 0 { parts.append("안 읽은 피드백 \(unreadFeedbackCount)개") }
+            parts.append(record.recordedWithoutPhoto ? String(localized: "사진 없이 기록 완료", comment: "Accessibility status: logged without a photo") : String(localized: "기록 완료", comment: "Accessibility status: logged"))
+            if let memo = record.memo, !memo.isEmpty { parts.append(String(localized: "메모 있음", comment: "Accessibility status: has a note")) }
+            if unreadFeedbackCount > 0 { parts.append(String(localized: "안 읽은 피드백 \(unreadFeedbackCount)개", comment: "Accessibility status: number of unread cheers")) }
             return parts.joined(separator: ", ")
         }
-        if isFutureDate { return "예정된 끼니, 아직 기록할 수 없음" }
+        if isFutureDate { return String(localized: "예정된 끼니, 아직 기록할 수 없음", comment: "Accessibility status: future meal, cannot log yet") }
 
         let baseStatus: String
-        if isWithinGracePeriod && isPastDateMissed { baseStatus = "아직 기록 전, 지금 기록할 수 있어요" }
-        else if isStreakBreakDay { baseStatus = "미기록, 다음 기록부터 다시 이어져요" }
-        else if isSoftMissed { baseStatus = "미기록" }
-        else if isCurrentMeal { baseStatus = "지금 기록할 차례" }
-        else { baseStatus = "아직 기록 안 함" }
+        if isWithinGracePeriod && isPastDateMissed { baseStatus = String(localized: "아직 기록 전, 지금 기록할 수 있어요", comment: "Accessibility status: not logged yet but can still be logged") }
+        else if isStreakBreakDay { baseStatus = String(localized: "미기록, 다음 기록부터 다시 이어져요", comment: "Accessibility status: missed; streak restarts from next entry") }
+        else if isSoftMissed { baseStatus = String(localized: "미기록", comment: "Accessibility status: missed meal") }
+        else if isCurrentMeal { baseStatus = String(localized: "지금 기록할 차례", comment: "Accessibility status: this is the meal to log now") }
+        else { baseStatus = String(localized: "아직 기록 안 함", comment: "Accessibility status: not logged yet") }
 
         // 기록 없는 칸에도 콕/댓글 수신 상태 안내
         if unreadFeedbackCount > 0 {
-            return "안 읽은 피드백 \(unreadFeedbackCount)개, \(baseStatus)"
+            return String(localized: "안 읽은 피드백 \(unreadFeedbackCount)개, \(baseStatus)", comment: "Accessibility status: unread cheers count, then meal status")
         }
         return baseStatus
     }
@@ -408,9 +412,9 @@ struct MealPhotoView: View {
     // 보이스오버 힌트 (액션 안내)
     private var accessibilityActionHint: String {
         if isFutureDate { return "" }
-        if mealRecord?.isComplete == true { return "두 번 탭하여 상세 보기" }
-        if unreadFeedbackCount > 0 { return "두 번 탭하여 피드백 보기" }
-        return "두 번 탭하여 기록"
+        if mealRecord?.isComplete == true { return String(localized: "두 번 탭하여 상세 보기", comment: "Accessibility hint: open details") }
+        if unreadFeedbackCount > 0 { return String(localized: "두 번 탭하여 피드백 보기", comment: "Accessibility hint: view cheers") }
+        return String(localized: "두 번 탭하여 기록", comment: "Accessibility hint: log this meal")
     }
 
     var body: some View {
@@ -498,44 +502,24 @@ struct EmptyMealFeedbackSheet: View {
 
     private var dateString: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 (E)"
+        formatter.setLocalizedDateFormatFromTemplate("MMMdEEE")
         return formatter.string(from: date)
     }
 
     var body: some View {
         NavigationView {
-            Group {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if feedbacks.isEmpty {
-                    Text("받은 피드백이 없습니다")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(feedbacks) { feedback in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(feedback.authorNickname)
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(feedback.createdAt, style: .relative)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
-                            }
-                            Text(feedback.content)
-                                .font(.system(size: 15))
-                        }
-                        .padding(.vertical, 4)
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(feedback.authorNickname)님의 피드백: \(feedback.content)")
-                    }
-                    .listStyle(.plain)
-                }
+            ScrollView {
+                // 이모지 반응은 위에 모아 세고, 글은 시간순으로 쌓는다
+                FeedbackThreadView(
+                    feedbacks: feedbacks,
+                    myUserId: FriendManager.shared.myUserId,
+                    isLoading: isLoading,
+                    emptyText: String(localized: "받은 응원이 없습니다", comment: "Empty state: no cheers received")
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
             }
-            .navigationTitle("\(dateString) \(mealType.rawValue)")
+            .navigationTitle("\(dateString) \(mealType.displayName)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -548,9 +532,9 @@ struct EmptyMealFeedbackSheet: View {
                 Button(action: onRecord) {
                     HStack(spacing: 8) {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 14, weight: .semibold))
+                            .scaledFont(size: 14, weight: .semibold)
                         Text("지금 기록하기")
-                            .font(.system(size: 16, weight: .semibold))
+                            .scaledFont(size: 16, weight: .semibold)
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -562,10 +546,14 @@ struct EmptyMealFeedbackSheet: View {
                 .background(Color(.systemBackground))
             }
             .task {
-                feedbacks = (try? await FriendManager.shared.getMyFeedbacks(date: date, mealType: mealType)) ?? []
+                feedbacks = (try? await FriendManager.shared.getFeedbackThread(
+                    ownerId: FriendManager.shared.myUserId, date: date, mealType: mealType,
+                    album: SettingsManager.shared.albumType
+                )) ?? []
                 isLoading = false
                 // 열람했으므로 읽음 처리 (배지 해제)
-                try? await FriendManager.shared.markAllFeedbacksAsRead(date: date, mealType: mealType)
+                try? await FriendManager.shared.markAllFeedbacksAsRead(
+                    date: date, mealType: mealType, album: SettingsManager.shared.albumType)
             }
         }
     }

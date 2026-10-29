@@ -21,6 +21,10 @@ struct MomentsView: View {
 
     // 고스트 셀이 시간이 지나면 스스로 사라지도록 주기적으로 현재 시각을 갱신한다
     @State private var now: Date = Date()
+    #if DEBUG
+    // 스크린샷용: OPEN_FIRST_DETAIL_FOR_TEST=1 이면 오늘 아침 기록 상세를 바로 연다
+    @State private var testDetailRecord: MealRecord?
+    #endif
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -60,9 +64,14 @@ struct MomentsView: View {
         .map { (mealType: $0.0, at: $0.1) }
     }
 
+    // 지금 찍으면 들어갈 칸 — 이미 기록한 끼니는 덮어쓰지 않고 간식 칸으로 (now 의존으로 분 단위 갱신)
+    private var nextMealType: MealType { mealStore.recordableMealType(at: now) }
+
     // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
-        isExercise ? "운동 기록하기" : "\(MealType.inferred().rawValue) 기록하기"
+        isExercise
+            ? String(localized: "운동 기록하기", comment: "Button: log a workout")
+            : String(localized: "\(nextMealType.displayName) 기록하기", comment: "Button: log a meal; argument is the meal name (Breakfast, Lunch…)")
     }
 
     // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
@@ -130,6 +139,12 @@ struct MomentsView: View {
                 emptyState
             } else {
                 List {
+                    // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다
+                    if !isExercise {
+                        MealRhythmCard(mealStore: mealStore, now: now)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowSeparator(.hidden)
+                    }
                     ForEach(dayGroups, id: \.day) { group in
                         Section {
                             ForEach(group.rows) { row in
@@ -168,6 +183,32 @@ struct MomentsView: View {
             }
         }
         .onReceive(clock) { now = $0 }
+        #if DEBUG
+        // 스크린샷용 상세: 이 화면 구조에선 프로그램으로 push 가 먹지 않아, 같은 모양(뒤로 버튼 + 상세)을 전체 화면으로 띄운다
+        .fullScreenCover(item: $testDetailRecord) { record in
+            NavigationStack {
+                PhotoDetailView(date: record.date, mealType: record.mealType, mealRecord: record,
+                                mealStore: mealStore, embedInNavigation: false)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button { testDetailRecord = nil } label: { Image(systemName: "chevron.left") }
+                        }
+                    }
+            }
+        }
+        .onAppear {
+            guard ProcessInfo.processInfo.environment["OPEN_FIRST_DETAIL_FOR_TEST"] == "1" else { return }
+            // 기록을 불러오는 데 시간이 걸릴 수 있어, 기록이 보일 때까지 몇 번 더 본다
+            func openFirst(_ attempt: Int) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + (attempt == 0 ? 1.5 : 0.8)) {
+                    testDetailRecord = moments.first { Calendar.current.isDateInToday($0.date) && $0.mealType == .breakfast }
+                        ?? moments.first
+                    if testDetailRecord == nil && attempt < 8 { openFirst(attempt + 1) }
+                }
+            }
+            openFirst(0)
+        }
+        #endif
         // 기록 버튼은 하단 고정 (스크롤해도 항상 보임)
         .safeAreaInset(edge: .bottom) {
             recordButton
@@ -193,19 +234,19 @@ struct MomentsView: View {
             recordingPhotoType = .before
             // 식단·운동 모두 "지금 시각"으로 슬롯을 정한다.
             // (운동을 늘 .breakfast에 넣던 탓에 저녁 운동도 아침 칸에 들어가고 하루 한 번만 기록됐다)
-            recordingMealType = MealType.inferred()
+            recordingMealType = nextMealType
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: isExercise ? "figure.run" : "camera.fill")
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Text(recordButtonTitle)
-                    .font(.system(size: 17, weight: .semibold))
+                    .scaledFont(size: 17, weight: .semibold)
                 Spacer()
             }
             .foregroundColor(.white)
             .padding(.vertical, 16)
             .padding(.horizontal, 18)
-            .background(isExercise ? Color.green : Color.blue)
+            .background(isExercise ? Color.solidGreen : Color.blue)
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
@@ -232,11 +273,10 @@ struct MomentsView: View {
 
     private func dayLabel(_ day: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(day) { return "오늘" }
-        if cal.isDateInYesterday(day) { return "어제" }
+        if cal.isDateInToday(day) { return String(localized: "오늘", comment: "Date label: today") }
+        if cal.isDateInYesterday(day) { return String(localized: "어제", comment: "Date label: yesterday") }
         let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "M월 d일 (E)"
+        fmt.setLocalizedDateFormatFromTemplate("MMMdE")
         return fmt.string(from: day)
     }
 
@@ -249,9 +289,9 @@ struct MomentsView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
-                    Text(isExercise ? "운동" : record.mealType.rawValue)
+                    Text(isExercise ? AlbumType.exercise.displayName : record.mealType.displayName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.primary)
                     if let t = record.capturedAt {
@@ -267,23 +307,29 @@ struct MomentsView: View {
                         tag("완료", system: "checkmark.circle.fill", color: .green)
                     } else {
                         // 상태는 하나만 — 마감된 식사 / 다 먹음 / 어떤 사진이 비었는지 명시
+                        // 식후 사진을 쓰지 않는 설정에서는 사진 한 장이 곧 마감이라 미마감 상태가 없다
                         if record.hasBeforeAfterComparison {
                             tag("식사 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.ateAll {
                             tag("다 먹음", system: "checkmark.circle.fill", color: .green)
+                        } else if !SettingsManager.shared.useAfterPhoto {
+                            tag("기록 완료", system: "checkmark.circle.fill", color: .green)
                         } else if record.isEatingInProgressToday {
                             // 식전만 찍힌 오늘 기록 — 무엇이 비었는지 그대로 말해준다
-                            tag("식후 사진 기록 필요", system: "hourglass", color: .orange)
+                            tag("식후 사진 필요", system: "hourglass", color: .orange)
                         } else if record.needsRecordCompletion {
-                            tag("식후 사진 기록 필요", system: "pencil.circle", color: .gray)
+                            tag("식후 사진 필요", system: "pencil.circle", color: .gray)
                         } else if record.needsBeforePhoto {
-                            tag("식전 사진 기록 필요", system: "pencil.circle", color: .gray)
+                            tag("식전 사진 필요", system: "pencil.circle", color: .gray)
                         }
                     }
                     if let memo = record.memo, !memo.isEmpty {
                         tag("메모", system: "note.text", color: .orange)
                     }
                 }
+                // 좁은 화면에서 표시가 "…" 로 잘리지 않게 한 줄에 맞춰 줄인다
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
             }
             Spacer(minLength: 0)
         }
@@ -306,16 +352,16 @@ struct MomentsView: View {
                     .frame(width: 72, height: 72)
                     .overlay(
                         Image(systemName: "camera")
-                            .font(.system(size: 22))
+                            .scaledFont(size: 22)
                             .foregroundColor(meal.symbolColor.opacity(0.5))
                     )
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         Image(systemName: meal.symbolName)
-                            .font(.system(size: 13))
+                            .scaledFont(size: 13)
                             .foregroundColor(meal.symbolColor.opacity(0.6))
-                        Text(meal.rawValue)
+                        Text(meal.displayName)
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(.secondary)
                         Text(timeLabel(at))
@@ -323,8 +369,8 @@ struct MomentsView: View {
                             .foregroundColor(.secondary.opacity(0.7))
                     }
 
-                    Text(now < at ? "곧 \(meal.rawValue) 시간이에요" : "지금 남기면 여기에 들어가요")
-                        .font(.system(size: 12))
+                    (now < at ? Text("곧 \(meal.displayName) 시간이에요") : Text("지금 남기면 여기에 들어가요"))
+                        .scaledFont(size: 12)
                         .foregroundColor(.secondary.opacity(0.8))
                 }
                 Spacer(minLength: 0)
@@ -333,14 +379,15 @@ struct MomentsView: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(meal.rawValue), 아직 기록 전")
+        .accessibilityLabel("\(meal.displayName), 아직 기록 전")
         .accessibilityHint("두 번 탭하여 지금 기록")
     }
 
     @ViewBuilder
     private func thumbnail(_ record: MealRecord) -> some View {
         let size: CGFloat = 72
-        if let data = record.thumbnailImageData, let img = UIImage(data: data) {
+        // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게 푼다 (큰 사진이 여러 장이면 메모리가 치솟는다)
+        if let data = record.thumbnailImageData, let img = MealImageResizer.downsampledImage(from: data, maxPixel: size * 3) {
             Image(uiImage: img)
                 .resizable()
                 .scaledToFill()
@@ -352,18 +399,18 @@ struct MomentsView: View {
                 .frame(width: size, height: size)
                 .overlay(
                     Image(systemName: isExercise ? "figure.run" : (record.ateAll ? "checkmark.circle.fill" : record.mealType.symbolName))
-                        .font(.system(size: 26))
+                        .scaledFont(size: 26)
                         .foregroundColor(isExercise ? .green : (record.ateAll ? .green : record.mealType.symbolColor.opacity(0.6)))
                 )
         }
     }
 
-    private func tag(_ text: String, system: String, color: Color) -> some View {
+    private func tag(_ text: LocalizedStringKey, system: String, color: Color) -> some View {
         HStack(spacing: 3) {
             Image(systemName: system)
-                .font(.system(size: 10))
+                .scaledFont(size: 10)
             Text(text)
-                .font(.system(size: 11, weight: .medium))
+                .scaledFont(size: 11, weight: .medium)
         }
         .foregroundColor(color)
         .padding(.horizontal, 7)
@@ -373,10 +420,7 @@ struct MomentsView: View {
     }
 
     private func timeLabel(_ date: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "ko_KR")
-        fmt.dateFormat = "a h:mm"
-        return fmt.string(from: date)
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     // MARK: - 빈 상태
@@ -390,9 +434,9 @@ struct MomentsView: View {
             VStack(spacing: 6) {
                 Text("아직 기록이 없어요")
                     .font(.title3.weight(.semibold))
-                Text(isExercise
-                     ? "운동한 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요."
-                     : "먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
+                (isExercise
+                     ? Text("운동한 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요.")
+                     : Text("먹은 순간을 사진으로 툭 남겨보세요.\n채워야 할 칸은 없어요."))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)

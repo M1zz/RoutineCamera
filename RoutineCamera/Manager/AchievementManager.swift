@@ -11,12 +11,57 @@ import SwiftUI
 // 업적 구조체
 struct Achievement: Identifiable, Codable {
     let id: String
-    let title: String
-    let description: String
     let icon: String
     let color: String
     var isUnlocked: Bool = false
     var unlockedDate: Date?
+
+    // 이름·설명은 저장하지 않고 id 로 그때그때 만든다 — 기기 언어가 바뀌어도 그 언어로 보인다.
+    // (예전 버전이 저장한 title·description 키는 디코딩할 때 무시된다)
+    var title: String { Achievement.title(for: id) }
+    var description: String { Achievement.description(for: id) }
+
+    static func title(for id: String) -> String {
+        switch id {
+        case "streak_7": return String(localized: "일주일 연속", comment: "Achievement title")
+        case "streak_14": return String(localized: "2주 연속", comment: "Achievement title")
+        case "streak_30": return String(localized: "한 달 연속", comment: "Achievement title")
+        case "streak_100": return String(localized: "100일 연속", comment: "Achievement title")
+        case "breakfast_30": return String(localized: "아침형 인간", comment: "Achievement title")
+        case "lunch_30": return String(localized: "점심 마스터", comment: "Achievement title")
+        case "dinner_30": return String(localized: "저녁 달인", comment: "Achievement title")
+        case "total_50": return String(localized: "기록의 시작", comment: "Achievement title")
+        case "total_100": return String(localized: "백전백승", comment: "Achievement title")
+        case "total_300": return String(localized: "삼백 기록", comment: "Achievement title")
+        case "total_500": return String(localized: "오백 돌파", comment: "Achievement title")
+        case "photo_100": return String(localized: "사진 마니아", comment: "Achievement title")
+        case "memo_50": return String(localized: "메모의 달인", comment: "Achievement title")
+        case "perfect_week": return String(localized: "완벽한 일주일", comment: "Achievement title")
+        case "perfect_month": return String(localized: "완벽한 한 달", comment: "Achievement title")
+        default: return ""
+        }
+    }
+
+    static func description(for id: String) -> String {
+        switch id {
+        case "streak_7": return String(localized: "7일 연속으로 기록했어요", comment: "Achievement description")
+        case "streak_14": return String(localized: "14일 연속으로 기록했어요", comment: "Achievement description")
+        case "streak_30": return String(localized: "30일 연속으로 기록했어요", comment: "Achievement description")
+        case "streak_100": return String(localized: "100일 연속으로 기록했어요", comment: "Achievement description")
+        case "breakfast_30": return String(localized: "아침 식사 30회 기록", comment: "Achievement description")
+        case "lunch_30": return String(localized: "점심 식사 30회 기록", comment: "Achievement description")
+        case "dinner_30": return String(localized: "저녁 식사 30회 기록", comment: "Achievement description")
+        case "total_50": return String(localized: "총 50회 기록 달성", comment: "Achievement description")
+        case "total_100": return String(localized: "총 100회 기록 달성", comment: "Achievement description")
+        case "total_300": return String(localized: "총 300회 기록 달성", comment: "Achievement description")
+        case "total_500": return String(localized: "총 500회 기록 달성", comment: "Achievement description")
+        case "photo_100": return String(localized: "사진 100장 촬영", comment: "Achievement description")
+        case "memo_50": return String(localized: "메모 50개 작성", comment: "Achievement description")
+        case "perfect_week": return String(localized: "일주일 동안 모든 끼니 기록", comment: "Achievement description")
+        case "perfect_month": return String(localized: "한 달 동안 모든 끼니 기록", comment: "Achievement description")
+        default: return ""
+        }
+    }
 }
 
 import Combine
@@ -38,29 +83,21 @@ class AchievementManager: ObservableObject {
             // 연속 기록 업적
             Achievement(
                 id: "streak_7",
-                title: "일주일 연속",
-                description: "7일 연속으로 기록했어요",
                 icon: "🔥",
                 color: "orange"
             ),
             Achievement(
                 id: "streak_14",
-                title: "2주 연속",
-                description: "14일 연속으로 기록했어요",
                 icon: "💪",
                 color: "red"
             ),
             Achievement(
                 id: "streak_30",
-                title: "한 달 연속",
-                description: "30일 연속으로 기록했어요",
                 icon: "🏆",
                 color: "yellow"
             ),
             Achievement(
                 id: "streak_100",
-                title: "100일 연속",
-                description: "100일 연속으로 기록했어요",
                 icon: "👑",
                 color: "purple"
             ),
@@ -68,22 +105,16 @@ class AchievementManager: ObservableObject {
             // 식사별 업적
             Achievement(
                 id: "breakfast_30",
-                title: "아침형 인간",
-                description: "아침 식사 30회 기록",
                 icon: "🌅",
                 color: "orange"
             ),
             Achievement(
                 id: "lunch_30",
-                title: "점심 마스터",
-                description: "점심 식사 30회 기록",
                 icon: "☀️",
                 color: "yellow"
             ),
             Achievement(
                 id: "dinner_30",
-                title: "저녁 달인",
-                description: "저녁 식사 30회 기록",
                 icon: "🌙",
                 color: "blue"
             ),
@@ -91,29 +122,21 @@ class AchievementManager: ObservableObject {
             // 총 기록 업적
             Achievement(
                 id: "total_50",
-                title: "기록의 시작",
-                description: "총 50회 기록 달성",
                 icon: "📝",
                 color: "green"
             ),
             Achievement(
                 id: "total_100",
-                title: "백전백승",
-                description: "총 100회 기록 달성",
                 icon: "💯",
                 color: "blue"
             ),
             Achievement(
                 id: "total_300",
-                title: "삼백 기록",
-                description: "총 300회 기록 달성",
                 icon: "🎯",
                 color: "red"
             ),
             Achievement(
                 id: "total_500",
-                title: "오백 돌파",
-                description: "총 500회 기록 달성",
                 icon: "⭐",
                 color: "yellow"
             ),
@@ -121,8 +144,6 @@ class AchievementManager: ObservableObject {
             // 사진 업적
             Achievement(
                 id: "photo_100",
-                title: "사진 마니아",
-                description: "사진 100장 촬영",
                 icon: "📸",
                 color: "purple"
             ),
@@ -130,8 +151,6 @@ class AchievementManager: ObservableObject {
             // 메모 업적
             Achievement(
                 id: "memo_50",
-                title: "메모의 달인",
-                description: "메모 50개 작성",
                 icon: "✍️",
                 color: "brown"
             ),
@@ -139,15 +158,11 @@ class AchievementManager: ObservableObject {
             // 완벽한 주/월
             Achievement(
                 id: "perfect_week",
-                title: "완벽한 일주일",
-                description: "일주일 동안 모든 끼니 기록",
                 icon: "🌟",
                 color: "yellow"
             ),
             Achievement(
                 id: "perfect_month",
-                title: "완벽한 한 달",
-                description: "한 달 동안 모든 끼니 기록",
                 icon: "🎊",
                 color: "rainbow"
             )

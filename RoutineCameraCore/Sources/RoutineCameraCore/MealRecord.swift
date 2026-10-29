@@ -37,10 +37,17 @@ public struct VisionAnalysisData: Codable, Sendable {
 
     public var summary: String {
         var result = ""
-        if !foodItems.isEmpty { result += "🍽️ 음식: \(foodItems.joined(separator: ", "))\n" }
+        // 패키지엔 리소스가 없어 앱/위젯 번들(.main)의 카탈로그에서 찾는다
+        if !foodItems.isEmpty {
+            let foods = foodItems.joined(separator: ", ")
+            result += "🍽️ " + String(localized: "음식: \(foods)", bundle: .main, comment: "Food analysis summary: detected foods") + "\n"
+        }
         if let desc = description, !desc.isEmpty { result += "💬 \(desc)\n" }
-        if !extractedText.isEmpty { result += "📝 텍스트: \(extractedText.joined(separator: " "))" }
-        return result.isEmpty ? "분석 결과 없음" : result
+        if !extractedText.isEmpty {
+            let text = extractedText.joined(separator: " ")
+            result += "📝 " + String(localized: "텍스트: \(text)", bundle: .main, comment: "Food analysis summary: text found in the photo")
+        }
+        return result.isEmpty ? String(localized: "분석 결과 없음", bundle: .main, comment: "Food analysis summary: nothing found") : result
     }
 }
 

@@ -16,6 +16,7 @@ struct ContentView: View {
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
     @StateObject private var friendManager = FriendManager.shared
+    @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
     @State private var showingStatistics = false
@@ -35,11 +36,10 @@ struct ContentView: View {
     // 보이스오버 커스텀 로터용 네임스페이스
     @Namespace private var rotorNamespace
 
-    // 한글 날짜 라벨 (로터 항목 낭독용)
+    // 날짜 라벨 (로터 항목 낭독용, 지역 맞춤 표기)
     private func rotorDateLabel(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "M월 d일 EEEE"
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdEEEE")
         return formatter.string(from: date)
     }
 
@@ -126,14 +126,19 @@ struct ContentView: View {
         return nil
     }
 
+    // 운동 앨범은 보기 설정과 상관없이 3열 사진 격자로 보여준다
+    private var showsExerciseGrid: Bool {
+        settingsManager.albumType == .exercise
+    }
+
     // 네이티브 내비게이션 바 타이틀
     private var navTitle: String {
+        if showsExerciseGrid { return AlbumType.exercise.displayName }
         if settingsManager.useMomentsFeed {
-            return settingsManager.albumType == .exercise ? "운동" : "식단"
+            return AlbumType.diet.displayName
         }
         let f = DateFormatter()
-        f.locale = Locale(identifier: "ko_KR")
-        f.dateFormat = "M월 d일 (E)"
+        f.setLocalizedDateFormatFromTemplate("MMMdE")
         return f.string(from: currentVisibleDate)
     }
 
@@ -147,16 +152,30 @@ struct ContentView: View {
                         settingsManager.albumType = settingsManager.albumType == .diet ? .exercise : .diet
                     }
                 } label: {
-                    Label(settingsManager.albumType.rawValue, systemImage: settingsManager.albumType.symbolName)
+                    Label(settingsManager.albumType.displayName, systemImage: settingsManager.albumType.symbolName)
                 }
             }
+            // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
+            Button { showingFriends = true } label: {
+                Image(systemName: "person.2")
+                    .overlay(alignment: .topTrailing) {
+                        if !friendManager.incomingRequests.isEmpty {
+                            Circle().fill(Color.red).frame(width: 8, height: 8).offset(x: 3, y: -2)
+                        }
+                    }
+            }
+            .accessibilityLabel(friendManager.incomingRequests.isEmpty
+                                ? String(localized: "친구", comment: "Toolbar button: friends")
+                                : String(localized: "친구, 받은 요청 \(friendManager.incomingRequests.count)건",
+                                         comment: "Toolbar friends button with pending request count (VoiceOver)"))
+            .accessibilityInputLabels([Text("친구")])
             Menu {
                 Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
-                Button { showingFriends = true } label: { Label("친구", systemImage: "person.2.fill") }
                 Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
+            .accessibilityLabel("더 보기")
         }
     }
 
@@ -177,7 +196,7 @@ struct ContentView: View {
                 }
                 .frame(height: 6)
                 Text("\(recordedDays)/\(goalManager.goalDays)일")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(size: 12, weight: .medium)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -201,14 +220,19 @@ struct ContentView: View {
                 // 메인 콘텐츠 (상단은 네이티브 내비게이션 바)
                 VStack(spacing: 0) {
                     // 기록 유도 배너: 식사 시간이 지났는데 미기록이면 표시 (격자 모드에서만)
-                    if !settingsManager.useMomentsFeed, let pending = pendingMealType {
+                    if !settingsManager.useMomentsFeed, !showsExerciseGrid, let pending = pendingMealType {
                         RecordNowBanner(mealType: pending) {
                             autoOpenPhotoType = .before
                             autoOpenMealType = pending
                         }
                     }
+                    // 고마운 순간의 응원 부탁 — 프로 사용자에게만, 기록이 쌓인 숫자를 보여 줄 때 드물게
+                    TipAskBanner(mealStore: mealStore)
 
-                    if settingsManager.useMomentsFeed {
+                    if showsExerciseGrid {
+                        // 운동: 인스타그램 피드처럼 날짜+사진 3열 격자
+                        ExerciseGridView(mealStore: mealStore)
+                    } else if settingsManager.useMomentsFeed {
                         // 순간 컬렉션 피드 (슬롯 없는 사진 일기)
                         MomentsView(mealStore: mealStore)
                     } else {
@@ -266,6 +290,16 @@ struct ContentView: View {
                 .onAppear {
                     #if DEBUG
                     // UI 검증용: 환경변수로 카메라 시트 자동 오픈 (시뮬레이터 스크린샷 검증에 사용)
+                    // 심사용 스크린샷: 세끼 프로 결제 화면 바로 열기 (Xcode 실행 + Config/SekkiPro.storekit 이어야 상품이 뜬다)
+                    if ProcessInfo.processInfo.environment["OPEN_PAYWALL_FOR_TEST"] == "1" {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingPaywallForTest = true }
+                    }
+                    // 스크린샷용: OPEN_SCREEN_FOR_TEST=stats|settings 로 그 화면을 바로 연다
+                    switch ProcessInfo.processInfo.environment["OPEN_SCREEN_FOR_TEST"] {
+                    case "stats": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingStatistics = true }
+                    case "settings": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingSettings = true }
+                    default: break
+                    }
                     if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             autoOpenMealType = .lunch
@@ -282,19 +316,16 @@ struct ContentView: View {
                             proxy.scrollTo(todayDate, anchor: .top)
                         }
 
-                        // 알림 상태 갱신 (dateList 초기화와 스크롤이 완료된 후)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            // 날짜 변경 확인 및 알림 재설정
-                            self.notificationManager.checkAndRescheduleIfNeeded()
-
-                            // 오늘 식사 기록 확인 후 알림 업데이트
-                            let todayMeals = self.mealStore.getMeals(for: self.todayDate)
-                            self.notificationManager.updateNotificationsBasedOnRecords(meals: todayMeals)
-                        }
                     }
 
-                    // 알림 권한 요청
-                    if !notificationManager.notificationsEnabled {
+                    // 알림 권한 요청 — 이미 정해졌으면 묻지 않고 바로 답이 온다.
+                    // 허용돼 있으면 식사 전 알림을 앞으로 며칠 치 새로 건다.
+                    var skipNotificationPrompt = false
+                    #if DEBUG
+                    // UI 검증용: 시뮬레이터 스크린샷에서 권한 창이 화면을 가리지 않게
+                    skipNotificationPrompt = ProcessInfo.processInfo.environment["SKIP_NOTIFICATION_PROMPT_FOR_TEST"] == "1"
+                    #endif
+                    if !skipNotificationPrompt {
                         notificationManager.requestAuthorization { granted in
                             if granted {
                                 notificationManager.scheduleMealNotifications()
@@ -309,9 +340,27 @@ struct ContentView: View {
                         }
                     }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    // 앱으로 돌아올 때마다 권한·오늘 기록을 다시 보고 식사 전 알림을 새로 건다
+                    notificationManager.checkNotificationStatus()
+                }
+                .onReceive(notificationManager.$requestedCameraMeal) { meal in
+                    // 식사 전 알림을 눌러 들어오면 그 끼니 카메라를 바로 연다
+                    guard let meal else { return }
+                    notificationManager.requestedCameraMeal = nil
+                    guard settingsManager.albumType == .diet else { return }
+                    autoOpenPhotoType = .before
+                    autoOpenMealType = meal
+                }
+                .onReceive(notificationManager.$requestedFriendsScreen) { requested in
+                    // 친구 기록 알림을 눌러 들어오면 친구 화면을 연다
+                    guard requested else { return }
+                    notificationManager.requestedFriendsScreen = false
+                    showingFriends = true
+                }
 
                 // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)
-                if !settingsManager.useMomentsFeed && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
+                if !settingsManager.useMomentsFeed && !showsExerciseGrid && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
                     VStack {
                         Spacer()
                         HStack {
@@ -323,9 +372,9 @@ struct ContentView: View {
                             } label: {
                                 HStack(spacing: 5) {
                                     Image(systemName: "arrow.up")
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .scaledFont(size: 13, weight: .semibold)
                                     Text("오늘")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .scaledFont(size: 15, weight: .semibold)
                                 }
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 14)
@@ -336,6 +385,7 @@ struct ContentView: View {
                             .padding(.trailing, 16)
                             .padding(.bottom, 24)
                             .accessibilityLabel("오늘로 이동")
+                            .accessibilityInputLabels([Text("오늘"), Text("오늘로 이동")])
                             .accessibilityHint("두 번 탭하여 오늘 날짜로 스크롤")
                         }
                     }
@@ -387,6 +437,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
             }
+            .proPaywall(isPresented: $showingPaywallForTest)
             .sheet(isPresented: $showingCaredMealsPrompt) {
                 CaredMealsPromptView()
             }
@@ -439,14 +490,14 @@ struct RecordNowBanner: View {
         Button(action: onTap) {
             HStack(spacing: 8) {
                 Image(systemName: "camera.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                Text("\(mealType.rawValue) 기록할 시간이에요")
-                    .font(.system(size: 15, weight: .semibold))
-                    .lineLimit(1)
+                    .scaledFont(size: 14, weight: .semibold)
+                Text("\(mealType.displayName) 기록할 시간이에요")
+                    .scaledFont(size: 15, weight: .semibold)
+                    .lineLimit(2)
                     .minimumScaleFactor(0.8)
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .opacity(0.7)
             }
             .foregroundColor(.white)
@@ -456,7 +507,7 @@ struct RecordNowBanner: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
-        .accessibilityLabel("\(mealType.rawValue) 기록할 시간이에요")
+        .accessibilityLabel("\(mealType.displayName) 기록할 시간이에요")
         .accessibilityHint("두 번 탭하여 카메라 열기")
     }
 }

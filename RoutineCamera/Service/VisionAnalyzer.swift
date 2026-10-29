@@ -19,14 +19,14 @@ struct FoodAnalysisResult {
         var result = ""
 
         if !foodItems.isEmpty {
-            result += "🍽️ 음식: \(foodItems.joined(separator: ", "))\n"
+            result += String(localized: "🍽️ 음식: \(foodItems.joined(separator: ", "))", comment: "Analysis summary line listing recognized foods") + "\n"
         }
 
         if !extractedText.isEmpty {
-            result += "📝 텍스트: \(extractedText.joined(separator: " "))"
+            result += String(localized: "📝 텍스트: \(extractedText.joined(separator: " "))", comment: "Analysis summary line with text read from the photo")
         }
 
-        return result.isEmpty ? "분석 결과 없음" : result
+        return result.isEmpty ? String(localized: "분석 결과 없음", comment: "Shown when photo analysis found nothing") : result
     }
 }
 
@@ -38,102 +38,102 @@ class VisionAnalyzer {
     // 영어 음식 이름을 한국어로 변환하는 딕셔너리
     private let foodNameTranslations: [String: String] = [
         // 주식
-        "rice": "밥",
-        "bread": "빵",
-        "noodle": "국수",
-        "pasta": "파스타",
-        "pizza": "피자",
-        "sandwich": "샌드위치",
-        "burger": "버거",
-        "hamburger": "햄버거",
-        "hot dog": "핫도그",
-        "taco": "타코",
-        "burrito": "부리또",
-        "sushi": "초밥",
-        "ramen": "라면",
+        "rice": String(localized: "밥", comment: "Food name recognized in a meal photo"),
+        "bread": String(localized: "빵", comment: "Food name recognized in a meal photo"),
+        "noodle": String(localized: "국수", comment: "Food name recognized in a meal photo"),
+        "pasta": String(localized: "파스타", comment: "Food name recognized in a meal photo"),
+        "pizza": String(localized: "피자", comment: "Food name recognized in a meal photo"),
+        "sandwich": String(localized: "샌드위치", comment: "Food name recognized in a meal photo"),
+        "burger": String(localized: "버거", comment: "Food name recognized in a meal photo"),
+        "hamburger": String(localized: "햄버거", comment: "Food name recognized in a meal photo"),
+        "hot dog": String(localized: "핫도그", comment: "Food name recognized in a meal photo"),
+        "taco": String(localized: "타코", comment: "Food name recognized in a meal photo"),
+        "burrito": String(localized: "부리또", comment: "Food name recognized in a meal photo"),
+        "sushi": String(localized: "초밥", comment: "Food name recognized in a meal photo"),
+        "ramen": String(localized: "라면", comment: "Food name recognized in a meal photo"),
 
         // 고기류
-        "meat": "고기",
-        "beef": "소고기",
-        "pork": "돼지고기",
-        "chicken": "닭고기",
-        "fish": "생선",
-        "steak": "스테이크",
-        "bacon": "베이컨",
-        "sausage": "소시지",
-        "fried chicken": "후라이드 치킨",
+        "meat": String(localized: "고기", comment: "Food name recognized in a meal photo"),
+        "beef": String(localized: "소고기", comment: "Food name recognized in a meal photo"),
+        "pork": String(localized: "돼지고기", comment: "Food name recognized in a meal photo"),
+        "chicken": String(localized: "닭고기", comment: "Food name recognized in a meal photo"),
+        "fish": String(localized: "생선", comment: "Food name recognized in a meal photo"),
+        "steak": String(localized: "스테이크", comment: "Food name recognized in a meal photo"),
+        "bacon": String(localized: "베이컨", comment: "Food name recognized in a meal photo"),
+        "sausage": String(localized: "소시지", comment: "Food name recognized in a meal photo"),
+        "fried chicken": String(localized: "후라이드 치킨", comment: "Food name recognized in a meal photo"),
 
         // 채소/과일
-        "salad": "샐러드",
-        "vegetable": "채소",
-        "fruit": "과일",
-        "apple": "사과",
-        "banana": "바나나",
-        "orange": "오렌지",
-        "strawberry": "딸기",
-        "tomato": "토마토",
-        "potato": "감자",
-        "carrot": "당근",
-        "onion": "양파",
-        "lettuce": "상추",
-        "cabbage": "양배추",
+        "salad": String(localized: "샐러드", comment: "Food name recognized in a meal photo"),
+        "vegetable": String(localized: "채소", comment: "Food name recognized in a meal photo"),
+        "fruit": String(localized: "과일", comment: "Food name recognized in a meal photo"),
+        "apple": String(localized: "사과", comment: "Food name recognized in a meal photo"),
+        "banana": String(localized: "바나나", comment: "Food name recognized in a meal photo"),
+        "orange": String(localized: "오렌지", comment: "Food name recognized in a meal photo"),
+        "strawberry": String(localized: "딸기", comment: "Food name recognized in a meal photo"),
+        "tomato": String(localized: "토마토", comment: "Food name recognized in a meal photo"),
+        "potato": String(localized: "감자", comment: "Food name recognized in a meal photo"),
+        "carrot": String(localized: "당근", comment: "Food name recognized in a meal photo"),
+        "onion": String(localized: "양파", comment: "Food name recognized in a meal photo"),
+        "lettuce": String(localized: "상추", comment: "Food name recognized in a meal photo"),
+        "cabbage": String(localized: "양배추", comment: "Food name recognized in a meal photo"),
 
         // 음료
-        "coffee": "커피",
-        "tea": "차",
-        "juice": "주스",
-        "milk": "우유",
-        "water": "물",
-        "soda": "탄산음료",
-        "beer": "맥주",
-        "wine": "와인",
+        "coffee": String(localized: "커피", comment: "Food name recognized in a meal photo"),
+        "tea": String(localized: "차", comment: "Food name recognized in a meal photo"),
+        "juice": String(localized: "주스", comment: "Food name recognized in a meal photo"),
+        "milk": String(localized: "우유", comment: "Food name recognized in a meal photo"),
+        "water": String(localized: "물", comment: "Food name recognized in a meal photo"),
+        "soda": String(localized: "탄산음료", comment: "Food name recognized in a meal photo"),
+        "beer": String(localized: "맥주", comment: "Food name recognized in a meal photo"),
+        "wine": String(localized: "와인", comment: "Food name recognized in a meal photo"),
 
         // 디저트
-        "cake": "케이크",
-        "cookie": "쿠키",
-        "ice cream": "아이스크림",
-        "chocolate": "초콜릿",
-        "candy": "사탕",
-        "pie": "파이",
-        "donut": "도넛",
-        "muffin": "머핀",
+        "cake": String(localized: "케이크", comment: "Food name recognized in a meal photo"),
+        "cookie": String(localized: "쿠키", comment: "Food name recognized in a meal photo"),
+        "ice cream": String(localized: "아이스크림", comment: "Food name recognized in a meal photo"),
+        "chocolate": String(localized: "초콜릿", comment: "Food name recognized in a meal photo"),
+        "candy": String(localized: "사탕", comment: "Food name recognized in a meal photo"),
+        "pie": String(localized: "파이", comment: "Food name recognized in a meal photo"),
+        "donut": String(localized: "도넛", comment: "Food name recognized in a meal photo"),
+        "muffin": String(localized: "머핀", comment: "Food name recognized in a meal photo"),
 
         // 한식
-        "kimchi": "김치",
-        "bibimbap": "비빔밥",
-        "bulgogi": "불고기",
-        "tteokbokki": "떡볶이",
+        "kimchi": String(localized: "김치", comment: "Food name recognized in a meal photo"),
+        "bibimbap": String(localized: "비빔밥", comment: "Food name recognized in a meal photo"),
+        "bulgogi": String(localized: "불고기", comment: "Food name recognized in a meal photo"),
+        "tteokbokki": String(localized: "떡볶이", comment: "Food name recognized in a meal photo"),
 
         // 기타
-        "egg": "계란",
-        "soup": "수프",
-        "curry": "카레",
-        "fried rice": "볶음밥",
-        "dumpling": "만두",
-        "spring roll": "스프링롤",
-        "french fries": "감자튀김",
-        "cheese": "치즈",
-        "yogurt": "요거트",
-        "cereal": "시리얼",
-        "oatmeal": "오트밀",
+        "egg": String(localized: "계란", comment: "Food name recognized in a meal photo"),
+        "soup": String(localized: "수프", comment: "Food name recognized in a meal photo"),
+        "curry": String(localized: "카레", comment: "Food name recognized in a meal photo"),
+        "fried rice": String(localized: "볶음밥", comment: "Food name recognized in a meal photo"),
+        "dumpling": String(localized: "만두", comment: "Food name recognized in a meal photo"),
+        "spring roll": String(localized: "스프링롤", comment: "Food name recognized in a meal photo"),
+        "french fries": String(localized: "감자튀김", comment: "Food name recognized in a meal photo"),
+        "cheese": String(localized: "치즈", comment: "Food name recognized in a meal photo"),
+        "yogurt": String(localized: "요거트", comment: "Food name recognized in a meal photo"),
+        "cereal": String(localized: "시리얼", comment: "Food name recognized in a meal photo"),
+        "oatmeal": String(localized: "오트밀", comment: "Food name recognized in a meal photo"),
 
         // 일반 분류
-        "food": "음식",
-        "meal": "식사",
-        "dish": "요리",
-        "snack": "간식",
-        "dessert": "디저트",
-        "appetizer": "애피타이저",
-        "main course": "메인 요리",
-        "side dish": "반찬",
-        "breakfast": "아침식사",
-        "lunch": "점심식사",
-        "dinner": "저녁식사"
+        "food": String(localized: "음식", comment: "Food name recognized in a meal photo"),
+        "meal": String(localized: "식사", comment: "Food name recognized in a meal photo"),
+        "dish": String(localized: "요리", comment: "Food name recognized in a meal photo"),
+        "snack": String(localized: "간식", comment: "Food name recognized in a meal photo"),
+        "dessert": String(localized: "디저트", comment: "Food name recognized in a meal photo"),
+        "appetizer": String(localized: "애피타이저", comment: "Food name recognized in a meal photo"),
+        "main course": String(localized: "메인 요리", comment: "Food name recognized in a meal photo"),
+        "side dish": String(localized: "반찬", comment: "Food name recognized in a meal photo"),
+        "breakfast": String(localized: "아침식사", comment: "Food name recognized in a meal photo"),
+        "lunch": String(localized: "점심식사", comment: "Food name recognized in a meal photo"),
+        "dinner": String(localized: "저녁식사", comment: "Food name recognized in a meal photo")
     ]
 
     // 영어 레이블을 한국어로 변환
     private func translateToKorean(_ englishLabel: String) -> String {
-        let lowercased = englishLabel.lowercased()
+        let lowercased = englishLabel.lowercased().replacingOccurrences(of: "_", with: " ")
 
         // 정확히 일치하는 경우
         if let translation = foodNameTranslations[lowercased] {
@@ -148,13 +148,13 @@ class VisionAnalyzer {
         }
 
         // 번역을 찾지 못한 경우 원문 반환 (첫 글자만 대문자로)
-        return englishLabel.capitalized
+        return lowercased.capitalized
     }
 
     // 음식 + 텍스트 종합 분석
     func analyzeFoodImage(_ image: UIImage, completion: @escaping (Result<FoodAnalysisResult, Error>) -> Void) {
         guard let cgImage = image.cgImage else {
-            completion(.failure(NSError(domain: "VisionAnalyzer", code: -1, userInfo: [NSLocalizedDescriptionKey: "이미지 변환 실패"])))
+            completion(.failure(NSError(domain: "VisionAnalyzer", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "이미지 변환 실패", comment: "Error: the photo could not be read for analysis")])))
             return
         }
 

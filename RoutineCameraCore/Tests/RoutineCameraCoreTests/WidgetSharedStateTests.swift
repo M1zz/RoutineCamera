@@ -109,4 +109,56 @@ final class WidgetSharedStateTests: XCTestCase {
         XCTAssertNil(snap.inProgressMealType)
         XCTAssertNil(snap.lastRecordedAt)
     }
+
+    // MARK: - 오늘 챙긴 끼니
+
+    func testResolve_recordedMeals_mergesSnapshotAndPending() {
+        let snap = WidgetSnapshot(todayCount: 1, generatedAt: now,
+                                  recordedMealTypes: ["아침", "간식1"],
+                                  caredMealTypes: ["아침", "점심", "저녁"])
+        let state = WidgetStateResolver.resolve(
+            snapshot: snap,
+            pending: [PendingAteAll(mealType: "점심", date: now.timeIntervalSince1970)],
+            now: now)
+        XCTAssertEqual(state.recordedMeals, ["아침", "점심", "간식1"])
+        XCTAssertEqual(state.caredDoneCount, 2)
+        XCTAssertEqual(state.snackCount, 1)
+    }
+
+    func testResolve_caredMeals_followSnapshotOrDefault() {
+        let custom = WidgetSnapshot(todayCount: 0, generatedAt: now, caredMealTypes: ["점심", "저녁"])
+        XCTAssertEqual(WidgetStateResolver.resolve(snapshot: custom, pending: [], now: now).caredMeals, ["점심", "저녁"])
+
+        // 이전 버전 앱의 스냅샷(필드 없음)·빈 목록은 아침·점심·저녁
+        XCTAssertEqual(WidgetStateResolver.resolve(snapshot: snapshot(todayCount: 0), pending: [], now: now).caredMeals,
+                       ["아침", "점심", "저녁"])
+        let empty = WidgetSnapshot(todayCount: 0, generatedAt: now, caredMealTypes: [])
+        XCTAssertEqual(WidgetStateResolver.resolve(snapshot: empty, pending: [], now: now).caredMeals,
+                       ["아침", "점심", "저녁"])
+    }
+
+    /// 자정이 지나도록 앱을 안 열면 어제 스냅샷이 남는다 — 어제 챙긴 끼니를 오늘로 보여주면 안 된다.
+    func testResolve_staleSnapshot_showsNothingRecordedToday() {
+        let yesterday = now.addingTimeInterval(-86_400)
+        let stale = WidgetSnapshot(todayCount: 3, inProgressMealType: "저녁", inProgressSince: yesterday,
+                                   needsRecordCount: 1, generatedAt: yesterday,
+                                   recordedMealTypes: ["아침", "점심", "저녁"],
+                                   caredMealTypes: ["아침", "저녁"])
+        let state = WidgetStateResolver.resolve(snapshot: stale, pending: [], now: now)
+        XCTAssertEqual(state.todayCount, 0)
+        XCTAssertNil(state.inProgressMeal)
+        XCTAssertTrue(state.recordedMeals.isEmpty)
+        XCTAssertEqual(state.caredMeals, ["아침", "저녁"])
+        XCTAssertEqual(state.needsRecordCount, 1)
+    }
+
+    func testSnapshot_decodesMealFields() throws {
+        let json = """
+        {"todayCount":1,"needsRecordCount":0,"generatedAt":806000002,
+         "recordedMealTypes":["아침"],"caredMealTypes":["아침","저녁"]}
+        """.data(using: .utf8)!
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self, from: json)
+        XCTAssertEqual(snap.recordedMealTypes, ["아침"])
+        XCTAssertEqual(snap.caredMealTypes, ["아침", "저녁"])
+    }
 }

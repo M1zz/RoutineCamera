@@ -14,7 +14,7 @@
 | 타입 | recordName | 필드 | 용도 |
 |---|---|---|---|
 | `RCUser` | `user_<userId>` | `code`(친구 코드, 쿼리 대상), `nickname`, `friendsJSON` | 프로필 + 친구 목록 |
-| `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
+| `Meal` | `meal_<userId>_<yyyy-MM-dd>_<끼니키>` (운동은 `_ex` 접미사) | `ownerId`(쿼리 대상), `dateString`, `mealType`, `memo`, `beforeImage`/`afterImage`(**CKAsset**), `timestamp` | 공유 식단 (ID로 직접 조회 — 인덱스 불필요) |
 | `Feedback` | 자동 UUID | `recipientId`·`authorId`·`dateString`·`mealType`(쿼리 대상), `authorNickname`, `content`, `createdAtTS` | 피드백/콕 찌르기 |
 | `FriendLink` | `link_<내ID>_<상대ID>` | `ownerId`·`otherId`(쿼리 대상), `ownerCode`, `otherCode`, `ownerNickname`, `otherNickname`, `state`, `isLegacy`, `createdAtTS` | 친구 요청/수락 (양쪽 링크가 있으면 친구) |
 | `RCGroup` | `group_<uuid>` | `inviteCode`·`ownerId`(쿼리 대상), `name`, `visibility`, `createdAtTS` | 그룹 |
@@ -50,11 +50,78 @@
 
 필드가 없는 예전 그룹은 `full`로 간주한다(기존 동작 유지).
 
+> ⚠️ `visibility`는 **Production 스키마에 배포해야** 쓸 수 있다. 배포 전 앱스토어/TestFlight 빌드에서는
+> `Cannot create or modify field 'visibility' in record 'RCGroup' in production schema` 오류가 난다.
+> 앱은 이 경우 `visibility` 없이 그룹을 만들어 넘어가고(= `full`), 사용자가 "기록 여부만"을 골랐을 때는
+> 의도보다 많이 공개하지 않도록 그룹을 만들지 않고 안내한다.
+> CloudKit Console → Schema → **Deploy Schema Changes**로 Development 스키마를 Production에 반영할 것.
+
+### 음식 / 운동 (1.0.8)
+
+앱은 음식(`식단`)과 운동을 **완전히 별개로** 저장한다. 1.0.7까지는 음식만 친구에게 올라갔다.
+1.0.8부터 운동도 올라가고, 친구 화면 상단 탭에서 갈라 본다.
+
+구분은 **레코드 이름**이 담는다. 새 필드가 없으니 운영 스키마를 건드릴 필요가 없다.
+
+| 앨범 | Meal 레코드 이름 | Feedback 의 `mealType` 값 |
+| --- | --- | --- |
+| 음식 | `meal_<uid>_<날짜>_<끼니키>` | `lunch` |
+| 운동 | `meal_<uid>_<날짜>_<끼니키>_ex` | `lunch_ex` |
+
+음식에 접미사가 없는 것은 **1.0.7까지 쌓인 레코드가 그 이름이기 때문**이다.
+그대로 둬야 아직 업데이트하지 않은 친구의 앱에서도 계속 보인다.
+반대로 운동 레코드는 구버전 앱이 이름을 만들지 않으므로 아예 조회되지 않는다 — 깨지지 않고 안 보일 뿐이다.
+
+- 레코드는 쿼리가 아니라 **이름으로 직접** 가져오므로 (`records(for:)`) 새 인덱스도 필요 없다
+- `Feedback` 은 `mealType` 으로 쿼리하는데, 이 필드는 이미 있으므로 값만 바뀐다.
+  덕분에 같은 날 같은 끼니라도 음식 응원과 운동 응원이 섞이지 않는다
+- 그룹의 "오늘 기록함" 판정은 **두 앨범을 합쳐** 센다. 운동만 하는 멤버가 미기록으로 보이면 안 된다
+- 그룹 사진 피드는 한 끼니 자리에 하나만 담을 수 있어 음식을 우선하고, 없으면 운동으로 채운다
+
+> ⚠️ 운동 **이력**은 자동으로 올라가지 않는다. 변경 감지 기준값을 1.0.8 첫 실행에 지금 상태로 잡기 때문이다
+> (안 그러면 전체 이력이 한꺼번에 업로드된다). 설정의 "예전 기록 공유"도 아직 음식만 올린다.
+
+### 이모지 반응 (1.0.8)
+
+반응은 **별도 레코드 타입도, 새 필드도 아니다.** `Feedback.content` 에 이모지만 담아 저장한다.
+
+- 운영 스키마를 건드리지 않아도 되고,
+- 아직 업데이트하지 않은 친구의 앱에서는 `🎉` 가 짧은 메시지로 읽혀 깨지지 않는다.
+
+"이 글이 반응인가 글인가"를 가르는 규칙은 `RoutineCameraCore.FeedbackContent` 에 있다
+(이모지 클러스터로만 이뤄져 있고 3개 이하). 테스트는 `FeedbackContentTests`.
+같은 이모지를 다시 누르면 내 레코드를 지워 취소한다 — 공개 DB는 만든 사람만 지울 수 있으므로
+남의 반응에는 쓸 수 없다.
+
 ### 피드백 푸시
 
 받는 사람이 로그인 시 `recipientId == 내 ID` 조건의 `CKQuerySubscription`을 자동 등록합니다.
 친구가 `Feedback` 레코드를 저장하면 Apple이 곧바로 푸시를 배달합니다.
 (예전 FCM·FeedbackPing 핑 채널은 모두 제거됨 — Feedback 레코드 하나로 저장+푸시 통합)
+
+> ⚠️ **1.0.7까지 푸시가 오지 않던 원인**
+> 등록 실패를 성공으로 삼켰다. `.serverRejectedRequest` 를 무조건 "이미 있음"으로 보고
+> UserDefaults 에 도장을 찍었는데, 운영 스키마에 `Feedback.recipientId` 쿼리 인덱스가 없을 때도
+> 같은 코드가 날아온다. 한 번 도장이 찍히면 다시는 재시도하지 않아 푸시가 영원히 오지 않았다.
+>
+> 1.0.8부터는 **서버에 구독이 실제로 있는지 확인한 뒤에만** 도장을 찍고, 아니면 다음 실행에 다시 시도한다.
+> 도장 키도 `feedbackSubscriptionUserId.v2` 로 올려 기존 기기가 한 번씩 재등록하게 했다.
+> 상태는 설정 → 알림 → "친구 응원 알림" 에서 확인하고 "다시 등록"할 수 있다.
+>
+> 여기가 계속 "꺼짐"이면 `Feedback.recipientId` 의 Queryable 인덱스가 Production 에 있는지 확인할 것.
+
+### 친구 기록 푸시 (1.0.9)
+
+설정 → 알림 → "친구 기록 알림" 또는 친구 화면 맨 위의 종 버튼으로 켠다 (기본 꺼짐).
+켜면 친구마다 `Meal` 에 `ownerId == 친구 ID` 조건의 `CKQuerySubscription`(`firesOnRecordCreation`)을 건다.
+구독 ID는 `friendmeal-sub-<내 ID>-<친구 ID>` 이고, 알림 제목에 친구 이름이 들어간다.
+
+- 새 필드·새 인덱스가 없다. 이미 Queryable 인 `Meal.ownerId` 만 쓴다
+- 끼니 레코드가 **처음 생길 때만** 울린다. 메모·식후 사진처럼 같은 끼니를 고치는 저장은 울리지 않는다
+- `collapseIDKey = ownerId` — 친구가 예전 기록을 한꺼번에 올려도(백필) 기기에는 알림 하나로 합쳐진다
+- 운동 기록도 같은 `Meal` 타입이라 함께 울린다 (제목이 "새 기록을 올렸어요"인 이유)
+- 친구 목록을 새로 고칠 때마다 서버의 구독 목록을 직접 읽어 맞춘다 — 친구가 빠지면 지우고, 이름이 바뀌면 다시 만든다.
+  로컬 도장을 쓰지 않으므로 한 번 실패해도 다음에 되살아난다 (피드백 푸시에서 겪은 문제를 되풀이하지 않기 위함)
 
 ### 읽음 상태
 
@@ -77,6 +144,33 @@
 쿼리에 쓰이는 필드의 **Queryable 인덱스**가 Production에 포함되어 있는지 확인하세요:
 `RCUser.code`, `Meal.ownerId`, `Feedback.recipientId`/`authorId`/`dateString`/`mealType`,
 `FriendLink.ownerId`/`otherId`, `RCGroup.inviteCode`/`ownerId`, `GroupMember.groupId`/`userId`
+
+## Production 스키마가 비어 있을 때 (배포할 변경사항이 없다고 나오는 경우)
+
+`Cannot create new type Feedback in production schema` / `Cannot create or modify field 'visibility' ...`
+= **운영 스키마에 그 타입·필드가 없다**는 뜻이다.
+
+"Deploy Schema Changes"에 아무것도 안 뜨면, Development 스키마에도 없는 것이다
+(Development에서 **한 번이라도 저장이 일어나야** 자동 생성되기 때문).
+해결은 둘 중 하나:
+
+1. **디버그 빌드로 한 번 써 본다** — Xcode 실행(= Development) → 피드백 남기기·그룹 만들기 →
+   Development 스키마에 자동 생성 → 콘솔에서 Deploy Schema Changes
+2. **콘솔에서 직접 만든다** — 환경을 **Development**로 바꾼 뒤 Record Type 추가 (Production은 읽기 전용)
+
+`Feedback` 타입을 손으로 만들 때의 필드:
+
+| 필드 | 타입 | 인덱스 |
+|---|---|---|
+| `recipientId` | String | **Queryable** (푸시 구독도 이 필드를 쓴다) |
+| `authorId` | String | **Queryable** |
+| `dateString` | String | **Queryable** |
+| `mealType` | String | **Queryable** |
+| `authorNickname` | String | — |
+| `content` | String | — |
+| `createdAtTS` | Double | — |
+
+`RCGroup`에는 `visibility` (String, 인덱스 불필요) 하나만 추가하면 된다.
 
 ## 20명 이벤트 전 점검 목록
 

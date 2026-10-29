@@ -10,10 +10,17 @@ import SwiftUI
 struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @Environment(\.dismiss) var dismiss
+    @ObservedObject private var subscription = SubscriptionManager.shared
     @State private var showingBeforeAfterComparison = false
+    @State private var showingPaywall = false
+
+    // 자세한 통계(전후 비교·자주 먹은 음식)는 세끼 프로
+    private var insightsUnlocked: Bool { subscription.allows(.insights) }
 
     private var navigationTitle: String {
-        "\(SettingsManager.shared.albumType.rawValue) 통계"
+        SettingsManager.shared.albumType == .exercise
+            ? String(localized: "운동 통계", comment: "Stats screen title (workouts album)")
+            : String(localized: "식단 통계", comment: "Stats screen title (meals album)")
     }
 
     var body: some View {
@@ -28,7 +35,13 @@ struct StatisticsView: View {
 
                     // Before/After 비교 버튼 (식단 모드에서만)
                     if SettingsManager.shared.albumType == .diet {
-                        BeforeAfterComparisonButton(showingComparison: $showingBeforeAfterComparison)
+                        BeforeAfterComparisonButton(isLocked: !insightsUnlocked) {
+                            if insightsUnlocked {
+                                showingBeforeAfterComparison = true
+                            } else {
+                                showingPaywall = true
+                            }
+                        }
                     }
 
                     // 주간 통계
@@ -44,7 +57,14 @@ struct StatisticsView: View {
 
                     // 음식 소비 통계 (식단 모드에서만)
                     if SettingsManager.shared.albumType == .diet {
-                        FoodConsumptionStatsView(mealStore: mealStore)
+                        if insightsUnlocked {
+                            FoodConsumptionStatsView(mealStore: mealStore)
+                        } else {
+                            ProLockedStatsCard(title: "자주 먹은 음식",
+                                               detail: "이번 주, 이번 달에 많이 먹은 음식을 모아 봐요.") {
+                                showingPaywall = true
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 12)
@@ -63,6 +83,7 @@ struct StatisticsView: View {
             .sheet(isPresented: $showingBeforeAfterComparison) {
                 BeforeAfterComparisonView(mealStore: mealStore)
             }
+            .proPaywall(isPresented: $showingPaywall, lead: .insights)
         }
     }
 }
@@ -129,8 +150,8 @@ struct WeeklyStatsView: View {
                 .frame(height: 12)
 
                 Text(SettingsManager.shared.albumType == .exercise
-                     ? "이번 주 \(stats.meals)번 기록했어요"
-                     : "이번 주 \(stats.meals)끼 기록했어요")
+                     ? String(localized: "이번 주 \(stats.meals)번 기록했어요", comment: "Weekly stats: workouts logged this week")
+                     : String(localized: "이번 주 \(stats.meals)끼 기록했어요", comment: "Weekly stats: meals logged this week"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -209,8 +230,8 @@ struct MonthlyStatsView: View {
                 .frame(height: 12)
 
                 Text(SettingsManager.shared.albumType == .exercise
-                     ? "이번 달 \(stats.meals)번 기록했어요"
-                     : "이번 달 \(stats.meals)끼 기록했어요")
+                     ? String(localized: "이번 달 \(stats.meals)번 기록했어요", comment: "Monthly stats: workouts logged this month")
+                     : String(localized: "이번 달 \(stats.meals)끼 기록했어요", comment: "Monthly stats: meals logged this month"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -266,7 +287,7 @@ struct MealTypeStatsView: View {
                     HStack {
                         Image(systemName: mealType.symbolName)
                             .foregroundColor(mealType.symbolColor)
-                        Text(mealType.rawValue)
+                        Text(mealType.displayName)
                             .fontWeight(.semibold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -293,7 +314,7 @@ struct MealTypeStatsView: View {
                     .frame(height: 8)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(mealType.rawValue)
+                .accessibilityLabel(mealType.displayName)
                 .accessibilityValue("이번 달 \(stats.recorded)번 기록")
             }
         }
@@ -314,13 +335,13 @@ struct StreakAndGoalView: View {
     // 회복 프레임: 끊김을 실패로 두지 않고 '다시 시작'을 격려하는 한 줄
     private var encouragement: String {
         if totalDays == 0 {
-            return "오늘 한 끼만 남겨도 시작이에요 🌱"
+            return String(localized: "오늘 한 끼만 남겨도 시작이에요 🌱", comment: "Stats encouragement: no records yet")
         } else if currentStreak == 0 {
-            return "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱"
+            return String(localized: "괜찮아요. 한 끼만 남기면 다시 이어져요 🌱", comment: "Stats encouragement: streak broken")
         } else if currentStreak < 3 {
-            return "좋아요, 다시 이어가는 중이에요"
+            return String(localized: "좋아요, 다시 이어가는 중이에요", comment: "Stats encouragement: short streak")
         } else {
-            return "\(currentStreak)일째 이어가는 중이에요 🔥"
+            return String(localized: "\(currentStreak)일째 이어가는 중이에요 🔥", comment: "Stats encouragement: streak of N days")
         }
     }
 
@@ -521,7 +542,9 @@ struct AllAchievementsView: View {
                         .cornerRadius(12)
                         .shadow(color: .black.opacity(0.05), radius: 3, y: 1)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(achievement.title), \(achievement.isUnlocked ? "달성함" : "잠김")")
+                        .accessibilityLabel(achievement.isUnlocked
+                            ? String(localized: "\(achievement.title), 달성함", comment: "VoiceOver: achievement name, unlocked")
+                            : String(localized: "\(achievement.title), 잠김", comment: "VoiceOver: achievement name, locked"))
                         .accessibilityValue(achievement.description)
                     }
                 }
@@ -544,18 +567,20 @@ struct AllAchievementsView: View {
 
 // Before/After 비교 버튼
 struct BeforeAfterComparisonButton: View {
-    @Binding var showingComparison: Bool
+    var isLocked = false
+    let action: () -> Void
 
     var body: some View {
-        Button(action: {
-            showingComparison = true
-        }) {
+        Button(action: action) {
             HStack {
                 Image(systemName: "photo.on.rectangle.angled")
                     .font(.title3)
                 Text("Before/After 비교")
                     .font(.headline)
                 Spacer()
+                if isLocked {
+                    ProBadge()
+                }
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
             }
@@ -579,6 +604,15 @@ struct BeforeAfterComparisonView: View {
         case twoWeeks = "2주 전"
         case oneMonth = "1개월 전"
 
+        /// 화면에 보이는 이름 (rawValue 는 식별용)
+        var title: String {
+            switch self {
+            case .oneWeek: return String(localized: "1주 전", comment: "Comparison period: one week ago")
+            case .twoWeeks: return String(localized: "2주 전", comment: "Comparison period: two weeks ago")
+            case .oneMonth: return String(localized: "1개월 전", comment: "Comparison period: one month ago")
+            }
+        }
+
         var daysAgo: Int {
             switch self {
             case .oneWeek: return 7
@@ -599,7 +633,7 @@ struct BeforeAfterComparisonView: View {
                     // 기간 선택
                     Picker("기간", selection: $selectedPeriod) {
                         ForEach(ComparisonPeriod.allCases, id: \.self) { period in
-                            Text(period.rawValue).tag(period)
+                            Text(period.title).tag(period)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -610,14 +644,14 @@ struct BeforeAfterComparisonView: View {
 
                     // Before
                     ComparisonDayView(
-                        title: "Before (\(selectedPeriod.rawValue))",
+                        title: String(localized: "Before (\(selectedPeriod.title))", comment: "Comparison card title: the earlier day, e.g. Before (1 week ago)"),
                         date: beforeDate,
                         meals: getMealsForDate(beforeDate)
                     )
 
                     // After (오늘)
                     ComparisonDayView(
-                        title: "After (오늘)",
+                        title: String(localized: "After (오늘)", comment: "Comparison card title: today"),
                         date: todayDate,
                         meals: getMealsForDate(todayDate)
                     )
@@ -653,8 +687,7 @@ struct ComparisonDayView: View {
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일 (E)"
-        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.setLocalizedDateFormatFromTemplate("MMMdEEE")
         return formatter
     }
 
@@ -668,37 +701,33 @@ struct ComparisonDayView: View {
                     .foregroundColor(.secondary)
             }
 
-            HStack(spacing: 12) {
+            // 끼니 6칸을 3열로 — 한 줄에 100pt 고정 6칸을 늘어놓으면 화면 밖으로 잘렸다
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 12) {
                 ForEach(MealType.allCases, id: \.self) { mealType in
-                    VStack(spacing: 8) {
-                        if let meal = meals[mealType], meal.isComplete {
-                            if let photoData = meal.thumbnailImageData, let uiImage = UIImage(data: photoData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            } else {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 100, height: 100)
-                                    Text("📷")
-                                        .font(.system(size: 40))
+                    VStack(spacing: 6) {
+                        Color(.systemGray6)
+                            .aspectRatio(1, contentMode: .fit)
+                            .overlay {
+                                if let meal = meals[mealType], meal.isComplete {
+                                    if let photoData = meal.thumbnailImageData,
+                                       let uiImage = MealImageResizer.downsampledImage(from: photoData, maxPixel: 300) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                    } else {
+                                        Text("📷")
+                                            .scaledFont(size: 32)
+                                    }
+                                } else {
+                                    Text("기록 없음")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
                                 }
                             }
-                        } else {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemGray6))
-                                    .frame(width: 100, height: 100)
-                                Text("기록 없음")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                        Text(mealType.rawValue)
+                        Text(mealType.displayName)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -808,6 +837,14 @@ struct FoodConsumptionStatsView: View {
     enum ConsumptionPeriod: String, CaseIterable {
         case week = "이번 주"
         case month = "이번 달"
+
+        /// 화면에 보이는 이름 (rawValue 는 식별용)
+        var title: String {
+            switch self {
+            case .week: return String(localized: "이번 주", comment: "Period picker: this week")
+            case .month: return String(localized: "이번 달", comment: "Period picker: this month")
+            }
+        }
     }
 
     // 기간별 음식 데이터 가져오기 (음식별 식사 횟수)
@@ -882,19 +919,16 @@ struct FoodConsumptionStatsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("음식 소비 통계")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                Spacer()
-                Picker("기간", selection: $selectedPeriod) {
-                    ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
-                        Text(period.rawValue).tag(period)
-                    }
+            // 제목과 기간 선택을 위아래로 — 옆에 두면 좁은 화면에서 제목이 "음식 소…" 로 잘렸다
+            Text("자주 먹은 음식")
+                .font(.title3)
+                .fontWeight(.bold)
+            Picker("기간", selection: $selectedPeriod) {
+                ForEach(ConsumptionPeriod.allCases, id: \.self) { period in
+                    Text(period.title).tag(period)
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .frame(width: 180)
             }
+            .pickerStyle(SegmentedPickerStyle())
 
             if foodConsumption.isEmpty {
                 VStack(spacing: 12) {
@@ -933,7 +967,8 @@ struct FoodConsumptionStatsView: View {
                             Text("#\(index + 1)")
                                 .font(.caption)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                // 노랑 바탕엔 흰 글자가 안 읽혀 1위만 검정 글자
+                                .foregroundColor(index == 0 ? .black : .white)
                                 .frame(width: 28, height: 28)
                                 .background(
                                     Circle()
@@ -951,15 +986,11 @@ struct FoodConsumptionStatsView: View {
                             Spacer()
 
                             // 식사 횟수
-                            HStack(spacing: 4) {
-                                Text("\(item.mealCount)")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.blue)
-                                Text("끼")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                            // 숫자와 단위를 한 문구로 — 영어는 1 meal / 2 meals 로 단위가 숫자를 따라간다
+                            Text("\(item.mealCount)끼")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
                         }
                         .padding(.vertical, 4)
                     }
@@ -978,5 +1009,52 @@ struct FoodConsumptionStatsView: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+}
+
+// MARK: - 세끼 프로 잠금 표시
+
+/// 작은 "프로" 표시
+struct ProBadge: View {
+    var body: some View {
+        Label("프로", systemImage: "crown.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundColor(.orange)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Color.orange.opacity(0.15)))
+            .accessibilityLabel("세끼 프로 기능")
+    }
+}
+
+/// 잠긴 통계 카드 — 누르면 세끼 프로 안내
+struct ProLockedStatsCard: View {
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(title)
+                        .font(.headline)
+                    Spacer()
+                    ProBadge()
+                }
+                Text(detail)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color(.systemBackground))
+            .foregroundColor(.primary)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("두 번 탭하면 세끼 프로 안내를 엽니다")
     }
 }

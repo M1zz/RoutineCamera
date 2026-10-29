@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AA0100000000000000000A08 /* SekkiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000A02 /* SekkiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AA0200000000000000000B03 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0200000000000000000B02 /* RoutineCameraCore */; };
+		AA0300000000000000000D02 /* RoutineCameraCore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0300000000000000000D01 /* RoutineCameraCore */; };
 		D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4C8CC1A526115B7855DF619 /* LeeoKit */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 /* Begin PBXFileReference section */
 		5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0100000000000000000A02 /* SekkiWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SekkiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0300000000000000000C01 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -72,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0300000000000000000D02 /* RoutineCameraCore in Frameworks */,
 				D079CDD771B1BD965EB64DA2 /* LeeoKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -90,6 +93,7 @@
 		5857FA052EC244BF00A539D8 = {
 			isa = PBXGroup;
 			children = (
+				AA0300000000000000000C02 /* Config */,
 				5857FA102EC244BF00A539D8 /* RoutineCamera */,
 				AA0100000000000000000A01 /* SekkiWidget */,
 				5857FA0F2EC244BF00A539D8 /* Products */,
@@ -103,6 +107,14 @@
 				AA0100000000000000000A02 /* SekkiWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0300000000000000000C02 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AA0300000000000000000C01 /* Version.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,6 +140,7 @@
 			name = RoutineCamera;
 			packageProductDependencies = (
 				C4C8CC1A526115B7855DF619 /* LeeoKit */,
+				AA0300000000000000000D01 /* RoutineCameraCore */,
 			);
 			productName = RoutineCamera;
 			productReference = 5857FA0E2EC244BF00A539D8 /* RoutineCamera.app */;
@@ -180,6 +193,29 @@
 			knownRegions = (
 				en,
 				Base,
+				ko,
+				"en-GB",
+				"zh-Hans",
+				"zh-Hant",
+				ja,
+				ru,
+				es,
+				de,
+				fr,
+				it,
+				"pt-BR",
+				th,
+				vi,
+				cs,
+				da,
+				el,
+				fi,
+				id,
+				nb,
+				nl,
+				pl,
+				sv,
+				tr,
 			);
 			mainGroup = 5857FA052EC244BF00A539D8;
 			minimizedProjectReferenceProxies = 1;
@@ -243,6 +279,7 @@
 /* Begin XCBuildConfiguration section */
 		5857FA172EC244C000A539D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0300000000000000000C01 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -307,6 +344,7 @@
 		};
 		5857FA182EC244C000A539D8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0300000000000000000C01 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -369,14 +407,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "추가합니다";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "앱 잠금을 켜면 Face ID로 내 식단 기록을 지킵니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "찍은 식단 사진을 사진 보관함의 세끼 앨범에 저장합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -387,7 +426,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -409,14 +447,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = RoutineCamera/RoutineCamera.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "세끼";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCameraUsageDescription = "식단을 저장하기 위해서 카메라를 사용합니다.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "추가합니다";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "앱 잠금을 켜면 Face ID로 내 식단 기록을 지킵니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "찍은 식단 사진을 사진 보관함의 세끼 앨범에 저장합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "식단을 불러오기 위해서 앨범을 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -427,7 +466,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -447,7 +485,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -459,7 +496,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -477,7 +513,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = SekkiWidget/SekkiWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QGAQ3AY3R3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SekkiWidget/Info.plist;
@@ -488,7 +523,6 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ysoup.RoutineCamera.SekkiWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -546,13 +580,18 @@
 			repositoryURL = "https://github.com/M1zz/LeeoKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.7.0;
+				minimumVersion = 3.26.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		AA0200000000000000000B02 /* RoutineCameraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
+			productName = RoutineCameraCore;
+		};
+		AA0300000000000000000D01 /* RoutineCameraCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AA0200000000000000000B01 /* XCLocalSwiftPackageReference "RoutineCameraCore" */;
 			productName = RoutineCameraCore;
