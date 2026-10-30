@@ -16,6 +16,7 @@ struct ContentView: View {
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
     @StateObject private var friendManager = FriendManager.shared
+    @Environment(\.foldLayout) private var fold
     @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
@@ -170,7 +171,10 @@ struct ContentView: View {
                                          comment: "Toolbar friends button with pending request count (VoiceOver)"))
             .accessibilityInputLabels([Text("친구")])
             Menu {
-                Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
+                // 아이폰 듀오를 펴면 통계는 결과 쪽 판에 늘 서 있다
+                if !fold.isUnfolded {
+                    Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
+                }
                 Button { showingSettings = true } label: { Label("설정", systemImage: "gearshape.fill") }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -210,6 +214,17 @@ struct ContentView: View {
     }
 
     var body: some View {
+        // 아이폰 듀오를 펴면 고르는 쪽(가로면 왼쪽, 세로면 아래)에 끼니 기록, 결과 쪽(오른쪽, 위)에 통계.
+        // 접혀 있거나 보통 아이폰이면 기록 화면만 — 지금 화면 그대로.
+        FoldSplitView {
+            mealScreen
+        } result: {
+            StatisticsView(mealStore: mealStore, showsDone: false)
+                .environment(\.foldLayout, .single)
+        }
+    }
+
+    private var mealScreen: some View {
         NavigationStack {
         ScrollViewReader { proxy in
             ZStack {

@@ -64,14 +64,14 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         commitNickname()
                         dismiss()
                     }
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         commitNickname()
                         isNicknameFocused = false
                     }

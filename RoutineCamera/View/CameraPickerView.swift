@@ -316,7 +316,7 @@ struct CameraPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("완료") { showingTargetEditor = false }
+                    Button("완료", systemImage: "checkmark") { showingTargetEditor = false }
                 }
             }
         }

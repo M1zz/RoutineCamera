@@ -9,6 +9,8 @@ import SwiftUI
 
 struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
+    /// 아이폰 듀오를 펴서 결과 쪽 판에 늘 서 있을 때는 닫을 것이 없다.
+    var showsDone = true
     @Environment(\.dismiss) var dismiss
     @ObservedObject private var subscription = SubscriptionManager.shared
     @State private var showingBeforeAfterComparison = false
@@ -74,9 +76,11 @@ struct StatisticsView: View {
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
-                        dismiss()
+                if showsDone {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("완료", systemImage: "checkmark") {
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -556,7 +560,7 @@ struct AllAchievementsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         dismiss()
                     }
                 }
@@ -670,7 +674,7 @@ struct BeforeAfterComparisonView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         dismiss()
                     }
                 }

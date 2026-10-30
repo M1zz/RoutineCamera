@@ -523,7 +523,7 @@ struct EmptyMealFeedbackSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         dismiss()
                     }
                 }

@@ -46,11 +46,11 @@ struct AddTaskView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarActions {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소", action: onCancel)
+                    Button("취소", systemImage: "xmark", action: onCancel)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("저장") {
+                    Button("저장", systemImage: "checkmark") {
                         onSave()
                     }
                     .disabled(taskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
