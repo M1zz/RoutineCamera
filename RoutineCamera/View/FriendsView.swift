@@ -963,7 +963,7 @@ struct AddFriendSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") { dismiss() }
+                    Button("취소", systemImage: "xmark") { dismiss() }
                         .disabled(isWorking)
                 }
             }
@@ -1203,7 +1203,7 @@ struct FriendMealsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("닫기") {
+                    Button("닫기", systemImage: "xmark") {
                         dismiss()
                     }
                 }
@@ -1651,7 +1651,7 @@ struct FriendMealDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("닫기") {
+                    Button("닫기", systemImage: "xmark") {
                         dismiss()
                     }
                 }
@@ -1955,14 +1955,14 @@ struct AccountSettingsSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         commitNickname()
                         dismiss()
                     }
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("완료", systemImage: "checkmark") {
                         commitNickname()
                         isNicknameFocused = false
                     }
@@ -2077,7 +2077,7 @@ struct QuickFeedbackView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("닫기") { dismiss() }
+                    Button("닫기", systemImage: "xmark") { dismiss() }
                 }
             }
         }

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import LeeoKit
 import RoutineCameraCore
 import AVFoundation
 import Photos
@@ -13,6 +14,7 @@ struct PhotoDetailView: View {
     let mealType: MealType
     let mealRecord: MealRecord?
     @ObservedObject var mealStore: MealRecordStore
+    @Environment(\.foldLayout) private var fold
     // 모달(sheet)로 열 땐 자체 NavigationView로 감싸고, 네비게이션 스택에 push할 땐 감싸지 않는다.
     var embedInNavigation: Bool = true
     @Environment(\.dismiss) var dismiss
@@ -207,7 +209,7 @@ struct PhotoDetailView: View {
                     }
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: UIScreen.appWidth)
+                    .frame(height: fold.appWidth)
 
                     // 정보 영역
                     VStack(alignment: .leading, spacing: 16) {
@@ -380,7 +382,7 @@ struct PhotoDetailView: View {
             .toolbar {
                 if embedInNavigation {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button("닫기") {
+                        Button("닫기", systemImage: "xmark") {
                             dismiss()
                         }
                     }
@@ -732,12 +734,12 @@ struct MemoEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") {
+                    Button("취소", systemImage: "xmark") {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("저장") {
+                    Button("저장", systemImage: "checkmark") {
                         mealStore.updateMemo(date: date, mealType: mealType, memo: memoText.isEmpty ? nil : memoText)
                         dismiss()
                     }

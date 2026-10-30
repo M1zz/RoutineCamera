@@ -8,6 +8,7 @@
 
 import SwiftUI
 import LocalAuthentication
+import LeeoKit
 
 enum AppLockAuthenticator {
     /// 이 기기에서 쓸 수 있는 생체 인증 이름 (설정 문구용)
@@ -49,6 +50,8 @@ private struct AppLockOverlay: ViewModifier {
             .overlay {
                 if lockActive && isLocked {
                     lockScreen
+                        // 아이폰 듀오를 펴도 잠금 안내가 접힌 선 위에 서지 않게 고르는 쪽 판에
+                        .foldConfined()
                         .transition(.opacity)
                 }
             }

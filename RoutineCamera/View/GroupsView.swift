@@ -36,7 +36,7 @@ struct GroupsView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button("닫기") { dismiss() }
+                        Button("닫기", systemImage: "xmark") { dismiss() }
                             .disabled(isLeaving)
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -351,12 +351,12 @@ struct CreateGroupSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") { dismiss() }
+                    Button("취소", systemImage: "xmark") { dismiss() }
                         .disabled(isWorking)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") { isNameFocused = false }
+                    Button("완료", systemImage: "checkmark") { isNameFocused = false }
                 }
             }
             .interactiveDismissDisabled(isWorking)
@@ -586,12 +586,12 @@ struct JoinGroupSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소") { dismiss() }
+                    Button("취소", systemImage: "xmark") { dismiss() }
                         .disabled(isWorking)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") { isCodeFocused = false }
+                    Button("완료", systemImage: "checkmark") { isCodeFocused = false }
                 }
             }
             .interactiveDismissDisabled(isWorking)

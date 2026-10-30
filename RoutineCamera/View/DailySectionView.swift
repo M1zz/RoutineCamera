@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import LeeoKit
 import AVFoundation
 import Photos
 
@@ -11,6 +12,7 @@ struct DailySectionView: View {
     let date: Date
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject private var settingsManager = SettingsManager.shared // "간식 보이기" 등 표시 설정 즉시 반영
+    @Environment(\.foldLayout) private var fold
 
     private var isToday: Bool {
         Calendar.current.isDate(date, inSameDayAs: Date())
@@ -180,7 +182,7 @@ struct DailySectionView: View {
     }
 
     private func calculateLayout(isExerciseMode: Bool, cardCount: Int) -> (photoSize: CGFloat, spacing: CGFloat, cardPadding: CGFloat, cellHeight: CGFloat) {
-        let screenWidth = UIScreen.appWidth
+        let screenWidth = fold.appWidth
         let horizontalPadding: CGFloat = 16
         let cardPadding: CGFloat = 12 // 오늘 테두리와 사진 사이 여백 (8은 너무 타이트)
         let spacing: CGFloat = 4
