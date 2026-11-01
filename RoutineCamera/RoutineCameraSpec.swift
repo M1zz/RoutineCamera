@@ -3,7 +3,7 @@ import LeeoKit
 
 enum RoutineCameraSpec: LeeoAppSpec {
     static let appName = "세끼"
-    static let developerEmail = "mizzking75@gmail.com"
+    static let developerEmail = "leeo@kakao.com"
     /// App Store 앱 ID — 친구 초대 링크·리뷰 요청이 쓴다
     static let appStoreID: String? = "6755164924"
     static let feedback = LeeoFeedbackConfig(containerIdentifier: "iCloud.com.Ysoup.FeedbackHub", appIdentifier: "com.ysoup.RoutineCamera")
