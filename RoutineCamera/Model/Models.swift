@@ -1228,8 +1228,12 @@ class MealRecordStore: ObservableObject {
 
     /// 저장된 기록을 읽고 사진을 다시 붙인다. 사진 바이트가 기록 안에 들어 있던 예전 형식이면 hasInlinePhotos 가 true.
     private func loadStoredRecords(forKey key: String, album: AlbumType) -> (records: [MealRecord], hasInlinePhotos: Bool)? {
-        guard let data = userDefaults.data(forKey: key),
-              let entries = try? JSONDecoder().decode([StoredMealRecord].self, from: data) else { return nil }
+        guard let data = userDefaults.data(forKey: key) else { return nil }
+        guard let entries = try? JSONDecoder().decode([StoredMealRecord].self, from: data) else {
+            // 못 읽은 원본을 옆에 남긴다 — 빈 목록으로 시작해 다음 저장이 덮어써도 되찾을 수 있게
+            userDefaults.set(data, forKey: key + ".unreadable")
+            return nil
+        }
 
         let store = imageStore(for: album)
         var hasInlinePhotos = false
