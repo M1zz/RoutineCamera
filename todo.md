@@ -1,5 +1,14 @@
 # RoutineCamera 접근성(VoiceOver) 개선
 
+## 진행: 내 기록 iCloud 백업 · 기기 간 동기화 (빌드 · 시뮬레이터 실행 · 충돌 규칙 테스트 완료, 실제 iCloud 왕복 미검증)
+- [x] `MealCloudSync`: CKSyncEngine + 개인 DB, 끼니 칸 단위 레코드, 사진은 CKAsset
+- [x] 안전장치: 로그아웃 · iCloud 삭제 · 기록 읽기 실패 · 사진 읽기 실패 때 데이터를 지우지 않음, 복원 이력이 친구 공개 DB 로 다시 올라가지 않음
+- [x] 설정 > iCloud 백업 토글 · 상태 문구 (24개 언어)
+- [ ] 실기기 검증: 기록 → 앱 삭제 → 재설치 → 복원 / 기기 2대 동기화 / 양쪽 동시 수정 / 삭제 전파
+- [ ] 사용자: CloudKit Console 에서 `SekkiMeal` Production 스키마 배포 (CLOUDKIT_SETUP.md)
+- [ ] 개인정보 처리방침 · App Store 설명에 iCloud 백업 반영 검토
+- [ ] 출시 후 로드맵 `sync.icloud` 를 완료 처리
+
 ## 아이폰 듀오 대응 (2026-10-30, 듀오 시뮬레이터 빌드 성공 · 접힌 바깥 화면 · `-FoldPretend` 세로 화면 확인 · 실기기 확인 안 함)
 - [x] 앱 루트에 `.foldAware()` (LeeoKit Fold) — 시트 · 알림창이 접힌 선을 비킨다
 - [x] 펴면 고르는 쪽(가로면 왼쪽, 세로면 아래) 끼니 기록 | 결과 쪽(오른쪽, 위) 통계. `ContentView` 를 `FoldSplitView` 로 감싸 기록 화면은 같은 뷰로 남는다(펴고 접어도 보던 날짜가 그대로). 펼친 동안 "더 보기" 메뉴의 통계 항목은 숨김

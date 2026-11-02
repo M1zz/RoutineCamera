@@ -825,6 +825,56 @@ class MealRecordStore: ObservableObject {
         // 오늘 기록한 끼니는 오늘 식사 전 알림에서 빼고, 지운 끼니는 되살린다 (내일부터 알림은 그대로)
         let completedToday = Set(dietMeals(for: Date()).filter { $0.value.isComplete }.keys)
         NotificationManager.shared.scheduleMealNotifications(recordedToday: completedToday)
+
+        // 내 iCloud 백업 (친구 공유와 별개, 공유를 꺼도 동작한다)
+        MealCloudSync.shared.localRecordsChanged()
+    }
+
+    // MARK: - iCloud 백업 · 동기화
+
+    var canTrustLoadedRecordsForSync: Bool { albumsFailedToLoad.isEmpty }
+
+    var allRecordsForSync: [(AlbumType, MealRecord)] {
+        dietRecords.map { (AlbumType.diet, $0) } + exerciseRecords.map { (AlbumType.exercise, $0) }
+    }
+
+    /// 파일을 못 읽어 비어 보일 뿐인 사진인지 (지운 사진과 구분한다)
+    func isPhotoUnreadableForSync(_ record: MealRecord, album: AlbumType, kind: String) -> Bool {
+        unreadableImageFiles["\(album.rawValue)/\(imageSlotName(for: record, kind: kind))"] != nil
+    }
+
+    /// 다른 기기 · iCloud 에서 받은 변경을 반영한다. saveRecords 를 거치지 않아 다시 올라가지 않는다.
+    func applySyncChanges(saves: [(slot: MealSyncSlot, record: MealRecord)], deletes: [MealSyncSlot]) {
+        var replaced = Set(deletes)
+        replaced.formUnion(saves.map(\.slot))
+        let changedDays = Set(replaced.map(\.day))
+
+        var diet = dietRecords.filter { !replaced.contains(MealSyncSlot(album: .diet, record: $0)) }
+        var exercise = exerciseRecords.filter { !replaced.contains(MealSyncSlot(album: .exercise, record: $0)) }
+        for save in saves {
+            if save.slot.album == .diet { diet.append(save.record) } else { exercise.append(save.record) }
+        }
+        dietRecords = diet
+        exerciseRecords = exercise
+
+        persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet)
+        persistRecords(exerciseRecords, forKey: exerciseRecordsKey, album: .exercise)
+
+        // 받은 날짜를 친구 공유 변경 감지 기준에 넣는다. 안 그러면 복원한 이력 전체가 공개 DB 로 다시 올라간다.
+        let currentDiet = currentDateFingerprints()
+        let currentExercise = currentExerciseFingerprints()
+        _ = storedFingerprints()
+        _ = storedExerciseFingerprints()
+        for day in changedDays {
+            dateFingerprints[day] = currentDiet[day]
+            exerciseDateFingerprints[day] = currentExercise[day]
+        }
+        persistFingerprints()
+        persistExerciseFingerprints()
+
+        publishWidgetSnapshot()
+        let completedToday = Set(dietMeals(for: Date()).filter { $0.value.isComplete }.keys)
+        NotificationManager.shared.scheduleMealNotifications(recordedToday: completedToday)
     }
 
     // MARK: - 위젯 스냅샷
@@ -1285,6 +1335,9 @@ class MealRecordStore: ObservableObject {
         }
     }
 
+    /// 저장값은 있는데 읽지 못한 앨범. 이 상태의 빈 배열은 "다 지움"이 아니다.
+    private var albumsFailedToLoad: Set<AlbumType> = []
+
     // 기록 불러오기 (식단과 운동 모두 로드)
     private func loadRecords() {
         // 식단 기록 로드
@@ -1293,6 +1346,8 @@ class MealRecordStore: ObservableObject {
             loadedAlbums.insert(.diet)
             if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.diet) }
             print("📂 [MealRecordStore] 식단 기록 로드: \(dietRecords.count)개")
+        } else if userDefaults.data(forKey: dietRecordsKey) != nil {
+            albumsFailedToLoad.insert(.diet)
         }
 
         // 운동 기록 로드
@@ -1301,6 +1356,8 @@ class MealRecordStore: ObservableObject {
             loadedAlbums.insert(.exercise)
             if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.exercise) }
             print("📂 [MealRecordStore] 운동 기록 로드: \(exerciseRecords.count)개")
+        } else if userDefaults.data(forKey: exerciseRecordsKey) != nil {
+            albumsFailedToLoad.insert(.exercise)
         }
 
         // 저장 없이 앱만 켠 경우에도 위젯이 최신 상태를 보도록 (날이 바뀌면 오늘 수/먹는 중이 달라진다)

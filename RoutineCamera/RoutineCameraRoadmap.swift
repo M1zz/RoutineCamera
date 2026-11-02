@@ -45,7 +45,7 @@ extension RoutineCameraSpec {
         .init(id: "haptics", status: .planned,
               title: NSLocalizedString("손끝으로 느끼는 반응", comment: "Roadmap item: haptic feedback"),
               detail: NSLocalizedString("기록을 남기거나 다 먹었을 때 가볍게 떨려서 알려 줘요.", comment: "Roadmap item detail: haptic feedback")),
-        .init(id: "sync.icloud", status: .planned,
+        .init(id: "sync.icloud", status: .building,
               title: NSLocalizedString("기기 간 동기화", comment: "Roadmap item: sync across devices"),
               detail: NSLocalizedString("기기를 바꿔도 iCloud로 내 식단 기록이 그대로 이어져요.", comment: "Roadmap item detail: sync across devices")),
         .init(id: "backup", status: .planned,

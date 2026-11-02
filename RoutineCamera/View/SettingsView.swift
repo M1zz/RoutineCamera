@@ -51,6 +51,7 @@ struct SettingsView: View {
                 notificationSection
                 goalSection
                 photoSaveSection
+                ICloudBackupSection()
                 accountSection
                 advancedSection
                 infoSection
@@ -525,3 +526,34 @@ struct DeveloperContactSection: View {
 
 // PreferenceKey for tracking row positions
 // 스크롤 오프셋을 추적하기 위한 PreferenceKey
+
+// MARK: - iCloud 백업
+
+private struct ICloudBackupSection: View {
+    @ObservedObject private var sync = MealCloudSync.shared
+
+    var body: some View {
+        Section(header: Text("iCloud 백업")) {
+            Toggle("기록과 사진을 iCloud에 보관", isOn: $sync.isEnabled)
+            Text("앱을 지우거나 기기를 바꿔도 같은 iCloud 계정이면 기록이 돌아와요. iCloud 저장 공간을 사용하며, 친구에게는 보이지 않아요.")
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            if let statusText {
+                statusText
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var statusText: Text? {
+        switch sync.status {
+        case .off: return nil
+        case .notSignedIn: return Text("iCloud에 로그인하면 백업이 시작돼요.")
+        case .uploading(let count): return Text("백업할 기록 \(count)개")
+        case .upToDate: return Text("모든 기록이 백업되었어요.")
+        case .storageFull: return Text("iCloud 저장 공간이 부족해요. 공간을 확보하면 이어서 백업해요.")
+        case .failed: return Text("지금은 백업하지 못했어요. 앱을 다시 열면 이어서 시도해요.")
+        }
+    }
+}

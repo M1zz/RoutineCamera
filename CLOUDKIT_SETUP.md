@@ -238,3 +238,19 @@ CloudKit Console → Records에서 **Development / Production 각각** `RCUser`�
 
 CloudKit 공개 DB는 앱의 무료 할당량이 활성 사용자 수에 비례해 자동으로 늘어납니다.
 이 규모(수십 명)에서는 사실상 무료입니다.
+
+## 내 기록 iCloud 백업 · 동기화 (개인 DB)
+
+친구 공유(공개 DB)와 별개로, `MealCloudSync` 가 `CKSyncEngine` 으로 내 기록을 **개인 DB** 에 보관한다. 다른 사람은 볼 수 없고, 사용자의 iCloud 저장 공간을 쓴다.
+
+- 영역(zone): `SekkiMeals`
+- 레코드 타입: `SekkiMeal`, 이름 `meal_<diet|exercise>_<yyyy-MM-dd>_<끼니 케이스>`
+- 필드: `album`, `day`, `mealType`, `fingerprint`(String) · `memo`(String) · `recordedWithoutPhoto`, `hidePhotoCountBadge`, `ateAll`(Int) · `capturedAt`, `modifiedAt`(Date) · `visionAnalysis`(Bytes) · `beforeImage`, `afterImage`(Asset)
+
+### 출시 전 필수: Production 스키마 배포
+
+Production 은 레코드 타입을 자동으로 만들지 않는다. 배포하지 않으면 TestFlight · App Store 빌드에서 백업이 실패한다.
+
+1. Debug 빌드를 iCloud 로그인된 실기기에서 실행하고, 사진 · 메모가 있는 기록과 사진 없는 기록을 만들어 Development 에 `SekkiMeal` 을 생성한다
+2. CloudKit Console 에서 필드가 모두 생겼는지 확인한다 (값이 비어 있던 필드는 안 생긴다)
+3. **Deploy Schema Changes** 로 Production 에 배포한다

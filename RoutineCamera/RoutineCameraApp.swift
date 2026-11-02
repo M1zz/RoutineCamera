@@ -36,6 +36,7 @@ struct RoutineCameraApp: App {
                 Task { await SubscriptionManager.shared.refresh() }
                 // 받은 친구 요청 점이 앱을 다시 열 때마다 맞도록
                 Task { await FriendManager.shared.refreshSocialGraph() }
+                MealCloudSync.shared.appBecameActive()
             }
         }
     }
@@ -61,6 +62,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         MealRecordStore.shared.generateScreenshotData(photoDirectory: dir)
     }
     #endif
+
+    // 내 기록 iCloud 백업 · 기기 간 동기화 (위의 시드 데이터 생성이 끝난 뒤 시작)
+    MealCloudSync.shared.start()
 
     return true
   }

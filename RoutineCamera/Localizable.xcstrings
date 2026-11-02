@@ -18194,6 +18194,302 @@
         }
       }
     },
+    "iCloud 백업" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Backup"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Záloha na iCloud"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-sikkerhedskopi"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-Backup"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αντίγραφο iCloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia en iCloud"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-varmuuskopio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde iCloud"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cadangan iCloud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup iCloud"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudバックアップ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-sikkerhetskopi"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-reservekopie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopia w iCloud"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup no iCloud"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия iCloud"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-säkerhetskopia"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ข้อมูลสำรอง iCloud"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Yedeği"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sao lưu iCloud"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 备份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 備份"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Backup"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 백업"
+          }
+        }
+      }
+    },
+    "iCloud 저장 공간이 부족해요. 공간을 확보하면 이어서 백업해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud storage is full. Backup continues once you free up space."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Úložiště iCloud je plné. Po uvolnění místa bude záloha pokračovat."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-lagerpladsen er fuld. Sikkerhedskopien fortsætter, når der er plads."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der iCloud-Speicher ist voll. Das Backup läuft weiter, sobald wieder Platz frei ist."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ο χώρος iCloud είναι πλήρης. Η αντιγραφή συνεχίζεται μόλις ελευθερώσετε χώρο."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El almacenamiento de iCloud está lleno. La copia seguirá cuando liberes espacio."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-tallennustila on täynnä. Varmuuskopiointi jatkuu, kun vapautat tilaa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le stockage iCloud est plein. La sauvegarde reprendra une fois de l'espace libéré."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penyimpanan iCloud penuh. Pencadangan berlanjut setelah ruang tersedia."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo spazio iCloud è pieno. Il backup riprende quando liberi spazio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudストレージがいっぱいです。空き容量を確保するとバックアップを再開します。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-lagringen er full. Sikkerhetskopieringen fortsetter når du frigjør plass."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je iCloud-opslag is vol. De reservekopie gaat verder zodra er ruimte is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miejsce w iCloud się skończyło. Kopia będzie kontynuowana po zwolnieniu miejsca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O armazenamento do iCloud está cheio. O backup continua quando você liberar espaço."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранилище iCloud заполнено. Копирование продолжится, когда освободится место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-utrymmet är fullt. Säkerhetskopieringen fortsätter när du frigör utrymme."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "พื้นที่ iCloud เต็ม การสำรองจะดำเนินต่อเมื่อมีพื้นที่ว่าง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud depolama alanı dolu. Yer açtığınızda yedekleme devam eder."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dung lượng iCloud đã đầy. Sao lưu sẽ tiếp tục khi bạn giải phóng dung lượng."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 储存空间已满。腾出空间后将继续备份。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 儲存空間已滿。騰出空間後將繼續備份。"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud storage is full. Backup continues once you free up space."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간이 부족해요. 공간을 확보하면 이어서 백업해요."
+          }
+        }
+      }
+    },
     "iCloud 저장소 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해주세요." : {
       "comment" : "Error: iCloud schema not ready",
       "localizations" : {
@@ -18489,6 +18785,154 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Grubun iCloud'da hazırlanıyor. Bir saniye."
+          }
+        }
+      }
+    },
+    "iCloud에 로그인하면 백업이 시작돼요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup starts when you sign in to iCloud."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Záloha začne po přihlášení k iCloudu."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikkerhedskopien starter, når du logger ind på iCloud."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Backup startet, sobald du bei iCloud angemeldet bist."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η δημιουργία αντιγράφου ξεκινά μόλις συνδεθείτε στο iCloud."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La copia empieza cuando inicies sesión en iCloud."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varmuuskopiointi alkaa, kun kirjaudut iCloudiin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sauvegarde démarre une fois connecté à iCloud."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pencadangan dimulai setelah Anda masuk ke iCloud."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il backup inizia quando accedi a iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudにサインインするとバックアップが始まります。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikkerhetskopieringen starter når du logger på iCloud."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De reservekopie start zodra je bent ingelogd bij iCloud."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopia rozpocznie się po zalogowaniu do iCloud."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O backup começa quando você entrar no iCloud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Копирование начнётся после входа в iCloud."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Säkerhetskopieringen startar när du loggar in på iCloud."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การสำรองข้อมูลจะเริ่มเมื่อคุณลงชื่อเข้า iCloud"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedekleme, iCloud'da oturum açtığınızda başlar."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sao lưu sẽ bắt đầu khi bạn đăng nhập iCloud."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录 iCloud 后开始备份。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登入 iCloud 後開始備份。"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup starts when you sign in to iCloud."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud에 로그인하면 백업이 시작돼요."
           }
         }
       }
@@ -29617,6 +30061,154 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kaydetme, widget'lar, arkadaşlarla paylaşım ve gruplara katılma ücretsiz kalır."
+          }
+        }
+      }
+    },
+    "기록과 사진을 iCloud에 보관" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep records and photos in iCloud"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uchovávat záznamy a fotky na iCloudu"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gem registreringer og billeder i iCloud"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge und Fotos in iCloud sichern"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διατήρηση καταγραφών και φωτογραφιών στο iCloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar registros y fotos en iCloud"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Säilytä merkinnät ja kuvat iCloudissa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserver les relevés et photos dans iCloud"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan catatan dan foto di iCloud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserva registrazioni e foto su iCloud"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録と写真をiCloudに保存"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behold registreringer og bilder i iCloud"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewaar registraties en foto's in iCloud"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przechowuj wpisy i zdjęcia w iCloud"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manter registros e fotos no iCloud"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранить записи и фото в iCloud"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spara poster och bilder i iCloud"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เก็บบันทึกและรูปภาพไว้ใน iCloud"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kayıtları ve fotoğrafları iCloud'da sakla"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lưu bản ghi và ảnh trên iCloud"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 iCloud 中保存记录和照片"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 iCloud 中保存記錄和照片"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep records and photos in iCloud"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록과 사진을 iCloud에 보관"
           }
         }
       }
@@ -42761,6 +43353,154 @@
         }
       }
     },
+    "모든 기록이 백업되었어요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All records are backed up."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Všechny záznamy jsou zálohované."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle registreringer er sikkerhedskopieret."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Einträge sind gesichert."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όλες οι καταγραφές έχουν αντιγραφεί."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los registros están copiados."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaikki merkinnät on varmuuskopioitu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les relevés sont sauvegardés."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semua catatan telah dicadangkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutte le registrazioni sono salvate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての記録をバックアップしました。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle registreringer er sikkerhetskopiert."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle registraties zijn opgeslagen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie wpisy są skopiowane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos os registros têm backup."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все записи скопированы."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alla poster är säkerhetskopierade."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สำรองบันทึกทั้งหมดแล้ว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm kayıtlar yedeklendi."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã sao lưu tất cả bản ghi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有记录均已备份。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有記錄均已備份。"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All records are backed up."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 기록이 백업되었어요."
+          }
+        }
+      }
+    },
     "모든 기록이 삭제됩니다. 되돌릴 수 없습니다." : {
       "localizations" : {
         "en" : {
@@ -46338,6 +47078,154 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kurucu"
+          }
+        }
+      }
+    },
+    "백업할 기록 %lld개" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld records to back up"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Záznamy k zálohování: %lld"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registreringer der skal sikkerhedskopieres: %lld"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge für das Backup: %lld"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καταγραφές προς αντιγραφή: %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros por copiar: %lld"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varmuuskopioitavia merkintöjä: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relevés à sauvegarder : %lld"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld catatan akan dicadangkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registrazioni da salvare: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップする記録：%lld件"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registreringer som skal sikkerhetskopieres: %lld"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registraties voor reservekopie: %lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisy do skopiowania: %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros para backup: %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записей для копирования: %lld"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poster att säkerhetskopiera: %lld"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บันทึกที่จะสำรอง %lld รายการ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedeklenecek kayıt: %lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld bản ghi cần sao lưu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待备份记录：%lld 条"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待備份記錄：%lld 筆"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld records to back up"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업할 기록 %lld개"
           }
         }
       }
@@ -69835,6 +70723,154 @@
         }
       }
     },
+    "앱을 지우거나 기기를 바꿔도 같은 iCloud 계정이면 기록이 돌아와요. iCloud 저장 공간을 사용하며, 친구에게는 보이지 않아요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your records come back with the same iCloud account, even if you delete the app or change devices. This uses your iCloud storage and isn't visible to friends."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se stejným účtem iCloud se záznamy vrátí, i když aplikaci smažete nebo změníte zařízení. Využívá to úložiště iCloud a přátelé to neuvidí."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Med den samme iCloud-konto kommer dine registreringer tilbage, selv hvis du sletter appen eller skifter enhed. Det bruger din iCloud-lagerplads og er ikke synligt for venner."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit demselben iCloud-Account kommen deine Einträge zurück, auch wenn du die App löschst oder das Gerät wechselst. Das belegt iCloud-Speicher und ist für Freunde nicht sichtbar."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Με τον ίδιο λογαριασμό iCloud οι καταγραφές σας επιστρέφουν, ακόμη κι αν διαγράψετε την εφαρμογή ή αλλάξετε συσκευή. Χρησιμοποιεί τον χώρο σας στο iCloud και δεν είναι ορατό στους φίλους."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con la misma cuenta de iCloud, tus registros vuelven aunque borres la app o cambies de dispositivo. Usa tu almacenamiento de iCloud y tus amigos no lo ven."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samalla iCloud-tilillä merkinnät palaavat, vaikka poistaisit apin tai vaihtaisit laitetta. Tämä käyttää iCloud-tallennustilaa eikä näy ystäville."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avec le même compte iCloud, vos relevés reviennent même si vous supprimez l'app ou changez d'appareil. Cela utilise votre stockage iCloud et n'est pas visible par vos amis."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dengan akun iCloud yang sama, catatan akan kembali meski app dihapus atau perangkat diganti. Fitur ini memakai penyimpanan iCloud dan tidak terlihat oleh teman."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con lo stesso account iCloud le registrazioni tornano anche se elimini l'app o cambi dispositivo. Usa il tuo spazio iCloud e non è visibile agli amici."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを削除しても機種を変えても、同じiCloudアカウントなら記録が戻ります。iCloudストレージを使用し、友達には表示されません。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Med samme iCloud-konto kommer registreringene tilbake, selv om du sletter appen eller bytter enhet. Dette bruker iCloud-lagringen din og er ikke synlig for venner."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Met hetzelfde iCloud-account komen je registraties terug, ook als je de app verwijdert of van apparaat wisselt. Dit gebruikt je iCloud-opslag en is niet zichtbaar voor vrienden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tym samym koncie iCloud wpisy wrócą, nawet jeśli usuniesz aplikację lub zmienisz urządzenie. Korzysta to z miejsca w iCloud i nie jest widoczne dla znajomych."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com a mesma conta do iCloud, seus registros voltam mesmo se você apagar o app ou trocar de aparelho. Isso usa seu armazenamento do iCloud e não fica visível para amigos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С той же учётной записью iCloud записи вернутся, даже если удалить приложение или сменить устройство. Используется хранилище iCloud, друзья этого не видят."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Med samma iCloud-konto kommer dina poster tillbaka, även om du raderar appen eller byter enhet. Det använder ditt iCloud-utrymme och syns inte för vänner."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เมื่อใช้บัญชี iCloud เดิม บันทึกจะกลับมาแม้จะลบแอปหรือเปลี่ยนเครื่อง ฟีเจอร์นี้ใช้พื้นที่ iCloud ของคุณและเพื่อนจะไม่เห็น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynı iCloud hesabıyla, uygulamayı silseniz veya cihaz değiştirseniz de kayıtlarınız geri gelir. iCloud depolama alanınızı kullanır ve arkadaşlarınıza görünmez."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Với cùng tài khoản iCloud, bản ghi sẽ trở lại kể cả khi bạn xóa ứng dụng hoặc đổi thiết bị. Tính năng này dùng dung lượng iCloud và bạn bè không nhìn thấy."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只要使用同一 iCloud 账户，即使删除 App 或更换设备，记录也会恢复。这会占用你的 iCloud 储存空间，好友看不到。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只要使用同一 iCloud 帳號，即使刪除 App 或更換裝置，記錄也會恢復。這會佔用你的 iCloud 儲存空間，朋友看不到。"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your records come back with the same iCloud account, even if you delete the app or change devices. This uses your iCloud storage and isn't visible to friends."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 지우거나 기기를 바꿔도 같은 iCloud 계정이면 기록이 돌아와요. iCloud 저장 공간을 사용하며, 친구에게는 보이지 않아요."
+          }
+        }
+      }
+    },
     "양배추" : {
       "comment" : "Food name recognized in a meal photo",
       "localizations" : {
@@ -91190,6 +92226,154 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "“Yalnızca Kayıt Durumu” grupları henüz kullanılamıyor. iCloud güncellemesi yayınlanana kadar lütfen “Tam Öğünler” grubu oluştur."
+          }
+        }
+      }
+    },
+    "지금은 백업하지 못했어요. 앱을 다시 열면 이어서 시도해요." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't back up right now. We'll try again when you reopen the app."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zálohu se teď nepodařilo provést. Zkusíme to znovu po otevření aplikace."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikkerhedskopien mislykkedes lige nu. Vi prøver igen, når du åbner appen."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Backup hat gerade nicht geklappt. Beim nächsten Öffnen der App versuchen wir es erneut."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν ήταν δυνατή η αντιγραφή τώρα. Θα προσπαθήσουμε ξανά όταν ανοίξετε την εφαρμογή."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo hacer la copia ahora. Lo intentaremos al volver a abrir la app."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varmuuskopiointi ei nyt onnistunut. Yritämme uudelleen, kun avaat apin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde impossible pour le moment. Nouvel essai à la réouverture de l'app."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak dapat mencadangkan saat ini. Kami akan mencoba lagi saat app dibuka."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup non riuscito. Riproveremo alla prossima apertura dell'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今はバックアップできませんでした。アプリを再度開くと再試行します。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke sikkerhetskopiere nå. Vi prøver igjen når du åpner appen."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De reservekopie is nu niet gelukt. We proberen het opnieuw als je de app opent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się teraz wykonać kopii. Spróbujemy ponownie po otwarciu aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível fazer o backup agora. Tentaremos de novo ao reabrir o app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас не удалось создать копию. Попробуем снова при следующем открытии приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att säkerhetskopiera nu. Vi försöker igen när du öppnar appen."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สำรองข้อมูลไม่ได้ในขณะนี้ จะลองอีกครั้งเมื่อเปิดแอป"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şu anda yedeklenemedi. Uygulamayı yeniden açtığınızda tekrar denenecek."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa thể sao lưu lúc này. Ứng dụng sẽ thử lại khi bạn mở lại."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂时无法备份。重新打开 App 时将再次尝试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫時無法備份。重新打開 App 時將再次嘗試。"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't back up right now. We'll try again when you reopen the app."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 백업하지 못했어요. 앱을 다시 열면 이어서 시도해요."
           }
         }
       }
