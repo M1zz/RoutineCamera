@@ -152,6 +152,7 @@ struct CustomCameraView: View {
     @State private var capturedImage: UIImage?
     @StateObject private var cameraManager = CameraManager()
     @State private var currentDateTime = Date()
+    @State private var shutterFlash = false  // 셔터를 누른 순간 프리뷰를 잠깐 가린다 — 처리 중에도 찍혔다는 걸 바로 알게
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -213,6 +214,10 @@ struct CustomCameraView: View {
                                     Spacer()
                                 }
                             }
+
+                            Color.black
+                                .opacity(shutterFlash ? 1 : 0)
+                                .allowsHitTesting(false)
                         }
                     }
                     // 정사각형이되, 작은 화면(SE)에서도 아래 셔터가 잘리지 않을 만큼만
@@ -300,6 +305,11 @@ struct CustomCameraView: View {
     }
 
     private func capturePhoto() {
+        guard !cameraManager.isCapturing else { return }
+        shutterFlash = true
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.25)) { shutterFlash = false }
+        }
         // 카메라에서 사진 캡처
         cameraManager.capturePhoto { image in
             // 캡처 즉시 날짜/시간 추가 (촬영에 실패하면 카메라 화면에 그대로 머문다)
@@ -563,6 +573,7 @@ class CameraManager: NSObject, ObservableObject {
 
             let settings = AVCapturePhotoSettings()
             settings.maxPhotoDimensions = self.photoOutput.maxPhotoDimensions
+            settings.photoQualityPrioritization = .speed
             self.captureCompletion = completion
             self.photoOutput.capturePhoto(with: settings, delegate: self)
         }
@@ -598,6 +609,18 @@ class CameraManager: NSObject, ObservableObject {
             // 48MP 로 찍으면 한 장을 푸는 데만 수백 MB 가 든다.
             if let dimensions = Self.preferredPhotoDimensions(camera.activeFormat.supportedMaxPhotoDimensions) {
                 photoOutput.maxPhotoDimensions = dimensions
+            }
+            // 셔터를 누르면 바로 찍는다. 기본값(균형)은 누른 뒤 여러 장을 합성하느라 1~2초 걸리는데,
+            // 저장은 한 변 2048px 로 줄이므로 그 화질 이득이 남지 않는다.
+            photoOutput.maxPhotoQualityPrioritization = .speed
+            if photoOutput.isZeroShutterLagSupported {
+                photoOutput.isZeroShutterLagEnabled = true
+            }
+            if photoOutput.isResponsiveCaptureSupported {
+                photoOutput.isResponsiveCaptureEnabled = true
+                if photoOutput.isFastCapturePrioritizationSupported {
+                    photoOutput.isFastCapturePrioritizationEnabled = true
+                }
             }
             isConfigured = true
         } catch {

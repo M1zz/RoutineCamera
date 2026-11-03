@@ -30,6 +30,21 @@ final class MealSyncResolverTests: XCTestCase {
                        .keepLocalFillingPhotos)
     }
 
+    /// 재설치 뒤 새로 찍은 끼니와 예전 기록이 같은 칸에 만났을 때 — 사진을 섞지 않고 더 나중 것 하나만 남긴다
+    func testUnsyncedLocal_localNewer_keepsLocalWithoutMixing() {
+        XCTAssertEqual(MealSyncResolver.resolveRemoteSave(localExists: true, localHasPendingChange: true,
+                                                          localModifiedAt: newer, remoteModifiedAt: older,
+                                                          localWasSynced: false),
+                       .keepLocal)
+    }
+
+    func testUnsyncedLocal_remoteNewer_appliesRemoteWithoutMixing() {
+        XCTAssertEqual(MealSyncResolver.resolveRemoteSave(localExists: true, localHasPendingChange: true,
+                                                          localModifiedAt: older, remoteModifiedAt: newer,
+                                                          localWasSynced: false),
+                       .applyRemote)
+    }
+
     func testLocalDeleteNewer_ignoresRemote() {
         XCTAssertEqual(MealSyncResolver.resolveRemoteSave(localExists: false, localHasPendingChange: true,
                                                           localModifiedAt: newer, remoteModifiedAt: older),

@@ -25,6 +25,8 @@ struct MomentsView: View {
     // 스크린샷용: OPEN_FIRST_DETAIL_FOR_TEST=1 이면 오늘 아침 기록 상세를 바로 연다
     @State private var testDetailRecord: MealRecord?
     #endif
+    // 7일 리듬 카드는 기본으로 숨기고, 위쪽 바의 버튼으로 꺼내 본다 (ContentView 와 같은 값)
+    @AppStorage("showsMealRhythm") private var showsRhythm = false
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -140,11 +142,12 @@ struct MomentsView: View {
             } else {
                 VStack(spacing: 0) {
                     // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다.
-                    // 목록 밖에 두어 늘 보이게 하고, 거슬리면 제목을 눌러 한 줄로 접는다.
-                    if !isExercise {
+                    // 목록 밖에 두어 꺼냈을 때 바 밑에 숨지 않게 한다.
+                    if !isExercise && showsRhythm {
                         MealRhythmCard(mealStore: mealStore, now: now)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
                     List {
                         ForEach(dayGroups, id: \.day) { group in

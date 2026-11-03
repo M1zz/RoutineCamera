@@ -25,11 +25,14 @@ struct FriendsView: View {
     @State private var todayMeals: [String: [MealType: MealRecord]] = [:]
     @State private var isLoadingTodayMeals = false
 
+    // 메인 화면의 내비게이션 스택에 밀어 넣어 연다 (모달이 아니라 뒤로 버튼·스와이프로 돌아간다)
     var body: some View {
-        NavigationView {
+        Group {
             if !friendManager.isSignedIn {
                 // iCloud 로그인 안내 화면
                 ICloudRequiredView()
+                    .navigationTitle("친구")
+                    .navigationBarTitleDisplayMode(.inline)
             } else {
                 // 친구 목록 화면
                 friendsContentView
@@ -256,7 +259,8 @@ struct FriendsView: View {
             .navigationTitle("친구")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                // 왼쪽은 뒤로 버튼 자리라 모든 버튼을 오른쪽에 둔다
+                ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         #if DEBUG
                         // 샘플 데이터 생성 버튼 (개발자 모드 전용)

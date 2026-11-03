@@ -408,7 +408,8 @@ final class MealCloudSync: ObservableObject {
             let decision = MealSyncResolver.resolveRemoteSave(localExists: local != nil,
                                                               localHasPendingChange: meta?.isDirty ?? false,
                                                               localModifiedAt: meta?.modifiedAt,
-                                                              remoteModifiedAt: remoteModifiedAt)
+                                                              remoteModifiedAt: remoteModifiedAt,
+                                                              localWasSynced: meta?.systemFields != nil)
             guard decision != .ignore else {
                 state.slots[name]?.systemFields = serverFields
                 continue
@@ -428,10 +429,14 @@ final class MealCloudSync: ObservableObject {
             case .keepLocalFillingPhotos:
                 result = Self.fillingPhotos(of: local ?? remote, from: remote)
                 stillDirty = true
+            case .keepLocal:
+                result = local ?? remote
+                stillDirty = true
             }
 
             applied.append((slot, result))
-            let modifiedAt = decision == .keepLocalFillingPhotos ? (meta?.modifiedAt ?? remoteModifiedAt) : remoteModifiedAt
+            let keepsLocal = decision == .keepLocalFillingPhotos || decision == .keepLocal
+            let modifiedAt = keepsLocal ? (meta?.modifiedAt ?? remoteModifiedAt) : remoteModifiedAt
             afterApply.append((slot, modifiedAt, stillDirty))
             var updated = meta ?? SlotState(modifiedAt: modifiedAt, isDirty: false, isDeleted: false)
             updated.systemFields = serverFields

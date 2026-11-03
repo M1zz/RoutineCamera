@@ -17,6 +17,7 @@ struct ContentView: View {
     @StateObject private var settingsManager = SettingsManager.shared
     @StateObject private var friendManager = FriendManager.shared
     @Environment(\.foldLayout) private var fold
+    @AppStorage("showsMealRhythm") private var showsRhythm = false // 끼니 피드 위 7일 리듬 카드
     @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
@@ -132,7 +133,7 @@ struct ContentView: View {
         settingsManager.albumType == .exercise
     }
 
-    // 끼니 피드 — 맨 위 7일 카드가 화면을 말해 주므로 제목과 목표 바 없이 피드부터 보인다
+    // 끼니 피드 — 목표 진행률 바 없이 피드부터 보인다
     private var showsMomentsFeed: Bool {
         !showsExerciseGrid && settingsManager.useMomentsFeed
     }
@@ -140,7 +141,7 @@ struct ContentView: View {
     // 네이티브 내비게이션 바 타이틀
     private var navTitle: String {
         if showsExerciseGrid { return AlbumType.exercise.displayName }
-        if showsMomentsFeed { return "" }
+        if showsMomentsFeed { return AlbumType.diet.displayName }
         let f = DateFormatter()
         f.setLocalizedDateFormatFromTemplate("MMMdE")
         return f.string(from: currentVisibleDate)
@@ -158,6 +159,16 @@ struct ContentView: View {
                 } label: {
                     Label(settingsManager.albumType.displayName, systemImage: settingsManager.albumType.symbolName)
                 }
+            }
+            // 끼니 피드의 7일 리듬 카드 — 기본은 숨김, 누르면 꺼낸다
+            if showsMomentsFeed {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) { showsRhythm.toggle() }
+                } label: {
+                    Image(systemName: showsRhythm ? "circle.grid.3x3.fill" : "circle.grid.3x3")
+                }
+                .accessibilityLabel(Text("최근 7일 식사 리듬"))
+                .accessibilityAddTraits(showsRhythm ? .isSelected : [])
             }
             // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
             Button { showingFriends = true } label: {
@@ -312,10 +323,11 @@ struct ContentView: View {
                     if ProcessInfo.processInfo.environment["OPEN_PAYWALL_FOR_TEST"] == "1" {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingPaywallForTest = true }
                     }
-                    // 스크린샷용: OPEN_SCREEN_FOR_TEST=stats|settings 로 그 화면을 바로 연다
+                    // 스크린샷용: OPEN_SCREEN_FOR_TEST=stats|settings|friends 로 그 화면을 바로 연다
                     switch ProcessInfo.processInfo.environment["OPEN_SCREEN_FOR_TEST"] {
                     case "stats": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingStatistics = true }
                     case "settings": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingSettings = true }
+                    case "friends": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingFriends = true }
                     default: break
                     }
                     if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
@@ -419,7 +431,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView(notificationManager: notificationManager, goalManager: goalManager, mealStore: mealStore, settingsManager: settingsManager)
             }
-            .sheet(isPresented: $showingFriends) {
+            .navigationDestination(isPresented: $showingFriends) {
                 FriendsView()
             }
             .onChange(of: showingSettings) { oldValue, newValue in

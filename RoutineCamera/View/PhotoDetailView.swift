@@ -206,6 +206,10 @@ struct PhotoDetailView: View {
                         }
                         .tabViewStyle(.page)
                         .indexViewStyle(.page(backgroundDisplayMode: .always))
+                        // 목록 썸네일(식후가 있으면 식후)과 같은 사진에서 연다 — 누르자마자 다른 사진이 뜨지 않게
+                        .onAppear {
+                            if record.afterImageData != nil { currentPage = 1 }
+                        }
                     }
                     }
                     .frame(maxWidth: .infinity)
