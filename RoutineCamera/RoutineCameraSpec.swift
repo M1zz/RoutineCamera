@@ -7,6 +7,8 @@ enum RoutineCameraSpec: LeeoAppSpec {
     /// App Store 앱 ID — 친구 초대 링크·리뷰 요청이 쓴다
     static let appStoreID: String? = "6755164924"
     static let feedback = LeeoFeedbackConfig(containerIdentifier: "iCloud.com.Ysoup.FeedbackHub", appIdentifier: "com.ysoup.RoutineCamera")
+    /// 백업 금고(LeeoVault)가 함께 담는 앱 그룹 — 위젯과 나눠 쓰는 기록.
+    static let appGroups = ["group.com.ysoup.RoutineCamera"]
 
     /// 법적·지원 링크 — docs/ 의 GitHub Pages.
     /// 친구 기능용 계정을 만든다(친구 화면 > 계정 설정 > 회원 탈퇴). 삭제 안내는 지원 페이지 FAQ 에 있다.
