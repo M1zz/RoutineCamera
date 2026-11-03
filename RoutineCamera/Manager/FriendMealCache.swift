@@ -44,7 +44,8 @@ final class FriendMealCache {
 
     /// 캐시된 기록. 없거나 만료됐으면 nil.
     /// 빈 딕셔너리는 "그 날은 기록이 없다"는 캐시된 사실이다.
-    func load(friendId: String, dateString: String, date: Date) -> [MealType: MealRecord]? {
+    /// allowStale 이면 만료된 것도 지우지 않고 돌려준다 (새로 받는 동안 먼저 보여 주는 용도).
+    func load(friendId: String, dateString: String, date: Date, allowStale: Bool = false) -> [MealType: MealRecord]? {
         let key = Self.cacheKey(friendId: friendId, dateString: dateString)
         let fileURL = root.appendingPathComponent("\(key).json")
 
@@ -53,7 +54,7 @@ final class FriendMealCache {
             return nil
         }
 
-        guard isFresh(cachedAt: cached.cachedAt, recordDate: date) else {
+        guard allowStale || isFresh(cachedAt: cached.cachedAt, recordDate: date) else {
             remove(key: key)
             return nil
         }

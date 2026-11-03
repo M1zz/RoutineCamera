@@ -127,6 +127,11 @@ class FriendManager: ObservableObject {
 
     // MARK: - 캐싱 시스템
 
+    /// 친구·요청·그룹 목록이 바뀌면 로컬 캐시에 저장 (SocialGraphCache)
+    var socialCacheCancellable: AnyCancellable?
+    /// 실행 직후 캐시로 친구 화면을 채웠는지 — 계정 확인이 잠깐 실패해도 화면을 지우지 않는다
+    var hasCachedSocialGraph = false
+
     /// 메모리 캐시 (빠른 접근)
     let memoryCache = NSCache<NSString, CachedMealData>()
 
@@ -138,6 +143,9 @@ class FriendManager: ObservableObject {
         memoryCache.countLimit = 200
         memoryCache.totalCostLimit = 80 * 1024 * 1024
         clearMixedGroupCacheIfNeeded()
+
+        restoreSocialGraphFromCache()
+        observeSocialGraphForCache()
 
         // 디스크 캐시 용량 정리 (상한 초과 시 오래된 것부터). 실행 직후를 피해 뒤로 미룬다.
         _Concurrency.Task {
@@ -165,16 +173,21 @@ class FriendManager: ObservableObject {
             do {
                 let status = try await CKContainer.default().accountStatus()
                 guard status == .available else {
-                    self.isSignedIn = false
                     // 잠깐 확인이 안 되는 상태는 로그인 안 됨이 아니다 — 다시 확인한다
                     self.accountCheckFailed = status == .temporarilyUnavailable || status == .couldNotDetermine
+                    // 확인만 못 한 경우엔 캐시로 보여 주던 친구 화면을 그대로 둔다
+                    if !(self.accountCheckFailed && self.hasCachedSocialGraph) { self.isSignedIn = false }
                     if self.accountCheckFailed { self.scheduleAccountRetry() }
                     print("ℹ️ [CloudKit] iCloud 미로그인 (status: \(status.rawValue))")
                     return
                 }
 
                 let recordID = try await CKContainer.default().userRecordID()
-                self.myUserId = recordID.recordName
+                if self.myUserId != recordID.recordName {
+                    // 실행 직후 보여 준 캐시가 다른 계정 것이었다 — 그 계정의 목록으로 바꾼다
+                    self.myUserId = recordID.recordName
+                    self.applySocialSnapshot(SocialGraphCache.load(userId: recordID.recordName))
+                }
                 self.isSignedIn = true
                 self.accountCheckFailed = false
                 self.accountRetryCount = 0
@@ -192,7 +205,8 @@ class FriendManager: ObservableObject {
                 self.ensureFriendLinkSubscription()
             } catch {
                 // 네트워크 등으로 확인하지 못한 것 — 로그인 안 됨으로 단정하지 않고 다시 시도한다
-                self.isSignedIn = false
+                // (캐시로 보여 주던 친구 화면은 그대로 둔다)
+                if !self.hasCachedSocialGraph { self.isSignedIn = false }
                 self.accountCheckFailed = true
                 self.scheduleAccountRetry()
                 print("❌ [CloudKit] 계정 확인 실패: \(error.localizedDescription)")
@@ -226,7 +240,11 @@ class FriendManager: ObservableObject {
                 myUserCode = code
                 UserDefaults.standard.set(code, forKey: "friendCode_\(myUserId)")
             }
-            friends = Self.decodeFriends(from: record)
+            // 구버전 friendsJSON 은 FriendLink 이관 전에만 쓴다.
+            // 이관이 끝난 계정에서 덮어쓰면 캐시로 보여 준 목록이 잠깐 비었다가 돌아온다.
+            if !UserDefaults.standard.bool(forKey: "friendLinkMigrated_\(myUserId)") {
+                friends = Self.decodeFriends(from: record)
+            }
             print("✅ [CloudKit] 사용자 레코드 로드: 코드 \(myUserCode), 친구 \(friends.count)명")
         } catch let error as CKError where error.code == .unknownItem {
             // 첫 사용 - 새 레코드 생성
@@ -328,6 +346,7 @@ class FriendManager: ObservableObject {
         pendingFriends = []
         groups = []
         clearCache()
+        SocialGraphCache.remove(userId: userId)
 
         print("✅ 공유 데이터 삭제 완료 - 새 코드로 재시작")
         await bootstrapMyUserRecord()

@@ -30,7 +30,7 @@ enum FriendLinkState: String {
 }
 
 /// 내가 받은 친구 요청
-struct FriendRequest: Identifiable, Equatable {
+struct FriendRequest: Identifiable, Equatable, Codable {
     let id: String      // 보낸 사람 userId
     let code: String
     let name: String
@@ -38,7 +38,7 @@ struct FriendRequest: Identifiable, Equatable {
 }
 
 /// 내가 보낸 요청 (상대 수락 대기 중이거나 거절당함)
-struct PendingFriend: Identifiable, Equatable {
+struct PendingFriend: Identifiable, Equatable, Codable {
     let id: String      // 상대 userId
     let code: String
     let name: String
@@ -47,7 +47,7 @@ struct PendingFriend: Identifiable, Equatable {
 }
 
 /// 그룹에서 서로에게 무엇까지 보여줄지 (방장이 정한다)
-enum GroupVisibility: String, CaseIterable, Identifiable {
+enum GroupVisibility: String, CaseIterable, Identifiable, Codable {
     /// 기록을 올렸는지 여부만 — 사진·메모는 보이지 않는다
     case record
     /// 사진·메모까지 전부
@@ -77,7 +77,7 @@ enum GroupVisibility: String, CaseIterable, Identifiable {
     }
 }
 
-struct FriendGroup: Identifiable, Equatable {
+struct FriendGroup: Identifiable, Equatable, Codable {
     let id: String      // recordName: group_<uuid>
     let name: String
     let ownerId: String
@@ -177,7 +177,16 @@ extension FriendManager {
             try await saveMyLink(otherId: friendId, otherCode: code, otherNickname: nickname, state: state)
             // 차단했던 사람을 코드로 다시 추가하면 차단을 푼다
             unblock(friendId)
-            await refreshSocialGraph()
+            // 저장이 끝났으면 화면에 바로 반영하고, 전체 새로고침(iCloud 왕복 2번)은 뒤에서 한다
+            if alreadyRequestedByThem {
+                incomingRequests.removeAll { $0.id == friendId }
+                friends.insert(Friend(id: friendId, code: code, name: nickname, addedDate: Date()), at: 0)
+            } else {
+                pendingFriends.removeAll { $0.id == friendId }
+                pendingFriends.insert(PendingFriend(id: friendId, code: code, name: nickname,
+                                                    sentAt: Date(), isRejected: false), at: 0)
+            }
+            _Concurrency.Task { await self.refreshSocialGraph() }
 
             print("✅ 친구 요청 \(alreadyRequestedByThem ? "수락(맞요청)" : "전송"): \(nickname) (\(code))")
         } catch {
@@ -337,8 +346,13 @@ extension FriendManager {
         defer { isLoadingSocial = false }
 
         do {
-            let outgoing = try await queryLinks(field: "ownerId", value: myUserId)
-            let incoming = try await queryLinks(field: "otherId", value: myUserId)
+            // 보낸 쪽·받은 쪽 조회는 서로 기다릴 필요가 없어 동시에 보낸다
+            let userId = myUserId
+            async let outgoingLinks = queryLinks(field: "ownerId", value: userId)
+            async let incomingLinks = queryLinks(field: "otherId", value: userId)
+            let (outgoing, incoming) = try await (outgoingLinks, incomingLinks)
+            // 기다리는 사이 계정이 바뀌었으면(캐시로 띄운 계정 ≠ 실제 계정) 이전 계정 결과는 버린다
+            guard userId == myUserId else { return }
 
             var mine: [String: FriendLinkRecord] = [:]
             for link in outgoing { mine[link.otherId] = link }
@@ -572,12 +586,14 @@ extension FriendManager {
 
         isLoadingGroups = true
         defer { isLoadingGroups = false }
+        let userId = myUserId
 
         do {
             let memberRecords = try await fetchAll(
                 query: CKQuery(recordType: Self.groupMemberRecordType,
                                predicate: NSPredicate(format: "userId == %@", myUserId))
             )
+            guard userId == myUserId else { return }  // 기다리는 사이 계정이 바뀌었다
             let groupIds = memberRecords.compactMap { $0["groupId"] as? String }
             guard !groupIds.isEmpty else {
                 groups = []
@@ -600,6 +616,7 @@ extension FriendManager {
                 }
             }
 
+            guard userId == myUserId else { return }  // 기다리는 사이 계정이 바뀌었다
             groups = loaded.sorted { $0.createdAt > $1.createdAt }
             groupsError = nil
             print("✅ [CloudKit] 내 그룹 \(groups.count)개")

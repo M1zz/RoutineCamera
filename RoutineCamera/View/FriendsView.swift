@@ -12,7 +12,6 @@ struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
     @ObservedObject var settingsManager = SettingsManager.shared
     @State private var showingAddFriend = false
-    @State private var friendCode = ""
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var selectedFriend: Friend?
@@ -317,7 +316,7 @@ struct FriendsView: View {
                 }
             }
             .sheet(isPresented: $showingAddFriend) {
-                AddFriendSheet(friendCode: $friendCode) { code in
+                AddFriendSheet { code in
                     try await friendManager.sendFriendRequest(code: code)
                 }
             }
@@ -370,6 +369,8 @@ struct FriendsView: View {
                     nicknameDraft = ""
                     showingNicknamePrompt = true
                 }
+                // 지난번에 받아 둔 오늘 친구 기록부터 바로 보여 준다
+                showCachedTodayMeals()
                 // 화면 진입 시 받은 요청·수락 여부를 최신으로 (푸시를 탭해 들어온 경우 포함)
                 await friendManager.refreshSocialGraph()
                 await loadTodayMeals()
@@ -479,6 +480,16 @@ struct FriendsView: View {
 
     /// 친구마다 오늘 식단(음식)을 받아 온다. 오늘 기록은 계속 늘어나므로 캐시를 버리고 새로 받는다.
     /// 한 명씩 받는 대로 화면에 채워, 친구가 많아도 첫 카드가 금방 뜬다.
+    /// 기기에 남아 있는 오늘 친구 기록(만료된 것 포함)을 먼저 채운다. 새로 받은 것은 loadTodayMeals 가 덮는다.
+    private func showCachedTodayMeals() {
+        let today = Calendar.current.startOfDay(for: Date())
+        for friend in friendManager.friends where todayMeals[friend.id] == nil {
+            if let cached = friendManager.cachedMealsForDisplay(friendId: friend.id, date: today) {
+                todayMeals[friend.id] = cached
+            }
+        }
+    }
+
     private func loadTodayMeals() async {
         let friends = friendManager.friends
         guard !friends.isEmpty else { return }
@@ -487,15 +498,27 @@ struct FriendsView: View {
         isLoadingTodayMeals = true
         defer { isLoadingTodayMeals = false }
 
-        for friend in friends {
-            friendManager.invalidateCache(friendId: friend.id, date: today)
-            do {
-                let loaded = try await friendManager.loadFriendMealsBatch(friendId: friend.id, dates: [today], album: .diet)
-                todayMeals[friend.id] = loaded[today] ?? [:]
-            } catch {
-                print("❌ [FriendsView] \(friend.name) 오늘 식단 조회 실패: \(error.localizedDescription)")
+        // 친구마다 순서대로 기다리지 않고 한꺼번에 받는다. 화면은 다 받은 뒤 한 번만 갱신한다.
+        let manager = friendManager
+        var results: [String: [MealType: MealRecord]] = [:]
+        await withTaskGroup(of: (String, [MealType: MealRecord]?).self) { group in
+            for friend in friends {
+                manager.invalidateCache(friendId: friend.id, date: today)
+                group.addTask { @MainActor in
+                    do {
+                        let loaded = try await manager.loadFriendMealsBatch(friendId: friend.id, dates: [today], album: .diet)
+                        return (friend.id, loaded[today] ?? [:])
+                    } catch {
+                        print("❌ [FriendsView] \(friend.name) 오늘 식단 조회 실패: \(error.localizedDescription)")
+                        return (friend.id, nil)
+                    }
+                }
+            }
+            for await (id, meals) in group {
+                if let meals { results[id] = meals }
             }
         }
+        todayMeals.merge(results) { _, new in new }
     }
     }
 
@@ -541,16 +564,17 @@ struct FriendsTodayStrip: View {
         mealsByFriend[friend.id]?.values.max { ($0.capturedAt ?? $0.date) < ($1.capturedAt ?? $1.date) }
     }
 
-    /// 올린 사람 먼저(최근 순), 아직 안 올린 사람은 이름순으로 뒤에
-    private var sortedFriends: [Friend] {
-        friends.sorted { lhs, rhs in
-            let lhsTime = latest(lhs).map { $0.capturedAt ?? $0.date }
-            let rhsTime = latest(rhs).map { $0.capturedAt ?? $0.date }
+    /// 올린 사람 먼저(최근 순), 아직 안 올린 사람은 이름순으로 뒤에.
+    /// 비교할 때마다 최근 기록을 다시 찾지 않도록 한 번만 계산해 둔다.
+    private var sortedFriends: [(friend: Friend, latest: MealRecord?)] {
+        friends.map { ($0, latest($0)) }.sorted { lhs, rhs in
+            let lhsTime = lhs.latest.map { $0.capturedAt ?? $0.date }
+            let rhsTime = rhs.latest.map { $0.capturedAt ?? $0.date }
             switch (lhsTime, rhsTime) {
             case let (l?, r?): return l > r
             case (.some, nil): return true
             case (nil, .some): return false
-            case (nil, nil): return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+            case (nil, nil): return lhs.friend.name.localizedCaseInsensitiveCompare(rhs.friend.name) == .orderedAscending
             }
         }
     }
@@ -588,13 +612,13 @@ struct FriendsTodayStrip: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 12) {
-                    ForEach(sortedFriends) { friend in
+                    ForEach(sortedFriends, id: \.friend.id) { item in
                         Button {
-                            onSelect(friend)
+                            onSelect(item.friend)
                         } label: {
-                            FriendTodayCard(friend: friend,
-                                            meals: mealsByFriend[friend.id] ?? [:],
-                                            latest: latest(friend))
+                            FriendTodayCard(friend: item.friend,
+                                            meals: mealsByFriend[item.friend.id] ?? [:],
+                                            latest: item.latest)
                         }
                         .buttonStyle(.plain)
                     }
@@ -621,6 +645,34 @@ struct FriendTodayCard: View {
 
     private var hasRecord: Bool { latest != nil }
 
+    @State private var thumbnail: UIImage?
+
+    private var photoData: Data? { latest?.afterImageData ?? latest?.beforeImageData }
+
+    /// 사진이 바뀌었을 때만 다시 푼다
+    private var photoKey: String {
+        guard let latest, let photoData else { return friend.id }
+        return "\(friend.id)_\(latest.mealType)_\(latest.capturedAt?.timeIntervalSince1970 ?? 0)_\(photoData.count)"
+    }
+
+    private func loadThumbnail() async {
+        guard let data = photoData else { thumbnail = nil; return }
+        let key = photoKey as NSString
+        if let cached = Self.thumbnailCache.object(forKey: key) { thumbnail = cached; return }
+        let maxPixel = size * 3
+        let image = await Task.detached(priority: .userInitiated) {
+            MealImageResizer.downsampledImage(from: data, maxPixel: maxPixel)
+        }.value
+        if let image { Self.thumbnailCache.setObject(image, forKey: key) }
+        thumbnail = image
+    }
+
+    private static let thumbnailCache: NSCache<NSString, UIImage> = {
+        let cache = NSCache<NSString, UIImage>()
+        cache.countLimit = 100
+        return cache
+    }()
+
     private var timeText: String? {
         latest?.capturedAt.map { Self.timeFormatter.string(from: $0) }
     }
@@ -628,8 +680,7 @@ struct FriendTodayCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             ZStack(alignment: .bottomLeading) {
-                if let data = latest?.afterImageData ?? latest?.beforeImageData,
-                   let image = MealImageResizer.downsampledImage(from: data, maxPixel: size * 3) {
+                if photoData != nil, let image = thumbnail {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -687,6 +738,7 @@ struct FriendTodayCard: View {
         }
         .frame(width: size)
         .opacity(hasRecord ? 1 : 0.7)
+        .task(id: photoKey) { await loadThumbnail() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(hasRecord
                             ? (timeText.map { String(localized: "\(friend.name), 오늘 \(meals.count)끼 기록, 마지막 \($0)", comment: "VoiceOver: friend name, meals logged today, time of the last one") }
@@ -929,7 +981,9 @@ func parseFriendCodes(_ text: String) -> [String] {
 // 친구 요청 시트 — 보내는 중/결과를 시트 안에서 끝까지 보여준다
 // (예전에는 시트를 닫은 뒤 부모에서 알럿을 띄워, 닫히는 도중 알럿이 묻히면 아무 반응도 없어 보였다)
 struct AddFriendSheet: View {
-    @Binding var friendCode: String
+    // 입력값은 시트 안에 둔다. 부모(친구 화면)에 바인딩하면 한 글자 칠 때마다
+    // 친구 화면 전체와 친구 카드 사진까지 다시 그려져 타이핑이 버벅였다.
+    @State private var friendCode = ""
     let onSend: (String) async throws -> Void
 
     @State private var phase: Phase = .input
