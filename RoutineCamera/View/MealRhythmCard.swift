@@ -13,6 +13,8 @@ struct MealRhythmCard: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject private var settingsManager = SettingsManager.shared
     var now: Date = Date()
+    /// 제목을 누르면 한 줄로 접힌다. 접은 채로 두면 다음에 열어도 접혀 있다.
+    @AppStorage("mealRhythmCardCollapsed") private var collapsed = false
 
     private let dayCount = 7
 
@@ -58,54 +60,85 @@ struct MealRhythmCard: View {
             .foregroundColor(fullDays > 0 ? .green : .secondary)
     }
 
-    var body: some View {
-        let rec = recorded
-        VStack(alignment: .leading, spacing: 12) {
+    private var chevron: some View {
+        Image(systemName: "chevron.down")
+            .font(.body.weight(.semibold))
+            .foregroundColor(.secondary)
+            .rotationEffect(.degrees(collapsed ? -90 : 0))
+    }
+
+    private var header: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) { collapsed.toggle() }
+        } label: {
             // 좁은 화면·큰 글씨에서는 제목 아래로 내려 둘 다 잘리지 않게
             ViewThatFits(in: .horizontal) {
                 HStack {
                     rhythmTitle
                     Spacer()
                     fullDaysText
+                    chevron
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    rhythmTitle
-                    fullDaysText
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        rhythmTitle
+                        fullDaysText
+                    }
+                    Spacer()
+                    chevron
                 }
             }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(collapsed
+                            ? String(localized: "접힘", comment: "VoiceOver: rhythm card is collapsed")
+                            : String(localized: "펼쳐짐", comment: "VoiceOver: rhythm card is expanded"))
+        .accessibilityHint(collapsed
+                           ? String(localized: "두 번 탭하면 펼칩니다", comment: "VoiceOver hint: expand rhythm card")
+                           : String(localized: "두 번 탭하면 접습니다", comment: "VoiceOver hint: collapse rhythm card"))
+    }
 
-            Grid(horizontalSpacing: 0, verticalSpacing: 10) {
-                GridRow {
-                    Color.clear.frame(width: 1, height: 1)
-                    ForEach(days, id: \.self) { day in
-                        Text(weekdayLabel(day))
-                            .font(.body)
-                            .fontWeight(Calendar.current.isDateInToday(day) ? .bold : .regular)
-                            .foregroundColor(Calendar.current.isDateInToday(day) ? .primary : .secondary)
-                            .frame(maxWidth: .infinity)
-                    }
-                    Color.clear.frame(width: 1, height: 1)
-                }
+    var body: some View {
+        let rec = recorded
+        VStack(alignment: .leading, spacing: 12) {
+            header
 
-                ForEach(meals) { meal in
-                    let count = days.filter { rec[$0]?.contains(meal) ?? false }.count
+            if !collapsed {
+                Grid(horizontalSpacing: 0, verticalSpacing: 10) {
                     GridRow {
-                        Text(meal.displayName)
-                            .font(.body)
-                            .gridColumnAlignment(.leading)
+                        Color.clear.frame(width: 1, height: 1)
                         ForEach(days, id: \.self) { day in
-                            dot(meal: meal, done: rec[day]?.contains(meal) ?? false,
-                                isToday: Calendar.current.isDateInToday(day))
+                            Text(weekdayLabel(day))
+                                .font(.body)
+                                .fontWeight(Calendar.current.isDateInToday(day) ? .bold : .regular)
+                                .foregroundColor(Calendar.current.isDateInToday(day) ? .primary : .secondary)
                                 .frame(maxWidth: .infinity)
                         }
-                        Text("\(count)/\(dayCount)")
-                            .font(.body.monospacedDigit())
-                            .foregroundColor(.secondary)
-                            .gridColumnAlignment(.trailing)
+                        Color.clear.frame(width: 1, height: 1)
                     }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(meal.displayName), 최근 7일 중 \(count)일 기록")
+
+                    ForEach(meals) { meal in
+                        let count = days.filter { rec[$0]?.contains(meal) ?? false }.count
+                        GridRow {
+                            Text(meal.displayName)
+                                .font(.body)
+                                .gridColumnAlignment(.leading)
+                            ForEach(days, id: \.self) { day in
+                                dot(meal: meal, done: rec[day]?.contains(meal) ?? false,
+                                    isToday: Calendar.current.isDateInToday(day))
+                                    .frame(maxWidth: .infinity)
+                            }
+                            Text("\(count)/\(dayCount)")
+                                .font(.body.monospacedDigit())
+                                .foregroundColor(.secondary)
+                                .gridColumnAlignment(.trailing)
+                        }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("\(meal.displayName), 최근 7일 중 \(count)일 기록")
+                    }
                 }
+                .transition(.opacity)
             }
         }
         .padding(16)

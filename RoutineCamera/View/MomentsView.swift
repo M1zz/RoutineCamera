@@ -138,48 +138,51 @@ struct MomentsView: View {
             if moments.isEmpty && ghost == nil {
                 emptyState
             } else {
-                List {
-                    // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다
+                VStack(spacing: 0) {
+                    // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다.
+                    // 목록 밖에 두어 늘 보이게 하고, 거슬리면 제목을 눌러 한 줄로 접는다.
                     if !isExercise {
                         MealRhythmCard(mealStore: mealStore, now: now)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                            .listRowSeparator(.hidden)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                     }
-                    ForEach(dayGroups, id: \.day) { group in
-                        Section {
-                            ForEach(group.rows) { row in
-                                switch row {
-                                case .record(let record):
-                                    NavigationLink {
-                                        PhotoDetailView(
-                                            date: record.date,
-                                            mealType: record.mealType,
-                                            mealRecord: record,
-                                            mealStore: mealStore,
-                                            embedInNavigation: false
-                                        )
-                                    } label: {
-                                        momentRow(record)
-                                    }
-                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                    .swipeActions(edge: .trailing) {
-                                        Button(role: .destructive) {
-                                            mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                    List {
+                        ForEach(dayGroups, id: \.day) { group in
+                            Section {
+                                ForEach(group.rows) { row in
+                                    switch row {
+                                    case .record(let record):
+                                        NavigationLink {
+                                            PhotoDetailView(
+                                                date: record.date,
+                                                mealType: record.mealType,
+                                                mealRecord: record,
+                                                mealStore: mealStore,
+                                                embedInNavigation: false
+                                            )
                                         } label: {
-                                            Label("삭제", systemImage: "trash")
+                                            momentRow(record)
                                         }
-                                    }
-                                case .ghost(let meal, let at):
-                                    ghostRow(meal, at: at)
                                         .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                        .swipeActions(edge: .trailing) {
+                                            Button(role: .destructive) {
+                                                mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                                            } label: {
+                                                Label("삭제", systemImage: "trash")
+                                            }
+                                        }
+                                    case .ghost(let meal, let at):
+                                        ghostRow(meal, at: at)
+                                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                    }
                                 }
+                            } header: {
+                                dayHeader(group.day, count: group.recordCount)
                             }
-                        } header: {
-                            dayHeader(group.day, count: group.recordCount)
                         }
                     }
+                    .listStyle(.plain)
                 }
-                .listStyle(.plain)
             }
         }
         .onReceive(clock) { now = $0 }

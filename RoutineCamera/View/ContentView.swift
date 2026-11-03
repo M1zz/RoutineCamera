@@ -132,12 +132,15 @@ struct ContentView: View {
         settingsManager.albumType == .exercise
     }
 
+    // 끼니 피드 — 맨 위 7일 카드가 화면을 말해 주므로 제목과 목표 바 없이 피드부터 보인다
+    private var showsMomentsFeed: Bool {
+        !showsExerciseGrid && settingsManager.useMomentsFeed
+    }
+
     // 네이티브 내비게이션 바 타이틀
     private var navTitle: String {
         if showsExerciseGrid { return AlbumType.exercise.displayName }
-        if settingsManager.useMomentsFeed {
-            return AlbumType.diet.displayName
-        }
+        if showsMomentsFeed { return "" }
         let f = DateFormatter()
         f.setLocalizedDateFormatFromTemplate("MMMdE")
         return f.string(from: currentVisibleDate)
@@ -186,7 +189,7 @@ struct ContentView: View {
     // 목표 진행률 바 (켠 경우에만, 네이티브 바 아래 얇게)
     @ViewBuilder
     private var goalProgressBar: some View {
-        if goalManager.goalEnabled {
+        if goalManager.goalEnabled, !showsMomentsFeed {
             let recordedDays = mealStore.getTotalRecordedDays()
             let progress = goalManager.getProgress(currentStreak: recordedDays)
             let achieved = goalManager.isGoalAchieved(currentStreak: recordedDays)
