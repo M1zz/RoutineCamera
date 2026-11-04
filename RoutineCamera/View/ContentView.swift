@@ -25,6 +25,7 @@ struct ContentView: View {
     @State private var showingGoalAchieved = false
     @State private var showingCaredMealsPrompt = false // 첫 실행: 챙길 식사 물어보기
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
+    @State private var openedMealRecord: MealRecord? = nil // Siri · Spotlight 에서 누른 식사 기록
     @State private var autoOpenPhotoType: MealPhotoView.PhotoType = .before // 자동으로 열 사진 타입
 
     // 오늘 날짜와 날짜 리스트 초기화
@@ -388,6 +389,14 @@ struct ContentView: View {
                     notificationManager.requestedFriendsScreen = false
                     showingFriends = true
                 }
+                .onChange(of: MealRouter.shared.recordID, initial: true) { _, id in
+                    // Siri · Spotlight 에서 식사 기록을 누르면 그 기록을 연다 (식단 기록이라 식단 앨범으로)
+                    guard let id else { return }
+                    MealRouter.shared.recordID = nil
+                    guard let record = mealStore.dietMeals.first(where: { $0.id == id }) else { return }
+                    settingsManager.albumType = .diet
+                    openedMealRecord = record
+                }
 
                 // 과거를 보고 있을 때 오늘로 바로 돌아가는 플로팅 버튼 (격자 모드 전용)
                 if !settingsManager.useMomentsFeed && !showsExerciseGrid && !Calendar.current.isDate(currentVisibleDate, inSameDayAs: todayDate) {
@@ -470,6 +479,9 @@ struct ContentView: View {
             .proPaywall(isPresented: $showingPaywallForTest)
             .sheet(isPresented: $showingCaredMealsPrompt) {
                 CaredMealsPromptView()
+            }
+            .sheet(item: $openedMealRecord) { record in
+                PhotoDetailView(date: record.date, mealType: record.mealType, mealRecord: record, mealStore: mealStore)
             }
             .sheet(item: $autoOpenMealType, onDismiss: {
                 // sheet가 닫힐 때 상태 리셋

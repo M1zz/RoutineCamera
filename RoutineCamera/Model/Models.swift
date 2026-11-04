@@ -341,6 +341,9 @@ class MealRecordStore: ObservableObject {
     @Published private var dietRecords: [MealRecord] = []
     @Published private var exerciseRecords: [MealRecord] = []
 
+    /// 식단 앨범 기록 — 보고 있는 앨범과 상관없이 읽는다 (Siri · Spotlight 색인용)
+    var dietMeals: [MealRecord] { dietRecords }
+
     // 현재 앨범 타입에 따라 적절한 레코드 반환
     var records: [MealRecord] {
         get {
