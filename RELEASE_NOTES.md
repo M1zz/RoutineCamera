@@ -4,6 +4,7 @@
 
 ### 앱스토어 (한국어, ko)
 
+어디서 먹었는지 찍은 곳도 남길 수 있어요
 셔터를 누르면 바로 찍혀요
 앱을 다시 설치해도 사진이 섞이지 않아요
 최근 7일 기록을 버튼 하나로 꺼내 볼 수 있어요
@@ -11,6 +12,7 @@
 
 ### App Store (English, en)
 
+Save where you ate with each photo
 Photos now snap the moment you tap
 No more mixed-up photos after reinstall
 Show your last 7 days with one tap
@@ -18,6 +20,7 @@ Friends no longer closes by accident
 
 ### App Store (en-GB)
 
+Save where you ate with each photo
 Photos now snap the moment you tap
 No more mixed-up photos after reinstall
 Show your last 7 days with one tap
@@ -25,6 +28,7 @@ Friends no longer closes by accident
 
 ### App Store (중국어 간체, zh-Hans)
 
+拍照时可以记下用餐地点
 按下快门即可立即拍照
 重新安装后照片不会再混在一起
 轻点一下即可查看最近 7 天的记录
@@ -32,6 +36,7 @@ Friends no longer closes by accident
 
 ### App Store (중국어 번체, zh-Hant)
 
+拍照時可以記下用餐地點
 按下快門即可立即拍照
 重新安裝後照片不會再混在一起
 點一下即可查看最近 7 天的紀錄
@@ -39,6 +44,7 @@ Friends no longer closes by accident
 
 ### App Store (일본어, ja)
 
+どこで食べたかも一緒に残せます
 シャッターを押した瞬間に撮れます
 再インストール後も写真が混ざりません
 直近7日間の記録をワンタップで表示
@@ -46,6 +52,7 @@ Friends no longer closes by accident
 
 ### App Store (러시아어, ru)
 
+Сохраняйте, где вы ели, вместе с фото
 Снимок делается сразу после нажатия
 Фото не путаются после переустановки
 Последние 7 дней — одним касанием
@@ -53,6 +60,7 @@ Friends no longer closes by accident
 
 ### App Store (스페인어, es)
 
+Guarda dónde comiste con cada foto
 La foto se toma al instante
 Las fotos ya no se mezclan al reinstalar
 Ve tus últimos 7 días con un toque
@@ -60,6 +68,7 @@ Amigos ya no se cierra por accidente
 
 ### App Store (독일어, de)
 
+Speichere, wo du gegessen hast
 Fotos werden sofort aufgenommen
 Nach Neuinstallation keine Fotomischung
 Letzte 7 Tage mit einem Tippen zeigen
@@ -67,6 +76,7 @@ Freunde schließt nicht mehr aus Versehen
 
 ### App Store (프랑스어, fr)
 
+Gardez le lieu de chaque repas
 La photo est prise dès que vous touchez
 Plus de photos mêlées en réinstallant
 Vos 7 derniers jours en un geste
@@ -74,6 +84,7 @@ Amis ne se ferme plus par erreur
 
 ### App Store (이탈리아어, it)
 
+Salva dove hai mangiato con ogni foto
 La foto viene scattata all'istante
 Niente foto mescolate se reinstalli
 Ultimi 7 giorni con un tocco
@@ -81,6 +92,7 @@ Amici non si chiude più per sbaglio
 
 ### App Store (포르투갈어 브라질, pt-BR)
 
+Salve onde você comeu em cada foto
 A foto é tirada na hora
 Fotos não se misturam ao reinstalar
 Veja seus últimos 7 dias com um toque
@@ -88,6 +100,7 @@ Amigos não fecha mais sem querer
 
 ### App Store (태국어, th)
 
+บันทึกได้ว่ากินที่ไหนไปพร้อมรูป
 กดชัตเตอร์แล้วถ่ายได้ทันที
 ติดตั้งแอปใหม่แล้วรูปไม่ปนกันอีก
 ดูบันทึก 7 วันล่าสุดได้ในแตะเดียว
@@ -95,6 +108,7 @@ Amigos não fecha mais sem querer
 
 ### App Store (베트남어, vi)
 
+Lưu lại nơi bạn đã ăn cùng ảnh
 Bấm chụp là ảnh được chụp ngay
 Cài lại ứng dụng không còn lẫn ảnh
 Xem 7 ngày gần nhất chỉ với một chạm
@@ -102,6 +116,7 @@ Màn hình Bạn bè không còn tự đóng
 
 ### App Store (체코어, cs)
 
+Uložte si, kde jste jedli
 Fotka se pořídí hned po klepnutí
 Po přeinstalaci se fotky nesmíchají
 Posledních 7 dní jedním klepnutím
@@ -109,6 +124,7 @@ Přátelé se už omylem nezavřou
 
 ### App Store (덴마크어, da)
 
+Gem, hvor du spiste, med hvert billede
 Billedet tages, så snart du trykker
 Fotos blandes ikke ved geninstallation
 Se dine sidste 7 dage med ét tryk
@@ -116,6 +132,7 @@ Venner lukker ikke længere ved et uheld
 
 ### App Store (그리스어, el)
 
+Κρατήστε πού φάγατε με κάθε φωτογραφία
 Η φωτογραφία τραβιέται αμέσως
 Οι φωτογραφίες δεν μπερδεύονται πια
 Οι τελευταίες 7 μέρες με ένα άγγιγμα
@@ -123,6 +140,7 @@ Venner lukker ikke længere ved et uheld
 
 ### App Store (핀란드어, fi)
 
+Tallenna, missä söit, kuvan mukana
 Kuva otetaan heti napautuksesta
 Kuvat eivät enää sekoitu asennuksessa
 Viimeiset 7 päivää yhdellä napautuksella
@@ -130,6 +148,7 @@ Ystävät-näkymä ei sulkeudu vahingossa
 
 ### App Store (인도네시아어, id)
 
+Simpan lokasi makanmu bersama foto
 Foto langsung diambil saat diketuk
 Foto tak tercampur setelah instal ulang
 Lihat 7 hari terakhir sekali ketuk
@@ -137,6 +156,7 @@ Layar Teman tak tertutup tak sengaja
 
 ### App Store (Norsk bokmål, nb)
 
+Lagre hvor du spiste med hvert bilde
 Bildet tas med en gang du trykker
 Bilder blandes ikke etter reinstallering
 Se de siste 7 dagene med ett trykk
@@ -144,6 +164,7 @@ Venner lukkes ikke lenger ved et uhell
 
 ### App Store (네덜란드어, nl)
 
+Bewaar waar je at bij elke foto
 De foto wordt meteen gemaakt
 Geen gemengde foto's na herinstalleren
 Je laatste 7 dagen met één tik
@@ -151,6 +172,7 @@ Vrienden sluit niet meer per ongeluk
 
 ### App Store (폴란드어, pl)
 
+Zapisz, gdzie jadłeś, razem ze zdjęciem
 Zdjęcie robi się od razu po dotknięciu
 Zdjęcia nie mieszają się po reinstalacji
 Ostatnie 7 dni jednym dotknięciem
@@ -158,6 +180,7 @@ Znajomi nie zamykają się przypadkiem
 
 ### App Store (스웨덴어, sv)
 
+Spara var du åt med varje bild
 Bilden tas direkt när du trycker
 Bilder blandas inte efter ominstallation
 Se dina senaste 7 dagar med ett tryck
@@ -165,6 +188,7 @@ Vänner stängs inte längre av misstag
 
 ### App Store (튀르키예어, tr)
 
+Nerede yediğinizi fotoğrafla kaydedin
 Fotoğraf dokunduğunuz anda çekilir
 Yeniden yüklemede fotoğraflar karışmaz
 Son 7 günü tek dokunuşla görün
