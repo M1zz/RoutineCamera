@@ -601,6 +601,156 @@
         }
       }
     },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Privacy - Location When In Use Usage Description",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "찍은 곳 함께 남기기를 켜면 식단 사진을 찍은 곳을 기록합니다."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When Save Where You Ate is on, the app records where you took your meal photo."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When Save Where You Ate is on, the app records where you took your meal photo."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když je zapnuto Ukládat místo jídla, aplikace zaznamená, kde jste fotku jídla pořídili."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når Gem hvor du spiste er slået til, gemmer appen, hvor du tog billedet af måltidet."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn „Ort des Essens speichern“ an ist, speichert die App, wo du das Essensfoto gemacht hast."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όταν είναι ενεργή η Αποθήκευση τοποθεσίας γεύματος, η εφαρμογή καταγράφει πού τραβήξατε τη φωτογραφία."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con Guardar dónde comiste activado, la app registra dónde hiciste la foto de la comida."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kun Tallenna ruokailupaikka on päällä, appi tallentaa, missä otit ruokakuvan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand Enregistrer le lieu du repas est activé, l'app enregistre où vous avez pris la photo du repas."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat Simpan lokasi makan aktif, app mencatat tempat Anda memotret makanan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con Salva dove hai mangiato attivo, l'app registra dove hai scattato la foto del pasto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「撮影場所も記録」をオンにすると、食事の写真を撮った場所を記録します。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når Lagre hvor du spiste er på, lagrer appen hvor du tok bildet av måltidet."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Opslaan waar je at aan staat, legt de app vast waar je de maaltijdfoto maakte."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy włączone jest Zapisuj miejsce posiłku, aplikacja zapisuje, gdzie zrobiono zdjęcie posiłku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com Salvar onde você comeu ativado, o app registra onde você tirou a foto da refeição."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда включено «Сохранять место приёма пищи», приложение запоминает, где сделано фото еды."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När Spara var du åt är på sparar appen var du tog bilden av måltiden."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เมื่อเปิดบันทึกสถานที่ที่กิน แอปจะบันทึกว่าถ่ายรูปอาหารที่ไหน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yemek yediğin yeri kaydet açıkken uygulama yemek fotoğrafını nerede çektiğini kaydeder."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi bật Lưu nơi bạn ăn, ứng dụng ghi lại nơi bạn chụp ảnh bữa ăn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启“记录拍摄地点”后，App 会记录你拍摄餐食照片的地点。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟「記錄拍攝地點」後，App 會記錄你拍攝餐點照片的地點。"
+          }
+        }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription" : {
       "comment" : "Privacy - Photo Library Additions Usage Description",
       "extractionState" : "manual",

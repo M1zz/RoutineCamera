@@ -188,7 +188,7 @@ final class MealCloudSync: ObservableObject {
     // MARK: - 이 기기 변경 찾기
 
     private func fingerprint(of record: MealRecord) -> String {
-        let source = [record.id.uuidString,
+        var parts = [record.id.uuidString,
                       record.memo ?? "",
                       "\(record.beforeImageData?.count ?? -1)",
                       "\(record.afterImageData?.count ?? -1)",
@@ -197,7 +197,11 @@ final class MealCloudSync: ObservableObject {
                       "\(record.ateAll)",
                       "\(record.capturedAt?.timeIntervalSince1970 ?? 0)",
                       "\(record.visionAnalysis?.analyzedDate.timeIntervalSince1970 ?? 0)"]
-            .joined(separator: "|")
+        // 찍은 곳이 있는 기록만 더한다 — 예전 기록의 지문이 바뀌어 전부 다시 올라가지 않게
+        if let place = record.place {
+            parts.append("\(place.latitude),\(place.longitude),\(place.name ?? "")")
+        }
+        let source = parts.joined(separator: "|")
         return SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
@@ -294,6 +298,10 @@ final class MealCloudSync: ObservableObject {
         record["hidePhotoCountBadge"] = meal.hidePhotoCountBadge
         record["ateAll"] = meal.ateAll
         record["capturedAt"] = meal.capturedAt
+        // 찍은 곳 — 내 개인 iCloud 에만. 친구 공개 기록에는 넣지 않는다
+        record["placeLatitude"] = meal.place?.latitude
+        record["placeLongitude"] = meal.place?.longitude
+        record["placeName"] = meal.place?.name
         record["modifiedAt"] = current.modifiedAt
         record["fingerprint"] = current.fingerprint
         let visionData = meal.visionAnalysis.flatMap { try? JSONEncoder().encode($0) }
@@ -533,7 +541,14 @@ final class MealCloudSync: ObservableObject {
                    hidePhotoCountBadge: server["hidePhotoCountBadge"] as? Bool ?? false,
                    visionAnalysis: (server["visionAnalysis"] as? Data).flatMap { try? JSONDecoder().decode(VisionAnalysisData.self, from: $0) },
                    capturedAt: server["capturedAt"] as? Date,
-                   ateAll: server["ateAll"] as? Bool ?? false)
+                   ateAll: server["ateAll"] as? Bool ?? false,
+                   place: place(from: server))
+    }
+
+    private static func place(from server: CKRecord) -> MealPlace? {
+        guard let latitude = server["placeLatitude"] as? Double,
+              let longitude = server["placeLongitude"] as? Double else { return nil }
+        return MealPlace(latitude: latitude, longitude: longitude, name: server["placeName"] as? String)
     }
 
     private static func assetData(_ value: CKRecordValue?) -> Data? {

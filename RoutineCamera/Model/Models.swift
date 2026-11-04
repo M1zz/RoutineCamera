@@ -205,6 +205,13 @@ struct SentFeedback: Identifiable, Codable {
     }
 }
 
+/// 사진을 찍은 곳. 이름은 찍은 뒤 기기에서 주소로 바꿔 둔 것 (못 바꿨으면 nil)
+struct MealPlace: Codable, Equatable, Sendable {
+    let latitude: Double
+    let longitude: Double
+    var name: String?
+}
+
 // 식사 기록 모델
 struct MealRecord: Identifiable, Codable {
     let id: UUID
@@ -218,8 +225,9 @@ struct MealRecord: Identifiable, Codable {
     var visionAnalysis: VisionAnalysisData?  // Vision Framework 분석 결과
     var capturedAt: Date?  // 실제 촬영/기록 시각 (순간 피드 정렬용). 기존 데이터는 nil → date로 폴백
     var ateAll: Bool  // "다 먹음" 신호 (식후 사진 대체). 식전만 찍고 다 먹었을 때
+    var place: MealPlace?  // 찍은 곳 (설정에서 켰을 때만). 친구에게는 올리지 않는다
 
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false) {
+    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false, place: MealPlace? = nil) {
         self.id = UUID()
         self.date = date
         self.mealType = mealType
@@ -231,10 +239,11 @@ struct MealRecord: Identifiable, Codable {
         self.visionAnalysis = visionAnalysis
         self.capturedAt = capturedAt
         self.ateAll = ateAll
+        self.place = place
     }
 
     // id 까지 그대로 옮기는 init (사진만 바꿔 끼운 사본용)
-    private init(id: UUID, date: Date, mealType: MealType, beforeImageData: Data?, afterImageData: Data?, memo: String?, recordedWithoutPhoto: Bool, hidePhotoCountBadge: Bool, visionAnalysis: VisionAnalysisData?, capturedAt: Date?, ateAll: Bool) {
+    private init(id: UUID, date: Date, mealType: MealType, beforeImageData: Data?, afterImageData: Data?, memo: String?, recordedWithoutPhoto: Bool, hidePhotoCountBadge: Bool, visionAnalysis: VisionAnalysisData?, capturedAt: Date?, ateAll: Bool, place: MealPlace?) {
         self.id = id
         self.date = date
         self.mealType = mealType
@@ -246,11 +255,12 @@ struct MealRecord: Identifiable, Codable {
         self.visionAnalysis = visionAnalysis
         self.capturedAt = capturedAt
         self.ateAll = ateAll
+        self.place = place
     }
 
     /// 같은 기록(id 유지)에 사진만 바꿔 끼운 사본 — 사진을 파일로 빼서 저장하고 다시 붙일 때 쓴다
     func replacingImages(before: Data?, after: Data?) -> MealRecord {
-        MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo, recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge, visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll)
+        MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo, recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge, visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll, place: place)
     }
 
     // 기존 데이터 호환성을 위한 커스텀 디코딩
@@ -271,6 +281,7 @@ struct MealRecord: Identifiable, Codable {
         // 신규 필드 — 기존 데이터 호환 기본값
         capturedAt = try container.decodeIfPresent(Date.self, forKey: .capturedAt)
         ateAll = try container.decodeIfPresent(Bool.self, forKey: .ateAll) ?? false
+        place = try container.decodeIfPresent(MealPlace.self, forKey: .place)
     }
 
     // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
@@ -531,7 +542,7 @@ class MealRecordStore: ObservableObject {
 
     // 식사 기록 추가 또는 업데이트 (식전/식후 지정)
     // capturedAt: 새 기록일 때 "먹은 시각" (기록 화면에서 고른 값). 기존 기록에 사진을 더할 때는 원래 시각을 유지한다.
-    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date()) {
+    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(), place: MealPlace? = nil) {
         let targetDate = Calendar.current.startOfDay(for: date)
 
         // 현재 앨범 타입에 따라 적절한 배열 사용
@@ -554,7 +565,8 @@ class MealRecordStore: ObservableObject {
                     hidePhotoCountBadge: existing.hidePhotoCountBadge,
                     visionAnalysis: existing.visionAnalysis,
                     capturedAt: existing.capturedAt ?? Date(),
-                    ateAll: existing.ateAll
+                    ateAll: existing.ateAll,
+                    place: existing.place ?? place
                 )
             } else {
                 currentRecords[existingIndex] = MealRecord(
@@ -567,7 +579,8 @@ class MealRecordStore: ObservableObject {
                     hidePhotoCountBadge: existing.hidePhotoCountBadge,
                     visionAnalysis: existing.visionAnalysis,
                     capturedAt: existing.capturedAt ?? Date(),
-                    ateAll: existing.ateAll
+                    ateAll: existing.ateAll,
+                    place: existing.place ?? place
                 )
             }
         } else {
@@ -577,7 +590,8 @@ class MealRecordStore: ObservableObject {
                 mealType: mealType,
                 beforeImageData: isBefore ? imageData : nil,
                 afterImageData: isBefore ? nil : imageData,
-                capturedAt: capturedAt
+                capturedAt: capturedAt,
+                place: place
             )
             currentRecords.append(newRecord)
         }
@@ -640,7 +654,8 @@ class MealRecordStore: ObservableObject {
                 hidePhotoCountBadge: existing.hidePhotoCountBadge,
                 visionAnalysis: existing.visionAnalysis,
                 capturedAt: existing.capturedAt ?? Date(),
-                ateAll: true
+                ateAll: true,
+                place: existing.place
             )
         } else {
             let newRecord = MealRecord(
@@ -725,7 +740,8 @@ class MealRecordStore: ObservableObject {
                 hidePhotoCountBadge: existing.hidePhotoCountBadge,
                 visionAnalysis: existing.visionAnalysis,
                 capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll
+                ateAll: existing.ateAll,
+                    place: existing.place
             )
             records = currentRecords
         }
@@ -750,10 +766,24 @@ class MealRecordStore: ObservableObject {
                 hidePhotoCountBadge: hide,
                 visionAnalysis: existing.visionAnalysis,
                 capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll
+                ateAll: existing.ateAll,
+                    place: existing.place
             )
             records = currentRecords
         }
+    }
+
+    // 찍은 곳 업데이트 (nil 이면 지운다)
+    func updatePlace(date: Date, mealType: MealType, place: MealPlace?) {
+        let targetDate = Calendar.current.startOfDay(for: date)
+
+        var currentRecords = records
+        guard let existingIndex = currentRecords.firstIndex(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
+        }) else { return }
+        guard currentRecords[existingIndex].place != place else { return }
+        currentRecords[existingIndex].place = place
+        records = currentRecords
     }
 
     // Vision 분석 결과 업데이트
@@ -775,7 +805,8 @@ class MealRecordStore: ObservableObject {
                 hidePhotoCountBadge: existing.hidePhotoCountBadge,
                 visionAnalysis: analysis,
                 capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll
+                ateAll: existing.ateAll,
+                    place: existing.place
             )
             records = currentRecords
         }

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import CoreLocation
 import LeeoKit
 import RoutineCameraCore
 import AVFoundation
@@ -242,6 +243,10 @@ struct PhotoDetailView: View {
                                     .lineLimit(1)
                                     .fixedSize(horizontal: true, vertical: false)
                             }
+                        }
+
+                        if let place = record.place {
+                                placeRow(place)
                         }
 
                         if let memo = record.memo, !memo.isEmpty {
@@ -656,6 +661,37 @@ struct PhotoDetailView: View {
         return formatter
     }
 
+    /// 찍은 곳 — 누르면 지도 앱으로, 길게 누르면 지우기
+    private func placeRow(_ place: MealPlace) -> some View {
+        Button {
+            MealLocationProvider.openInMaps(place)
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "mappin.and.ellipse")
+                    .accessibilityHidden(true)
+                Text(place.name ?? String(localized: "지도에서 보기", comment: "Shown instead of a place name when the meal photo's place has no name yet"))
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+            }
+            .scaledFont(size: 17)
+            .foregroundColor(.blue)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("찍은 곳: \(place.name ?? String(localized: "지도에서 보기"))"))
+        .accessibilityHint(Text("지도 앱에서 엽니다"))
+        .contextMenu {
+            Button(role: .destructive) {
+                mealStore.updatePlace(date: date, mealType: mealType, place: nil)
+            } label: {
+                Label("찍은 곳 지우기", systemImage: "mappin.slash")
+            }
+        }
+        .accessibilityAction(named: Text("찍은 곳 지우기")) {
+            mealStore.updatePlace(date: date, mealType: mealType, place: nil)
+        }
+    }
+
     private var albumName: String {
         switch SettingsManager.shared.albumType {
         case .diet:
@@ -682,7 +718,8 @@ struct PhotoDetailView: View {
             return
         }
 
-        MealAlbumSaver.save(image, toAlbum: albumName) { success in
+        let location = record.place.map { CLLocation(latitude: $0.latitude, longitude: $0.longitude) }
+        MealAlbumSaver.save(image, toAlbum: albumName, location: location) { success in
             if success {
                 showingSaveSuccessAlert = true
             } else {

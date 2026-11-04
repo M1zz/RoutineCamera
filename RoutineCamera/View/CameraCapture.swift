@@ -7,6 +7,7 @@ import SwiftUI
 import AVFoundation
 import Photos
 import ImageIO
+import CoreLocation
 
 // MARK: - 사진 크기 줄이기
 
@@ -92,7 +93,8 @@ nonisolated enum MealImageResizer {
 /// (찍고 "사용하기" 를 누르면 죽던 문제). 그래서 메인 액터에 묶지 않는다.
 nonisolated enum MealAlbumSaver {
     /// completion 은 메인에서 불린다 (권한 없음·실패는 false)
-    static func save(_ image: UIImage, toAlbum albumName: String, completion: (@MainActor @Sendable (Bool) -> Void)? = nil) {
+    /// location 이 있으면 사진앱에서도 찍은 곳이 보이게 사진에 붙인다
+    static func save(_ image: UIImage, toAlbum albumName: String, location: CLLocation? = nil, completion: (@MainActor @Sendable (Bool) -> Void)? = nil) {
         let finish: @Sendable (Bool) -> Void = { success in
             DispatchQueue.main.async { completion?(success) }
         }
@@ -108,7 +110,7 @@ nonisolated enum MealAlbumSaver {
             let fetchOptions = PHFetchOptions()
             fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
             if let album = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions).firstObject {
-                add(image, to: album, finish: finish)
+                add(image, to: album, location: location, finish: finish)
                 return
             }
 
@@ -125,14 +127,15 @@ nonisolated enum MealAlbumSaver {
                     finish(false)
                     return
                 }
-                add(image, to: album, finish: finish)
+                add(image, to: album, location: location, finish: finish)
             }
         }
     }
 
-    private static func add(_ image: UIImage, to album: PHAssetCollection, finish: @escaping @Sendable (Bool) -> Void) {
+    private static func add(_ image: UIImage, to album: PHAssetCollection, location: CLLocation?, finish: @escaping @Sendable (Bool) -> Void) {
         PHPhotoLibrary.shared().performChanges({
             let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+            assetRequest.location = location
             guard let placeholder = assetRequest.placeholderForCreatedAsset else { return }
             PHAssetCollectionChangeRequest(for: album)?.addAssets([placeholder] as NSArray)
         }) { success, error in
@@ -148,6 +151,8 @@ nonisolated enum MealAlbumSaver {
 
 struct CustomCameraView: View {
     @Binding var selectedImage: UIImage?
+    /// "사용하기" 를 누른 순간의 위치 (찍은 곳 남기기를 켰을 때만)
+    @Binding var capturedLocation: CLLocation?
     let isActive: Bool
     @State private var capturedImage: UIImage?
     @StateObject private var cameraManager = CameraManager()
@@ -167,11 +172,14 @@ struct CustomCameraView: View {
                 onConfirm: {
                     // 이미 날짜/시간이 추가된 이미지 사용.
                     // 시트는 CameraPickerView 가 selectedImage 변화를 받아 한 번만 닫는다.
+                    // 위치는 selectedImage 보다 먼저 넣어 둔다 (그 변화를 받을 때 함께 저장)
+                    let location = MealLocationProvider.shared.captureLocation()
+                    capturedLocation = location
                     selectedImage = image
 
                     // 설정에 따라 사진을 "세끼" 앨범에 저장
                     if SettingsManager.shared.autoSaveToPhotoLibrary {
-                        saveImageToAlbum(image)
+                        saveImageToAlbum(image, location: location)
                     }
                 }
             )
@@ -264,21 +272,25 @@ struct CustomCameraView: View {
                     // 카메라 탭으로 돌아올 때 세션 시작
                     print("📸 [CustomCameraView] 카메라 활성화 - 세션 시작")
                     cameraManager.startSession()
+                    MealLocationProvider.shared.startForCapture()
                 } else {
                     // 다른 탭으로 이동할 때 세션 중지
                     print("📸 [CustomCameraView] 카메라 비활성화 - 세션 중지")
                     cameraManager.stopSession()
+                    MealLocationProvider.shared.stopForCapture()
                 }
             }
             .onAppear {
                 if isActive {
                     print("📸 [CustomCameraView] 초기 로드 - 세션 시작")
                     cameraManager.startSession()
+                    MealLocationProvider.shared.startForCapture()
                 }
             }
             .onDisappear {
                 print("📸 [CustomCameraView] 뷰 사라짐 - 세션 중지")
                 cameraManager.stopSession()
+                MealLocationProvider.shared.stopForCapture()
             }
         }
     }
@@ -319,7 +331,7 @@ struct CustomCameraView: View {
     }
 
     // 이미지를 앨범에 저장
-    private func saveImageToAlbum(_ image: UIImage) {
+    private func saveImageToAlbum(_ image: UIImage, location: CLLocation?) {
         // 현재 앨범 타입에 따른 앨범 이름
         let albumName: String
         switch SettingsManager.shared.albumType {
@@ -329,7 +341,7 @@ struct CustomCameraView: View {
             albumName = String(localized: "세끼운동", comment: "Photos album name for saved workout photos")
         }
 
-        MealAlbumSaver.save(image, toAlbum: albumName)
+        MealAlbumSaver.save(image, toAlbum: albumName, location: location)
     }
 
     // 이미지에 날짜와 시간을 추가하는 함수

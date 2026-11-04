@@ -6,6 +6,7 @@
 import SwiftUI
 import AVFoundation
 import Photos
+import CoreLocation
 import RoutineCameraCore
 
 struct CameraPickerView: View {
@@ -18,6 +19,7 @@ struct CameraPickerView: View {
 
     @State private var selectedTab = 0 // 0: 카메라, 1: 사진앨범
     @State private var selectedImage: UIImage?
+    @State private var capturedLocation: CLLocation?  // 카메라로 찍었을 때만 (사진앨범에서 고른 사진은 nil)
     @State private var localPhotoType: MealPhotoView.PhotoType
 
     // "언제 먹었는지" — 제안값으로 채워 두고, 사용자가 고칠 수 있다 (점심을 깜빡하고 저녁에 남기는 경우)
@@ -112,7 +114,7 @@ struct CameraPickerView: View {
             // 사진 촬영/선택 모드
             TabView(selection: $selectedTab) {
                 // 카메라 탭
-                CustomCameraView(selectedImage: $selectedImage, isActive: selectedTab == 0)
+                CustomCameraView(selectedImage: $selectedImage, capturedLocation: $capturedLocation, isActive: selectedTab == 0)
                     .tag(0)
 
                 // 사진앨범 탭
@@ -170,8 +172,13 @@ struct CameraPickerView: View {
         .ignoresSafeArea(edges: .bottom)
         .onChange(of: selectedImage) { oldValue, newValue in
             if let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
+                let location = capturedLocation
                 mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData,
-                                          isBefore: localPhotoType == .before, capturedAt: capturedAt)
+                                          isBefore: localPhotoType == .before, capturedAt: capturedAt,
+                                          place: location.map { MealPlace(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) })
+                if let location {
+                    nameCapturedPlace(location, date: date, mealType: mealType)
+                }
 
                 // 식단 모드일 때 식전 사진만 자동으로 Vision 분석 실행
                 if SettingsManager.shared.albumType == .diet && localPhotoType == .before {
@@ -401,6 +408,21 @@ struct CameraPickerView: View {
     }
 
     // 자동 음식 분석 — 기기 안(Vision)에서 무료로
+    /// 좌표는 바로 남기고, 이름(동네 · 가게)은 찾는 대로 채운다.
+    /// 그새 다른 곳이 들어갔으면(식전에 남긴 곳이 그대로 유지된 경우 등) 건드리지 않는다.
+    private func nameCapturedPlace(_ location: CLLocation, date: Date, mealType: MealType) {
+        let store = mealStore
+        Task {
+            guard let name = await MealLocationProvider.placeName(for: location),
+                  let place = store.getMeals(for: date)[mealType]?.place,
+                  place.name == nil,
+                  place.latitude == location.coordinate.latitude,
+                  place.longitude == location.coordinate.longitude else { return }
+            store.updatePlace(date: date, mealType: mealType,
+                              place: MealPlace(latitude: place.latitude, longitude: place.longitude, name: name))
+        }
+    }
+
     private func autoAnalyzeFood(image: UIImage, date: Date, mealType: MealType) {
         guard SettingsManager.shared.autoFoodAnalysis else {
             print("ℹ️ [AutoAnalysis] 자동 분석 설정 꺼짐 - 건너뜀")

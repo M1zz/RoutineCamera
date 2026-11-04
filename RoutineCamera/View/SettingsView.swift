@@ -17,6 +17,7 @@ struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject private var friendManager = FriendManager.shared
     @ObservedObject private var subscription = SubscriptionManager.shared
+    @ObservedObject private var locationProvider = MealLocationProvider.shared
     @Environment(\.dismiss) var dismiss
     @State private var showingPaywall = false
     @State private var paywallLead: ProFeature?
@@ -297,6 +298,25 @@ struct SettingsView: View {
             caption(settingsManager.autoSaveToPhotoLibrary
                     ? Text("촬영하면 사진앱 '\(albumName)' 앨범에 저장됩니다.")
                     : Text("앱 내부에만 저장합니다. 상세보기에서 개별 저장할 수 있어요."))
+
+            Toggle("찍은 곳 함께 남기기", isOn: $settingsManager.recordPlace)
+                .onChange(of: settingsManager.recordPlace) { _, isOn in
+                    if isOn { locationProvider.requestAuthorizationIfNeeded() }
+                }
+            if settingsManager.recordPlace && locationProvider.isDenied {
+                Text("위치 권한이 꺼져 있어 찍은 곳을 남기지 못해요.")
+                    .font(.body)
+                    .foregroundColor(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("설정 앱에서 위치 허용하기") {
+                    MealLocationProvider.openAppSettings()
+                }
+            } else {
+                Text("카메라로 찍을 때 어디서 먹었는지 기록해요. 사진앱에 저장한 사진에도 위치가 들어가고, 친구에게는 보이지 않아요.")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 

@@ -73,6 +73,13 @@ class SettingsManager: ObservableObject {
         }
     }
     
+    /// 찍은 곳 함께 남기기 (기본 끔 — 켤 때 위치 권한을 묻는다)
+    @Published var recordPlace: Bool {
+        didSet {
+            UserDefaults.standard.set(recordPlace, forKey: "recordPlace")
+        }
+    }
+
     @Published var writeSnack: Bool {
         didSet {
             print("writeSnack", writeSnack)
@@ -215,6 +222,7 @@ class SettingsManager: ObservableObject {
         // 기본값은 true (기존 동작 유지)
         self.autoSaveToPhotoLibrary = UserDefaults.standard.object(forKey: "autoSaveToPhotoLibrary") as? Bool ?? true
         self.writeSnack = UserDefaults.standard.object(forKey: "writeSnack") as? Bool ?? true
+        self.recordPlace = UserDefaults.standard.bool(forKey: "recordPlace")
         // 기본값 true (기존 식전·식후 흐름 유지)
         self.useAfterPhoto = UserDefaults.standard.object(forKey: "useAfterPhoto") as? Bool ?? true
         self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
