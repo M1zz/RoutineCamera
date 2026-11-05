@@ -17146,10 +17146,302 @@
       }
     },
     "Face ID 잠금" : {
-      "comment" : "Roadmap item: Face ID lock"
+      "comment" : "Roadmap item: Face ID lock",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zámek Face ID"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID-lås"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face-ID-Sperre"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κλείδωμα Face ID"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID lock"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID lock"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloqueo con Face ID"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID -lukitus"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verrouillage Face ID"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunci Face ID"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocco con Face ID"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face IDロック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID 잠금"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID-lås"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID-vergrendeling"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blokada Face ID"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloqueio com Face ID"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Блокировка Face ID"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID-lås"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล็อกด้วย Face ID"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID kilidi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa bằng Face ID"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID 锁定"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID 鎖定"
+          }
+        }
+      }
     },
     "Face ID나 Touch ID로 앱을 잠가 내 식단 기록을 지켜요." : {
-      "comment" : "Roadmap item detail: Face ID lock"
+      "comment" : "Roadmap item detail: Face ID lock",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamkněte aplikaci přes Face ID nebo Touch ID a chraňte svůj jídelníček."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lås appen med Face ID eller Touch ID, så din maddagbog forbliver privat."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sperre die App mit Face ID oder Touch ID und schütze dein Ernährungstagebuch."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κλείδωσε την εφαρμογή με Face ID ή Touch ID για να προστατεύσεις το ημερολόγιο γευμάτων σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock the app with Face ID or Touch ID to keep your meal log private."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock the app with Face ID or Touch ID to keep your meal log private."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquea la app con Face ID o Touch ID para proteger tu diario de comidas."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lukitse sovellus Face ID:llä tai Touch ID:llä ja suojaa ruokapäiväkirjasi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verrouillez l’app avec Face ID ou Touch ID pour protéger votre journal de repas."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunci aplikasi dengan Face ID atau Touch ID untuk menjaga catatan makanmu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocca l’app con Face ID o Touch ID per proteggere il tuo diario dei pasti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face IDやTouch IDでアプリをロックして、食事の記録を守ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID나 Touch ID로 앱을 잠가 내 식단 기록을 지켜요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lås appen med Face ID eller Touch ID, så matdagboken forblir privat."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergrendel de app met Face ID of Touch ID en houd je eetdagboek privé."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zablokuj aplikację Face ID lub Touch ID i chroń swój dziennik posiłków."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloqueie o app com Face ID ou Touch ID para proteger seu diário de refeições."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заблокируйте приложение с Face ID или Touch ID, чтобы дневник питания был только вашим."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lås appen med Face ID eller Touch ID så att matdagboken förblir privat."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล็อกแอปด้วย Face ID หรือ Touch ID เพื่อปกป้องบันทึกอาหารของคุณ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yemek günlüğünü korumak için uygulamayı Face ID veya Touch ID ile kilitle."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa ứng dụng bằng Face ID hoặc Touch ID để bảo vệ nhật ký ăn uống."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 Face ID 或 Touch ID 锁定应用，保护你的饮食记录。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 Face ID 或 Touch ID 鎖定 App，保護你的飲食紀錄。"
+          }
+        }
+      }
     },
     "Face ID로 잠가요" : {
       "comment" : "Text for the Face ID lock option in the subscription options.",
@@ -21168,7 +21460,153 @@
       }
     },
     "가족이나 친구에게 세끼 프로를 선물할 수 있어요. 받은 선물 코드도 설정에서 넣어요." : {
-      "comment" : "Roadmap item detail: gift Pro to someone"
+      "comment" : "Roadmap item detail: gift Pro to someone",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Darujte Sekki Pro rodině nebo přátelům. Kód dárku, který dostanete, zadáte v nastavení."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giv Sekki Pro til familie eller venner. En gavekode, du får, indløser du i indstillingerne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schenke Sekki Pro deiner Familie oder Freunden. Erhaltene Geschenkcodes löst du in den Einstellungen ein."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χάρισε το Sekki Pro σε οικογένεια ή φίλους. Τον κωδικό δώρου που λαμβάνεις τον βάζεις στις Ρυθμίσεις."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give Sekki Pro to family or friends. Redeem a gift code you receive in Settings."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give Sekki Pro to family or friends. Redeem a gift code you receive in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regala Sekki Pro a tu familia o amigos. Canjea en Ajustes los códigos de regalo que recibas."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anna Sekki Pro perheelle tai ystävälle. Saamasi lahjakoodin lunastat asetuksissa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offrez Sekki Pro à vos proches. Les codes cadeaux reçus se saisissent dans les réglages."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hadiahkan Sekki Pro untuk keluarga atau teman. Kode hadiah yang diterima bisa dimasukkan di Pengaturan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regala Sekki Pro a familiari o amici. I codici regalo ricevuti si inseriscono nelle impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家族や友だちにSekki Proを贈れます。受け取ったギフトコードも設定から入力できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가족이나 친구에게 세끼 프로를 선물할 수 있어요. 받은 선물 코드도 설정에서 넣어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gi Sekki Pro til familie eller venner. En gavekode du får, løser du inn i innstillingene."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geef Sekki Pro cadeau aan familie of vrienden. Een ontvangen cadeaucode wissel je in bij Instellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podaruj Sekki Pro rodzinie lub znajomym. Otrzymany kod prezentu wpiszesz w ustawieniach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dê o Sekki Pro de presente para a família ou amigos. Resgate nos Ajustes os códigos de presente que receber."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дарите Sekki Pro близким и друзьям. Полученный код подарка вводится в настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ge Sekki Pro till familj eller vänner. En presentkod du får löser du in i inställningarna."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "มอบ Sekki Pro ให้ครอบครัวหรือเพื่อนได้ และใส่รหัสของขวัญที่ได้รับในการตั้งค่า"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki Pro'yu ailene veya arkadaşlarına hediye et. Aldığın hediye kodunu Ayarlar'dan gir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tặng Sekki Pro cho gia đình hoặc bạn bè. Mã quà tặng nhận được có thể nhập trong Cài đặt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以把 Sekki Pro 送给家人或朋友。收到的礼物码也能在设置中兑换。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以把 Sekki Pro 送給家人或朋友。收到的禮物碼也能在設定中兌換。"
+          }
+        }
+      }
     },
     "간식" : {
       "comment" : "Text for snack meal type.",
@@ -28051,7 +28489,153 @@
       }
     },
     "글자 크기를 키워도 잘리지 않고 보기 좋게 다시 배치돼요." : {
-      "comment" : "Roadmap item detail: layouts for larger text"
+      "comment" : "Roadmap item detail: layouts for larger text",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ani s větším písmem se nic neořízne a vše se přehledně přeskupí."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selv med større tekst bliver intet skåret af, og alt placeres pænt igen."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch bei großer Schrift wird nichts abgeschnitten, alles ordnet sich übersichtlich neu."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ακόμη και με μεγάλο κείμενο τίποτα δεν κόβεται και όλα αναδιατάσσονται τακτοποιημένα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Even with larger text, nothing gets cut off and everything rearranges neatly."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Even with larger text, nothing gets cut off and everything rearranges neatly."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aunque agrandes el texto, nada se corta y todo se reorganiza con orden."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suurellakaan tekstillä mitään ei leikkaudu, vaan kaikki asettuu siististi uudelleen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Même en grand texte, rien n’est coupé et tout se réorganise proprement."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meski teks diperbesar, tidak ada yang terpotong dan semuanya tertata ulang dengan rapi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche con il testo grande nulla viene tagliato e tutto si riordina con cura."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字を大きくしても切れずに、見やすく並び直します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글자 크기를 키워도 잘리지 않고 보기 좋게 다시 배치돼요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selv med større tekst blir ingenting kuttet, og alt ordnes pent på nytt."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ook met grotere tekst valt er niets weg en wordt alles netjes opnieuw geschikt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nawet przy większym tekście nic się nie ucina, a wszystko ładnie się układa."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mesmo com texto maior, nada fica cortado e tudo se reorganiza direitinho."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Даже с крупным шрифтом ничего не обрезается, а экран аккуратно перестраивается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Även med större text klipps inget av, och allt ordnas om snyggt."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แม้ขยายตัวอักษร เนื้อหาก็ไม่ถูกตัดและจัดวางใหม่ให้อ่านง่าย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yazıyı büyütsen de hiçbir şey kesilmez, her şey düzgünce yeniden yerleşir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dù tăng cỡ chữ, nội dung không bị cắt mà được sắp xếp lại gọn gàng."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调大字体后内容也不会被截断，会重新整齐排列。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "調大字體後內容也不會被截斷，會重新整齊排列。"
+          }
+        }
+      }
     },
     "기간" : {
       "comment" : "A label that says \"기간\" and a picker to select a time period.",
@@ -28204,7 +28788,153 @@
       }
     },
     "기기 간 동기화" : {
-      "comment" : "Roadmap item: sync across devices"
+      "comment" : "Roadmap item: sync across devices",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronizace mezi zařízeními"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synkronisering mellem enheder"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync zwischen Geräten"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συγχρονισμός μεταξύ συσκευών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync across devices"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync across devices"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización entre dispositivos"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synkronointi laitteiden välillä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisation entre appareils"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinkron antarperangkat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizzazione tra dispositivi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デバイス間で同期"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기기 간 동기화"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synkronisering mellom enheter"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronisatie tussen apparaten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronizacja między urządzeniami"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronização entre dispositivos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронизация между устройствами"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synk mellan enheter"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ซิงค์ข้ามอุปกรณ์"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cihazlar arası eşitleme"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đồng bộ giữa các thiết bị"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多设备同步"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跨裝置同步"
+          }
+        }
+      }
     },
     "기기 암호" : {
       "comment" : "Text for the button that unlocks the app using the device password.",
@@ -28357,7 +29087,153 @@
       }
     },
     "기기를 바꿔도 iCloud로 내 식단 기록이 그대로 이어져요." : {
-      "comment" : "Roadmap item detail: sync across devices"
+      "comment" : "Roadmap item detail: sync across devices",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I po výměně zařízení váš jídelníček pokračuje přes iCloud."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skifter du enhed, følger din maddagbog med via iCloud."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch nach einem Gerätewechsel geht dein Ernährungstagebuch über iCloud weiter."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ακόμη κι αν αλλάξεις συσκευή, το ημερολόγιο γευμάτων σου συνεχίζεται μέσω iCloud."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch devices and your meal log carries over through iCloud."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch devices and your meal log carries over through iCloud."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aunque cambies de dispositivo, tu diario de comidas sigue contigo con iCloud."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaikka vaihtaisit laitetta, ruokapäiväkirjasi jatkuu iCloudin kautta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Même en changeant d’appareil, votre journal de repas vous suit grâce à iCloud."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganti perangkat pun, catatan makanmu tetap berlanjut lewat iCloud."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche se cambi dispositivo, il tuo diario dei pasti continua con iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "機種を変えても、iCloudで食事の記録がそのまま引き継がれます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기기를 바꿔도 iCloud로 내 식단 기록이 그대로 이어져요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bytter du enhet, følger matdagboken med via iCloud."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ook als je van apparaat wisselt, gaat je eetdagboek via iCloud gewoon door."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nawet po zmianie urządzenia dziennik posiłków przeniesie się przez iCloud."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mesmo trocando de aparelho, seu diário de refeições continua pelo iCloud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сменили устройство — дневник питания перенесётся через iCloud."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Byter du enhet följer matdagboken med via iCloud."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แม้เปลี่ยนเครื่อง บันทึกอาหารก็ต่อเนื่องผ่าน iCloud"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cihaz değiştirsen de yemek günlüğün iCloud ile kaldığı yerden sürer."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đổi thiết bị, nhật ký ăn uống vẫn được giữ nguyên qua iCloud."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使换了设备，饮食记录也会通过 iCloud 延续下来。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使換了裝置，飲食紀錄也會透過 iCloud 延續下來。"
+          }
+        }
+      }
     },
     "기록" : {
       "comment" : "A label for the number of days of exercise.",
@@ -30380,7 +31256,153 @@
       }
     },
     "기록을 남기거나 다 먹었을 때 가볍게 떨려서 알려 줘요." : {
-      "comment" : "Roadmap item detail: haptic feedback"
+      "comment" : "Roadmap item detail: haptic feedback",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jemné zavibrování, když zapíšete jídlo nebo dojíte."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En let vibration, når du gemmer et måltid eller er færdig med at spise."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine leichte Vibration, wenn du eine Mahlzeit festhältst oder fertig gegessen hast."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μια ελαφριά δόνηση όταν καταγράφεις γεύμα ή τελειώνεις το φαγητό."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A light vibration when you log a meal or finish eating."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A light vibration when you log a meal or finish eating."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una vibración suave al registrar una comida o al terminar de comer."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kevyt värinä, kun kirjaat aterian tai saat syötyä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une légère vibration quand vous notez un repas ou finissez de manger."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getaran ringan saat mencatat makan atau selesai makan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una leggera vibrazione quando registri un pasto o finisci di mangiare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録したときや食べ終えたときに、軽く振動でお知らせします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록을 남기거나 다 먹었을 때 가볍게 떨려서 알려 줘요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En lett vibrasjon når du lagrer et måltid eller er ferdig med å spise."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een lichte trilling als je een maaltijd vastlegt of klaar bent met eten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekka wibracja, gdy zapiszesz posiłek lub skończysz jeść."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma vibração leve ao registrar uma refeição ou terminar de comer."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лёгкая вибрация, когда вы записываете приём пищи или заканчиваете есть."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En lätt vibration när du sparar en måltid eller har ätit klart."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สั่นเบาๆ เมื่อบันทึกมื้ออาหารหรือกินเสร็จ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğün kaydettiğinde ya da yemeği bitirdiğinde hafif bir titreşim."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rung nhẹ khi bạn ghi bữa ăn hoặc ăn xong."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "记录或吃完一餐时，轻轻振动提示。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記錄或吃完一餐時，輕輕震動提示。"
+          }
+        }
+      }
     },
     "기록을 불러오지 못했어요.\n%@" : {
       "comment" : "Error: group day entries failed to load; argument is the reason",
@@ -32927,7 +33949,153 @@
       }
     },
     "내 기록 한 번에 지우기" : {
-      "comment" : "Roadmap item: delete all my data"
+      "comment" : "Roadmap item: delete all my data",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat všechny své záznamy najednou"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slet alle mine data på én gang"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle meine Einträge auf einmal löschen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διαγραφή όλων των δεδομένων μου μονομιάς"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all my data at once"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all my data at once"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar todos mis registros de una vez"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poista kaikki tietoni kerralla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer toutes mes données d’un coup"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hapus semua catatanku sekaligus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare tutti i miei dati in un colpo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分の記録をまとめて削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 기록 한 번에 지우기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slett alle mine data på én gang"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al mijn gegevens in één keer wissen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń wszystkie moje dane naraz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apagar todos os meus registros de uma vez"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить все свои записи разом"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Radera all min data på en gång"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลบบันทึกทั้งหมดในครั้งเดียว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm kayıtlarımı tek seferde sil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa toàn bộ dữ liệu một lần"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一键删除我的记录"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一鍵刪除我的紀錄"
+          }
+        }
+      }
     },
     "내 식단 공유" : {
       "comment" : "A toggle that enables or disables sharing your meals with iCloud.",
@@ -36206,13 +37374,451 @@
       }
     },
     "대비를 높이거나 색을 구별하기 어려워도 기록한 끼니를 알아볼 수 있어요." : {
-      "comment" : "Roadmap item detail: better colors and contrast"
+      "comment" : "Roadmap item detail: better colors and contrast",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I se zvýšeným kontrastem nebo když hůř rozlišujete barvy, poznáte zapsaná jídla."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selv med øget kontrast, eller hvis farver er svære at skelne, kan du se de måltider, du har gemt."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch mit erhöhtem Kontrast oder wenn Farben schwer zu unterscheiden sind, erkennst du deine erfassten Mahlzeiten."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ακόμη και με αυξημένη αντίθεση ή αν δυσκολεύεσαι να ξεχωρίσεις χρώματα, αναγνωρίζεις τα γεύματα που κατέγραψες."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With higher contrast on, or if colors are hard to tell apart, you can still spot the meals you logged."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With higher contrast on, or if colours are hard to tell apart, you can still spot the meals you logged."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aunque uses más contraste o te cueste distinguir colores, verás qué comidas registraste."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaikka kontrasti olisi suurempi tai värejä olisi vaikea erottaa, tunnistat kirjaamasi ateriat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avec un contraste renforcé ou si les couleurs sont difficiles à distinguer, vous repérez vos repas enregistrés."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meski kontras dinaikkan atau warna sulit dibedakan, kamu tetap bisa mengenali makan yang sudah dicatat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche con il contrasto aumentato o se distingui a fatica i colori, riconosci i pasti registrati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コントラストを上げていても、色を見分けにくくても、記録した食事がわかります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대비를 높이거나 색을 구별하기 어려워도 기록한 끼니를 알아볼 수 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selv med økt kontrast, eller om farger er vanskelige å skille, ser du hvilke måltider du har lagret."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ook met meer contrast of als je kleuren moeilijk onderscheidt, herken je je vastgelegde maaltijden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nawet przy zwiększonym kontraście lub trudnościach z rozróżnianiem kolorów rozpoznasz zapisane posiłki."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mesmo com mais contraste ou com dificuldade para distinguir cores, você reconhece as refeições registradas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Даже при повышенном контрасте или если трудно различать цвета, записанные приёмы пищи легко узнать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Även med ökad kontrast, eller om färger är svåra att skilja åt, ser du vilka måltider du har sparat."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แม้เปิดคอนทราสต์สูงหรือแยกสีได้ยาก ก็ยังรู้ว่าบันทึกมื้อไหนแล้ว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrastı artırsan ya da renkleri ayırt etmekte zorlansan da kaydettiğin öğünleri tanırsın."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dù bật tăng tương phản hay khó phân biệt màu, bạn vẫn nhận ra các bữa đã ghi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使开启增强对比度或难以分辨颜色，也能认出已记录的餐次。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即使開啟增加對比或難以分辨顏色，也能認出已記錄的餐點。"
+          }
+        }
+      }
     },
     "더 많은 나라 말로 앱을 쓸 수 있게 해요." : {
-      "comment" : "Roadmap item detail: more languages"
+      "comment" : "Roadmap item detail: more languages",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikaci můžete používat v mnoha dalších jazycích."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brug appen på mange flere sprog."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nutze die App in vielen weiteren Sprachen."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χρησιμοποίησε την εφαρμογή σε πολλές ακόμη γλώσσες."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the app in many more languages."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the app in many more languages."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa la app en muchos más idiomas."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Käytä sovellusta monilla muillakin kielillä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisez l’app dans bien d’autres langues."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gunakan aplikasi dalam lebih banyak bahasa."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa l’app in molte altre lingue."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もっと多くの国の言葉でアプリを使えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 많은 나라 말로 앱을 쓸 수 있게 해요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bruk appen på mange flere språk."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik de app in veel meer talen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korzystaj z aplikacji w wielu innych językach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use o app em muitos outros idiomas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение доступно на многих языках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Använd appen på många fler språk."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ใช้แอปได้ในภาษาของอีกหลายประเทศ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı çok daha fazla dilde kullan."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dùng ứng dụng bằng ngôn ngữ của nhiều quốc gia hơn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以用更多国家的语言使用本应用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以用更多國家的語言使用 App。"
+          }
+        }
+      }
     },
     "더 많은 언어" : {
-      "comment" : "Roadmap item: more languages"
+      "comment" : "Roadmap item: more languages",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Další jazyky"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flere sprog"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr Sprachen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Περισσότερες γλώσσες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More languages"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More languages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más idiomas"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lisää kieliä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus de langues"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebih banyak bahasa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più lingue"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "さらに多くの言語"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 많은 언어"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flere språk"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer talen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Więcej języków"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais idiomas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше языков"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fler språk"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ภาษาเพิ่มเติม"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha fazla dil"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm ngôn ngữ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多语言"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多語言"
+          }
+        }
+      }
     },
     "더 보기" : {
       "localizations" : {
@@ -42491,7 +44097,153 @@
       }
     },
     "메모를 쓰다가 앱이 꺼져도 쓰던 내용이 남아 있어요." : {
-      "comment" : "Roadmap item detail: keep unsaved drafts"
+      "comment" : "Roadmap item detail: keep unsaved drafts",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když se aplikace zavře během psaní poznámky, text zůstane zachován."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lukker appen, mens du skriver en note, er din tekst der stadig."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließt sich die App beim Schreiben einer Notiz, bleibt dein Text erhalten."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αν η εφαρμογή κλείσει ενώ γράφεις σημείωση, το κείμενό σου παραμένει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the app closes while you’re writing a note, your text is still there."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the app closes while you’re writing a note, your text is still there."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si la app se cierra mientras escribes una nota, lo escrito se conserva."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos sovellus sulkeutuu kesken muistiinpanon, tekstisi säilyy."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si l’app se ferme pendant que vous écrivez une note, votre texte est conservé."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jika aplikasi tertutup saat menulis catatan, tulisanmu tetap tersimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se l’app si chiude mentre scrivi una nota, il testo resta lì."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メモの途中でアプリが閉じても、書いた内容は残ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메모를 쓰다가 앱이 꺼져도 쓰던 내용이 남아 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lukkes appen mens du skriver et notat, er teksten fortsatt der."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sluit de app terwijl je een notitie schrijft, dan blijft je tekst bewaard."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeśli aplikacja zamknie się podczas pisania notatki, tekst zostanie zachowany."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se o app fechar enquanto você escreve uma nota, o texto continua lá."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если приложение закроется во время записи, текст заметки сохранится."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stängs appen medan du skriver en anteckning finns texten kvar."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แม้แอปปิดระหว่างเขียนบันทึก ข้อความที่เขียนไว้ก็ยังอยู่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not yazarken uygulama kapansa da yazdıkların kaybolmaz."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nếu ứng dụng tắt khi đang viết ghi chú, nội dung vẫn còn nguyên."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写备注时即使应用关闭，已写的内容也会保留。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "寫備註時即使 App 關閉，已寫的內容也會保留。"
+          }
+        }
+      }
     },
     "메모에 추가" : {
       "comment" : "A button that adds the analysis result to the meal's memo.",
@@ -47118,7 +48870,153 @@
       }
     },
     "백업과 내보내기" : {
-      "comment" : "Roadmap item: backup and export"
+      "comment" : "Roadmap item: backup and export",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Záloha a export"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup og eksport"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup und Export"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αντίγραφα ασφαλείας και εξαγωγή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup and export"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup and export"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia de seguridad y exportación"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varmuuskopio ja vienti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde et export"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cadangan dan ekspor"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup ed esportazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップと書き出し"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업과 내보내기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikkerhetskopi og eksport"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back-up en export"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopia zapasowa i eksport"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup e exportação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия и экспорт"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Säkerhetskopia och export"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สำรองและส่งออกข้อมูล"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yedekleme ve dışa aktarma"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sao lưu và xuất dữ liệu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备份与导出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備份與匯出"
+          }
+        }
+      }
     },
     "백업할 기록 %lld개" : {
       "localizations" : {
@@ -48616,7 +50514,153 @@
       }
     },
     "보기 편한 색과 대비" : {
-      "comment" : "Roadmap item: better colors and contrast"
+      "comment" : "Roadmap item: better colors and contrast",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lépe čitelné barvy a kontrast"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farver og kontrast, der er lette at se"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gut erkennbare Farben und Kontraste"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χρώματα και αντίθεση που διακρίνονται εύκολα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easier-to-see colors and contrast"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easier-to-see colours and contrast"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colores y contraste más legibles"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helposti erottuvat värit ja kontrasti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleurs et contraste plus lisibles"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warna dan kontras yang nyaman dilihat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colori e contrasto più leggibili"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "見やすい色とコントラスト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보기 편한 색과 대비"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farger og kontrast som er lette å se"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goed zichtbare kleuren en contrast"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czytelne kolory i kontrast"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cores e contraste mais fáceis de ver"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удобные цвета и контраст"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lättlästa färger och kontrast"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สีและคอนทราสต์ที่ดูง่าย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kolay görülen renkler ve kontrast"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Màu sắc và độ tương phản dễ nhìn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更易辨识的颜色与对比度"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更易辨識的顏色與對比"
+          }
+        }
+      }
     },
     "보내기" : {
       "comment" : "A button title that means \"Send\".",
@@ -58769,7 +60813,153 @@
       }
     },
     "세끼 프로 선물하기" : {
-      "comment" : "Roadmap item: gift Pro to someone"
+      "comment" : "Roadmap item: gift Pro to someone",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Darovat Sekki Pro"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giv Sekki Pro i gave"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki Pro verschenken"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δώρισε το Sekki Pro"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gift Sekki Pro"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gift Sekki Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regalar Sekki Pro"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anna Sekki Pro lahjaksi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offrir Sekki Pro"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hadiahkan Sekki Pro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regala Sekki Pro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki Proをプレゼント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세끼 프로 선물하기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gi Sekki Pro i gave"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki Pro cadeau doen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podaruj Sekki Pro"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Presentear com o Sekki Pro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подарить Sekki Pro"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ge bort Sekki Pro"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "มอบ Sekki Pro เป็นของขวัญ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki Pro hediye et"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tặng Sekki Pro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "赠送 Sekki Pro"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送出 Sekki Pro"
+          }
+        }
+      }
     },
     "세끼가 잠겨 있어요" : {
       "comment" : "A title for the screen that appears when the app is locked.",
@@ -59668,7 +61858,153 @@
       }
     },
     "손끝으로 느끼는 반응" : {
-      "comment" : "Roadmap item: haptic feedback"
+      "comment" : "Roadmap item: haptic feedback",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptická odezva"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptisk feedback"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptisches Feedback"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Απτική απόκριση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptic feedback"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptic feedback"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respuesta háptica"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptinen palaute"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retour haptique"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umpan balik getar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedback aptico"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "指先に伝わるフィードバック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "손끝으로 느끼는 반응"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptisk tilbakemelding"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptische feedback"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wibracje przy dotyku"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resposta tátil"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тактильный отклик"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptisk återkoppling"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การตอบสนองแบบสั่น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokunsal geri bildirim"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phản hồi rung"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "触感反馈"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "觸覺回饋"
+          }
+        }
+      }
     },
     "수락" : {
       "comment" : "A button that accepts a friend request.",
@@ -61165,7 +63501,153 @@
       }
     },
     "식단 기록과 사진을 파일로 저장하고 다시 불러올 수 있어요." : {
-      "comment" : "Roadmap item detail: backup and export"
+      "comment" : "Roadmap item detail: backup and export",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uložte jídelníček a fotky do souboru a později je obnovte."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gem din maddagbog og dine billeder i en fil, og hent dem tilbage senere."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichere Tagebuch und Fotos als Datei und hole sie später zurück."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποθήκευσε το ημερολόγιο και τις φωτογραφίες σε αρχείο και επανάφερέ τα αργότερα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your meal log and photos to a file and bring them back later."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your meal log and photos to a file and bring them back later."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda tu diario y tus fotos en un archivo y recupéralos cuando quieras."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallenna ruokapäiväkirja ja kuvat tiedostoon ja palauta ne myöhemmin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrez votre journal et vos photos dans un fichier, puis restaurez-les plus tard."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan catatan makan dan foto ke file, lalu pulihkan kapan saja."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva diario e foto in un file e ripristinali quando vuoi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食事の記録と写真をファイルに保存して、あとで読み込めます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "식단 기록과 사진을 파일로 저장하고 다시 불러올 수 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lagre matdagboken og bildene i en fil, og hent dem tilbake senere."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewaar je eetdagboek en foto’s in een bestand en zet ze later terug."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz dziennik i zdjęcia w pliku, a potem je przywróć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salve o diário e as fotos em um arquivo e recupere quando quiser."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняйте дневник и фото в файл и восстанавливайте их позже."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spara matdagboken och bilderna i en fil och hämta tillbaka dem senare."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บันทึกข้อมูลอาหารและรูปเป็นไฟล์ แล้วนำกลับมาได้ภายหลัง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yemek günlüğünü ve fotoğrafları dosyaya kaydet, sonra geri yükle."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lưu nhật ký và ảnh bữa ăn thành tệp rồi khôi phục lại sau."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以把饮食记录和照片存成文件，之后再导入。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可以把飲食紀錄和照片存成檔案，之後再匯入。"
+          }
+        }
+      }
     },
     "식단 분석" : {
       "localizations" : {
@@ -65933,10 +68415,302 @@
       }
     },
     "쓰는 요령 알려 주기" : {
-      "comment" : "Roadmap item: in-app tips"
+      "comment" : "Roadmap item: in-app tips",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Užitečné tipy"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gode tips"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Praktische Tipps"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χρήσιμες συμβουλές"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handy tips"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handy tips"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consejos útiles"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Käteviä vinkkejä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Astuces pratiques"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips praktis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consigli utili"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使い方のヒント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쓰는 요령 알려 주기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyttige tips"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handige tips"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przydatne wskazówki"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dicas úteis"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полезные подсказки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smarta tips"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เคล็ดลับการใช้งาน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faydalı ipuçları"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mẹo sử dụng"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用小技巧"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用小技巧"
+          }
+        }
+      }
     },
     "쓰던 메모 이어 쓰기" : {
-      "comment" : "Roadmap item: keep unsaved drafts"
+      "comment" : "Roadmap item: keep unsaved drafts",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokračovat v neuložené poznámce"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsæt ugemte noter"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungespeicherte Notizen fortsetzen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνέχεια σε μη αποθηκευμένες σημειώσεις"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick up unsaved notes"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick up unsaved notes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retomar notas sin guardar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jatka tallentamatonta muistiinpanoa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprendre une note non enregistrée"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanjutkan catatan yang belum disimpan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprendere le note non salvate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書きかけのメモを続きから"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쓰던 메모 이어 쓰기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsett på ulagrede notater"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verder met niet-opgeslagen notities"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontynuuj niezapisaną notatkę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar notas não salvas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить недописанную заметку"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsätt på osparade anteckningar"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เขียนบันทึกที่ค้างไว้ต่อ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydedilmemiş notlara devam et"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viết tiếp ghi chú dang dở"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续未写完的备注"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繼續未寫完的備註"
+          }
+        }
+      }
     },
     "아무것도 안 골라도 괜찮아요 — 알림 없이 원할 때만 기록해요." : {
       "comment" : "Cared meals prompt: nothing selected",
@@ -70635,7 +73409,153 @@
       }
     },
     "알아 두면 편한 기능을 알맞은 때에 살짝 알려 줘요." : {
-      "comment" : "Roadmap item detail: in-app tips"
+      "comment" : "Roadmap item detail: in-app tips",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ve správnou chvíli vám nenápadně poradíme užitečné funkce."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diskrete hints om nyttige funktioner, lige når de hjælper."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dezente Hinweise auf nützliche Funktionen, genau wenn sie helfen."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διακριτικές υποδείξεις για χρήσιμες λειτουργίες, τη σωστή στιγμή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gentle hints about useful features, right when they help."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gentle hints about useful features, right when they help."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te sugerimos funciones útiles justo cuando te sirven."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huomaamattomia vinkkejä hyödyllisistä toiminnoista juuri oikealla hetkellä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des conseils discrets sur les fonctions utiles, au bon moment."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petunjuk ringan tentang fitur berguna, tepat saat dibutuhkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piccoli suggerimenti sulle funzioni utili, proprio quando servono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "知っておくと便利な機能を、ちょうどいいタイミングでそっとお知らせします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알아 두면 편한 기능을 알맞은 때에 살짝 알려 줘요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diskré hint om nyttige funksjoner, akkurat når de hjelper."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subtiele hints over handige functies, precies wanneer ze helpen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dyskretne podpowiedzi o przydatnych funkcjach we właściwej chwili."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dicas discretas sobre recursos úteis, na hora certa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ненавязчиво подскажем полезные функции в нужный момент."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diskreta tips om användbara funktioner, precis när de behövs."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แนะนำฟีเจอร์ที่มีประโยชน์เบาๆ ในจังหวะที่เหมาะ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faydalı özellikleri tam gerektiğinde nazikçe hatırlatır."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhắc nhẹ về các tính năng hữu ích đúng lúc bạn cần."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在合适的时候，悄悄提示好用的功能。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在適當的時候，輕輕提示好用的功能。"
+          }
+        }
+      }
     },
     "애피타이저" : {
       "comment" : "Food name recognized in a meal photo",
@@ -71085,7 +74005,153 @@
       }
     },
     "앱을 영어로도 쓸 수 있어요." : {
-      "comment" : "Roadmap item detail: English language"
+      "comment" : "Roadmap item detail: English language",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikaci můžete používat i v angličtině."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan også bruge appen på engelsk."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App gibt es auch auf Englisch."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μπορείς να χρησιμοποιείς την εφαρμογή και στα αγγλικά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the app in English too."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the app in English too."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También puedes usar la app en inglés."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sovellusta voi käyttää myös englanniksi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’app est aussi disponible en anglais."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikasi juga bisa dipakai dalam bahasa Inggris."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi usare l’app anche in inglese."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを英語でも使えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 영어로도 쓸 수 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan også bruke appen på engelsk."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt de app ook in het Engels gebruiken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z aplikacji możesz korzystać także po angielsku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você também pode usar o app em inglês."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложением можно пользоваться и на английском."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan även använda appen på engelska."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ใช้แอปเป็นภาษาอังกฤษได้ด้วย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı İngilizce de kullanabilirsin."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bạn có thể dùng ứng dụng bằng tiếng Anh."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "也可以用英语使用本应用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "也可以用英文使用 App。"
+          }
+        }
+      }
     },
     "앱을 지우거나 기기를 바꿔도 같은 iCloud 계정이면 기록이 돌아와요. iCloud 저장 공간을 사용하며, 친구에게는 보이지 않아요." : {
       "localizations" : {
@@ -72429,10 +75495,302 @@
       }
     },
     "업데이트 뒤 처음 열 때 무엇이 새로 생겼는지 알려 줘요." : {
-      "comment" : "Roadmap item detail: what's new after an update"
+      "comment" : "Roadmap item detail: what's new after an update",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po aktualizaci vám při prvním otevření ukážeme, co je nového."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efter en opdatering fortæller appen ved første åbning, hvad der er nyt."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach einem Update zeigt dir der erste Start, was neu ist."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μετά από ενημέρωση, το πρώτο άνοιγμα σου δείχνει τι νέο υπάρχει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After an update, the first launch tells you what’s new."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After an update, the first launch tells you what’s new."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras una actualización, al abrir la app te contamos las novedades."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Päivityksen jälkeen ensimmäinen avaus kertoo, mitä on uutta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après une mise à jour, la première ouverture vous présente les nouveautés."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelah pembaruan, saat pertama dibuka kamu diberi tahu apa yang baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo un aggiornamento, alla prima apertura scopri le novità."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデート後に初めて開くと、新しくなった点をお知らせします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 뒤 처음 열 때 무엇이 새로 생겼는지 알려 줘요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etter en oppdatering forteller appen ved første åpning hva som er nytt."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na een update zie je bij de eerste keer openen wat er nieuw is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po aktualizacji przy pierwszym uruchomieniu pokażemy, co nowego."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois de uma atualização, a primeira abertura mostra o que há de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После обновления при первом запуске расскажем, что появилось нового."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efter en uppdatering berättar appen vid första öppningen vad som är nytt."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หลังอัปเดต เปิดครั้งแรกจะบอกว่ามีอะไรใหม่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güncellemeden sonra ilk açılışta nelerin yeni olduğunu gösterir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sau khi cập nhật, lần mở đầu tiên sẽ cho bạn biết có gì mới."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新后首次打开时，告诉你有哪些新功能。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新後第一次開啟時，告訴你有哪些新功能。"
+          }
+        }
+      }
     },
     "업데이트 소식" : {
-      "comment" : "Roadmap item: what's new after an update"
+      "comment" : "Roadmap item: what's new after an update",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co je nového"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyheder"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuigkeiten"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τι νέο υπάρχει"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What’s new"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What’s new"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novedades"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uutta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouveautés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yang baru"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novità"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデート情報"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 소식"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyheter"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat is er nieuw"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co nowego"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novidades"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что нового"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyheter"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "มีอะไรใหม่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yenilikler"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Có gì mới"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新内容"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新內容"
+          }
+        }
+      }
     },
     "업로드 약 %lldMB 예상 · Wi-Fi에서 실행하는 걸 권합니다" : {
       "comment" : "A caption below the number of days and photos estimated to be uploaded.",
@@ -72885,7 +76243,153 @@
       }
     },
     "영어 지원" : {
-      "comment" : "Roadmap item: English language"
+      "comment" : "Roadmap item: English language",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podpora angličtiny"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engelsk sprog"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Englische Sprache"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Υποστήριξη αγγλικών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English support"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English support"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponible en inglés"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Englannin kieli"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponible en anglais"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dukungan bahasa Inggris"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponibile in inglese"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英語に対応"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "영어 지원"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engelsk språk"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engelse taal"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obsługa angielskiego"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suporte a inglês"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Английский язык"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engelska"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รองรับภาษาอังกฤษ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İngilizce desteği"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hỗ trợ tiếng Anh"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持英语"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支援英文"
+          }
+        }
+      }
     },
     "예: ABC123" : {
       "comment" : "A placeholder text for a group code input field.",
@@ -78862,7 +82366,153 @@
       }
     },
     "원하면 앱 안에서 식단 기록을 모두 지울 수 있어요." : {
-      "comment" : "Roadmap item detail: delete all my data"
+      "comment" : "Roadmap item detail: delete all my data",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když budete chtít, smažete celý jídelníček přímo v aplikaci."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når du vil, kan du slette hele din maddagbog direkte i appen."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn du willst, löschst du dein gesamtes Ernährungstagebuch direkt in der App."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όποτε θέλεις, σβήνεις όλο το ημερολόγιο γευμάτων μέσα από την εφαρμογή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase your entire meal log from inside the app whenever you want."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase your entire meal log from inside the app whenever you want."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si quieres, borra todo tu diario de comidas desde la app."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halutessasi voit poistaa koko ruokapäiväkirjan suoraan sovelluksessa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si vous le souhaitez, effacez tout votre journal de repas depuis l’app."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jika mau, hapus semua catatan makan langsung di aplikasi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se vuoi, cancelli tutto il diario dei pasti direttamente nell’app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "必要なときに、アプリ内で食事の記録をすべて消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "원하면 앱 안에서 식단 기록을 모두 지울 수 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når du vil, kan du slette hele matdagboken direkte i appen."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je wilt, wis je je hele eetdagboek gewoon in de app."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy zechcesz, usuniesz cały dziennik posiłków w aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se quiser, apague todo o diário de refeições dentro do app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При желании весь дневник питания можно удалить прямо в приложении."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När du vill kan du radera hela matdagboken direkt i appen."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลบบันทึกอาหารทั้งหมดได้ในแอปเมื่อต้องการ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İstersen tüm yemek günlüğünü uygulama içinden silebilirsin."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi muốn, bạn có thể xóa toàn bộ nhật ký ăn uống ngay trong ứng dụng."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要时可以在应用内删除全部饮食记录。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要時可以在 App 內刪除全部飲食紀錄。"
+          }
+        }
+      }
     },
     "위치 권한이 꺼져 있어 찍은 곳을 남기지 못해요." : {
       "comment" : "Shown when location permission is denied",
@@ -95434,10 +99084,302 @@
       }
     },
     "처음 쓰는 분을 위한 안내" : {
-      "comment" : "Roadmap item: first-run guide"
+      "comment" : "Roadmap item: first-run guide",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Průvodce pro začátečníky"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guide til nye brugere"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einführung für neue Nutzer"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οδηγός για νέους χρήστες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A guide for first-timers"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A guide for first-timers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guía para empezar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opas aloittelijoille"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guide de prise en main"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panduan untuk pengguna baru"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guida per chi inizia"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "はじめての方へのガイド"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "처음 쓰는 분을 위한 안내"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veiledning for nye brukere"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitleg voor nieuwe gebruikers"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przewodnik dla początkujących"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guia para quem está começando"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подсказки для новичков"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guide för nya användare"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คำแนะนำสำหรับผู้ใช้ใหม่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni başlayanlar için rehber"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hướng dẫn cho người mới"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新用户指南"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新手導覽"
+          }
+        }
+      }
     },
     "처음 열었을 때 끼니를 어떻게 남기는지 짧게 보여 줘요." : {
-      "comment" : "Roadmap item detail: first-run guide"
+      "comment" : "Roadmap item detail: first-run guide",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Při prvním otevření krátce ukážeme, jak zapsat jídlo."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Første gang du åbner appen, viser en kort rundvisning, hvordan du gemmer et måltid."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim ersten Öffnen zeigt eine kurze Tour, wie du eine Mahlzeit festhältst."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Την πρώτη φορά που ανοίγεις την εφαρμογή, μια σύντομη ξενάγηση δείχνει πώς καταγράφεις ένα γεύμα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The first time you open the app, a short tour shows how to log a meal."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The first time you open the app, a short tour shows how to log a meal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La primera vez que abras la app, verás en breve cómo registrar una comida."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kun avaat sovelluksen ensimmäistä kertaa, lyhyt esittely näyttää, miten ateria kirjataan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À la première ouverture, une courte présentation montre comment noter un repas."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat pertama dibuka, ada panduan singkat cara mencatat makan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alla prima apertura, una breve guida mostra come registrare un pasto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "初めて開いたときに、食事の記録方法を短く紹介します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "처음 열었을 때 끼니를 어떻게 남기는지 짧게 보여 줘요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Første gang du åpner appen, viser en kort omvisning hvordan du lagrer et måltid."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij de eerste keer openen laat een korte rondleiding zien hoe je een maaltijd vastlegt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przy pierwszym uruchomieniu krótko pokażemy, jak zapisać posiłek."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na primeira vez que abrir o app, um tour rápido mostra como registrar uma refeição."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При первом запуске коротко покажем, как записать приём пищи."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Första gången du öppnar appen visar en kort genomgång hur du sparar en måltid."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดครั้งแรกจะแสดงสั้นๆ ว่าบันทึกมื้ออาหารอย่างไร"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı ilk açtığında öğün kaydetmeyi kısaca gösterir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lần đầu mở ứng dụng, bạn sẽ xem nhanh cách ghi một bữa ăn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首次打开时，简单演示如何记录一餐。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第一次開啟時，簡單示範如何記錄一餐。"
+          }
+        }
+      }
     },
     "초대 코드" : {
       "comment" : "A label for the invitation code.",
@@ -105428,7 +109370,153 @@
       }
     },
     "큰 글씨에 맞춘 화면" : {
-      "comment" : "Roadmap item: layouts for larger text"
+      "comment" : "Roadmap item: layouts for larger text",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrazovky pro velké písmo"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skærme til større tekst"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansichten für große Schrift"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οθόνες για μεγαλύτερο κείμενο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layouts for larger text"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layouts for larger text"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pantallas para texto grande"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näkymät suurelle tekstille"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrans adaptés au grand texte"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilan untuk teks besar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermate per testo grande"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大きな文字に合わせた画面"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "큰 글씨에 맞춘 화면"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skjermer for større tekst"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermen voor grotere tekst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekrany dla większego tekstu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telas para texto grande"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экраны для крупного текста"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärmar för större text"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หน้าจอที่รองรับตัวอักษรใหญ่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Büyük yazıya uygun ekranlar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao diện cho chữ lớn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适配大字体的界面"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適合大字體的畫面"
+          }
+        }
+      }
     },
     "타코" : {
       "comment" : "Food name recognized in a meal photo",
@@ -106919,10 +111007,302 @@
       }
     },
     "펼치는 아이폰 화면" : {
-      "comment" : "Roadmap item: foldable iPhone layout"
+      "comment" : "Roadmap item: foldable iPhone layout",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obrazovka pro skládací iPhone"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skærm til foldbar iPhone"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansicht für faltbare iPhones"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οθόνη για αναδιπλούμενο iPhone"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foldable iPhone layout"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foldable iPhone layout"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pantalla para iPhone plegable"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näkymä taittuvalle iPhonelle"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affichage pour iPhone pliable"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilan untuk iPhone lipat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermata per iPhone pieghevole"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折りたたみiPhoneの画面"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "펼치는 아이폰 화면"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skjerm for sammenleggbar iPhone"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergave voor opvouwbare iPhone"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran dla składanego iPhone’a"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tela para iPhone dobrável"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экран для складного iPhone"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vy för vikbar iPhone"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หน้าจอสำหรับ iPhone แบบพับได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katlanabilir iPhone ekranı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao diện cho iPhone gập"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折叠屏 iPhone 界面"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摺疊 iPhone 畫面"
+          }
+        }
+      }
     },
-    "펼치는 아이폰에서 기록과 사진을 두 쪽으로 나눠 봐요." : {
-      "comment" : "Roadmap item detail: foldable iPhone layout"
+    "펼치는 아이폰에서 끼니 기록과 통계를 나란히 봐요." : {
+      "comment" : "Roadmap item detail: foldable iPhone layout",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na skládacím iPhonu vidíte jídla a statistiky vedle sebe."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På en foldbar iPhone ser du måltider og statistik side om side."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf einem faltbaren iPhone siehst du Mahlzeiten und Statistik nebeneinander."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σε αναδιπλούμενο iPhone βλέπεις γεύματα και στατιστικά δίπλα δίπλα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On a foldable iPhone, see your meals and stats side by side."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On a foldable iPhone, see your meals and stats side by side."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En un iPhone plegable, ve tus comidas y estadísticas lado a lado."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taittuvassa iPhonessa näet ateriat ja tilastot rinnakkain."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur un iPhone pliable, voyez vos repas et vos statistiques côte à côte."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di iPhone lipat, lihat catatan makan dan statistik berdampingan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su un iPhone pieghevole vedi pasti e statistiche affiancati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折りたたみiPhoneでは、食事の記録と統計を左右に並べて見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "펼치는 아이폰에서 끼니 기록과 통계를 나란히 봐요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På en sammenleggbar iPhone ser du måltider og statistikk side om side."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op een opvouwbare iPhone zie je maaltijden en statistieken naast elkaar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na składanym iPhonie zobaczysz posiłki i statystyki obok siebie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No iPhone dobrável, veja refeições e estatísticas lado a lado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На складном iPhone дневник и статистика открываются рядом."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På en vikbar iPhone ser du måltider och statistik sida vid sida."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บน iPhone แบบพับได้ ดูบันทึกมื้ออาหารและสถิติคู่กันได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katlanabilir iPhone'da öğünlerini ve istatistikleri yan yana gör."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trên iPhone gập, xem bữa ăn và thống kê cạnh nhau."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在折叠屏 iPhone 上，左右并排查看餐食记录和统计。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在摺疊 iPhone 上，左右並排查看餐點紀錄和統計。"
+          }
+        }
+      }
     },
     "평소에는 새로 쓰거나 고친 기록만 올라갑니다. 그래서 앱을 쓰기 시작하기 전이나 예전 버전에서 남긴 기록은 이 폰에만 있고, 친구 화면에서는 비어 보일 수 있어요." : {
       "comment" : "A description of the meal backfill process.",
