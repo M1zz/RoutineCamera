@@ -10,7 +10,7 @@ import Vision
 import UIKit
 
 // 분석 결과 모델
-struct FoodAnalysisResult {
+nonisolated struct FoodAnalysisResult: Sendable {
     let foodItems: [String] // 인식된 음식 종류
     let extractedText: [String] // 추출된 텍스트
     let confidence: Float // 신뢰도 (0.0 ~ 1.0)
@@ -30,7 +30,8 @@ struct FoodAnalysisResult {
     }
 }
 
-class VisionAnalyzer {
+/// 메인 액터에 묶지 않는다 — 분석은 백그라운드 큐에서 돈다(프로젝트 기본 격리가 MainActor 다).
+nonisolated final class VisionAnalyzer: Sendable {
     static let shared = VisionAnalyzer()
 
     private init() {}
@@ -152,121 +153,73 @@ class VisionAnalyzer {
     }
 
     // 음식 + 텍스트 종합 분석
-    func analyzeFoodImage(_ image: UIImage, completion: @escaping (Result<FoodAnalysisResult, Error>) -> Void) {
+    /// 분석은 백그라운드에서 돌고, completion 은 메인에서 불린다.
+    ///
+    /// 1.2.2 에서 여기서 앱이 죽었다(libdispatch, 짝 없는 dispatch_group_leave).
+    /// Vision 은 요청이 실패하면 요청의 완료 콜백을 에러로 부르고 **그와 함께** `perform` 도
+    /// throw 한다. 콜백과 catch 가 둘 다 completion 을 불러 그룹을 두 번 떠났다.
+    /// 그래서 요청에 콜백을 달지 않는다 — `perform` 이 끝나면 `results` 를 읽는다. 한 길뿐이다.
+    /// 정확도 OCR 은 무거워 메인에서 돌면 화면이 멈추므로 백그라운드 큐에서 돌린다.
+    func analyzeFoodImage(_ image: UIImage,
+                          completion: @escaping @MainActor @Sendable (Result<FoodAnalysisResult, Error>) -> Void) {
         guard let cgImage = image.cgImage else {
-            completion(.failure(NSError(domain: "VisionAnalyzer", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "이미지 변환 실패", comment: "Error: the photo could not be read for analysis")])))
+            let error = NSError(domain: "VisionAnalyzer", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "이미지 변환 실패", comment: "Error: the photo could not be read for analysis")])
+            DispatchQueue.main.async { completion(.failure(error)) }
             return
         }
 
-        var foodItems: [String] = []
-        var extractedText: [String] = []
-        var maxConfidence: Float = 0.0
-
-        let dispatchGroup = DispatchGroup()
-
-        // 1. 물체 인식 (이미지 분류)
-        dispatchGroup.enter()
-        classifyObjects(cgImage: cgImage) { items, confidence in
-            foodItems = items
-            maxConfidence = max(maxConfidence, confidence)
-            dispatchGroup.leave()
-        }
-
-        // 2. 텍스트 추출 (OCR)
-        dispatchGroup.enter()
-        extractText(cgImage: cgImage) { texts, confidence in
-            extractedText = texts
-            maxConfidence = max(maxConfidence, confidence)
-            dispatchGroup.leave()
-        }
-
-        // 모든 분석 완료 후 결과 반환
-        dispatchGroup.notify(queue: .main) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let objects = self.classifyObjects(cgImage: cgImage)
+            let texts = self.extractText(cgImage: cgImage)
             let result = FoodAnalysisResult(
-                foodItems: foodItems,
-                extractedText: extractedText,
-                confidence: maxConfidence
+                foodItems: objects.items,
+                extractedText: texts.items,
+                confidence: max(objects.confidence, texts.confidence)
             )
-            completion(.success(result))
+            DispatchQueue.main.async { completion(.success(result)) }
         }
     }
 
     // 이미지 분류 (음식 관련 항목 추출)
-    private func classifyObjects(cgImage: CGImage, completion: @escaping ([String], Float) -> Void) {
-        let request = VNClassifyImageRequest { [weak self] request, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                print("❌ 이미지 분류 오류: \(error)")
-                completion([], 0.0)
-                return
-            }
-
-            guard let observations = request.results as? [VNClassificationObservation] else {
-                completion([], 0.0)
-                return
-            }
-
-            // 상위 5개 결과 (신뢰도 25% 이상)
-            let englishItems = observations
-                .filter { $0.confidence > 0.25 }
-                .prefix(5)
-                .map { $0.identifier }
-
-            // 한국어로 번역
-            let koreanItems = englishItems.map { self.translateToKorean($0) }
-
-            let maxConfidence = observations.first?.confidence ?? 0.0
-
-            print("✅ 이미지 분류 결과: \(koreanItems.joined(separator: ", ")) (신뢰도: \(maxConfidence))")
-            completion(Array(koreanItems), maxConfidence)
-        }
-
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+    private func classifyObjects(cgImage: CGImage) -> (items: [String], confidence: Float) {
+        let request = VNClassifyImageRequest()
         do {
-            try handler.perform([request])
+            try VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
         } catch {
-            print("❌ Vision Request 실행 오류: \(error)")
-            completion([], 0.0)
+            print("❌ 이미지 분류 오류: \(error)")
+            return ([], 0)
         }
+        let observations = request.results ?? []
+
+        // 상위 5개 결과 (신뢰도 25% 이상)을 한국어로
+        let items = observations
+            .filter { $0.confidence > 0.25 }
+            .prefix(5)
+            .map { translateToKorean($0.identifier) }
+        let confidence = observations.first?.confidence ?? 0
+
+        print("✅ 이미지 분류 결과: \(items.joined(separator: ", ")) (신뢰도: \(confidence))")
+        return (items, confidence)
     }
 
     // 텍스트 추출 (OCR)
-    private func extractText(cgImage: CGImage, completion: @escaping ([String], Float) -> Void) {
-        let request = VNRecognizeTextRequest { request, error in
-            if let error = error {
-                print("❌ 텍스트 추출 오류: \(error)")
-                completion([], 0.0)
-                return
-            }
-
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                completion([], 0.0)
-                return
-            }
-
-            let texts = observations.compactMap { observation -> String? in
-                guard let topCandidate = observation.topCandidates(1).first,
-                      topCandidate.confidence > 0.5 else { return nil }
-                return topCandidate.string
-            }
-
-            let maxConfidence = observations.compactMap { $0.topCandidates(1).first?.confidence }.max() ?? 0.0
-
-            print("✅ 텍스트 추출 결과: \(texts.joined(separator: " ")) (신뢰도: \(maxConfidence))")
-            completion(texts, maxConfidence)
-        }
-
+    private func extractText(cgImage: CGImage) -> (items: [String], confidence: Float) {
+        let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.recognitionLanguages = ["ko-KR", "en-US"] // 한글 + 영어
         request.usesLanguageCorrection = true
-
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
-            try handler.perform([request])
+            try VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
         } catch {
-            print("❌ Vision Request 실행 오류: \(error)")
-            completion([], 0.0)
+            print("❌ 텍스트 추출 오류: \(error)")
+            return ([], 0)
         }
+        let candidates = (request.results ?? []).compactMap { $0.topCandidates(1).first }
+
+        let texts = candidates.filter { $0.confidence > 0.5 }.map(\.string)
+        let confidence = candidates.map(\.confidence).max() ?? 0
+
+        print("✅ 텍스트 추출 결과: \(texts.joined(separator: " ")) (신뢰도: \(confidence))")
+        return (texts, confidence)
     }
 }

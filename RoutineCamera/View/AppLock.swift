@@ -10,9 +10,12 @@ import SwiftUI
 import LocalAuthentication
 import LeeoKit
 
-enum AppLockAuthenticator {
-    /// 이 기기에서 쓸 수 있는 생체 인증 이름 (설정 문구용)
-    static var biometryName: String {
+/// 메인 액터에 묶지 않는다. LAContext 는 물을 때마다 시스템과 동기로 왕복하는데,
+/// 1.2.2 에서 잠금 화면을 그리는 중(메인)에 그 왕복이 막혀 워치독에 죽었다.
+nonisolated enum AppLockAuthenticator {
+    /// 이 기기에서 쓸 수 있는 생체 인증 이름 (설정 · 잠금 화면 문구용).
+    /// 한 번만 묻는다 — 기기의 생체 인증 종류는 실행 중에 바뀌지 않는다.
+    static let biometryName: String = {
         let context = LAContext()
         _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
         switch context.biometryType {
@@ -21,10 +24,16 @@ enum AppLockAuthenticator {
         case .opticID: return "Optic ID"
         default:       return String(localized: "기기 암호")
         }
+    }()
+
+    /// 앱 시작 때 백그라운드에서 미리 물어 둔다. 화면이 처음 읽을 때는 이미 답이 있다.
+    static func warmUp() {
+        DispatchQueue.global(qos: .utility).async { _ = biometryName }
     }
 
     /// 기기 암호까지 허용 — 생체 인증이 없거나 실패해도 주인이면 열 수 있다
-    static func authenticate() async -> Bool {
+    /// 메인 밖에서 돈다(@concurrent) — canEvaluatePolicy 도 시스템 왕복이다.
+    @concurrent static func authenticate() async -> Bool {
         let context = LAContext()
         var error: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {

@@ -99,6 +99,15 @@ nonisolated enum MealAlbumSaver {
             DispatchQueue.main.async { completion?(success) }
         }
 
+        // 권한 묻기부터 메인 밖에서 한다. requestAuthorization 은 콜백형이어도 부르는 스레드에서
+        // 사진 서비스와 동기로 왕복해, "사용하기" 를 누른 순간 메인이 막혀 워치독에 죽었다(1.2.2).
+        DispatchQueue.global(qos: .utility).async {
+            requestAuthorizationAndSave(image, toAlbum: albumName, location: location, finish: finish)
+        }
+    }
+
+    private static func requestAuthorizationAndSave(_ image: UIImage, toAlbum albumName: String, location: CLLocation?,
+                                                    finish: @escaping @Sendable (Bool) -> Void) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
                 print("사진 라이브러리 접근 권한이 없습니다.")

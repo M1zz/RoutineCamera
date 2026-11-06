@@ -21,6 +21,8 @@ struct RoutineCameraApp: App {
         LeeoKit.bootstrap(RoutineCameraSpec.self)
         // 세끼 프로 — 시작할 때 스토어를 띄워 구독 권한과 갱신(환불·만료·다른 기기 구매)을 계속 따라간다
         _ = SubscriptionManager.shared
+        // 앱 잠금 문구의 생체 인증 이름 — 잠금 화면이 메인에서 시스템에 묻지 않게 미리
+        AppLockAuthenticator.warmUp()
     }
 
     var body: some Scene {
