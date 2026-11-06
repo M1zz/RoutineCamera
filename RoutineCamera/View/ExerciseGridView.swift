@@ -122,11 +122,8 @@ struct ExerciseGridView: View {
     private func thumbnail(_ record: MealRecord) -> some View {
         // 3열 칸 크기에 맞춰 작게 푼다 (큰 사진을 원본으로 여러 장 풀면 메모리가 치솟는다)
         let maxPixel = UIScreen.appWidth / 3 * 3
-        if let data = record.thumbnailImageData,
-           let img = MealImageResizer.downsampledImage(from: data, maxPixel: maxPixel) {
-            Image(uiImage: img)
-                .resizable()
-                .scaledToFill()
+        if let data = record.thumbnailImageData {
+            MealThumbnail(id: record.id, data: data, maxPixel: maxPixel) { Color.green.opacity(0.15) }
         } else {
             // 사진 없이 남긴 기록
             ZStack {

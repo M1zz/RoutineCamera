@@ -338,8 +338,34 @@ class MealRecordStore: ObservableObject {
     static let shared = MealRecordStore()
 
     // 식단과 운동을 완전히 별개로 저장
-    @Published private var dietRecords: [MealRecord] = []
-    @Published private var exerciseRecords: [MealRecord] = []
+    @Published private var dietRecords: [MealRecord] = [] {
+        didSet { dietByDay = Self.indexByDay(dietRecords) }
+    }
+    @Published private var exerciseRecords: [MealRecord] = [] {
+        didSet { exerciseByDay = Self.indexByDay(exerciseRecords) }
+    }
+
+    /// 날짜(그날 0시) → 끼니 → 기록. 화면과 연속 기록 계산이 날마다 전체 기록을 훑지 않게 한다.
+    /// 기록이 바뀔 때만 다시 만든다.
+    private var dietByDay: [Date: [MealType: MealRecord]] = [:]
+    private var exerciseByDay: [Date: [MealType: MealRecord]] = [:]
+
+    /// 같은 날 같은 끼니가 둘이면 뒤의 것이 이긴다 (예전 getMeals 와 같다)
+    private static func indexByDay(_ records: [MealRecord]) -> [Date: [MealType: MealRecord]] {
+        let calendar = Calendar.current
+        var index: [Date: [MealType: MealRecord]] = [:]
+        for record in records {
+            index[calendar.startOfDay(for: record.date), default: [:]][record.mealType] = record
+        }
+        return index
+    }
+
+    /// 시간대가 바뀌면 "그날" 의 경계가 바뀐다
+    private func rebuildDayIndex() {
+        dietByDay = Self.indexByDay(dietRecords)
+        exerciseByDay = Self.indexByDay(exerciseRecords)
+        objectWillChange.send()
+    }
 
     /// 식단 앨범 기록 — 보고 있는 앨범과 상관없이 읽는다 (Siri · Spotlight 색인용)
     var dietMeals: [MealRecord] { dietRecords }
@@ -420,6 +446,14 @@ class MealRecordStore: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.addObserver(
+            forName: .NSSystemTimeZoneDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.rebuildDayIndex() }
+        }
 
         // 앱이 다시 활성화될 때, 위젯/알림에서 앱 없이 쌓인 "다 먹음" 대기열 반영
         NotificationCenter.default.addObserver(
@@ -511,16 +545,7 @@ class MealRecordStore: ObservableObject {
 
     // 특정 날짜의 식사 기록들 가져오기
     func getMeals(for date: Date) -> [MealType: MealRecord] {
-        let targetDate = Calendar.current.startOfDay(for: date)
-        let dayRecords = records.filter {
-            Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }
-
-        var mealDict: [MealType: MealRecord] = [:]
-        for record in dayRecords {
-            mealDict[record.mealType] = record
-        }
-        return mealDict
+        SettingsManager.shared.albumType == .diet ? dietMeals(for: date) : exerciseMeals(for: date)
     }
 
     // 지금 새로 기록할 칸. 시간대 끼니가 오늘 이미 기록돼 있으면 덮어쓰지 않고 빈 간식 칸으로 보낸다.
@@ -1065,22 +1090,12 @@ class MealRecordStore: ObservableObject {
     /// 식단 기록 전용 접근자 — 현재 앨범 모드(운동/식단)와 무관하게 항상 식단만 본다.
     /// 업로드 경로가 `records`(모드 의존)를 쓰면 운동 모드에서 운동 기록이 식단으로 올라간다.
     func dietMeals(for date: Date) -> [MealType: MealRecord] {
-        let target = Calendar.current.startOfDay(for: date)
-        var meals: [MealType: MealRecord] = [:]
-        for record in dietRecords where Calendar.current.isDate(record.date, inSameDayAs: target) {
-            meals[record.mealType] = record
-        }
-        return meals
+        dietByDay[Calendar.current.startOfDay(for: date)] ?? [:]
     }
 
     /// 그 날의 운동 기록 (친구 화면의 "운동" 탭으로 올라간다)
     func exerciseMeals(for date: Date) -> [MealType: MealRecord] {
-        let target = Calendar.current.startOfDay(for: date)
-        var meals: [MealType: MealRecord] = [:]
-        for record in exerciseRecords where Calendar.current.isDate(record.date, inSameDayAs: target) {
-            meals[record.mealType] = record
-        }
-        return meals
+        exerciseByDay[Calendar.current.startOfDay(for: date)] ?? [:]
     }
 
     /// 식단 기록이 있는 모든 날짜 (최신순)

@@ -713,11 +713,8 @@ struct ComparisonDayView: View {
                             .aspectRatio(1, contentMode: .fit)
                             .overlay {
                                 if let meal = meals[mealType], meal.isComplete {
-                                    if let photoData = meal.thumbnailImageData,
-                                       let uiImage = MealImageResizer.downsampledImage(from: photoData, maxPixel: 300) {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFill()
+                                    if let photoData = meal.thumbnailImageData {
+                                        MealThumbnail(id: meal.id, data: photoData, maxPixel: 300) { Color(.systemGray6) }
                                     } else {
                                         Text("📷")
                                             .scaledFont(size: 32)

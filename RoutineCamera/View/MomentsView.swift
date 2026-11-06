@@ -392,11 +392,9 @@ struct MomentsView: View {
     @ViewBuilder
     private func thumbnail(_ record: MealRecord) -> some View {
         let size: CGFloat = 72
-        // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게 푼다 (큰 사진이 여러 장이면 메모리가 치솟는다)
-        if let data = record.thumbnailImageData, let img = MealImageResizer.downsampledImage(from: data, maxPixel: size * 3) {
-            Image(uiImage: img)
-                .resizable()
-                .scaledToFill()
+        // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게, 메인 밖에서 푼다
+        if let data = record.thumbnailImageData {
+            MealThumbnail(id: record.id, data: data, maxPixel: size * 3) { Color(.tertiarySystemBackground) }
                 .frame(width: size, height: size)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         } else {

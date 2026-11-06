@@ -158,11 +158,10 @@ struct MealPhotoView: View {
 
     // 사진이 있을 때 표시할 뷰
     @ViewBuilder
-    private func photoContentView(record: MealRecord, image: UIImage) -> some View {
+    private func photoContentView(record: MealRecord, imageData: Data) -> some View {
         ZStack {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
+            // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게, 메인 밖에서 푼다
+            MealThumbnail(id: record.id, data: imageData, maxPixel: 600) { Color(.systemGray6) }
                 .frame(width: photoSize, height: photoSize)
                 .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -367,10 +366,9 @@ struct MealPhotoView: View {
     @ViewBuilder
     private var overlayContent: some View {
         if let record = mealRecord {
-            // 원본 크기로 풀지 않고 칸 크기에 맞춰 작게 푼다 (한 화면에 칸이 여러 개라 메모리가 치솟는다)
-            if let imageData = record.thumbnailImageData, let uiImage = MealImageResizer.downsampledImage(from: imageData, maxPixel: 600) {
+            if let imageData = record.thumbnailImageData {
                 // 사진이 있는 경우
-                photoContentView(record: record, image: uiImage)
+                photoContentView(record: record, imageData: imageData)
             } else if record.recordedWithoutPhoto {
                 // 사진 없이 기록한 경우
                 recordedWithoutPhotoView()
