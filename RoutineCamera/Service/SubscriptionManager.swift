@@ -178,10 +178,10 @@ final class SubscriptionManager: ObservableObject {
 extension View {
     /// 세끼 플러스 · 프로 페이월. lead 가 있으면 "방금 막힌 그 기능" 과 그 기능을 여는 등급을 앞세운다.
     func proPaywall(isPresented: Binding<Bool>, lead: ProFeature? = nil) -> some View {
+        // 머리말 없이 기능 그림을 넘겨 본다(LeeoKit `LeeoShowcasePaywall`). 고른 등급의 장만, 막힌 기능이 맨 앞.
         leeoPaywallSheet(RoutineCameraSpec.self,
                          isPresented: isPresented,
-                         title: lead == nil ? String(localized: "세끼 플러스 · 프로") : nil,
-                         subtitle: lead == nil ? String(localized: "필요한 만큼 골라 쓰세요. 기록은 언제나 무료예요.") : nil,
-                         leadFeature: lead)
+                         leadFeature: lead,
+                         showcases: ProFeature.showcases(leading: lead))
     }
 }
