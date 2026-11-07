@@ -2,8 +2,8 @@
 //  SettingsView.swift
 //  RoutineCamera
 //
-//  설정 화면 — 위계별로 정돈: 화면/기록 → 챙길 식사/알림 → 목표/저장 → 계정 →
-//  세끼 프로(맨 위) → … → 음식 분석 → 정보/지원 → 개발용.
+//  설정 화면 — 위계별로 정돈: 요금제와 응원(맨 위) → 화면/기록 → 챙길 식사/알림 → 목표/저장 →
+//  계정 → 음식 분석 → 정보/지원 → 개발용. 섹션마다 머리말을 단다.
 //
 
 import SwiftUI
@@ -41,15 +41,8 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                // 프로 → 개발자 응원하기 → 선물하기 순서
-                proSection
-                // 개발자 응원하기 — 팁 상품이 App Store 에서 와야 줄이 선다.
-                if let tipJar = subscription.tipJar {
-                    Section { LeeoTipJarLink<RoutineCameraSpec>(tipJar: tipJar) }
-                }
-                if let gift = subscription.gift {
-                    GiftRows(gift: gift, isPro: subscription.isPro)
-                }
+                // 요금제 · 응원 · 선물을 한 칸에. 돈 이야기는 맨 위 여기에만 있다.
+                planSection
                 screenSection
                 displaySection
                 caredMealsSection
@@ -128,6 +121,21 @@ struct SettingsView: View {
             }
 
             Toggle("헤더에 종류 전환 버튼", isOn: $settingsManager.showAlbumSwitcher)
+
+            // 앱 잠금 — 프로가 아니면 켜려 할 때 페이월
+            Toggle(isOn: Binding(
+                get: { settingsManager.appLockEnabled && subscription.allows(.appLock) },
+                set: { on in
+                    if on && !subscription.allows(.appLock) {
+                        paywallLead = .appLock
+                        showingPaywall = true
+                    } else {
+                        settingsManager.appLockEnabled = on
+                    }
+                }
+            )) {
+                Label("\(AppLockAuthenticator.biometryName) 잠금", systemImage: "lock.fill")
+            }
         }
     }
 
@@ -352,95 +360,93 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - 세끼 플러스 · 프로
+    // MARK: - 요금제와 응원
 
-    @ViewBuilder private var proSection: some View {
+    /// 요금제 → 개발자 응원하기 → 선물하기 → 구매 복원. 돈 이야기는 이 한 칸에 모여 있다.
+    @ViewBuilder private var planSection: some View {
         Section {
-            if let tier = subscription.tier {
-                Label {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("세끼 \(tier.name) 사용 중", comment: "Settings: current paid tier (tier name)")
-                            .font(.headline)
-                        Text(subscription.isTopTier
-                             ? String(localized: "모든 기능을 쓸 수 있어요.")
-                             : String(localized: "프로로 올리면 식사 지도, 주간 리포트, 내보내기까지 써요."))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                } icon: {
-                    Image(systemName: "crown.fill").foregroundColor(.orange)
-                }
-                if !subscription.isTopTier {
-                    Button("프로로 올리기") {
-                        paywallLead = nil
-                        showingPaywall = true
-                    }
-                }
-                Button("구독 관리") { showingManageSubscription = true }
-            } else {
-                Button {
-                    paywallLead = nil
-                    showingPaywall = true
-                } label: {
-                    Label {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("세끼 플러스 · 프로")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            Text("그룹 여러 개, 자세한 통계, Face ID 잠금, 식사 지도, 내보내기")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    } icon: {
-                        Image(systemName: "crown.fill").foregroundColor(.orange)
-                    }
-                }
+            planRows
+            // 개발자 응원하기 — 팁 상품이 App Store 에서 와야 줄이 선다. 응원한 사람에게는 지금 단계가 줄 안에 보인다.
+            if let tipJar = subscription.tipJar {
+                LeeoTipJarLink<RoutineCameraSpec>(tipJar: tipJar)
             }
-
-            // 구매 복원 — 다른 기기에서 샀거나 다시 설치했을 때 (심사 필수)
-            Button {
-                Task {
-                    isRestoring = true
-                    let restored = await subscription.restore()
-                    isRestoring = false
-                    restoreMessage = restored
-                        ? String(localized: "구매를 되찾았어요.", comment: "Settings: restore purchases succeeded")
-                        : String(localized: "되찾을 구매가 없어요. 산 Apple 계정으로 로그인했는지 확인해 주세요.", comment: "Settings: restore purchases found nothing")
-                }
-            } label: {
-                HStack {
-                    Label("구매 복원", systemImage: "arrow.clockwise")
-                    if isRestoring {
-                        Spacer()
-                        ProgressView()
-                    }
-                }
+            // 선물하기 — 누르면 선물 화면으로 들어간다
+            if let gift = subscription.gift {
+                GiftRow(gift: gift)
             }
-            .disabled(isRestoring)
-            if let restoreMessage {
-                caption(Text(restoreMessage))
-            }
-
-            // 앱 잠금 — 프로가 아니면 켜려 할 때 페이월
-            Toggle(isOn: Binding(
-                get: { settingsManager.appLockEnabled && subscription.allows(.appLock) },
-                set: { on in
-                    if on && !subscription.allows(.appLock) {
-                        paywallLead = .appLock
-                        showingPaywall = true
-                    } else {
-                        settingsManager.appLockEnabled = on
-                    }
-                }
-            )) {
-                Label("\(AppLockAuthenticator.biometryName) 잠금", systemImage: "lock.fill")
-            }
+            restoreButton
+        } header: {
+            Text("요금제와 응원", comment: "Settings section header: plan, tip and gifts")
         } footer: {
             if !subscription.isPro {
                 Text("기록, 위젯, 친구와 공유, 그룹 참여는 계속 무료예요.")
             }
+        }
+    }
+
+    @ViewBuilder private var planRows: some View {
+        Label {
+            VStack(alignment: .leading, spacing: 2) {
+                if let tier = subscription.tier {
+                    Text("세끼 \(tier.name) 사용 중", comment: "Settings: current paid tier (tier name)")
+                        .font(.headline)
+                    caption(Text(subscription.isTopTier
+                                 ? String(localized: "모든 기능을 쓸 수 있어요.")
+                                 : String(localized: "프로로 올리면 식사 지도, 주간 리포트, 내보내기까지 써요.")))
+                } else {
+                    Text("세끼 플러스 · 프로")
+                        .font(.headline)
+                    caption("그룹 여러 개, 자세한 통계, Face ID 잠금, 식사 지도, 내보내기")
+                }
+            }
+        } icon: {
+            Image(systemName: "crown.fill").foregroundColor(.orange)
+        }
+
+        // 다음 칸이 있으면 꽉 찬 단추로 — 설정에서 가장 먼저 눈에 들어오는 길
+        if !subscription.isTopTier {
+            Button {
+                paywallLead = nil
+                showingPaywall = true
+            } label: {
+                Text(subscription.tier == nil
+                     ? String(localized: "플러스 · 프로 보기", comment: "Settings: filled button opening the paywall (free user)")
+                     : String(localized: "프로로 올리기"))
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .listRowSeparator(.hidden)
+        }
+        if subscription.tier != nil {
+            Button("구독 관리") { showingManageSubscription = true }
+        }
+    }
+
+    /// 구매 복원 — 다른 기기에서 샀거나 다시 설치했을 때 (심사 필수). 칸 끝에 둔다.
+    @ViewBuilder private var restoreButton: some View {
+        Button {
+            Task {
+                isRestoring = true
+                let restored = await subscription.restore()
+                isRestoring = false
+                restoreMessage = restored
+                    ? String(localized: "구매를 되찾았어요.", comment: "Settings: restore purchases succeeded")
+                    : String(localized: "되찾을 구매가 없어요. 산 Apple 계정으로 로그인했는지 확인해 주세요.", comment: "Settings: restore purchases found nothing")
+            }
+        } label: {
+            HStack {
+                Label("구매 복원", systemImage: "arrow.clockwise")
+                if isRestoring {
+                    Spacer()
+                    ProgressView()
+                }
+            }
+        }
+        .disabled(isRestoring)
+        if let restoreMessage {
+            caption(Text(restoreMessage))
         }
     }
 
@@ -518,30 +524,49 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - 프로 선물
+// MARK: - 선물하기
 
-/// 프로 선물 보내기 · 선물 코드 넣기. 세끼 프로 칸 바로 아래에 선다.
-/// 받는 사람은 평생 프로를 산 것과 같아진다(`RoutineCameraSpec.monetization` 의 `gift`).
-///
-/// ⚠️ 상품이 App Store 에서 와야 줄이 선다(`isAvailable`) — 상품을 만들기 전에 빌드가 나가도 눌러도 안 되는 줄은 없다.
-///    단, 이미 결제했거나 주고받은 선물이 있는 사람에게는 늘 보인다(코드를 다시 보거나 문의까지 갈 길이 있어야 한다).
-/// ⚠️ 문구는 LeeoKit 카탈로그(`LeeoGiftText`)에 24개 언어로 이미 있다.
+/// 설정의 선물하기 한 줄. 누르면 선물 화면(`SettingsGiftView`)으로 들어간다.
 /// ⚠️ 선물 엔진은 따로 관찰한다 — 상품은 앱이 뜬 뒤에 오는데 그 변화가 `SubscriptionManager` 로 전해지지 않는다.
-private struct GiftRows: View {
+private struct GiftRow: View {
     @ObservedObject var gift: LeeoGiftStore
-    let isPro: Bool
-    @State private var showSupport = false
-
-    /// 보내기 — 선물 판매가 열렸거나(`sellsGifts`) 보낸 · 보내는 중인 선물이 있을 때
-    private var showsSend: Bool { gift.isAvailable || gift.pendingCount > 0 || !gift.sentGifts.isEmpty }
-    /// 받은 선물 — 받는 사람은 보낸 링크를 누르면 끝이라 따로 받는 칸이 없다.
-    /// 예전 방식(선물 코드)으로 이미 받은 사람에게만 그 기록을 보여 준다.
-    private var showsRedeem: Bool { gift.redeemed != nil }
 
     var body: some View {
-        if showsSend || showsRedeem {
-            Section {
-                if showsSend {
+        if SettingsGiftView.hasContent(gift) {
+            NavigationLink {
+                SettingsGiftView(gift: gift)
+            } label: {
+                Label(String(localized: "선물하기", comment: "Settings: gift entry opening the gift page"), systemImage: "gift.fill")
+            }
+        }
+    }
+}
+
+/// 설정 ▸ 선물하기. 프로 선물 보내기와 받은 선물을 한 화면에 모은다.
+/// 받는 사람은 평생 프로를 산 것과 같아진다(`RoutineCameraSpec.monetization` 의 `gift`).
+///
+/// ⚠️ 상품이 App Store 에서 와야 보내기 줄이 선다(`isAvailable`). 단, 이미 결제했거나 주고받은 선물이 있는 사람에게는
+///    늘 보인다(코드를 다시 보거나 문의까지 갈 길이 있어야 한다).
+/// ⚠️ 줄 문구는 LeeoKit 카탈로그(`LeeoGiftText`)에 24개 언어로 이미 있다.
+private struct SettingsGiftView: View {
+    @ObservedObject var gift: LeeoGiftStore
+    @State private var showSupport = false
+
+    /// 보내기 — 선물 판매가 열렸거나 보낸 · 보내는 중인 선물이 있을 때
+    private static func showsSend(_ gift: LeeoGiftStore) -> Bool {
+        gift.isAvailable || gift.pendingCount > 0 || !gift.sentGifts.isEmpty
+    }
+    /// 받은 선물 — 받는 사람은 보낸 링크를 누르면 끝이라 따로 받는 칸이 없다.
+    /// 예전 방식(선물 코드)으로 이미 받은 사람에게만 그 기록을 보여 준다.
+    private static func showsRedeem(_ gift: LeeoGiftStore) -> Bool { gift.redeemed != nil }
+
+    /// 설정에 선물하기 줄을 세울지
+    static func hasContent(_ gift: LeeoGiftStore) -> Bool { showsSend(gift) || showsRedeem(gift) }
+
+    var body: some View {
+        List {
+            if Self.showsSend(gift) {
+                Section {
                     NavigationLink {
                         // 선물이 안 되면 결제 번호·코드를 붙여 문의하게 한다 — 막힌 사람을 놓치지 않게.
                         LeeoGiftView<RoutineCameraSpec>(gift: gift, showsRedeemLink: false,
@@ -550,7 +575,9 @@ private struct GiftRows: View {
                         Label(LeeoGiftText.sendEntry, systemImage: "gift.fill")
                     }
                 }
-                if showsRedeem {
+            }
+            if Self.showsRedeem(gift) {
+                Section {
                     NavigationLink {
                         LeeoGiftRedeemView<RoutineCameraSpec>(gift: gift,
                                                               onContactSupport: { showSupport = true })
@@ -559,11 +586,13 @@ private struct GiftRows: View {
                     }
                 }
             }
-            .sheet(isPresented: $showSupport) {
-                NavigationStack {
-                    LeeoFeedbackView<RoutineCameraSpec>(initialType: .bug, extraInfo: gift.supportLines,
-                                                        initialCategory: .purchase)
-                }
+        }
+        .navigationTitle(Text("선물하기", comment: "Settings: gift entry opening the gift page"))
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showSupport) {
+            NavigationStack {
+                LeeoFeedbackView<RoutineCameraSpec>(initialType: .bug, extraInfo: gift.supportLines,
+                                                    initialCategory: .purchase)
             }
         }
     }
