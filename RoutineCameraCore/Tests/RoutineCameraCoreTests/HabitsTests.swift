@@ -26,8 +26,11 @@ final class HabitsTests: XCTestCase {
 
     func testDayLog_roundTripsAndEncodesStably() throws {
         let log = DayLog(stamps: ["nuts", "fish", "avocado"], water: 6, caffeine: 2)
-        let a = try JSONEncoder().encode(log)
-        let b = try JSONEncoder().encode(DayLog(stamps: ["avocado", "nuts", "fish"], water: 6, caffeine: 2))
+        // 앱(HabitStore)과 같은 인코더 — 키 순서는 .sortedKeys 가, 스탬프 순서는 DayLog 가 고정한다
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let a = try encoder.encode(log)
+        let b = try encoder.encode(DayLog(stamps: ["avocado", "nuts", "fish"], water: 6, caffeine: 2))
         XCTAssertEqual(a, b, "같은 내용은 같은 바이트여야 동기화 지문이 흔들리지 않는다")
         XCTAssertEqual(try JSONDecoder().decode(DayLog.self, from: a), log)
     }
