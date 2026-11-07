@@ -9,6 +9,7 @@
 
 import SwiftUI
 import Combine
+import RoutineCameraCore
 
 struct MomentsView: View {
     @ObservedObject var mealStore: MealRecordStore
@@ -41,11 +42,7 @@ struct MomentsView: View {
         guard !isExercise else { return nil }   // 운동은 정해진 시각이 없다
         let cal = Calendar.current
         let today = cal.startOfDay(for: now)
-        let recordedToday = Set(
-            mealStore.records
-                .filter { $0.isComplete && cal.isDate(sortValue($0), inSameDayAs: now) }
-                .map(\.mealType)
-        )
+        let recordedToday = Set(mealStore.getMeals(for: now).values.filter(\.isComplete).map(\.mealType))
 
         let schedule: [(MealType, Date)] = [
             (.breakfast, notificationManager.breakfastTime),
@@ -76,30 +73,6 @@ struct MomentsView: View {
             : String(localized: "\(nextMealType.displayName) 기록하기", comment: "Button: log a meal; argument is the meal name (Breakfast, Lunch…)")
     }
 
-    // 정렬용 시각: 촬영 시각이 있으면 그것, 없으면 끼니 대표 시간으로 합성.
-    // → 같은 날 안에서도 아침(아래) → 저녁(위) 순으로 시간 흐름대로 정렬된다.
-    private func sortValue(_ r: MealRecord) -> Date {
-        if let c = r.capturedAt { return c }
-        let base = Calendar.current.startOfDay(for: r.date)
-        let hour: Int
-        switch r.mealType {
-        case .breakfast: hour = 8
-        case .snack1:    hour = 10
-        case .lunch:     hour = 12
-        case .snack2:    hour = 15
-        case .dinner:    hour = 18
-        case .snack3:    hour = 21
-        }
-        return Calendar.current.date(byAdding: .hour, value: hour, to: base) ?? base
-    }
-
-    // 최신순(위=최근, 아래=과거)
-    private var moments: [MealRecord] {
-        mealStore.records
-            .filter { $0.isComplete }
-            .sorted { sortValue($0) > sortValue($1) }
-    }
-
     /// 피드 한 줄 — 남긴 기록, 또는 곧 다가올 끼니의 자리를 미리 잡아두는 고스트
     private enum FeedRow: Identifiable {
         case record(MealRecord)
@@ -113,32 +86,35 @@ struct MomentsView: View {
         }
     }
 
-    // 일자별 그룹 (최신 날 먼저), 각 날 안에서도 최신순.
+    // 일자별 그룹 (최신 날 먼저), 각 날 안에서도 최신순 — 정렬은 저장소가 기록이 바뀔 때만 한다.
     // 오늘 그룹에는 고스트 셀을 "기록되면 생길 그 자리"에 끼워 넣는다.
-    private var dayGroups: [(day: Date, rows: [FeedRow], recordCount: Int)] {
-        let cal = Calendar.current
-        var grouped = Dictionary(grouping: moments) { cal.startOfDay(for: sortValue($0)) }
-
-        let today = cal.startOfDay(for: now)
-        if ghost != nil, grouped[today] == nil { grouped[today] = [] }
-
-        return grouped
-            .map { day, records -> (day: Date, rows: [FeedRow], recordCount: Int) in
-                var rows: [(sort: Date, row: FeedRow)] = records.map { (sortValue($0), .record($0)) }
-                if let ghost, cal.isDate(day, inSameDayAs: today) {
-                    rows.append((ghost.at, .ghost(ghost.mealType, ghost.at)))
-                }
-                return (day: day,
-                        rows: rows.sorted { $0.sort > $1.sort }.map(\.row),
-                        recordCount: records.count)
-            }
-            .sorted { $0.day > $1.day }
+    private func dayGroups(ghost: (mealType: MealType, at: Date)?) -> [(day: Date, rows: [FeedRow], recordCount: Int)] {
+        var groups = mealStore.feedDays.map { (day: $0.day, rows: $0.records.map(FeedRow.record), recordCount: $0.records.count) }
+        guard let ghost else { return groups }
+        let today = Calendar.current.startOfDay(for: now)
+        let ghostRow = FeedRow.ghost(ghost.mealType, ghost.at)
+        if let index = groups.firstIndex(where: { $0.day == today }) {
+            let records = mealStore.feedDays[index].records
+            let at = records.firstIndex { $0.feedDate < ghost.at } ?? records.count
+            groups[index].rows.insert(ghostRow, at: at)
+        } else {
+            groups.insert((day: today, rows: [ghostRow], recordCount: 0), at: 0)
+        }
+        return groups
     }
 
     var body: some View {
         Group {
-            if moments.isEmpty && ghost == nil {
-                emptyState
+            let ghost = ghost
+            if mealStore.feedDays.isEmpty && ghost == nil {
+                VStack(spacing: 0) {
+                    if !isExercise {
+                        DayCheckInCard(date: now)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                    }
+                    emptyState
+                }
             } else {
                 VStack(spacing: 0) {
                     // 피드는 남긴 것만 보여주므로, 끼니를 규칙적으로 챙기는지는 맨 위 리듬 카드로 본다.
@@ -150,7 +126,15 @@ struct MomentsView: View {
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
                     List {
-                        ForEach(dayGroups, id: \.day) { group in
+                        // 오늘 챙긴 것 (스탬프 · 물 · 카페인) — 피드와 함께 스크롤된다
+                        if !isExercise {
+                            Section {
+                                DayCheckInCard(date: now)
+                                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                    .listRowSeparator(.hidden)
+                            }
+                        }
+                        ForEach(dayGroups(ghost: ghost), id: \.day) { group in
                             Section {
                                 ForEach(group.rows) { row in
                                     switch row {
@@ -207,6 +191,7 @@ struct MomentsView: View {
             // 기록을 불러오는 데 시간이 걸릴 수 있어, 기록이 보일 때까지 몇 번 더 본다
             func openFirst(_ attempt: Int) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + (attempt == 0 ? 1.5 : 0.8)) {
+                    let moments = mealStore.feedDays.flatMap(\.records)
                     testDetailRecord = moments.first { Calendar.current.isDateInToday($0.date) && $0.mealType == .breakfast }
                         ?? moments.first
                     if testDetailRecord == nil && attempt < 8 { openFirst(attempt + 1) }
@@ -328,6 +313,10 @@ struct MomentsView: View {
                         } else if record.needsBeforePhoto {
                             tag("식전 사진 필요", system: "pencil.circle", color: .gray)
                         }
+                    }
+                    // 양은 줄인 끼니만 표시한다 — "다"는 '다 먹음'과 겹쳐 보인다
+                    if !isExercise, let portion = record.portion, portion != .all {
+                        tag(LocalizedStringKey(portion.tagTitle), system: "chart.pie.fill", color: .purple)
                     }
                     if let memo = record.memo, !memo.isEmpty {
                         tag("메모", system: "note.text", color: .orange)

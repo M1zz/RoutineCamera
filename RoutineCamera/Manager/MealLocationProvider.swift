@@ -12,6 +12,8 @@ import Combine
 import CoreLocation
 import MapKit
 import UIKit
+import RoutineCameraCore
+import os
 
 @MainActor
 final class MealLocationProvider: NSObject, ObservableObject {
@@ -120,6 +122,6 @@ extension MealLocationProvider: CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("📍 [MealLocationProvider] 위치를 못 잡았습니다: \(error.localizedDescription)")
+        Log.app.info("위치를 못 잡았습니다: \(error.localizedDescription)")
     }
 }

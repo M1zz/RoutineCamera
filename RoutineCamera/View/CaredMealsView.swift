@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 // 아침/점심/저녁 중 챙길 식사를 칩으로 선택 (프롬프트·설정에서 공용)
 struct MealCareSelector: View {

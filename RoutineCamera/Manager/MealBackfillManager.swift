@@ -17,6 +17,8 @@
 
 import Foundation
 import Combine
+import RoutineCameraCore
+import os
 
 @MainActor
 final class MealBackfillManager: ObservableObject {
@@ -132,7 +134,7 @@ final class MealBackfillManager: ObservableObject {
         do {
             serverCounts = try await FriendManager.shared.uploadedMealCounts(dates: toCheck)
         } catch {
-            print("ℹ️ [백필] 서버 확인 실패 — 전부 업로드 시도: \(error.localizedDescription)")
+            Log.share.warning("서버 확인 실패 — 전부 업로드 시도: \(error.localizedDescription)")
             serverCounts = [:]
         }
 
@@ -158,13 +160,13 @@ final class MealBackfillManager: ObservableObject {
                 saveCompleted(done)
             } catch {
                 failed += 1
-                print("❌ [백필] \(key) 업로드 실패: \(error.localizedDescription)")
+                Log.share.error("\(key) 업로드 실패: \(error.localizedDescription)")
             }
             processed += 1
         }
 
         summary = makeSummary()
-        print("🏁 [백필] \(summary ?? "")")
+        Log.share.info("\(self.summary ?? "")")
     }
 
     func cancel() {
@@ -217,6 +219,6 @@ final class MealBackfillManager: ObservableObject {
     }
 
     private func dateKey(_ date: Date) -> String {
-        FriendManager.shared.dateFormatter.string(from: date)
+        DayKey.string(from: date)
     }
 }

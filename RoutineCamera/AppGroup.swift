@@ -28,24 +28,4 @@ enum AppGroup {
     static let widgetSnapshotKey = "widgetSnapshot"
 }
 
-/// 위젯 표시용 경량 스냅샷. 위젯은 사진이 담긴 기록 전체를 디코딩하지 않고 이것만 읽는다.
-/// 앱이 기록을 저장할 때마다 갱신한다.
-/// ⚠️ 위젯은 이 JSON을 RoutineCameraCore 의 `WidgetSnapshot` 으로 디코딩한다 — 필드 이름을 바꾸면
-/// 위젯이 조용히 빈 상태가 된다. 계약은 WidgetSharedStateTests.testSnapshot_decodesAppSideJSON 이 고정한다.
-struct WidgetSnapshot: Codable {
-    let todayCount: Int              // 오늘 남긴 기록 수
-    let inProgressMealType: String?  // 오늘 "먹는 중"인 끼니 (식전만 찍힌 것) — 없으면 nil
-    let inProgressSince: Date?       // 그 기록의 촬영 시각
-    let lastRecordedAt: Date?        // 오늘 마지막 기록 시각
-    let needsRecordCount: Int        // 날이 지나 "기록 필요"로 남은 기록 수
-    let generatedAt: Date
-    let recordedMealTypes: [String]  // 오늘 기록한 끼니 (MealType.rawValue)
-    let caredMealTypes: [String]     // 챙기기로 한 주요 끼니 (아침→저녁 순)
-}
-
-/// 앱을 실행하지 않고 위젯에서 "다 먹음"을 눌렀을 때 공유 저장소에 쌓이는 항목.
-/// 앱이 다음에 활성화될 때 MealRecordStore가 읽어서 실제 기록으로 반영한다.
-struct PendingAteAll: Codable {
-    let mealType: String       // MealType.rawValue
-    let date: TimeInterval     // 기준 날짜 (timeIntervalSince1970)
-}
+// 위젯 스냅샷(WidgetSnapshot) · 다 먹음 대기열(PendingAteAll) 은 RoutineCameraCore 에 있다 — 앱이 쓰고 위젯이 읽는 같은 타입.

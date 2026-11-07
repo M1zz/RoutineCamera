@@ -44,13 +44,13 @@
 음식 분석
 사진 속 음식을 기기 안에서 무료로 분석합니다. 사진은 휴대폰 밖으로 나가지 않습니다.
 
-세끼 프로
-연간·월간 구독이나 평생 이용권으로 그룹을 여러 개 만들고, 몇 주 전과 지금의 식사를 나란히 비교하고, 자주 먹은 음식을 모아 보고, Face ID로 앱을 잠글 수 있습니다. 기록과 친구와의 공유는 구독 없이도 계속 무료입니다.
+세끼 플러스 · 프로
+플러스로 그룹을 여러 개 만들고, 몇 주 전과 지금의 식사를 나란히 비교하고, 자주 먹은 음식을 모아 보고, Face ID로 앱을 잠글 수 있습니다. 프로는 플러스의 모든 기능에 더해 어디서 먹었는지 지도로 보고, 월요일마다 지난 주를 한 장으로 받아 보고, 기록을 PDF로 내보내거나 사진을 한꺼번에 저장할 수 있습니다. 두 등급 모두 연간·월간 구독이나 평생 이용권으로 쓸 수 있고, 기록과 친구와의 공유는 구독 없이도 계속 무료입니다.
 
 VoiceOver로도 모든 기록을 남기고 볼 수 있습니다.
 
 구독 안내
-세끼 프로 구독은 연간과 월간이 있고, 결제는 구입을 확인할 때 Apple ID 계정으로 청구됩니다. 구독은 기간이 끝나기 24시간 전까지 해지하지 않으면 자동으로 갱신되며, 설정의 Apple ID 구독 관리에서 언제든 해지할 수 있습니다.
+세끼 플러스와 세끼 프로 구독은 각각 연간과 월간이 있고, 결제는 구입을 확인할 때 Apple ID 계정으로 청구됩니다. 구독은 기간이 끝나기 24시간 전까지 해지하지 않으면 자동으로 갱신되며, 설정의 Apple ID 구독 관리에서 언제든 해지할 수 있습니다.
 
 이용약관(EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 서비스 이용약관: https://m1zz.github.io/RoutineCamera/terms.html
@@ -113,13 +113,13 @@ Add friends with a friend code to see each other's meals and workouts, and cheer
 Food analysis
 Sekki recognizes the food in your photos right on your device, for free. Your photos never leave your phone.
 
-Sekki Pro
-With a yearly or monthly subscription or a one-time lifetime purchase, you can create multiple groups, compare meals from a few weeks ago side by side with today, see the foods you eat most, and lock the app with Face ID. Logging and sharing with friends stay free without a subscription.
+Sekki Plus and Pro
+With Plus, you can create multiple groups, compare meals from a few weeks ago side by side with today, see the foods you eat most, and lock the app with Face ID. Pro includes everything in Plus, and adds a map of where you ate, a one-page recap of last week every Monday, PDF exports of your log, and saving all your photos at once. Both come as a yearly or monthly subscription or a one-time lifetime purchase. Logging and sharing with friends stay free without a subscription.
 
 Every entry can be logged and viewed with VoiceOver.
 
 About subscriptions
-Sekki Pro is available as a yearly or monthly subscription. Payment is charged to your Apple ID account when you confirm the purchase. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can cancel anytime in your Apple ID subscription settings.
+Sekki Plus and Sekki Pro are each available as a yearly or monthly subscription. Payment is charged to your Apple ID account when you confirm the purchase. Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can cancel anytime in your Apple ID subscription settings.
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Terms of Service: https://m1zz.github.io/RoutineCamera/en/terms.html
@@ -181,13 +181,13 @@ Add friends with a friend code to see each other's meals and workouts, and cheer
 Food analysis
 Sekki recognizes the food in your photos right on your device, for free. Your photos never leave your phone.
 
-Sekki Pro
-With a yearly or monthly subscription or a one-time lifetime purchase, you can create multiple groups, compare meals from a few weeks ago side by side with today, see the foods you eat most, and lock the app with Face ID. Logging and sharing with friends stay free without a subscription.
+Sekki Plus and Pro
+With Plus, you can create multiple groups, compare meals from a few weeks ago side by side with today, see the foods you eat most, and lock the app with Face ID. Pro includes everything in Plus, and adds a map of where you ate, a one-page recap of last week every Monday, PDF exports of your log, and saving all your photos at once. Both come as a yearly or monthly subscription or a one-off lifetime purchase. Logging and sharing with friends stay free without a subscription.
 
 Every entry can be logged and viewed with VoiceOver.
 
 About subscriptions
-Sekki Pro is available as a yearly or monthly subscription. Payment is charged to your Apple ID account when you confirm the purchase. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. You can cancel anytime in your Apple ID subscription settings.
+Sekki Plus and Sekki Pro are each available as a yearly or monthly subscription. Payment is charged to your Apple ID account when you confirm the purchase. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. You can cancel anytime in your Apple ID subscription settings.
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Terms of Service: https://m1zz.github.io/RoutineCamera/en/terms.html
@@ -249,13 +249,13 @@ Sekki 会根据拍照时间，自动把照片归入早餐、午餐、晚餐或�
 食物分析
 直接在你的设备上免费识别照片里的食物。照片不会离开你的手机。
 
-Sekki Pro
-订阅年度或月度会员，或一次性购买永久使用权，就可以创建多个群组、把几周前的饮食和今天并排对比、查看常吃的食物，还能用 Face ID 锁定 App。记录和与好友分享，不订阅也始终免费。
+Sekki Plus 与 Pro
+Plus 可以创建多个群组、把几周前的饮食和今天并排对比、查看常吃的食物，还能用 Face ID 锁定 App。Pro 包含 Plus 的全部功能，还能在地图上查看用餐地点、每周一收到上周的一页总结、把记录导出为 PDF，以及一次保存所有照片。两种方案都可以按年或按月订阅，也可以一次性购买永久使用权。记录和与好友分享，不订阅也始终免费。
 
 所有记录都可以通过旁白（VoiceOver）来记录和查看。
 
 订阅说明
-Sekki Pro 提供年度和月度订阅。确认购买时，费用将从你的 Apple ID 账户中扣除。除非在当前订阅期结束前至少24小时取消，否则订阅会自动续期。你可以随时在 Apple ID 的订阅设置中取消。
+Sekki Plus 和 Sekki Pro 均提供年度和月度订阅。确认购买时，费用将从你的 Apple ID 账户中扣除。除非在当前订阅期结束前至少24小时取消，否则订阅会自动续期。你可以随时在 Apple ID 的订阅设置中取消。
 
 使用条款（EULA）：https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 服务条款：https://m1zz.github.io/RoutineCamera/zh-Hans/terms.html
@@ -317,13 +317,13 @@ Sekki 會依照拍攝時間，自動把照片歸類到早餐、午餐、晚餐�
 食物分析
 Sekki 直接在你的裝置上辨識照片中的食物，完全免費。你的照片不會離開手機。
 
-Sekki Pro
-透過年度或月度訂閱，或是一次買斷的終身方案，你可以建立多個群組、把幾週前和今天的餐點並排比較、查看最常吃的食物，還能用 Face ID 鎖定 App。不訂閱的話，記錄和與朋友分享一樣免費。
+Sekki Plus 與 Pro
+Plus 可以建立多個群組、把幾週前和今天的餐點並排比較、查看最常吃的食物，還能用 Face ID 鎖定 App。Pro 包含 Plus 的所有功能，還能在地圖上查看用餐地點、每週一收到上週的一頁總結、把紀錄匯出為 PDF，以及一次儲存所有照片。兩種方案都可以選擇年度或月度訂閱，或一次買斷的終身方案。不訂閱的話，記錄和與朋友分享一樣免費。
 
 所有記錄都能用 VoiceOver 新增和查看。
 
 訂閱說明
-Sekki Pro 提供年度與月度訂閱。確認購買時，款項會從你的 Apple ID 帳號扣款。除非在目前訂閱期間結束前至少 24 小時取消，否則訂閱會自動續訂。你可以隨時到 Apple ID 的訂閱設定中取消。
+Sekki Plus 與 Sekki Pro 皆提供年度與月度訂閱。確認購買時，款項會從你的 Apple ID 帳號扣款。除非在目前訂閱期間結束前至少 24 小時取消，否則訂閱會自動續訂。你可以隨時到 Apple ID 的訂閱設定中取消。
 
 使用條款 (EULA)：https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 服務條款：https://m1zz.github.io/RoutineCamera/zh-Hant/terms.html
@@ -385,13 +385,13 @@ Sekkiは、完璧でなくても続けられるようにつくった写真の食
 食べ物の分析
 写真に写った食べ物を、端末の中で無料で分析します。写真がiPhoneの外に出ることはありません。
 
-Sekki Pro
-年間・月間のサブスクリプションまたは買い切りの永久版で、複数のグループの作成、数週間前と今日の食事の見比べ、よく食べたものの一覧、Face IDでのアプリロックが使えます。記録とフレンドとの共有は、サブスクリプションなしでもずっと無料です。
+Sekki PlusとPro
+Plusでは、複数のグループの作成、数週間前と今日の食事の見比べ、よく食べたものの一覧、Face IDでのアプリロックが使えます。ProはPlusのすべての機能に加えて、どこで食べたかを地図で見る、毎週月曜に先週を1枚で受け取る、記録をPDFで書き出す、写真をまとめて保存する、が使えます。どちらも年間・月間のサブスクリプションまたは買い切りの永久版から選べます。記録とフレンドとの共有は、サブスクリプションなしでもずっと無料です。
 
 すべての記録を、VoiceOverで残したり見たりできます。
 
 サブスクリプションについて
-Sekki Proには、年間と月間のサブスクリプションがあります。お支払いは、購入の確認時にApple IDアカウントに請求されます。サブスクリプションは、現在の期間が終了する24時間前までに解約しない限り、自動的に更新されます。解約は、Apple IDのサブスクリプション設定からいつでもできます。
+Sekki PlusとSekki Proには、それぞれ年間と月間のサブスクリプションがあります。お支払いは、購入の確認時にApple IDアカウントに請求されます。サブスクリプションは、現在の期間が終了する24時間前までに解約しない限り、自動的に更新されます。解約は、Apple IDのサブスクリプション設定からいつでもできます。
 
 利用規約（EULA）：https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 サービス利用規約：https://m1zz.github.io/RoutineCamera/ja/terms.html
@@ -453,13 +453,13 @@ Sekki смотрит, когда сделано фото, и сам относи
 Анализ еды
 Sekki распознаёт еду на ваших фото прямо на устройстве, бесплатно. Фото не покидают ваш телефон.
 
-Sekki Pro
-С годовой или месячной подпиской либо разовой покупкой навсегда можно создавать несколько групп, сравнивать питание несколько недель назад с сегодняшним, смотреть, что вы едите чаще всего, и блокировать приложение через Face ID. Записи и общий доступ с друзьями остаются бесплатными и без подписки.
+Sekki Plus и Pro
+С Plus можно создавать несколько групп, сравнивать питание несколько недель назад с сегодняшним, смотреть, что вы едите чаще всего, и блокировать приложение через Face ID. Pro включает всё из Plus, а также карту мест, где вы ели, сводку прошлой недели на одной странице каждый понедельник, экспорт записей в PDF и сохранение всех фото разом. Оба варианта доступны по годовой или месячной подписке либо разовой покупкой навсегда. Записи и обмен с друзьями остаются бесплатными без подписки.
 
 Все записи можно делать и просматривать с VoiceOver.
 
 О подписке
-Sekki Pro доступен по годовой или месячной подписке. Оплата списывается с вашего Apple ID при подтверждении покупки. Подписка продлевается автоматически, если не отменить её минимум за 24 часа до конца текущего периода. Отменить подписку можно в любой момент в настройках подписок вашего Apple ID.
+Sekki Plus и Sekki Pro доступны по годовой или месячной подписке. Оплата списывается с вашего Apple ID при подтверждении покупки. Подписка продлевается автоматически, если не отменить её минимум за 24 часа до конца текущего периода. Отменить подписку можно в любой момент в настройках подписок вашего Apple ID.
 
 Условия использования (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Условия обслуживания: https://m1zz.github.io/RoutineCamera/ru/terms.html
@@ -521,13 +521,13 @@ Agrega amigos con un código de amigo para ver las comidas y el ejercicio de cad
 Análisis de comida
 Sekki reconoce los alimentos de tus fotos directamente en tu dispositivo y sin costo. Tus fotos nunca salen de tu teléfono.
 
-Sekki Pro
-Con una suscripción anual o mensual, o con un pago único de por vida, puedes crear varios grupos, comparar tus comidas de hace unas semanas con las de hoy, ver los alimentos que más comes y bloquear la app con Face ID. Registrar y compartir con amigos sigue siendo gratis, sin suscripción.
+Sekki Plus y Pro
+Con Plus puedes crear varios grupos, comparar tus comidas de hace unas semanas con las de hoy, ver lo que más comes y bloquear la app con Face ID. Pro incluye todo lo de Plus y añade un mapa de dónde comiste, un resumen de la semana anterior en una página cada lunes, la exportación de tu registro en PDF y guardar todas tus fotos de una vez. Ambos están disponibles con suscripción anual o mensual, o con un pago único de por vida. Registrar y compartir con amigos sigue siendo gratis sin suscripción.
 
 Puedes registrar y ver todas las comidas con VoiceOver.
 
 Información sobre la suscripción
-Sekki Pro está disponible como suscripción anual o mensual. El pago se carga a tu cuenta de Apple ID al confirmar la compra. Las suscripciones se renuevan automáticamente, a menos que se cancelen al menos 24 horas antes de que termine el periodo en curso. Puedes cancelar cuando quieras en la configuración de suscripciones de tu Apple ID.
+Sekki Plus y Sekki Pro están disponibles como suscripción anual o mensual. El pago se carga a tu cuenta de Apple ID al confirmar la compra. Las suscripciones se renuevan automáticamente, a menos que se cancelen al menos 24 horas antes de que termine el periodo en curso. Puedes cancelar cuando quieras en la configuración de suscripciones de tu Apple ID.
 
 Términos de uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Términos del servicio: https://m1zz.github.io/RoutineCamera/es/terms.html
@@ -589,13 +589,13 @@ Füge Freunde mit einem Freundescode hinzu, um gegenseitig eure Mahlzeiten und W
 Essensanalyse
 Sekki erkennt die Speisen auf deinen Fotos direkt auf deinem Gerät, kostenlos. Deine Fotos verlassen dein iPhone nie.
 
-Sekki Pro
-Mit einem Jahres- oder Monatsabo oder einem einmaligen Kauf auf Lebenszeit kannst du mehrere Gruppen erstellen, Mahlzeiten von vor ein paar Wochen neben die von heute stellen, deine häufigsten Speisen sehen und die App mit Face ID sperren. Das Eintragen und das Teilen mit Freunden bleiben auch ohne Abo kostenlos.
+Sekki Plus und Pro
+Mit Plus kannst du mehrere Gruppen erstellen, Mahlzeiten von vor ein paar Wochen neben die von heute stellen, deine häufigsten Speisen sehen und die App mit Face ID sperren. Pro enthält alles aus Plus und dazu eine Karte, wo du gegessen hast, jeden Montag deine letzte Woche auf einer Seite, den Export deiner Einträge als PDF und das Sichern aller Fotos auf einmal. Beides gibt es als Jahres- oder Monatsabo oder als einmaligen Kauf auf Lebenszeit. Das Eintragen und das Teilen mit Freunden bleiben auch ohne Abo kostenlos.
 
 Jeder Eintrag lässt sich mit VoiceOver erfassen und ansehen.
 
 Zu den Abos
-Sekki Pro ist als Jahres- oder Monatsabo erhältlich. Die Zahlung wird deinem Apple-ID-Account belastet, sobald du den Kauf bestätigst. Abos verlängern sich automatisch, es sei denn, du kündigst mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums. Du kannst jederzeit in den Abo-Einstellungen deiner Apple-ID kündigen.
+Sekki Plus und Sekki Pro gibt es jeweils als Jahres- oder Monatsabo. Die Zahlung wird deinem Apple-ID-Account belastet, sobald du den Kauf bestätigst. Abos verlängern sich automatisch, es sei denn, du kündigst mindestens 24 Stunden vor Ablauf des aktuellen Zeitraums. Du kannst jederzeit in den Abo-Einstellungen deiner Apple-ID kündigen.
 
 Nutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Nutzungsbedingungen: https://m1zz.github.io/RoutineCamera/de/terms.html
@@ -657,13 +657,13 @@ Ajoutez des amis avec un code ami pour voir les repas et les séances de chacun,
 Analyse des aliments
 Sekki reconnaît gratuitement les aliments de vos photos, directement sur votre appareil. Vos photos ne quittent jamais votre téléphone.
 
-Sekki Pro
-Avec un abonnement annuel ou mensuel, ou un achat unique à vie, vous pouvez créer plusieurs groupes, comparer vos repas d’il y a quelques semaines à ceux d’aujourd’hui, voir les aliments que vous mangez le plus et verrouiller l’app avec Face ID. L’enregistrement et le partage avec vos amis restent gratuits, sans abonnement.
+Sekki Plus et Pro
+Avec Plus, vous pouvez créer plusieurs groupes, comparer vos repas d’il y a quelques semaines à ceux d’aujourd’hui, voir les aliments que vous mangez le plus et verrouiller l’app avec Face ID. Pro comprend tout Plus et ajoute une carte des lieux où vous avez mangé, un bilan de la semaine passée sur une page chaque lundi, l’export de vos repas en PDF et l’enregistrement de toutes vos photos d’un coup. Les deux existent en abonnement annuel ou mensuel, ou en achat unique à vie. L’enregistrement et le partage avec vos amis restent gratuits, sans abonnement.
 
 Chaque enregistrement peut être créé et consulté avec VoiceOver.
 
 À propos des abonnements
-Sekki Pro est proposé en abonnement annuel ou mensuel. Le paiement est débité de votre compte Apple lors de la confirmation de l’achat. Les abonnements se renouvellent automatiquement, sauf résiliation au moins 24 heures avant la fin de la période en cours. Vous pouvez résilier à tout moment dans les réglages d’abonnement de votre compte Apple.
+Sekki Plus et Sekki Pro sont chacun proposés en abonnement annuel ou mensuel. Le paiement est débité de votre compte Apple lors de la confirmation de l’achat. Les abonnements se renouvellent automatiquement, sauf résiliation au moins 24 heures avant la fin de la période en cours. Vous pouvez résilier à tout moment dans les réglages d’abonnement de votre compte Apple.
 
 Conditions d’utilisation (EULA) : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Conditions de service : https://m1zz.github.io/RoutineCamera/fr/terms.html
@@ -726,13 +726,13 @@ Aggiungi gli amici con un codice amico per vedere a vicenda pasti e allenamenti 
 Analisi dei cibi
 Sekki riconosce i cibi nelle tue foto direttamente sul dispositivo, gratis. Le tue foto non lasciano mai il telefono.
 
-Sekki Pro
-Con un abbonamento annuale o mensile, oppure con un acquisto unico a vita, puoi creare più gruppi, confrontare i pasti di qualche settimana fa con quelli di oggi, vedere i cibi che mangi di più e bloccare l’app con Face ID. Registrare e condividere con gli amici restano gratuiti anche senza abbonamento.
+Sekki Plus e Pro
+Con Plus puoi creare più gruppi, confrontare i pasti di qualche settimana fa con quelli di oggi, vedere i cibi che mangi più spesso e bloccare l’app con Face ID. Pro include tutto Plus e aggiunge una mappa dei posti dove hai mangiato, ogni lunedì un riepilogo della settimana scorsa in una pagina, l’esportazione dei pasti in PDF e il salvataggio di tutte le foto in una volta. Entrambi sono disponibili con abbonamento annuale o mensile, oppure con un acquisto unico a vita. Registrare e condividere con gli amici resta gratis anche senza abbonamento.
 
 Ogni voce può essere registrata e consultata con VoiceOver.
 
 Informazioni sugli abbonamenti
-Sekki Pro è disponibile come abbonamento annuale o mensile. Il pagamento viene addebitato sul tuo account Apple alla conferma dell’acquisto. Gli abbonamenti si rinnovano automaticamente, a meno che non vengano annullati almeno 24 ore prima della fine del periodo in corso. Puoi annullare in qualsiasi momento nelle impostazioni degli abbonamenti del tuo ID Apple.
+Sekki Plus e Sekki Pro sono disponibili come abbonamento annuale o mensile. Il pagamento viene addebitato sul tuo account Apple alla conferma dell’acquisto. Gli abbonamenti si rinnovano automaticamente, a meno che non vengano annullati almeno 24 ore prima della fine del periodo in corso. Puoi annullare in qualsiasi momento nelle impostazioni degli abbonamenti del tuo ID Apple.
 
 Condizioni d’uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Termini di servizio: https://m1zz.github.io/RoutineCamera/it/terms.html
@@ -794,13 +794,13 @@ Adicione amigos com um código de amigo para ver as refeições e os treinos uns
 Análise de alimentos
 O Sekki reconhece os alimentos das suas fotos no próprio aparelho, de graça. Suas fotos nunca saem do seu celular.
 
-Sekki Pro
-Com uma assinatura anual ou mensal, ou uma compra única vitalícia, você cria vários grupos, compara refeições de algumas semanas atrás com as de hoje, vê os alimentos que mais come e bloqueia o app com Face ID. Registrar e compartilhar com amigos continuam grátis, sem assinatura.
+Sekki Plus e Pro
+Com o Plus, você cria vários grupos, compara refeições de algumas semanas atrás com as de hoje, vê o que mais come e bloqueia o app com Face ID. O Pro inclui tudo do Plus e adiciona um mapa de onde você comeu, um resumo da semana passada em uma página toda segunda, a exportação dos registros em PDF e salvar todas as fotos de uma vez. Os dois estão disponíveis em assinatura anual ou mensal, ou em uma compra única vitalícia. Registrar e compartilhar com amigos continua grátis sem assinatura.
 
 Todos os registros podem ser feitos e consultados com o VoiceOver.
 
 Sobre a assinatura
-O Sekki Pro está disponível em assinatura anual ou mensal. O pagamento é cobrado na sua conta do Apple ID quando você confirma a compra. As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. Você pode cancelar a qualquer momento nos ajustes de assinaturas do seu Apple ID.
+O Sekki Plus e o Sekki Pro estão disponíveis em assinatura anual ou mensal. O pagamento é cobrado na sua conta do Apple ID quando você confirma a compra. As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. Você pode cancelar a qualquer momento nos ajustes de assinaturas do seu Apple ID.
 
 Termos de Uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Termos de Serviço: https://m1zz.github.io/RoutineCamera/pt-BR/terms.html
@@ -862,13 +862,13 @@ Sekki ดูเวลาที่ถ่ายรูปแล้วจัดเ�
 วิเคราะห์อาหาร
 Sekki จดจำอาหารในรูปบนเครื่องของคุณเองโดยไม่เสียค่าใช้จ่าย รูปของคุณจะไม่ออกจากโทรศัพท์
 
-Sekki Pro
-สมัครสมาชิกรายปีหรือรายเดือน หรือซื้อแบบใช้ได้ตลอดชีพครั้งเดียว เพื่อสร้างได้หลายกลุ่ม เทียบมื้อเมื่อไม่กี่สัปดาห์ก่อนกับวันนี้ ดูอาหารที่กินบ่อยที่สุด และล็อกแอปด้วย Face ID การบันทึกและการแชร์กับเพื่อนยังใช้ฟรีต่อไปโดยไม่ต้องสมัครสมาชิก
+Sekki พลัส และ โปร
+พลัสสร้างได้หลายกลุ่ม เทียบมื้อเมื่อไม่กี่สัปดาห์ก่อนกับวันนี้ ดูอาหารที่กินบ่อยที่สุด และล็อกแอปด้วย Face ID โปรได้ทุกอย่างในพลัส พร้อมแผนที่ว่ากินที่ไหน สรุปสัปดาห์ที่แล้วในหน้าเดียวทุกวันจันทร์ ส่งออกบันทึกเป็น PDF และบันทึกรูปทั้งหมดในครั้งเดียว ทั้งสองแบบสมัครได้รายปีหรือรายเดือน หรือซื้อแบบใช้ได้ตลอดชีพครั้งเดียว การบันทึกและการแชร์กับเพื่อนยังใช้ฟรีต่อไปโดยไม่ต้องสมัครสมาชิก
 
 ทุกรายการบันทึกและดูได้ด้วย VoiceOver
 
 ข้อมูลการสมัครสมาชิก
-Sekki Pro มีให้สมัครเป็นรายปีหรือรายเดือน ระบบจะเรียกเก็บเงินจากบัญชี Apple ID ของคุณเมื่อยืนยันการซื้อ การสมัครสมาชิกจะต่ออายุอัตโนมัติ เว้นแต่จะยกเลิกอย่างน้อย 24 ชั่วโมงก่อนสิ้นสุดรอบปัจจุบัน คุณยกเลิกได้ทุกเมื่อในการตั้งค่าการสมัครสมาชิกของ Apple ID
+Sekki พลัส และ Sekki โปร มีให้สมัครเป็นรายปีหรือรายเดือน ระบบจะเรียกเก็บเงินจากบัญชี Apple ID ของคุณเมื่อยืนยันการซื้อ การสมัครสมาชิกจะต่ออายุอัตโนมัติ เว้นแต่จะยกเลิกอย่างน้อย 24 ชั่วโมงก่อนสิ้นสุดรอบปัจจุบัน คุณยกเลิกได้ทุกเมื่อในการตั้งค่าการสมัครสมาชิกของ Apple ID
 
 เงื่อนไขการใช้งาน (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 ข้อกำหนดการใช้บริการ: https://m1zz.github.io/RoutineCamera/th/terms.html
@@ -930,13 +930,13 @@ Thêm bạn bằng mã bạn bè để xem bữa ăn và buổi tập của nhau
 Phân tích món ăn
 Sekki nhận diện món ăn trong ảnh ngay trên thiết bị của bạn, miễn phí. Ảnh của bạn không bao giờ rời khỏi điện thoại.
 
-Sekki Pro
-Với gói đăng ký theo năm hoặc theo tháng, hay gói mua một lần trọn đời, bạn có thể tạo nhiều nhóm, đặt bữa ăn của vài tuần trước cạnh hôm nay để so sánh, xem những món mình ăn nhiều nhất, và khóa ứng dụng bằng Face ID. Ghi lại và chia sẻ với bạn bè vẫn miễn phí, không cần đăng ký.
+Sekki Plus và Pro
+Với Plus, bạn có thể tạo nhiều nhóm, đặt bữa ăn của vài tuần trước cạnh hôm nay để so sánh, xem món bạn ăn nhiều nhất và khóa ứng dụng bằng Face ID. Pro có mọi tính năng của Plus, thêm bản đồ nơi bạn đã ăn, bản tóm tắt tuần trước trong một trang mỗi sáng thứ Hai, xuất nhật ký ra PDF và lưu tất cả ảnh một lần. Cả hai đều có gói đăng ký theo năm hoặc theo tháng, hay gói mua một lần trọn đời. Ghi chép và chia sẻ với bạn bè vẫn miễn phí khi không đăng ký.
 
 Mọi bản ghi đều có thể ghi và xem bằng VoiceOver.
 
 Thông tin về gói đăng ký
-Sekki Pro có gói đăng ký theo năm hoặc theo tháng. Khoản thanh toán được tính vào tài khoản Apple ID của bạn khi bạn xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi kết thúc kỳ hiện tại. Bạn có thể hủy bất cứ lúc nào trong phần cài đặt đăng ký của Apple ID.
+Sekki Plus và Sekki Pro đều có gói đăng ký theo năm hoặc theo tháng. Khoản thanh toán được tính vào tài khoản Apple ID của bạn khi bạn xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi kết thúc kỳ hiện tại. Bạn có thể hủy bất cứ lúc nào trong phần cài đặt đăng ký của Apple ID.
 
 Điều khoản sử dụng (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Điều khoản dịch vụ: https://m1zz.github.io/RoutineCamera/vi/terms.html
@@ -998,13 +998,13 @@ Přidej přátele pomocí kódu pro přátele, prohlížejte si navzájem jídla
 Analýza jídla
 Sekki rozpozná jídlo na tvých fotkách přímo v zařízení, zdarma. Fotky telefon nikdy neopustí.
 
-Sekki Pro
-S ročním nebo měsíčním předplatným či jednorázovým doživotním nákupem můžeš vytvářet více skupin, porovnávat jídla z doby před několika týdny s dneškem, zobrazit nejčastěji jedená jídla a zamknout aplikaci přes Face ID. Zapisování a sdílení s přáteli zůstává zdarma i bez předplatného.
+Sekki Plus a Pro
+S Plus můžeš vytvářet více skupin, porovnávat jídla z doby před několika týdny s dneškem, zobrazit nejčastěji jedená jídla a zamknout aplikaci přes Face ID. Pro obsahuje vše z Plus a navíc mapu míst, kde jsi jedl, každé pondělí přehled minulého týdne na jedné stránce, export záznamů do PDF a uložení všech fotek najednou. Obojí je k dispozici jako roční nebo měsíční předplatné či jednorázový doživotní nákup. Zapisování a sdílení s přáteli zůstává zdarma i bez předplatného.
 
 Každý záznam lze zapsat i zobrazit pomocí VoiceOver.
 
 Informace o předplatném
-Sekki Pro je k dispozici jako roční nebo měsíční předplatné. Platba se strhne z tvého účtu Apple ID při potvrzení nákupu. Předplatné se automaticky obnovuje, pokud ho nezrušíš alespoň 24 hodin před koncem aktuálního období. Zrušit ho můžeš kdykoli v nastavení předplatného Apple ID.
+Sekki Plus i Sekki Pro jsou k dispozici jako roční nebo měsíční předplatné. Platba se strhne z tvého účtu Apple ID při potvrzení nákupu. Předplatné se automaticky obnovuje, pokud ho nezrušíš alespoň 24 hodin před koncem aktuálního období. Zrušit ho můžeš kdykoli v nastavení předplatného Apple ID.
 
 Podmínky použití (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Podmínky služby: https://m1zz.github.io/RoutineCamera/cs/terms.html
@@ -1066,13 +1066,13 @@ Tilføj venner med en vennekode, se hinandens måltider og træning, og hep på 
 Madanalyse
 Sekki genkender maden på dine fotos direkte på din enhed, helt gratis. Dine fotos forlader aldrig din telefon.
 
-Sekki Pro
-Med et årligt eller månedligt abonnement eller et engangskøb til livstid kan du oprette flere grupper, sammenligne måltider fra for nogle uger siden med i dag, se, hvilken mad du spiser mest, og låse appen med Face ID. Registrering og deling med venner er fortsat gratis uden abonnement.
+Sekki Plus og Pro
+Med Plus kan du oprette flere grupper, sammenligne måltider fra for nogle uger siden med i dag, se det, du spiser mest, og låse appen med Face ID. Pro har alt fra Plus og giver dig desuden et kort over, hvor du har spist, et overblik over sidste uge på én side hver mandag, eksport af din log som PDF og mulighed for at gemme alle billeder på én gang. Begge fås som årligt eller månedligt abonnement eller som engangskøb til livstid. Registrering og deling med venner er stadig gratis uden abonnement.
 
 Alle registreringer kan oprettes og ses med VoiceOver.
 
 Om abonnementer
-Sekki Pro fås som årligt eller månedligt abonnement. Betalingen trækkes på din Apple ID-konto, når du bekræfter købet. Abonnementer fornyes automatisk, medmindre de opsiges mindst 24 timer før udgangen af den aktuelle periode. Du kan til enhver tid opsige i indstillingerne for dit Apple ID under abonnementer.
+Sekki Plus og Sekki Pro fås hver især som årligt eller månedligt abonnement. Betalingen trækkes på din Apple ID-konto, når du bekræfter købet. Abonnementer fornyes automatisk, medmindre de opsiges mindst 24 timer før udgangen af den aktuelle periode. Du kan til enhver tid opsige i indstillingerne for dit Apple ID under abonnementer.
 
 Brugsvilkår (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Servicevilkår: https://m1zz.github.io/RoutineCamera/da/terms.html
@@ -1134,13 +1134,13 @@ Sekki: Ημερολόγιο Γευμάτων
 Ανάλυση φαγητού
 Το Sekki αναγνωρίζει τα φαγητά στις φωτογραφίες σου απευθείας στη συσκευή σου, δωρεάν. Οι φωτογραφίες σου δεν φεύγουν ποτέ από το τηλέφωνό σου.
 
-Sekki Pro
-Με ετήσια ή μηνιαία συνδρομή ή με εφάπαξ αγορά ισόβιας πρόσβασης, μπορείς να δημιουργείς πολλές ομάδες, να συγκρίνεις γεύματα που έφαγες πριν από μερικές εβδομάδες με τα σημερινά, να βλέπεις τα φαγητά που τρως συχνότερα και να κλειδώνεις την εφαρμογή με Face ID. Η καταγραφή και η κοινοποίηση με φίλους παραμένουν δωρεάν χωρίς συνδρομή.
+Sekki Plus και Pro
+Με το Plus μπορείς να δημιουργείς πολλές ομάδες, να συγκρίνεις γεύματα που έφαγες πριν από μερικές εβδομάδες με τα σημερινά, να βλέπεις τα φαγητά που τρως συχνότερα και να κλειδώνεις την εφαρμογή με Face ID. Το Pro περιλαμβάνει όλα όσα έχει το Plus και προσθέτει χάρτη με τα μέρη όπου έφαγες, σύνοψη της προηγούμενης εβδομάδας σε μία σελίδα κάθε Δευτέρα, εξαγωγή των καταγραφών σε PDF και αποθήκευση όλων των φωτογραφιών μαζί. Και τα δύο διατίθενται με ετήσια ή μηνιαία συνδρομή ή με εφάπαξ αγορά ισόβιας πρόσβασης. Η καταγραφή και η κοινοποίηση με φίλους παραμένουν δωρεάν χωρίς συνδρομή.
 
 Κάθε καταγραφή μπορεί να γίνει και να προβληθεί με το VoiceOver.
 
 Σχετικά με τις συνδρομές
-Το Sekki Pro διατίθεται ως ετήσια ή μηνιαία συνδρομή. Η πληρωμή χρεώνεται στον λογαριασμό Apple ID σου όταν επιβεβαιώνεις την αγορά. Οι συνδρομές ανανεώνονται αυτόματα, εκτός αν ακυρωθούν τουλάχιστον 24 ώρες πριν από το τέλος της τρέχουσας περιόδου. Μπορείς να ακυρώσεις οποιαδήποτε στιγμή από τις ρυθμίσεις συνδρομών του Apple ID σου.
+Το Sekki Plus και το Sekki Pro διατίθενται ως ετήσια ή μηνιαία συνδρομή. Η πληρωμή χρεώνεται στον λογαριασμό Apple ID σου όταν επιβεβαιώνεις την αγορά. Οι συνδρομές ανανεώνονται αυτόματα, εκτός αν ακυρωθούν τουλάχιστον 24 ώρες πριν από το τέλος της τρέχουσας περιόδου. Μπορείς να ακυρώσεις οποιαδήποτε στιγμή από τις ρυθμίσεις συνδρομών του Apple ID σου.
 
 Όροι χρήσης (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Όροι υπηρεσίας: https://m1zz.github.io/RoutineCamera/el/terms.html
@@ -1202,13 +1202,13 @@ Lisää kavereita kaverikoodilla, niin näette toistenne ateriat ja treenit ja v
 Ruoka-analyysi
 Sekki tunnistaa kuviesi ruoat suoraan laitteellasi ja ilmaiseksi. Kuvasi eivät koskaan poistu puhelimestasi.
 
-Sekki Pro
-Vuosi- tai kuukausitilauksella tai kertamaksulla ostettavalla elinikäisellä käyttöoikeudella voit luoda useita ryhmiä, verrata muutaman viikon takaisia aterioita tämänpäiväisiin rinnakkain, nähdä useimmin syömäsi ruoat ja lukita apin Face ID:llä. Kirjaaminen ja jakaminen kavereiden kanssa pysyvät ilmaisina ilman tilausta.
+Sekki Plus ja Pro
+Plus-tasolla voit luoda useita ryhmiä, verrata muutaman viikon takaisia aterioita tämänpäiväisiin rinnakkain, nähdä useimmin syömäsi ruoat ja lukita apin Face ID:llä. Pro sisältää kaiken Plus-tason ja lisää kartan paikoista, joissa söit, joka maanantai viime viikon yhdellä sivulla, kirjausten viennin PDF-tiedostoksi ja kaikkien kuvien tallentamisen kerralla. Molemmat ovat saatavilla vuosi- tai kuukausitilauksena tai kertamaksulla ostettavana elinikäisenä käyttöoikeutena. Kirjaaminen ja jakaminen kavereiden kanssa pysyvät ilmaisina ilman tilausta.
 
 Kaikki kirjaukset voi tehdä ja nähdä VoiceOverilla.
 
 Tilauksista
-Sekki Pro on saatavilla vuosi- tai kuukausitilauksena. Maksu veloitetaan Apple ID -tililtäsi, kun vahvistat ostoksen. Tilaukset uusiutuvat automaattisesti, ellei niitä peruuteta vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit perua tilauksen milloin tahansa Apple ID:n tilausasetuksissa.
+Sekki Plus ja Sekki Pro ovat saatavilla vuosi- tai kuukausitilauksena. Maksu veloitetaan Apple ID -tililtäsi, kun vahvistat ostoksen. Tilaukset uusiutuvat automaattisesti, ellei niitä peruuteta vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit perua tilauksen milloin tahansa Apple ID:n tilausasetuksissa.
 
 Käyttöehdot (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Palveluehdot: https://m1zz.github.io/RoutineCamera/fi/terms.html
@@ -1270,13 +1270,13 @@ Tambahkan teman dengan kode teman untuk saling melihat makan dan olahraga, lalu 
 Analisis makanan
 Sekki mengenali makanan di fotomu langsung di perangkat, gratis. Fotomu tidak pernah keluar dari ponselmu.
 
-Sekki Pro
-Dengan langganan tahunan atau bulanan, atau pembelian seumur hidup satu kali, kamu bisa membuat banyak grup, membandingkan makanan beberapa minggu lalu dengan hari ini secara berdampingan, melihat makanan yang paling sering kamu santap, dan mengunci app dengan Face ID. Mencatat dan berbagi dengan teman tetap gratis tanpa langganan.
+Sekki Plus dan Pro
+Dengan Plus, kamu bisa membuat banyak grup, membandingkan makanan beberapa minggu lalu dengan hari ini, melihat makanan yang paling sering kamu makan, dan mengunci aplikasi dengan Face ID. Pro mencakup semua fitur Plus, ditambah peta tempat kamu makan, ringkasan minggu lalu dalam satu halaman setiap Senin, ekspor catatan ke PDF, dan menyimpan semua foto sekaligus. Keduanya tersedia sebagai langganan tahunan atau bulanan, atau pembelian seumur hidup satu kali. Mencatat dan berbagi dengan teman tetap gratis tanpa langganan.
 
 Semua catatan bisa dibuat dan dilihat dengan VoiceOver.
 
 Tentang langganan
-Sekki Pro tersedia sebagai langganan tahunan atau bulanan. Pembayaran ditagihkan ke akun Apple ID kamu saat kamu mengonfirmasi pembelian. Langganan diperpanjang otomatis kecuali dibatalkan paling lambat 24 jam sebelum periode berjalan berakhir. Kamu bisa membatalkan kapan saja di pengaturan langganan Apple ID.
+Sekki Plus dan Sekki Pro masing-masing tersedia sebagai langganan tahunan atau bulanan. Pembayaran ditagihkan ke akun Apple ID kamu saat kamu mengonfirmasi pembelian. Langganan diperpanjang otomatis kecuali dibatalkan paling lambat 24 jam sebelum periode berjalan berakhir. Kamu bisa membatalkan kapan saja di pengaturan langganan Apple ID.
 
 Ketentuan Penggunaan (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Ketentuan Layanan: https://m1zz.github.io/RoutineCamera/id/terms.html
@@ -1338,13 +1338,13 @@ Legg til venner med en vennekode for å se hverandres måltider og treningsøkte
 Matanalyse
 Sekki gjenkjenner maten på bildene dine direkte på enheten, gratis. Bildene dine forlater aldri telefonen.
 
-Sekki Pro
-Med et årlig eller månedlig abonnement, eller et engangskjøp for livstid, kan du opprette flere grupper, sammenligne måltider fra noen uker tilbake side om side med i dag, se maten du spiser mest, og låse appen med Face ID. Logging og deling med venner er fortsatt gratis uten abonnement.
+Sekki Plus og Pro
+Med Plus kan du opprette flere grupper, sammenligne måltider fra noen uker tilbake side om side med i dag, se hva du spiser mest og låse appen med Face ID. Pro har alt i Plus, og i tillegg et kart over hvor du spiste, en oversikt over forrige uke på én side hver mandag, eksport av loggen som PDF og lagring av alle bildene på én gang. Begge fås som årlig eller månedlig abonnement, eller som et engangskjøp for livstid. Logging og deling med venner er fortsatt gratis uten abonnement.
 
 Alle oppføringer kan logges og vises med VoiceOver.
 
 Om abonnement
-Sekki Pro fås som årlig eller månedlig abonnement. Betalingen belastes Apple-ID-kontoen din når du bekrefter kjøpet. Abonnement fornyes automatisk med mindre de sies opp senest 24 timer før inneværende periode utløper. Du kan si opp når som helst i abonnementsinnstillingene for Apple-ID-en din.
+Sekki Plus og Sekki Pro fås hver for seg som årlig eller månedlig abonnement. Betalingen belastes Apple-ID-kontoen din når du bekrefter kjøpet. Abonnement fornyes automatisk med mindre de sies opp senest 24 timer før inneværende periode utløper. Du kan si opp når som helst i abonnementsinnstillingene for Apple-ID-en din.
 
 Brukervilkår (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Vilkår for tjenesten: https://m1zz.github.io/RoutineCamera/nb/terms.html
@@ -1406,13 +1406,13 @@ Voeg vrienden toe met een vriendcode om elkaars maaltijden en workouts te zien, 
 Voedselanalyse
 Sekki herkent het eten op je foto’s direct op je apparaat, gratis. Je foto’s verlaten je telefoon nooit.
 
-Sekki Pro
-Met een jaar- of maandabonnement of een eenmalige levenslange aankoop kun je meerdere groepen maken, maaltijden van een paar weken geleden naast die van vandaag zetten, zien wat je het vaakst eet en de app vergrendelen met Face ID. Vastleggen en delen met vrienden blijven gratis, ook zonder abonnement.
+Sekki Plus en Pro
+Met Plus kun je meerdere groepen maken, maaltijden van een paar weken geleden naast die van vandaag zetten, zien wat je het vaakst eet en de app vergrendelen met Face ID. Pro bevat alles van Plus en voegt een kaart toe van waar je hebt gegeten, elke maandag een overzicht van vorige week op één pagina, je logboek exporteren als pdf en al je foto’s in één keer bewaren. Allebei verkrijgbaar als jaar- of maandabonnement of als eenmalige levenslange aankoop. Vastleggen en delen met vrienden blijft gratis zonder abonnement.
 
 Alles is vast te leggen en te bekijken met VoiceOver.
 
 Over abonnementen
-Sekki Pro is beschikbaar als jaar- of maandabonnement. De betaling wordt in rekening gebracht op je Apple ID-account wanneer je de aankoop bevestigt. Abonnementen worden automatisch verlengd, tenzij je minstens 24 uur voor het einde van de huidige periode opzegt. Je kunt op elk moment opzeggen in de abonnementsinstellingen van je Apple ID.
+Sekki Plus en Sekki Pro zijn allebei beschikbaar als jaar- of maandabonnement. De betaling wordt in rekening gebracht op je Apple ID-account wanneer je de aankoop bevestigt. Abonnementen worden automatisch verlengd, tenzij je minstens 24 uur voor het einde van de huidige periode opzegt. Je kunt op elk moment opzeggen in de abonnementsinstellingen van je Apple ID.
 
 Gebruiksvoorwaarden (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Servicevoorwaarden: https://m1zz.github.io/RoutineCamera/nl/terms.html
@@ -1474,13 +1474,13 @@ Dodaj znajomych kodem znajomego, aby oglądać nawzajem swoje posiłki i trening
 Analiza jedzenia
 Sekki rozpoznaje jedzenie na Twoich zdjęciach bezpośrednio na urządzeniu i za darmo. Twoje zdjęcia nigdy nie opuszczają telefonu.
 
-Sekki Pro
-Dzięki subskrypcji rocznej lub miesięcznej albo jednorazowemu zakupowi na zawsze możesz tworzyć wiele grup, porównywać posiłki sprzed kilku tygodni z dzisiejszymi, sprawdzać, co jadasz najczęściej, i blokować aplikację za pomocą Face ID. Zapisywanie i udostępnianie znajomym pozostają bezpłatne, bez subskrypcji.
+Sekki Plus i Pro
+Z Plus możesz tworzyć wiele grup, porównywać posiłki sprzed kilku tygodni z dzisiejszymi, sprawdzać, co jesz najczęściej, i blokować aplikację za pomocą Face ID. Pro zawiera wszystko z Plus, a do tego mapę miejsc, w których jadłeś, podsumowanie poprzedniego tygodnia na jednej stronie w każdy poniedziałek, eksport wpisów do PDF i zapisywanie wszystkich zdjęć naraz. Oba plany są dostępne w subskrypcji rocznej lub miesięcznej albo jako jednorazowy zakup na zawsze. Zapisywanie i udostępnianie znajomym pozostaje darmowe bez subskrypcji.
 
 Każdy wpis można zapisać i obejrzeć z VoiceOver.
 
 Informacje o subskrypcjach
-Sekki Pro jest dostępne jako subskrypcja roczna lub miesięczna. Płatność jest pobierana z konta Apple ID po potwierdzeniu zakupu. Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane co najmniej 24 godziny przed końcem bieżącego okresu. Możesz zrezygnować w dowolnej chwili w ustawieniach subskrypcji Apple ID.
+Sekki Plus i Sekki Pro są dostępne jako subskrypcja roczna lub miesięczna. Płatność jest pobierana z konta Apple ID po potwierdzeniu zakupu. Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane co najmniej 24 godziny przed końcem bieżącego okresu. Możesz zrezygnować w dowolnej chwili w ustawieniach subskrypcji Apple ID.
 
 Warunki użytkowania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Regulamin: https://m1zz.github.io/RoutineCamera/pl/terms.html
@@ -1542,13 +1542,13 @@ Lägg till vänner med en vänkod för att se varandras måltider och träning, 
 Matanalys
 Sekki känner igen maten på dina foton direkt på enheten, helt gratis. Dina foton lämnar aldrig telefonen.
 
-Sekki Pro
-Med en årlig eller månatlig prenumeration eller ett engångsköp för livstid kan du skapa flera grupper, jämföra måltider från några veckor sedan med dagens, se vad du äter oftast och låsa appen med Face ID. Loggning och delning med vänner är fortsatt gratis utan prenumeration.
+Sekki Plus och Pro
+Med Plus kan du skapa flera grupper, jämföra måltider från några veckor sedan med dagens, se vad du äter oftast och låsa appen med Face ID. Pro har allt i Plus och lägger till en karta över var du åt, en sammanfattning av förra veckan på en sida varje måndag, export av loggen som PDF och att spara alla bilder på en gång. Båda finns som årlig eller månatlig prenumeration eller som ett engångsköp för livstid. Att logga och dela med vänner är fortfarande gratis utan prenumeration.
 
 Alla inlägg kan loggas och visas med VoiceOver.
 
 Om prenumerationer
-Sekki Pro finns som årlig eller månatlig prenumeration. Betalningen debiteras ditt Apple-ID-konto när du bekräftar köpet. Prenumerationer förnyas automatiskt om de inte sägs upp minst 24 timmar innan den pågående perioden går ut. Du kan när som helst säga upp i inställningarna för Apple-ID-prenumerationer.
+Sekki Plus och Sekki Pro finns båda som årlig eller månatlig prenumeration. Betalningen debiteras ditt Apple-ID-konto när du bekräftar köpet. Prenumerationer förnyas automatiskt om de inte sägs upp minst 24 timmar innan den pågående perioden går ut. Du kan när som helst säga upp i inställningarna för Apple-ID-prenumerationer.
 
 Användarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Tjänstevillkor: https://m1zz.github.io/RoutineCamera/sv/terms.html
@@ -1610,13 +1610,13 @@ Arkadaş koduyla arkadaşlarını ekle, birbirinizin öğünlerini ve egzersizle
 Yemek analizi
 Sekki, fotoğraflarındaki yiyecekleri doğrudan cihazında ve ücretsiz olarak tanır. Fotoğrafların telefonundan hiç çıkmaz.
 
-Sekki Pro
-Yıllık veya aylık abonelikle ya da tek seferlik ömür boyu satın almayla birden çok grup oluşturabilir, birkaç hafta öncesinin öğünlerini bugünkülerle yan yana karşılaştırabilir, en çok yediğin yiyecekleri görebilir ve uygulamayı Face ID ile kilitleyebilirsin. Abonelik olmadan da kayıt yapmak ve arkadaşlarla paylaşmak ücretsiz kalır.
+Sekki Plus ve Pro
+Plus ile birden çok grup oluşturabilir, birkaç hafta öncesinin öğünlerini bugünkülerle yan yana karşılaştırabilir, en çok yediklerini görebilir ve uygulamayı Face ID ile kilitleyebilirsin. Pro, Plus’taki her şeyi içerir; buna ek olarak nerede yediğini gösteren bir harita, her pazartesi geçen haftanın tek sayfalık özeti, kayıtları PDF olarak dışa aktarma ve tüm fotoğrafları tek seferde kaydetme sunar. İkisi de yıllık veya aylık abonelikle ya da tek seferlik ömür boyu satın almayla kullanılabilir. Kayıt tutmak ve arkadaşlarla paylaşmak abonelik olmadan da ücretsiz kalır.
 
 Her kayıt VoiceOver ile oluşturulabilir ve görüntülenebilir.
 
 Abonelikler hakkında
-Sekki Pro yıllık veya aylık abonelik olarak sunulur. Satın alma onaylandığında ödeme Apple Kimliği hesabından tahsil edilir. Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. İstediğin zaman Apple Kimliği abonelik ayarlarından iptal edebilirsin.
+Sekki Plus ve Sekki Pro yıllık veya aylık abonelik olarak sunulur. Satın alma onaylandığında ödeme Apple Kimliği hesabından tahsil edilir. Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. İstediğin zaman Apple Kimliği abonelik ayarlarından iptal edebilirsin.
 
 Kullanım Koşulları (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Hizmet Şartları: https://m1zz.github.io/RoutineCamera/tr/terms.html

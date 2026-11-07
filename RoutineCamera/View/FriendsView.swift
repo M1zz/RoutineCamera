@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RoutineCameraCore
+import os
 
 struct FriendsView: View {
     @ObservedObject var friendManager = FriendManager.shared
@@ -513,7 +514,7 @@ struct FriendsView: View {
                         let loaded = try await manager.loadFriendMealsBatch(friendId: friend.id, dates: [today], album: .diet)
                         return (friend.id, loaded[today] ?? [:])
                     } catch {
-                        print("❌ [FriendsView] \(friend.name) 오늘 식단 조회 실패: \(error.localizedDescription)")
+                        Log.friends.error("\(friend.name) 오늘 식단 조회 실패: \(error.localizedDescription)")
                         return (friend.id, nil)
                     }
                 }
@@ -649,8 +650,6 @@ struct FriendTodayCard: View {
 
     private var hasRecord: Bool { latest != nil }
 
-    @State private var thumbnail: UIImage?
-
     private var photoData: Data? { latest?.afterImageData ?? latest?.beforeImageData }
 
     /// 사진이 바뀌었을 때만 다시 푼다
@@ -659,23 +658,21 @@ struct FriendTodayCard: View {
         return "\(friend.id)_\(latest.mealType)_\(latest.capturedAt?.timeIntervalSince1970 ?? 0)_\(photoData.count)"
     }
 
-    private func loadThumbnail() async {
-        guard let data = photoData else { thumbnail = nil; return }
-        let key = photoKey as NSString
-        if let cached = Self.thumbnailCache.object(forKey: key) { thumbnail = cached; return }
-        let maxPixel = size * 3
-        let image = await Task.detached(priority: .userInitiated) {
-            MealImageResizer.downsampledImage(from: data, maxPixel: maxPixel)
-        }.value
-        if let image { Self.thumbnailCache.setObject(image, forKey: key) }
-        thumbnail = image
+    private var placeholderTile: some View {
+        Rectangle()
+            .fill(hasRecord ? Color.green.opacity(0.15) : Color(.systemGray6))
+            .frame(width: size, height: size)
+            .overlay(
+                VStack(spacing: 4) {
+                    Text(String(friend.name.prefix(1)))
+                        .scaledFont(size: 30, weight: .bold)
+                        .foregroundColor(hasRecord ? .green : .secondary)
+                    Text(hasRecord ? String(localized: "friend.loggedNoPhoto", defaultValue: "사진 없이 기록", comment: "Friend status: logged a meal without a photo") : String(localized: "아직 기록 전"))
+                        .scaledFont(size: 11)
+                        .foregroundColor(.secondary)
+                }
+            )
     }
-
-    private static let thumbnailCache: NSCache<NSString, UIImage> = {
-        let cache = NSCache<NSString, UIImage>()
-        cache.countLimit = 100
-        return cache
-    }()
 
     private var timeText: String? {
         latest?.capturedAt.map { Self.timeFormatter.string(from: $0) }
@@ -684,26 +681,13 @@ struct FriendTodayCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             ZStack(alignment: .bottomLeading) {
-                if photoData != nil, let image = thumbnail {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
+                // 사진은 공용 썸네일(메인 밖에서 풀고 기억해 둠)로. 사진이 없으면 이름 첫 글자 칸
+                if let photoData {
+                    MealThumbnail(id: photoKey, data: photoData, maxPixel: size * 3) { placeholderTile }
                         .frame(width: size, height: size)
                         .clipped()
                 } else {
-                    Rectangle()
-                        .fill(hasRecord ? Color.green.opacity(0.15) : Color(.systemGray6))
-                        .frame(width: size, height: size)
-                        .overlay(
-                            VStack(spacing: 4) {
-                                Text(String(friend.name.prefix(1)))
-                                    .scaledFont(size: 30, weight: .bold)
-                                    .foregroundColor(hasRecord ? .green : .secondary)
-                                Text(hasRecord ? String(localized: "friend.loggedNoPhoto", defaultValue: "사진 없이 기록", comment: "Friend status: logged a meal without a photo") : String(localized: "아직 기록 전"))
-                                    .scaledFont(size: 11)
-                                    .foregroundColor(.secondary)
-                            }
-                        )
+                    placeholderTile
                 }
 
                 // 가장 최근 끼니
@@ -742,7 +726,6 @@ struct FriendTodayCard: View {
         }
         .frame(width: size)
         .opacity(hasRecord ? 1 : 0.7)
-        .task(id: photoKey) { await loadThumbnail() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(hasRecord
                             ? (timeText.map { String(localized: "\(friend.name), 오늘 \(meals.count)끼 기록, 마지막 \($0)", comment: "VoiceOver: friend name, meals logged today, time of the last one") }
@@ -1347,7 +1330,7 @@ struct FriendMealsView: View {
             }
         } catch {
             // 실패한 날을 빈 날로 치면 "기록이 없어요" 로 보이고 과거로 계속 헛걸음한다 — 실패로 남긴다
-            print("❌ 기록 로드 실패: \(error)")
+            Log.friends.error("기록 로드 실패: \(error.localizedDescription)")
             await MainActor.run {
                 loadError = String(localized: "기록을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.")
             }
@@ -1630,7 +1613,7 @@ struct NudgeTodayRow: View {
                 )
                 pokedMeals.insert(mealType)
             } catch {
-                print("❌ [NudgeTodayRow] 콕 찌르기 실패: \(error)")
+                Log.friends.error("콕 찌르기 실패: \(error.localizedDescription)")
             }
             pokingMeal = nil
         }
@@ -1651,32 +1634,26 @@ struct FriendMealDetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // 식전 사진
-                    if let beforeData = meal.beforeImageData,
-                       let image = UIImage(data: beforeData) {
+                    if let beforeData = meal.beforeImageData {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("식전")
                                 .font(.headline)
                                 .padding(.horizontal)
 
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
+                            MealThumbnail(id: "\(meal.id)-before", data: beforeData, maxPixel: 1600, contentMode: .fit) { Color(.systemGray6) }
                                 .cornerRadius(12)
                                 .padding(.horizontal)
                         }
                     }
 
                     // 식후 사진
-                    if let afterData = meal.afterImageData,
-                       let image = UIImage(data: afterData) {
+                    if let afterData = meal.afterImageData {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("식후")
                                 .font(.headline)
                                 .padding(.horizontal)
 
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
+                            MealThumbnail(id: "\(meal.id)-after", data: afterData, maxPixel: 1600, contentMode: .fit) { Color(.systemGray6) }
                                 .cornerRadius(12)
                                 .padding(.horizontal)
                         }
@@ -1776,13 +1753,11 @@ struct FriendMealCard: View {
     }
 
     // 정사각형으로 채운 사진 + 왼쪽 위 이름표 (식전·식후 나란히 볼 때)
-    private func labeledPhoto(_ image: UIImage, label: LocalizedStringKey) -> some View {
+    private func labeledPhoto(_ data: Data, kind: String, label: LocalizedStringKey) -> some View {
         Color.clear
             .aspectRatio(1, contentMode: .fit)
             .overlay(
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
+                MealThumbnail(id: "\(meal.id)-\(kind)", data: data, maxPixel: 600) { Color(.systemGray5) }
             )
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(alignment: .topLeading) {
@@ -1822,17 +1797,15 @@ struct FriendMealCard: View {
             }
 
             // 식전·식후가 다 있으면 나란히 (예전엔 식전만 보여서 친구는 식후 사진을 볼 수 없었다)
-            if let before = meal.beforeImageData.flatMap(UIImage.init(data:)),
-               let after = meal.afterImageData.flatMap(UIImage.init(data:)) {
+            // 사진은 메인 밖에서 칸 크기로 풀어 기억해 둔다 (타임라인을 스크롤할 때마다 원본을 다시 풀지 않게)
+            if let before = meal.beforeImageData, let after = meal.afterImageData {
                 HStack(spacing: 8) {
-                    labeledPhoto(before, label: "식전")
-                    labeledPhoto(after, label: "식후")
+                    labeledPhoto(before, kind: "before", label: "식전")
+                    labeledPhoto(after, kind: "after", label: "식후")
                 }
-            } else if let image = (meal.beforeImageData ?? meal.afterImageData).flatMap(UIImage.init(data:)) {
+            } else if let data = meal.beforeImageData ?? meal.afterImageData {
                 // 이미지 — 원본 비율 그대로(잘라내지 않음)
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
+                MealThumbnail(id: "\(meal.id)-single", data: data, maxPixel: 1080, contentMode: .fit) { Color(.systemGray5).frame(height: 240) }
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: 360)
                     .cornerRadius(12)

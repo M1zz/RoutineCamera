@@ -15,6 +15,8 @@
 //
 
 import Foundation
+import RoutineCameraCore
+import os
 
 final class FriendMealCache {
     static let shared = FriendMealCache()
@@ -32,7 +34,6 @@ final class FriendMealCache {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         root = base.appendingPathComponent("FriendMealsCache", isDirectory: true)
 
-        migrateFromCachesDirectoryIfNeeded()
 
         if !fileManager.fileExists(atPath: root.path) {
             try? fileManager.createDirectory(at: root, withIntermediateDirectories: true)
@@ -132,12 +133,7 @@ final class FriendMealCache {
         for file in files {
             try? fileManager.removeItem(at: file)
         }
-        print("🗑️ [캐시] 전체 삭제 완료")
-    }
-
-    var totalBytes: Int {
-        guard let files = try? fileManager.contentsOfDirectory(at: root, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
-        return files.reduce(0) { $0 + ((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0) }
+        Log.friends.info("전체 삭제 완료")
     }
 
     // MARK: - 만료 정책
@@ -168,6 +164,7 @@ final class FriendMealCache {
         var entries: [(key: String, bytes: Int, modified: Date)] = []
         var sizes: [String: Int] = [:]
         var dates: [String: Date] = [:]
+        var filesByKey: [String: [URL]] = [:]
 
         for file in files {
             let values = try? file.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey])
@@ -178,6 +175,7 @@ final class FriendMealCache {
             let key = Self.groupKey(fileName: file.lastPathComponent)
             sizes[key, default: 0] += bytes
             dates[key] = min(dates[key] ?? modified, modified)
+            filesByKey[key, default: []].append(file)
         }
 
         guard total > budgetBytes else { return }
@@ -190,11 +188,12 @@ final class FriendMealCache {
 
         for entry in entries {
             guard total - freed > target else { break }
-            remove(key: entry.key)
+            // 위에서 읽은 목록으로 바로 지운다 — 항목마다 폴더를 다시 읽으면 수천 개일 때 몇 초씩 멈췄다
+            for file in filesByKey[entry.key] ?? [] { try? fileManager.removeItem(at: file) }
             freed += entry.bytes
         }
 
-        print("🧹 [캐시] 용량 정리: \(total / 1024 / 1024)MB → \((total - freed) / 1024 / 1024)MB")
+        Log.friends.info("용량 정리: \(total / 1024 / 1024)MB → \((total - freed) / 1024 / 1024)MB")
     }
 
     // MARK: - 내부
@@ -222,23 +221,6 @@ final class FriendMealCache {
             return withoutSuffix
         }
         return fileName
-    }
-
-    /// 예전 위치(Caches)의 캐시를 그대로 옮겨온다. Caches는 시스템이 임의로 지운다.
-    private func migrateFromCachesDirectoryIfNeeded() {
-        let legacy = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("FriendMealsCache", isDirectory: true)
-
-        guard fileManager.fileExists(atPath: legacy.path),
-              !fileManager.fileExists(atPath: root.path) else { return }
-
-        do {
-            try fileManager.createDirectory(at: root.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try fileManager.moveItem(at: legacy, to: root)
-            print("📦 [캐시] Caches → Application Support 이관 완료")
-        } catch {
-            print("❌ [캐시] 이관 실패: \(error.localizedDescription)")
-        }
     }
 
     private func excludeFromBackup() {

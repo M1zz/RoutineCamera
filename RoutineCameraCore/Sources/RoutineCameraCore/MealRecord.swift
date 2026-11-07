@@ -7,21 +7,19 @@
 
 import Foundation
 
-// Vision/OpenAI 분석 결과
+// 사진 분석 결과 (기기 안 Vision). description 은 예전 버전이 남긴 설명 — 있으면 그대로 보인다
 public struct VisionAnalysisData: Codable, Sendable {
     public let foodItems: [String]
     public let extractedText: [String]
     public let confidence: Float
     public let analyzedDate: Date
-    public let isOpenAI: Bool
     public let description: String?
 
-    public init(foodItems: [String], extractedText: [String], confidence: Float, analyzedDate: Date, isOpenAI: Bool = false, description: String? = nil) {
+    public init(foodItems: [String], extractedText: [String], confidence: Float, analyzedDate: Date, description: String? = nil) {
         self.foodItems = foodItems
         self.extractedText = extractedText
         self.confidence = confidence
         self.analyzedDate = analyzedDate
-        self.isOpenAI = isOpenAI
         self.description = description
     }
 
@@ -31,7 +29,6 @@ public struct VisionAnalysisData: Codable, Sendable {
         extractedText = try c.decode([String].self, forKey: .extractedText)
         confidence = try c.decode(Float.self, forKey: .confidence)
         analyzedDate = try c.decode(Date.self, forKey: .analyzedDate)
-        isOpenAI = try c.decodeIfPresent(Bool.self, forKey: .isOpenAI) ?? false
         description = try c.decodeIfPresent(String.self, forKey: .description)
     }
 
@@ -51,21 +48,38 @@ public struct VisionAnalysisData: Codable, Sendable {
     }
 }
 
+/// 사진을 찍은 곳. 이름은 찍은 뒤 기기에서 주소로 바꿔 둔 것 (못 바꿨으면 nil)
+public struct MealPlace: Codable, Equatable, Sendable {
+    public let latitude: Double
+    public let longitude: Double
+    public var name: String?
+
+    public init(latitude: Double, longitude: Double, name: String? = nil) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.name = name
+    }
+}
+
 public struct MealRecord: Identifiable, Codable, Sendable {
     public let id: UUID
     public let date: Date
     public let mealType: MealType
-    public let beforeImageData: Data?
-    public let afterImageData: Data?
+    public var beforeImageData: Data?
+    public var afterImageData: Data?
     public var memo: String?
-    public let recordedWithoutPhoto: Bool
+    public var recordedWithoutPhoto: Bool
     public var hidePhotoCountBadge: Bool
     public var visionAnalysis: VisionAnalysisData?
     public var capturedAt: Date?
     public var ateAll: Bool
+    /// 찍은 곳 (설정에서 켰을 때만). 친구에게는 올리지 않는다
+    public var place: MealPlace?
+    /// 얼마나 먹었는지 (다 / 절반 / 조금). 남기지 않았으면 nil
+    public var portion: MealPortion?
 
-    public init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false) {
-        self.id = UUID()
+    public init(id: UUID = UUID(), date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false, place: MealPlace? = nil, portion: MealPortion? = nil) {
+        self.id = id
         self.date = date
         self.mealType = mealType
         self.beforeImageData = beforeImageData
@@ -76,6 +90,15 @@ public struct MealRecord: Identifiable, Codable, Sendable {
         self.visionAnalysis = visionAnalysis
         self.capturedAt = capturedAt
         self.ateAll = ateAll
+        self.place = place
+        self.portion = portion
+    }
+
+    /// 같은 기록(id 유지)에 사진만 바꿔 끼운 사본 — 사진을 파일로 빼서 저장하고 다시 붙일 때 쓴다
+    public func replacingImages(before: Data?, after: Data?) -> MealRecord {
+        MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo,
+                   recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge,
+                   visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll, place: place, portion: portion)
     }
 
     public init(from decoder: Decoder) throws {
@@ -91,6 +114,9 @@ public struct MealRecord: Identifiable, Codable, Sendable {
         visionAnalysis = try c.decodeIfPresent(VisionAnalysisData.self, forKey: .visionAnalysis)
         capturedAt = try c.decodeIfPresent(Date.self, forKey: .capturedAt)
         ateAll = try c.decodeIfPresent(Bool.self, forKey: .ateAll) ?? false
+        place = try c.decodeIfPresent(MealPlace.self, forKey: .place)
+        // 모르는 값(새 버전이 더한 양)이면 버리지 않고 비워 둔다 — 기록 전체를 못 읽게 되지 않게
+        portion = (try? c.decodeIfPresent(MealPortion.self, forKey: .portion)) ?? nil
     }
 
     /// 썸네일용 (식후 우선, 없으면 식전)
@@ -103,6 +129,15 @@ public struct MealRecord: Identifiable, Codable, Sendable {
 
     /// 정렬용 시각 (촬영 시각 있으면 그것, 없으면 그날 날짜)
     public var sortDate: Date { capturedAt ?? date }
+
+    /// 순간 피드의 자리: 촬영 시각, 없으면 그날의 끼니 대표 시각.
+    /// 같은 날 안에서도 아침(아래) → 저녁(위) 순으로 시간 흐름대로 놓인다.
+    public func feedDate(calendar: Calendar = .current) -> Date {
+        if let capturedAt { return capturedAt }
+        let base = calendar.startOfDay(for: date)
+        return calendar.date(byAdding: .hour, value: mealType.typicalHour, to: base) ?? base
+    }
+    public var feedDate: Date { feedDate() }
 
     /// 식전만 찍고 아직 식후/다먹음 신호가 없는 미마감 기록
     public var isEatingInProgress: Bool {

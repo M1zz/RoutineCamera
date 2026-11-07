@@ -7,6 +7,7 @@ import SwiftUI
 import RoutineCameraCore
 import AVFoundation
 import Photos
+import os
 
 struct MealPhotoView: View {
     let date: Date
@@ -336,7 +337,7 @@ struct MealPhotoView: View {
                     self.unreadFeedbackCount = count
                 }
             } catch {
-                print("❌ [MealPhotoView] 안읽은 피드백 개수 로드 실패: \(error)")
+                Log.friends.error("안읽은 피드백 개수 로드 실패: \(error.localizedDescription)")
             }
         }
     }

@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 struct MealRhythmCard: View {
     @ObservedObject var mealStore: MealRecordStore
@@ -30,16 +31,11 @@ struct MealRhythmCard: View {
     }
 
     // 날짜별 기록된 끼니
+    /// 7일만 날짜 목록에서 바로 꺼낸다 (전체 기록을 훑지 않는다)
     private var recorded: [Date: Set<MealType>] {
-        let cal = Calendar.current
-        guard let first = days.first else { return [:] }
-        var result: [Date: Set<MealType>] = [:]
-        for r in mealStore.records where r.isComplete {
-            let day = cal.startOfDay(for: r.date)
-            guard day >= first else { continue }
-            result[day, default: []].insert(r.mealType)
-        }
-        return result
+        Dictionary(uniqueKeysWithValues: days.map { day in
+            (day, Set(mealStore.getMeals(for: day).values.filter(\.isComplete).map(\.mealType)))
+        })
     }
 
     private var fullDays: Int {

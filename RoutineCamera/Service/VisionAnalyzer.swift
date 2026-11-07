@@ -8,6 +8,7 @@
 import Foundation
 import Vision
 import UIKit
+import os
 
 // 분석 결과 모델
 nonisolated struct FoodAnalysisResult: Sendable {
@@ -186,7 +187,7 @@ nonisolated final class VisionAnalyzer: Sendable {
         do {
             try VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
         } catch {
-            print("❌ 이미지 분류 오류: \(error)")
+            Log.analysis.error("이미지 분류 오류: \(error.localizedDescription)")
             return ([], 0)
         }
         let observations = request.results ?? []
@@ -198,7 +199,7 @@ nonisolated final class VisionAnalyzer: Sendable {
             .map { translateToKorean($0.identifier) }
         let confidence = observations.first?.confidence ?? 0
 
-        print("✅ 이미지 분류 결과: \(items.joined(separator: ", ")) (신뢰도: \(confidence))")
+        Log.analysis.info("이미지 분류 결과: \(items.joined(separator: ", ")) (신뢰도: \(confidence))")
         return (items, confidence)
     }
 
@@ -211,7 +212,7 @@ nonisolated final class VisionAnalyzer: Sendable {
         do {
             try VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
         } catch {
-            print("❌ 텍스트 추출 오류: \(error)")
+            Log.analysis.error("텍스트 추출 오류: \(error.localizedDescription)")
             return ([], 0)
         }
         let candidates = (request.results ?? []).compactMap { $0.topCandidates(1).first }
@@ -219,7 +220,7 @@ nonisolated final class VisionAnalyzer: Sendable {
         let texts = candidates.filter { $0.confidence > 0.5 }.map(\.string)
         let confidence = candidates.map(\.confidence).max() ?? 0
 
-        print("✅ 텍스트 추출 결과: \(texts.joined(separator: " ")) (신뢰도: \(confidence))")
+        Log.analysis.info("텍스트 추출 결과: \(texts.joined(separator: " ")) (신뢰도: \(confidence))")
         return (texts, confidence)
     }
 }

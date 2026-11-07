@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 struct ExerciseGridView: View {
     @ObservedObject var mealStore: MealRecordStore
@@ -32,17 +33,20 @@ struct ExerciseGridView: View {
     /// 날짜는 기록이 속한 날(record.date)로 판단한다 — 지난 날 기록을 오늘 올려도 그날 칸에 들어가야 한다.
     private var monthGroups: [(month: Date, records: [MealRecord])] {
         let cal = Calendar.current
-        let records = mealStore.records
-            .filter { $0.isComplete }
-            .sorted {
-                let d0 = cal.startOfDay(for: $0.date), d1 = cal.startOfDay(for: $1.date)
-                return d0 != d1 ? d0 > d1 : timeOfDay($0) > timeOfDay($1)
-            }
-        let grouped = Dictionary(grouping: records) {
-            cal.date(from: cal.dateComponents([.year, .month], from: $0.date)) ?? $0.date
+        // 정렬 열쇠를 한 번만 계산한다 (비교할 때마다 startOfDay 를 두 번씩 하지 않게)
+        // 타입을 적어 둔다 — 추론에 맡기면 이 식 하나가 타입 검사에 5초 가까이 걸렸다
+        struct Keyed { let record: MealRecord; let day: Date; let time: Date }
+        let keyed: [Keyed] = mealStore.records.compactMap { (r: MealRecord) -> Keyed? in
+            r.isComplete ? Keyed(record: r, day: cal.startOfDay(for: r.date), time: timeOfDay(r)) : nil
         }
+        let records: [MealRecord] = keyed
+            .sorted { (a: Keyed, b: Keyed) -> Bool in a.day != b.day ? a.day > b.day : a.time > b.time }
+            .map { $0.record }
+        let grouped: [Date: [MealRecord]] = Dictionary(grouping: records) { (r: MealRecord) -> Date in
+            cal.date(from: cal.dateComponents([.year, .month], from: r.date)) ?? r.date
+        }
+        // grouping 은 원래 순서를 유지하므로 월 안에서도 이미 최신순이다
         return grouped
-            // grouping 은 원래 순서를 유지하므로 월 안에서도 이미 최신순이다
             .map { (month: $0.key, records: $0.value) }
             .sorted { $0.month > $1.month }
     }
@@ -205,19 +209,27 @@ struct ExerciseGridView: View {
         let cal = Calendar.current
         if cal.isDateInToday(date) { return String(localized: "오늘", comment: "Date label: today") }
         if cal.isDateInYesterday(date) { return String(localized: "어제", comment: "Date label: yesterday") }
-        let fmt = DateFormatter()
-        fmt.setLocalizedDateFormatFromTemplate("MdE")
-        return fmt.string(from: date)
+        return Self.shortDateFormatter.string(from: date)
     }
 
     private func accessibilityDateLabel(_ date: Date) -> String {
         let cal = Calendar.current
         if cal.isDateInToday(date) { return String(localized: "오늘", comment: "Date label: today") }
         if cal.isDateInYesterday(date) { return String(localized: "어제", comment: "Date label: yesterday") }
+        return Self.longDateFormatter.string(from: date)
+    }
+
+    // 칸마다 날짜 라벨을 그리므로 포매터는 한 번만 만든다
+    private static let shortDateFormatter: DateFormatter = {
+        let fmt = DateFormatter()
+        fmt.setLocalizedDateFormatFromTemplate("MdE")
+        return fmt
+    }()
+    private static let longDateFormatter: DateFormatter = {
         let fmt = DateFormatter()
         fmt.setLocalizedDateFormatFromTemplate("MMMMdEEEE")
-        return fmt.string(from: date)
-    }
+        return fmt
+    }()
 
     private func monthLabel(_ month: Date) -> String {
         let fmt = DateFormatter()

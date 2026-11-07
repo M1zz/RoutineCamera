@@ -34,8 +34,17 @@ private struct UserSafetyModifier: ViewModifier {
         String(localized: "기타"),
     ]
 
+    // 창마다 함수로 나눈다 — 한 식으로 이어 두면 타입 검사가 1초 가까이 걸렸다
     func body(content: Content) -> some View {
-        content
+        reportDialog(blockDialog(actionDialog(content)))
+            .alert(resultMessage ?? "", isPresented: present($resultMessage)) {
+                Button("확인", role: .cancel) {}
+            }
+    }
+
+    /// 1단계 — 무엇을 할지
+    private func actionDialog(_ view: some View) -> some View {
+        view
             // 1단계 — 무엇을 할지
             .confirmationDialog(target?.name ?? "", isPresented: present($target), titleVisibility: .visible,
                                 presenting: target) { t in
@@ -49,6 +58,11 @@ private struct UserSafetyModifier: ViewModifier {
                 Button("신고하기") { afterDismiss { reportTarget = t } }
                 Button("취소", role: .cancel) {}
             }
+    }
+
+    /// 차단 확인
+    private func blockDialog(_ view: some View) -> some View {
+        view
             // 차단 확인
             .confirmationDialog("\(blockTarget?.name ?? "")님을 차단할까요?", isPresented: present($blockTarget),
                                 titleVisibility: .visible, presenting: blockTarget) { t in
@@ -59,6 +73,11 @@ private struct UserSafetyModifier: ViewModifier {
             } message: { _ in
                 Text("서로 친구가 아니게 되고, 이 사람이 남긴 댓글과 반응이 보이지 않아요. 코드로 다시 추가하면 풀려요.")
             }
+    }
+
+    /// 신고 사유
+    private func reportDialog(_ view: some View) -> some View {
+        view
             // 신고 사유
             .confirmationDialog("신고 사유를 골라 주세요", isPresented: present($reportTarget),
                                 titleVisibility: .visible, presenting: reportTarget) { t in
@@ -71,9 +90,6 @@ private struct UserSafetyModifier: ViewModifier {
                 Button("취소", role: .cancel) {}
             } message: { _ in
                 Text("신고 내용은 개발자에게 바로 전달돼요. 상대에게는 알리지 않아요.")
-            }
-            .alert(resultMessage ?? "", isPresented: present($resultMessage)) {
-                Button("확인", role: .cancel) {}
             }
     }
 

@@ -10,131 +10,7 @@ import SwiftUI
 import Combine
 import WidgetKit
 import RoutineCameraCore
-
-// 식사 타입 정의
-enum MealType: String, CaseIterable, Codable, Identifiable {
-    case breakfast = "아침"
-    case lunch = "점심"
-    case dinner = "저녁"
-    case snack1 = "간식1"
-    case snack2 = "간식2"
-    case snack3 = "간식3"
-
-    var id: String { self.rawValue }
-
-    /// 화면에 보이는 이름 — 간식1·2·3 은 저장용 구분일 뿐이라 사용자에게는 "간식" 으로 보인다
-    var displayName: String {
-        isSnack ? String(localized: "간식") : String(localized: String.LocalizationValue(rawValue))
-    }
-
-    var symbolName: String {
-        switch self {
-        case .breakfast: return "sunrise.fill"
-        case .lunch: return "sun.max.fill"
-        case .dinner: return "moon.stars.fill"
-        case .snack1, .snack2, .snack3: return "cup.and.saucer.fill"
-        }
-    }
-
-    var symbolColor: Color {
-        switch self {
-        case .breakfast: return .orange
-        case .lunch: return .yellow
-        case .dinner: return .blue
-        case .snack1: return .green
-        case .snack2: return .pink
-        case .snack3: return .purple
-        }
-    }
-
-    // 간식 타입인지 확인
-    var isSnack: Bool {
-        switch self {
-        case .snack1, .snack2, .snack3:
-            return true
-        default:
-            return false
-        }
-    }
-
-    // 타임스탬프가 없는 기록의 정렬·배치용 대표 시각(시)
-    var typicalHour: Int {
-        switch self {
-        case .breakfast: return 8
-        case .snack1:    return 10
-        case .lunch:     return 12
-        case .snack2:    return 15
-        case .dinner:    return 18
-        case .snack3:    return 21
-        }
-    }
-
-    // 기록 화면이 미리 채우는 "먹은 시각" — 오늘 지금 끼니면 지금, 아니면 그 날 끼니 대표 시각 (RoutineCameraCore)
-    func suggestedCapturedAt(on date: Date, now: Date = Date()) -> Date {
-        guard let core = RoutineCameraCore.MealType(rawValue: rawValue) else { return now }
-        return MealTimeSuggestion.capturedAt(day: date, mealType: core, now: now)
-    }
-
-    // 촬영 시각으로 끼니를 자동 추론 (순간 기록에서 슬롯 선택 없이 바로 기록하기 위함)
-    // 아침 05~10시 / 점심 11~15시 / 저녁 16~21시 / 그 외 간식
-    static func inferred(at date: Date = Date()) -> MealType {
-        let hour = Calendar.current.component(.hour, from: date)
-        switch hour {
-        case 5...10:  return .breakfast
-        case 11...15: return .lunch
-        case 16...21: return .dinner
-        default:      return .snack1
-        }
-    }
-}
-
-// Vision 분석 결과 저장용 모델
-struct VisionAnalysisData: Codable {
-    let foodItems: [String]
-    let extractedText: [String]
-    let confidence: Float
-    let analyzedDate: Date
-    let isOpenAI: Bool // OpenAI로 분석했는지 여부
-    let description: String? // OpenAI의 상세 설명
-
-    init(foodItems: [String], extractedText: [String], confidence: Float, analyzedDate: Date, isOpenAI: Bool = false, description: String? = nil) {
-        self.foodItems = foodItems
-        self.extractedText = extractedText
-        self.confidence = confidence
-        self.analyzedDate = analyzedDate
-        self.isOpenAI = isOpenAI
-        self.description = description
-    }
-
-    // 기존 데이터 호환성을 위한 커스텀 디코딩
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        foodItems = try container.decode([String].self, forKey: .foodItems)
-        extractedText = try container.decode([String].self, forKey: .extractedText)
-        confidence = try container.decode(Float.self, forKey: .confidence)
-        analyzedDate = try container.decode(Date.self, forKey: .analyzedDate)
-        isOpenAI = try container.decodeIfPresent(Bool.self, forKey: .isOpenAI) ?? false
-        description = try container.decodeIfPresent(String.self, forKey: .description)
-    }
-
-    var summary: String {
-        var result = ""
-
-        if !foodItems.isEmpty {
-            result += "🍽️ " + String(localized: "음식: \(foodItems.joined(separator: ", "))", comment: "Food analysis summary: detected foods") + "\n"
-        }
-
-        if let desc = description, !desc.isEmpty {
-            result += "💬 \(desc)\n"
-        }
-
-        if !extractedText.isEmpty {
-            result += "📝 " + String(localized: "텍스트: \(extractedText.joined(separator: " "))", comment: "Food analysis summary: text found in the photo")
-        }
-
-        return result.isEmpty ? String(localized: "분석 결과 없음", comment: "Food analysis summary when nothing was found") : result
-    }
-}
+import os
 
 // 피드백 모델 (받은 피드백)
 struct MealFeedback: Identifiable, Codable {
@@ -175,162 +51,6 @@ struct MealFeedback: Identifiable, Codable {
     }
 }
 
-// 보낸 피드백 모델
-struct SentFeedback: Identifiable, Codable {
-    let id: String
-    let recipientId: String // 받는 사람 UID
-    let content: String
-    let createdAt: Date
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case recipientId
-        case content
-        case createdAt
-    }
-
-    init(id: String = UUID().uuidString, recipientId: String, content: String, createdAt: Date = Date()) {
-        self.id = id
-        self.recipientId = recipientId
-        self.content = content
-        self.createdAt = createdAt
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
-        recipientId = try container.decode(String.self, forKey: .recipientId)
-        content = try container.decode(String.self, forKey: .content)
-        createdAt = try container.decode(Date.self, forKey: .createdAt)
-    }
-}
-
-/// 사진을 찍은 곳. 이름은 찍은 뒤 기기에서 주소로 바꿔 둔 것 (못 바꿨으면 nil)
-struct MealPlace: Codable, Equatable, Sendable {
-    let latitude: Double
-    let longitude: Double
-    var name: String?
-}
-
-// 식사 기록 모델
-struct MealRecord: Identifiable, Codable {
-    let id: UUID
-    let date: Date
-    let mealType: MealType
-    let beforeImageData: Data?  // 식전 사진
-    let afterImageData: Data?   // 식후 사진
-    var memo: String?
-    let recordedWithoutPhoto: Bool  // 사진 없이 기록했는지
-    var hidePhotoCountBadge: Bool  // 이 식사의 사진 개수 알림 숨기기
-    var visionAnalysis: VisionAnalysisData?  // Vision Framework 분석 결과
-    var capturedAt: Date?  // 실제 촬영/기록 시각 (순간 피드 정렬용). 기존 데이터는 nil → date로 폴백
-    var ateAll: Bool  // "다 먹음" 신호 (식후 사진 대체). 식전만 찍고 다 먹었을 때
-    var place: MealPlace?  // 찍은 곳 (설정에서 켰을 때만). 친구에게는 올리지 않는다
-
-    init(date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false, place: MealPlace? = nil) {
-        self.id = UUID()
-        self.date = date
-        self.mealType = mealType
-        self.beforeImageData = beforeImageData
-        self.afterImageData = afterImageData
-        self.memo = memo
-        self.recordedWithoutPhoto = recordedWithoutPhoto
-        self.hidePhotoCountBadge = hidePhotoCountBadge
-        self.visionAnalysis = visionAnalysis
-        self.capturedAt = capturedAt
-        self.ateAll = ateAll
-        self.place = place
-    }
-
-    // id 까지 그대로 옮기는 init (사진만 바꿔 끼운 사본용)
-    private init(id: UUID, date: Date, mealType: MealType, beforeImageData: Data?, afterImageData: Data?, memo: String?, recordedWithoutPhoto: Bool, hidePhotoCountBadge: Bool, visionAnalysis: VisionAnalysisData?, capturedAt: Date?, ateAll: Bool, place: MealPlace?) {
-        self.id = id
-        self.date = date
-        self.mealType = mealType
-        self.beforeImageData = beforeImageData
-        self.afterImageData = afterImageData
-        self.memo = memo
-        self.recordedWithoutPhoto = recordedWithoutPhoto
-        self.hidePhotoCountBadge = hidePhotoCountBadge
-        self.visionAnalysis = visionAnalysis
-        self.capturedAt = capturedAt
-        self.ateAll = ateAll
-        self.place = place
-    }
-
-    /// 같은 기록(id 유지)에 사진만 바꿔 끼운 사본 — 사진을 파일로 빼서 저장하고 다시 붙일 때 쓴다
-    func replacingImages(before: Data?, after: Data?) -> MealRecord {
-        MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo, recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge, visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll, place: place)
-    }
-
-    // 기존 데이터 호환성을 위한 커스텀 디코딩
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(UUID.self, forKey: .id)
-        date = try container.decode(Date.self, forKey: .date)
-        mealType = try container.decode(MealType.self, forKey: .mealType)
-        beforeImageData = try container.decodeIfPresent(Data.self, forKey: .beforeImageData)
-        afterImageData = try container.decodeIfPresent(Data.self, forKey: .afterImageData)
-        memo = try container.decodeIfPresent(String.self, forKey: .memo)
-        // 기존 데이터에는 recordedWithoutPhoto가 없을 수 있으므로 기본값 false 사용
-        recordedWithoutPhoto = try container.decodeIfPresent(Bool.self, forKey: .recordedWithoutPhoto) ?? false
-        // 기존 데이터에는 hidePhotoCountBadge가 없을 수 있으므로 기본값 false 사용
-        hidePhotoCountBadge = try container.decodeIfPresent(Bool.self, forKey: .hidePhotoCountBadge) ?? false
-        // 기존 데이터에는 visionAnalysis가 없을 수 있으므로 기본값 nil 사용
-        visionAnalysis = try container.decodeIfPresent(VisionAnalysisData.self, forKey: .visionAnalysis)
-        // 신규 필드 — 기존 데이터 호환 기본값
-        capturedAt = try container.decodeIfPresent(Date.self, forKey: .capturedAt)
-        ateAll = try container.decodeIfPresent(Bool.self, forKey: .ateAll) ?? false
-        place = try container.decodeIfPresent(MealPlace.self, forKey: .place)
-    }
-
-    // 썸네일용 이미지 (식후 있으면 식후, 없으면 식전)
-    var thumbnailImageData: Data? {
-        return afterImageData ?? beforeImageData
-    }
-
-    // 기록이 완료되었는지 (사진 1장 이상 / 사진 없이 기록 / "다 먹음" 중 하나라도)
-    var isComplete: Bool {
-        return beforeImageData != nil || afterImageData != nil || recordedWithoutPhoto || ateAll
-    }
-
-    // 피드 정렬용 시각 (촬영 시각 있으면 그것, 없으면 그날 날짜)
-    var sortDate: Date {
-        return capturedAt ?? date
-    }
-
-    // 식전만 찍고 아직 식후/다먹음 신호가 없는 미마감 상태
-    var isEatingInProgress: Bool {
-        return beforeImageData != nil && afterImageData == nil && !ateAll && !recordedWithoutPhoto
-    }
-
-    // "먹는 중"으로 표시할 수 있는 상태 — 당일 기록에만 해당
-    var isEatingInProgressToday: Bool { isEatingInProgress(asOf: Date()) }
-
-    // 식전만 남긴 채 날이 지나간 기록 → "기록 필요"
-    var needsRecordCompletion: Bool { needsRecordCompletion(asOf: Date()) }
-
-    // 기준 시각과 같은 날의 미마감 기록인지
-    func isEatingInProgress(asOf now: Date, calendar: Calendar = .current) -> Bool {
-        return self.isEatingInProgress && calendar.isDate(sortDate, inSameDayAs: now)
-    }
-
-    // 기준 시각보다 이전 날에 남긴 미마감 기록인지
-    func needsRecordCompletion(asOf now: Date, calendar: Calendar = .current) -> Bool {
-        return self.isEatingInProgress && !calendar.isDate(sortDate, inSameDayAs: now)
-    }
-
-    // 식전·식후 둘 다 있어 식사가 마감된 기록
-    var hasBeforeAfterComparison: Bool {
-        return beforeImageData != nil && afterImageData != nil
-    }
-
-    // 식후만 남기고 식전 사진이 비어 있는 기록 → 어떤 사진이 필요한지 화면에 그대로 표시하기 위함
-    var needsBeforePhoto: Bool {
-        return afterImageData != nil && beforeImageData == nil && !ateAll && !recordedWithoutPhoto
-    }
-}
-
 // 날짜별 식사 기록을 관리하는 ObservableObject
 @MainActor
 class MealRecordStore: ObservableObject {
@@ -339,10 +59,28 @@ class MealRecordStore: ObservableObject {
 
     // 식단과 운동을 완전히 별개로 저장
     @Published private var dietRecords: [MealRecord] = [] {
-        didSet { dietByDay = Self.indexByDay(dietRecords) }
+        didSet { dietByDay = Self.indexByDay(dietRecords); feedCache[.diet] = nil; dietRevision &+= 1 }
     }
     @Published private var exerciseRecords: [MealRecord] = [] {
-        didSet { exerciseByDay = Self.indexByDay(exerciseRecords) }
+        didSet { exerciseByDay = Self.indexByDay(exerciseRecords); feedCache[.exercise] = nil }
+    }
+
+    /// 식단 기록이 바뀔 때마다 하나씩 오른다 — 바뀌지 않았으면 다시 할 필요 없는 일(Spotlight 색인 등)을 건너뛰는 표시
+    private(set) var dietRevision = 0
+
+    /// 피드(순간 컬렉션)용 — 남긴 기록을 날짜별로, 최신 날 먼저 · 날 안에서도 최신순.
+    /// 피드는 1분마다 · 설정이 바뀔 때마다 다시 그려지는데, 그때마다 전체를 정렬하지 않게 기록이 바뀔 때만 만든다.
+    private var feedCache: [AlbumType: [(day: Date, records: [MealRecord])]] = [:]
+
+    var feedDays: [(day: Date, records: [MealRecord])] {
+        let album = SettingsManager.shared.albumType
+        if let cached = feedCache[album] { return cached }
+        let calendar = Calendar.current
+        let built = Dictionary(grouping: records.filter(\.isComplete)) { calendar.startOfDay(for: $0.feedDate) }
+            .map { (day: $0.key, records: $0.value.sorted { $0.feedDate > $1.feedDate }) }
+            .sorted { $0.day > $1.day }
+        feedCache[album] = built
+        return built
     }
 
     /// 날짜(그날 0시) → 끼니 → 기록. 화면과 연속 기록 계산이 날마다 전체 기록을 훑지 않게 한다.
@@ -364,6 +102,7 @@ class MealRecordStore: ObservableObject {
     private func rebuildDayIndex() {
         dietByDay = Self.indexByDay(dietRecords)
         exerciseByDay = Self.indexByDay(exerciseRecords)
+        feedCache.removeAll()
         objectWillChange.send()
     }
 
@@ -393,8 +132,8 @@ class MealRecordStore: ObservableObject {
 
     // 위젯과 공유하기 위해 App Group 저장소 사용 (미등록 시 표준으로 폴백)
     private let userDefaults = AppGroup.defaults
-    private let dietRecordsKey = "DietMealRecords"
-    private let exerciseRecordsKey = "ExerciseMealRecords"
+    private let dietRecordsKey = AppGroup.dietRecordsKey
+    private let exerciseRecordsKey = AppGroup.exerciseRecordsKey
     private var cancellables = Set<AnyCancellable>()
 
     // 실패(거른 끼니) 판정의 기준 시작일
@@ -403,7 +142,9 @@ class MealRecordStore: ObservableObject {
     var startDate: Date {
         let calendar = Calendar.current
         let launchDay = calendar.startOfDay(for: SettingsManager.shared.appStartDate)
-        if let earliestRecord = records.map({ calendar.startOfDay(for: $0.date) }).min() {
+        // 날짜 목록에서 고른다 — 격자 칸마다 여러 번 불려, 기록 전체를 훑으면 스크롤이 버벅인다
+        let byDay = SettingsManager.shared.albumType == .diet ? dietByDay : exerciseByDay
+        if let earliestRecord = byDay.keys.min() {
             return min(launchDay, earliestRecord)
         }
         return launchDay
@@ -433,7 +174,6 @@ class MealRecordStore: ObservableObject {
     init() {
         migrateToAppGroupIfNeeded()
         loadRecords()
-        migrateOldDataIfNeeded()
         movePhotosOutOfDefaultsIfNeeded()
         removeStaleStandardCopiesIfNeeded()
         establishFingerprintBaselineIfNeeded()
@@ -479,14 +219,17 @@ class MealRecordStore: ObservableObject {
                 self?.uploadDirtyDates()
             }
         }
+
+        // 기록 쓰기는 메인 밖에서 한다. 앱이 멈추거나 종료되기 전에 밀린 쓰기를 마친다.
+        for name in [UIApplication.didEnterBackgroundNotification, UIApplication.willTerminateNotification] {
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.finishPendingWrites() }
+            }
+        }
     }
 
     deinit {
         uploadTimer?.invalidate()
-        // 앱 종료 시 대기 중인 업로드 실행
-        if !dirtyDates.isEmpty {
-            print("⚠️ [CloudKit] 앱 종료 - 남은 업로드 실행")
-        }
     }
 
     // 표준 UserDefaults → App Group 공유 저장소로 1회 이관 (위젯 공유 전환 시 데이터 보존)
@@ -500,47 +243,14 @@ class MealRecordStore: ObservableObject {
         if userDefaults.object(forKey: dietRecordsKey) == nil,
            let data = std.data(forKey: dietRecordsKey) {
             userDefaults.set(data, forKey: dietRecordsKey)
-            print("📦 [AppGroup] 식단 기록 이관 완료")
+            Log.store.info("식단 기록 이관 완료")
         }
         if userDefaults.object(forKey: exerciseRecordsKey) == nil,
            let data = std.data(forKey: exerciseRecordsKey) {
             userDefaults.set(data, forKey: exerciseRecordsKey)
-            print("📦 [AppGroup] 운동 기록 이관 완료")
+            Log.store.info("운동 기록 이관 완료")
         }
         userDefaults.set(true, forKey: flagKey)
-    }
-
-    // 기존 데이터를 식단 전용으로 마이그레이션
-    private func migrateOldDataIfNeeded() {
-        let oldKey = "MealRecords"
-
-        // 기존 키에 데이터가 있는지 확인
-        guard userDefaults.data(forKey: oldKey) != nil else {
-            print("📦 [Migration] 마이그레이션 필요 없음 - 기존 데이터 없음")
-            return
-        }
-
-        // 이미 마이그레이션 했는지 확인
-        let migrationKey = "DataMigrated_v1"
-        guard !userDefaults.bool(forKey: migrationKey) else {
-            print("📦 [Migration] 이미 마이그레이션 완료됨")
-            return
-        }
-
-        // 기존 데이터를 식단 데이터로 이동
-        if let oldData = userDefaults.data(forKey: oldKey),
-           let oldRecords = try? JSONDecoder().decode([MealRecord].self, from: oldData) {
-            dietRecords = oldRecords
-            if persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet) {
-                print("📦 [Migration] 기존 \(oldRecords.count)개 기록을 식단으로 마이그레이션 완료")
-            }
-
-            // 기존 데이터 삭제
-            userDefaults.removeObject(forKey: oldKey)
-
-            // 마이그레이션 완료 플래그 설정
-            userDefaults.set(true, forKey: migrationKey)
-        }
     }
 
     // 특정 날짜의 식사 기록들 가져오기
@@ -568,134 +278,64 @@ class MealRecordStore: ObservableObject {
         return candidates.first { !taken.contains($0) } ?? preferred
     }
 
+    // MARK: - 한 끼 고치기
+
+    /// 그날 그 끼니의 기록을 그 자리에서 고친다 (id 는 그대로). 기록이 없으면 false.
+    /// 예전에는 고칠 때마다 열한 칸을 다시 적어 새 기록을 만들었다 — 칸을 빠뜨리면 그 값이 조용히 사라졌다.
+    @discardableResult
+    private func mutateMeal(date: Date, mealType: MealType, _ change: (inout MealRecord) -> Void) -> Bool {
+        let day = Calendar.current.startOfDay(for: date)
+        var current = records
+        guard let index = current.firstIndex(where: {
+            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: day)
+        }) else { return false }
+        change(&current[index])
+        records = current
+        return true
+    }
+
+    private func meal(on date: Date, _ mealType: MealType) -> MealRecord? {
+        let day = Calendar.current.startOfDay(for: date)
+        return records.first { $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: day) }
+    }
+
     // 식사 기록 추가 또는 업데이트 (식전/식후 지정)
     // capturedAt: 새 기록일 때 "먹은 시각" (기록 화면에서 고른 값). 기존 기록에 사진을 더할 때는 원래 시각을 유지한다.
     func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(), place: MealPlace? = nil) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-
-        // 현재 앨범 타입에 따라 적절한 배열 사용
-        var currentRecords = records
-
-        // 기존 기록 찾기
-        if let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            // 기존 기록 업데이트
-            let existing = currentRecords[existingIndex]
-            if isBefore {
-                currentRecords[existingIndex] = MealRecord(
-                    date: targetDate,
-                    mealType: mealType,
-                    beforeImageData: imageData,
-                    afterImageData: existing.afterImageData,
-                    memo: existing.memo,
-                    recordedWithoutPhoto: false,
-                    hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                    visionAnalysis: existing.visionAnalysis,
-                    capturedAt: existing.capturedAt ?? Date(),
-                    ateAll: existing.ateAll,
-                    place: existing.place ?? place
-                )
-            } else {
-                currentRecords[existingIndex] = MealRecord(
-                    date: targetDate,
-                    mealType: mealType,
-                    beforeImageData: existing.beforeImageData,
-                    afterImageData: imageData,
-                    memo: existing.memo,
-                    recordedWithoutPhoto: false,
-                    hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                    visionAnalysis: existing.visionAnalysis,
-                    capturedAt: existing.capturedAt ?? Date(),
-                    ateAll: existing.ateAll,
-                    place: existing.place ?? place
-                )
-            }
-        } else {
-            // 새 기록 추가
-            let newRecord = MealRecord(
-                date: targetDate,
-                mealType: mealType,
-                beforeImageData: isBefore ? imageData : nil,
-                afterImageData: isBefore ? nil : imageData,
-                capturedAt: capturedAt,
-                place: place
-            )
-            currentRecords.append(newRecord)
+        let updated = mutateMeal(date: date, mealType: mealType) { record in
+            if isBefore { record.beforeImageData = imageData } else { record.afterImageData = imageData }
+            record.recordedWithoutPhoto = false
+            record.capturedAt = record.capturedAt ?? Date()
+            record.place = record.place ?? place
         }
-
-        // 다시 할당하여 setter 호출
-        records = currentRecords
-
-        // 업적 체크
+        if !updated {
+            records.append(MealRecord(date: Calendar.current.startOfDay(for: date), mealType: mealType,
+                                      beforeImageData: isBefore ? imageData : nil,
+                                      afterImageData: isBefore ? nil : imageData,
+                                      capturedAt: capturedAt, place: place))
+        }
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
-    // 사진 없이 기록
+    // 사진 없이 기록 (이미 기록이 있으면 그대로 둔다)
     func recordWithoutPhoto(date: Date, mealType: MealType, capturedAt: Date = Date()) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-
-        var currentRecords = records
-
-        // 이미 기록이 있는지 확인
-        if currentRecords.contains(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            print("⚠️ [MealRecordStore] 이미 기록이 있습니다")
-            return
-        }
-
-        // 새 기록 추가 (사진 없이)
-        let newRecord = MealRecord(
-            date: targetDate,
-            mealType: mealType,
-            beforeImageData: nil,
-            afterImageData: nil,
-            recordedWithoutPhoto: true,
-            capturedAt: capturedAt
-        )
-        currentRecords.append(newRecord)
-
-        records = currentRecords
-
-        // 업적 체크
+        guard meal(on: date, mealType) == nil else { return }
+        records.append(MealRecord(date: Calendar.current.startOfDay(for: date), mealType: mealType,
+                                  recordedWithoutPhoto: true, capturedAt: capturedAt))
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
     // "다 먹음" 기록 — 식전만 찍은 기록에 다먹음 신호를 붙이거나, 없으면 사진 없이 다먹음 기록 생성.
     // 위젯/액션버튼/알림에서 앱 안 열고 호출되는 진입점.
     func recordAteAll(date: Date, mealType: MealType) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-        var currentRecords = records
-
-        if let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            let existing = currentRecords[existingIndex]
-            currentRecords[existingIndex] = MealRecord(
-                date: targetDate,
-                mealType: mealType,
-                beforeImageData: existing.beforeImageData,
-                afterImageData: existing.afterImageData,
-                memo: existing.memo,
-                recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                visionAnalysis: existing.visionAnalysis,
-                capturedAt: existing.capturedAt ?? Date(),
-                ateAll: true,
-                place: existing.place
-            )
-        } else {
-            let newRecord = MealRecord(
-                date: targetDate,
-                mealType: mealType,
-                capturedAt: Date(),
-                ateAll: true
-            )
-            currentRecords.append(newRecord)
+        let updated = mutateMeal(date: date, mealType: mealType) { record in
+            record.capturedAt = record.capturedAt ?? Date()
+            record.ateAll = true
         }
-
-        records = currentRecords
+        if !updated {
+            records.append(MealRecord(date: Calendar.current.startOfDay(for: date), mealType: mealType,
+                                      capturedAt: Date(), ateAll: true))
+        }
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
@@ -719,7 +359,7 @@ class MealRecordStore: ObservableObject {
             }
         }
         userDefaults.removeObject(forKey: AppGroup.pendingAteAllKey)
-        print("📥 [AppGroup] 대기 중 '다 먹음' \(items.count)건 반영")
+        Log.store.info("대기 중 '다 먹음' \(items.count)건 반영")
     }
 
     /// 알림·위젯의 '다 먹음'은 식단 기록이다 — 앱이 운동 앨범을 보고 있어도 식단에 남긴다
@@ -741,8 +381,7 @@ class MealRecordStore: ObservableObject {
         }
         let afterCount = currentRecords.count
 
-        print("🗑️ [MealRecordStore] 식사 기록 삭제: \(mealType.rawValue), 날짜: \(targetDate)")
-        print("🗑️ [MealRecordStore] 삭제 전: \(beforeCount)개, 삭제 후: \(afterCount)개")
+        Log.store.info("기록 삭제: \(mealType.rawValue, privacy: .public) \(beforeCount)개 → \(afterCount)개")
 
         records = currentRecords
         // 지운 식사에 "다 드셨어요?" 알림이 남아 있으면, 울려서 '다 먹음'을 누를 때 지운 기록이 되살아난다
@@ -751,131 +390,39 @@ class MealRecordStore: ObservableObject {
 
     // 메모 업데이트
     func updateMemo(date: Date, mealType: MealType, memo: String?) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-
-        var currentRecords = records
-        if let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            let existing = currentRecords[existingIndex]
-            currentRecords[existingIndex] = MealRecord(
-                date: existing.date,
-                mealType: existing.mealType,
-                beforeImageData: existing.beforeImageData,
-                afterImageData: existing.afterImageData,
-                memo: memo,
-                recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                visionAnalysis: existing.visionAnalysis,
-                capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll,
-                    place: existing.place
-            )
-            records = currentRecords
-        }
+        mutateMeal(date: date, mealType: mealType) { $0.memo = memo }
     }
 
     // 사진 개수 알림 숨기기 업데이트
     func updateHidePhotoCountBadge(date: Date, mealType: MealType, hide: Bool) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-
-        var currentRecords = records
-        if let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            let existing = currentRecords[existingIndex]
-            currentRecords[existingIndex] = MealRecord(
-                date: existing.date,
-                mealType: existing.mealType,
-                beforeImageData: existing.beforeImageData,
-                afterImageData: existing.afterImageData,
-                memo: existing.memo,
-                recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: hide,
-                visionAnalysis: existing.visionAnalysis,
-                capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll,
-                    place: existing.place
-            )
-            records = currentRecords
-        }
+        mutateMeal(date: date, mealType: mealType) { $0.hidePhotoCountBadge = hide }
     }
 
-    // 찍은 곳 업데이트 (nil 이면 지운다)
-    func updatePlace(date: Date, mealType: MealType, place: MealPlace?) {
-        let targetDate = Calendar.current.startOfDay(for: date)
+    // 얼마나 먹었는지 (다시 누르면 지운다)
+    func updatePortion(date: Date, mealType: MealType, portion: MealPortion?) {
+        guard let existing = meal(on: date, mealType), existing.portion != portion else { return }
+        mutateMeal(date: date, mealType: mealType) { $0.portion = portion }
+    }
 
-        var currentRecords = records
-        guard let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) else { return }
-        guard currentRecords[existingIndex].place != place else { return }
-        currentRecords[existingIndex].place = place
-        records = currentRecords
+    // 찍은 곳 업데이트 (nil 이면 지운다). 같으면 저장하지 않는다
+    func updatePlace(date: Date, mealType: MealType, place: MealPlace?) {
+        guard let existing = meal(on: date, mealType), existing.place != place else { return }
+        mutateMeal(date: date, mealType: mealType) { $0.place = place }
     }
 
     // Vision 분석 결과 업데이트
     func updateVisionAnalysis(date: Date, mealType: MealType, analysis: VisionAnalysisData?) {
-        let targetDate = Calendar.current.startOfDay(for: date)
-
-        var currentRecords = records
-        if let existingIndex = currentRecords.firstIndex(where: {
-            $0.mealType == mealType && Calendar.current.isDate($0.date, inSameDayAs: targetDate)
-        }) {
-            let existing = currentRecords[existingIndex]
-            currentRecords[existingIndex] = MealRecord(
-                date: existing.date,
-                mealType: existing.mealType,
-                beforeImageData: existing.beforeImageData,
-                afterImageData: existing.afterImageData,
-                memo: existing.memo,
-                recordedWithoutPhoto: existing.recordedWithoutPhoto,
-                hidePhotoCountBadge: existing.hidePhotoCountBadge,
-                visionAnalysis: analysis,
-                capturedAt: existing.capturedAt,
-                ateAll: existing.ateAll,
-                    place: existing.place
-            )
-            records = currentRecords
-        }
+        mutateMeal(date: date, mealType: mealType) { $0.visionAnalysis = analysis }
     }
 
     // 기록 저장 (현재 앨범 타입의 데이터만 저장)
     private func saveRecords() {
-        print("🔔 [MealRecordStore] saveRecords() 호출됨")
-        print("   - 현재 앨범 타입: \(SettingsManager.shared.albumType)")
+        persist(SettingsManager.shared.albumType)
 
-        switch SettingsManager.shared.albumType {
-        case .diet:
-            print("   - 식단 모드로 저장 시작")
-            if persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet) {
-                print("💾 [MealRecordStore] 식단 기록 저장: \(dietRecords.count)개")
-
-                // CloudKit 동기화 (식단 공유가 활성화된 경우)
-                if !FriendManager.shared.isSignedIn {
-                    print("⚠️ [CloudKit] iCloud 미로그인이라 업로드 건너뜀")
-                } else if SettingsManager.shared.shareMealsToCloud {
-                    // 변경된 날짜들을 dirty로 표시하고 지연 업로드 스케줄
-                    markDirtyDatesFromRecords()
-                    scheduleDelayedUpload()
-                } else {
-                    print("⚠️ [CloudKit] 식단 공유 비활성화됨 - 설정에서 활성화 필요")
-                }
-            }
-        case .exercise:
-            if persistRecords(exerciseRecords, forKey: exerciseRecordsKey, album: .exercise) {
-                print("💾 [MealRecordStore] 운동 기록 저장: \(exerciseRecords.count)개")
-
-                // 1.0.8부터 운동도 친구에게 공유된다 (친구 화면의 "운동" 탭)
-                if !FriendManager.shared.isSignedIn {
-                    print("⚠️ [CloudKit] iCloud 미로그인이라 업로드 건너뜀")
-                } else if SettingsManager.shared.shareMealsToCloud {
-                    markDirtyDatesFromRecords()
-                    scheduleDelayedUpload()
-                } else {
-                    print("⚠️ [CloudKit] 기록 공유 비활성화됨 - 설정에서 활성화 필요")
-                }
-            }
+        // 친구 공유: 바뀐 날짜를 표시해 두고 잠시 뒤 올린다. 1.0.8부터 운동도 공유된다 (친구 화면의 "운동" 탭)
+        if FriendManager.shared.isSignedIn && SettingsManager.shared.shareMealsToCloud {
+            markDirtyDatesFromRecords()
+            scheduleDelayedUpload()
         }
 
         // 위젯(홈/잠금화면)이 읽는 경량 스냅샷은 앨범 모드와 무관하게 식단 기준으로 항상 갱신
@@ -913,11 +460,16 @@ class MealRecordStore: ObservableObject {
         for save in saves {
             if save.slot.album == .diet { diet.append(save.record) } else { exercise.append(save.record) }
         }
-        dietRecords = diet
-        exerciseRecords = exercise
-
-        persistRecords(dietRecords, forKey: dietRecordsKey, album: .diet)
-        persistRecords(exerciseRecords, forKey: exerciseRecordsKey, album: .exercise)
+        // 바뀐 앨범만 저장한다 — 새 기기에서 복원하면 이것이 묶음마다 불려, 두 앨범을 매번 통째로 쓰면 메인이 오래 막힌다
+        let albums = Set(replaced.map(\.album))
+        if albums.contains(.diet) {
+            dietRecords = diet
+            persist(.diet)
+        }
+        if albums.contains(.exercise) {
+            exerciseRecords = exercise
+            persist(.exercise)
+        }
 
         // 받은 날짜를 친구 공유 변경 감지 기준에 넣는다. 안 그러면 복원한 이력 전체가 공개 DB 로 다시 올라간다.
         let currentDiet = currentDateFingerprints()
@@ -937,6 +489,9 @@ class MealRecordStore: ObservableObject {
     }
 
     // MARK: - 위젯 스냅샷
+
+    /// 마지막으로 위젯을 다시 그리게 한 내용 (같으면 다시 그리지 않는다)
+    private var lastWidgetContent: String?
 
     // 위젯은 사진이 담긴 기록 전체를 디코딩하지 않고 이 요약만 읽는다.
     // 기록이 바뀔 때마다 공유 저장소에 쓰고 위젯 타임라인을 새로고침한다.
@@ -966,8 +521,15 @@ class MealRecordStore: ObservableObject {
 
         if let encoded = try? JSONEncoder().encode(snapshot) {
             userDefaults.set(encoded, forKey: AppGroup.widgetSnapshotKey)
+            // 위젯이 보여 주는 내용이 그대로면 다시 그리게 하지 않는다 (저장할 때마다 · 앱을 켤 때마다 불린다).
+            // 날이 바뀌면 오늘 수가 달라지므로 그때는 다시 그린다.
+            let content = "\(snapshot.todayCount)|\(snapshot.inProgressMealType ?? "")|\(snapshot.inProgressSince?.timeIntervalSince1970 ?? 0)|"
+                + "\(snapshot.lastRecordedAt?.timeIntervalSince1970 ?? 0)|\(snapshot.needsRecordCount)|"
+                + "\(snapshot.recordedMealTypes ?? [])|\(snapshot.caredMealTypes ?? [])|\(cal.startOfDay(for: now).timeIntervalSince1970)"
+            guard content != lastWidgetContent else { return }
+            lastWidgetContent = content
             WidgetCenter.shared.reloadAllTimelines()
-            print("🧩 [Widget] 스냅샷 갱신: 오늘 \(snapshot.todayCount)개, 먹는 중 \(snapshot.inProgressMealType ?? "없음")")
+            Log.app.debug("스냅샷 갱신: 오늘 \(snapshot.todayCount)개, 먹는 중 \(snapshot.inProgressMealType ?? "없음")")
         }
     }
 
@@ -1005,7 +567,7 @@ class MealRecordStore: ObservableObject {
         persistExerciseFingerprints()
 
         if !dirtyDates.isEmpty {
-            print("📝 [CloudKit] 업로드 대기 날짜: \(dirtyDates.sorted())")
+            Log.share.debug("업로드 대기 날짜: \(self.dirtyDates.sorted())")
         }
     }
 
@@ -1017,7 +579,7 @@ class MealRecordStore: ObservableObject {
             dateFingerprints = currentDateFingerprints()
             persistFingerprints()
             userDefaults.set(true, forKey: fingerprintBaselineKey)
-            print("📝 [CloudKit] 변경 감지 기준값 생성 (\(dateFingerprints.count)일) — 예전 기록은 설정의 '예전 기록 공유'로 올릴 수 있음")
+            Log.share.debug("변경 감지 기준값 생성 (\(self.dateFingerprints.count)일) — 예전 기록은 설정의 '예전 기록 공유'로 올릴 수 있음")
         }
 
         // 1.0.8에서 운동 공유가 생겼다. 기준값을 지금 상태로 잡아 두지 않으면
@@ -1026,7 +588,7 @@ class MealRecordStore: ObservableObject {
             exerciseDateFingerprints = currentExerciseFingerprints()
             persistExerciseFingerprints()
             userDefaults.set(true, forKey: exerciseFingerprintBaselineKey)
-            print("📝 [CloudKit] 운동 변경 감지 기준값 생성 (\(exerciseDateFingerprints.count)일)")
+            Log.share.debug("운동 변경 감지 기준값 생성 (\(self.exerciseDateFingerprints.count)일)")
         }
     }
 
@@ -1040,13 +602,9 @@ class MealRecordStore: ObservableObject {
     }
 
     private func fingerprints(of records: [MealRecord]) -> [String: Int] {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-
         var grouped: [String: [MealRecord]] = [:]
         for record in records {
-            grouped[formatter.string(from: record.date), default: []].append(record)
+            grouped[DayKey.string(from: record.date), default: []].append(record)
         }
 
         var result: [String: Int] = [:]
@@ -1121,53 +679,51 @@ class MealRecordStore: ObservableObject {
             Task { @MainActor [weak self] in self?.uploadDirtyDates() }
         }
 
-        print("⏰ [CloudKit] \(Int(uploadDelaySeconds))초 후 업로드 예정")
+        Log.share.debug("\(Int(self.uploadDelaySeconds))초 후 업로드 예정")
     }
 
     /// dirty로 표시된 날짜만 업로드
     private func uploadDirtyDates() {
         guard !dirtyDates.isEmpty else {
-            print("ℹ️ [CloudKit] 업로드할 날짜 없음")
+            Log.share.debug("업로드할 날짜 없음")
             return
         }
 
         // 로그인 확인 전이면 기다린다 — 지금 올리면 실패로 끝나고 날짜만 다시 쌓인다
         guard FriendManager.shared.isSignedIn, !FriendManager.shared.myUserId.isEmpty,
               SettingsManager.shared.shareMealsToCloud else {
-            print("⏸️ [CloudKit] 업로드 보류 (로그인 전 또는 공유 꺼짐) - \(dirtyDates.count)개 날짜 대기")
+            Log.share.info("업로드 보류 (로그인 전 또는 공유 꺼짐) - \(self.dirtyDates.count)개 날짜 대기")
             return
         }
 
-        print("🚀 [CloudKit] 스마트 업로드 시작 - \(dirtyDates.count)개 날짜")
+        Log.share.info("스마트 업로드 시작 - \(self.dirtyDates.count)개 날짜")
 
         let datesToUpload = dirtyDates
         dirtyDates.removeAll()  // 먼저 클리어 (업로드 중 생긴 변경은 새로 쌓인다)
 
         _Concurrency.Task {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
             var failed: Set<String> = []
 
             for dateString in datesToUpload.sorted() {
                 // 날짜 문자열을 Date로 변환
-                guard let date = dateFormatter.date(from: dateString) else { continue }
+                guard let date = DayKey.date(from: dateString) else { continue }
 
                 // 음식과 운동을 각각 올린다. 서버에서는 레코드 이름이 달라 서로 덮어쓰지 않는다.
                 for album in AlbumType.allCases {
                     let meals = album == .diet ? dietMeals(for: date) : exerciseMeals(for: date)
-                    print("   📅 \(dateString) - \(album.rawValue) 개수: \(meals.count)")
+                    Log.share.debug("\(dateString) - \(album.rawValue) 개수: \(meals.count)")
 
                     do {
                         if meals.isEmpty {
                             // 그 날 기록이 모두 지워진 경우 — 친구 화면에 남지 않도록 서버에서도 삭제
                             try await FriendManager.shared.deleteMyMeals(date: date, album: album)
-                            print("   🗑️ \(dateString) \(album.rawValue) 기록 없음 → 서버에서 삭제")
+                            Log.share.debug("\(dateString) \(album.rawValue) 기록 없음 → 서버에서 삭제")
                         } else {
                             try await FriendManager.shared.uploadMyMeals(date: date, meals: meals, album: album)
-                            print("   ✅ \(dateString) \(album.rawValue) 업로드 완료 (\(meals.count)개)")
+                            Log.share.debug("\(dateString) \(album.rawValue) 업로드 완료 (\(meals.count)개)")
                         }
                     } catch {
-                        print("   ❌ \(dateString) \(album.rawValue) 업로드 실패: \(error)")
+                        Log.share.error("\(dateString) \(album.rawValue) 업로드 실패: \(error.localizedDescription)")
                         failed.insert(dateString)
                     }
                 }
@@ -1177,47 +733,16 @@ class MealRecordStore: ObservableObject {
                 self.lastUploadTime = Date()
                 // 실패한 날짜는 다시 대기열로 — 앱이 다시 앞으로 오거나 다음에 저장할 때 올린다
                 self.dirtyDates.formUnion(failed)
-                print(failed.isEmpty ? "🏁 [CloudKit] 스마트 업로드 완료"
-                                     : "⚠️ [CloudKit] 업로드 실패 \(failed.count)개 날짜 — 다음에 다시 시도")
+                if failed.isEmpty {
+                    Log.share.info("스마트 업로드 완료")
+                } else {
+                    Log.share.warning("업로드 실패 \(failed.count)개 날짜 — 다음에 다시 시도")
+                }
             }
         }
     }
 
     // MARK: - 사진 파일 보관
-
-    /// UserDefaults 에 저장하는 기록 한 건. 사진 바이트 대신 파일 이름을 담는다.
-    /// 예전 형식(사진 바이트가 든 기록)도 그대로 읽히고, 파일로 못 옮긴 사진은 바이트로 남겨 잃지 않는다.
-    /// 위젯은 같은 키에서 날짜·끼니·촬영 시각만 읽으므로 형식이 바뀌어도 영향이 없다.
-    private struct StoredMealRecord: Codable {
-        let record: MealRecord
-        let beforeImageFile: String?
-        let afterImageFile: String?
-
-        private enum FileKeys: String, CodingKey {
-            case beforeImageFile
-            case afterImageFile
-        }
-
-        init(record: MealRecord, beforeImageFile: String?, afterImageFile: String?) {
-            self.record = record
-            self.beforeImageFile = beforeImageFile
-            self.afterImageFile = afterImageFile
-        }
-
-        init(from decoder: Decoder) throws {
-            record = try MealRecord(from: decoder)
-            let container = try decoder.container(keyedBy: FileKeys.self)
-            beforeImageFile = try container.decodeIfPresent(String.self, forKey: .beforeImageFile)
-            afterImageFile = try container.decodeIfPresent(String.self, forKey: .afterImageFile)
-        }
-
-        func encode(to encoder: Encoder) throws {
-            try record.encode(to: encoder)
-            var container = encoder.container(keyedBy: FileKeys.self)
-            try container.encodeIfPresent(beforeImageFile, forKey: .beforeImageFile)
-            try container.encodeIfPresent(afterImageFile, forKey: .afterImageFile)
-        }
-    }
 
     private lazy var dietImageStore: MealImageFileStore? = Self.makeImageStore(folder: "diet")
     private lazy var exerciseImageStore: MealImageFileStore? = Self.makeImageStore(folder: "exercise")
@@ -1228,14 +753,6 @@ class MealRecordStore: ObservableObject {
     /// 파일을 읽지 못한 사진 — "앨범/끼니 칸 이름" → 실제 파일 이름.
     /// 화면엔 비어 보여도 지운 사진이 아니므로, 저장할 때 참조를 버리지 않고 파일도 지우지 않는다.
     private var unreadableImageFiles: [String: String] = [:]
-
-    private static let imageFileDayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
 
     private static func makeImageStore(folder: String) -> MealImageFileStore? {
         let fileManager = FileManager.default
@@ -1254,75 +771,34 @@ class MealRecordStore: ObservableObject {
 
     /// 끼니 칸 하나의 기본 파일 이름 (예: 2026-09-10_lunch_before.jpg)
     private func imageSlotName(for record: MealRecord, kind: String) -> String {
-        MealImageFileStore.fileName(day: Self.imageFileDayFormatter.string(from: record.date),
-                                    slot: "\(record.mealType)",
-                                    kind: kind)
+        MealRecordWriter.slotName(for: record, kind: kind)
     }
 
-    /// 기록을 저장한다 — 사진은 파일로, 나머지는 UserDefaults 의 가벼운 JSON 으로.
-    /// 순서: 사진 파일 쓰기 → JSON 교체 → 더는 가리키지 않는 파일 정리.
-    /// 어느 단계에서 앱이 종료돼도 UserDefaults 의 JSON 이 가리키는 사진은 디스크에 남아 있다.
-    @discardableResult
-    private func persistRecords(_ records: [MealRecord], forKey key: String, album: AlbumType) -> Bool {
-        let store = imageStore(for: album)
-        var referenced = Set<String>()
-        var entries: [StoredMealRecord] = []
-        entries.reserveCapacity(records.count)
+    /// 디스크 쓰기는 메인 밖의 한 줄에서 한다 (MealRecordWriter)
+    private lazy var recordWriter = MealRecordWriter(defaults: userDefaults)
 
-        for record in records {
-            let beforeFile = storeImage(record.beforeImageData, kind: "before", of: record, album: album, store: store, referenced: &referenced)
-            let afterFile = storeImage(record.afterImageData, kind: "after", of: record, album: album, store: store, referenced: &referenced)
-            // 파일로 옮긴 사진만 JSON 에서 뺀다. 못 옮긴 사진은 바이트 그대로 남는다.
-            let slim = record.replacingImages(before: beforeFile == nil ? record.beforeImageData : nil,
-                                              after: afterFile == nil ? record.afterImageData : nil)
-            entries.append(StoredMealRecord(record: slim, beforeImageFile: beforeFile, afterImageFile: afterFile))
-        }
-
-        guard let encoded = try? JSONEncoder().encode(entries) else {
-            print("❌ [MealRecordStore] 기록 인코딩 실패 - 저장하지 않음")
-            return false
-        }
-        userDefaults.set(encoded, forKey: key)
-
-        if let store {
-            let removed = store.removeFiles(keeping: referenced)
-            if removed > 0 {
-                print("🧹 [MealRecordStore] 기록에서 빠진 사진 파일 \(removed)개 정리")
-            }
-        }
+    /// 한 앨범의 기록을 디스크에 쓴다. 메인은 기다리지 않는다 — 메모리의 기록이 언제나 기준이다.
+    private func persist(_ album: AlbumType) {
         let prefix = "\(album.rawValue)/"
-        unreadableImageFiles = unreadableImageFiles.filter { !$0.key.hasPrefix(prefix) || referenced.contains($0.value) }
-        return true
+        var unreadable: [String: String] = [:]
+        for (slot, file) in unreadableImageFiles where slot.hasPrefix(prefix) {
+            unreadable[String(slot.dropFirst(prefix.count))] = file
+        }
+        let snapshot = MealRecordWriter.Snapshot(
+            records: album == .diet ? dietRecords : exerciseRecords,
+            key: album == .diet ? dietRecordsKey : exerciseRecordsKey,
+            store: imageStore(for: album),
+            unreadable: unreadable)
+        recordWriter.enqueue(snapshot) { [weak self] referenced in
+            // 기록에서 빠진 사진이면 "읽지 못한 사진" 목록에서도 뺀다
+            guard let self else { return }
+            unreadableImageFiles = unreadableImageFiles.filter { !$0.key.hasPrefix(prefix) || referenced.contains($0.value) }
+        }
     }
 
-    /// 사진 한 장을 파일로 쓰고 JSON 에 담을 파일 이름을 돌려준다. 파일로 못 쓰면 nil (바이트로 남긴다).
-    private func storeImage(_ data: Data?, kind: String, of record: MealRecord, album: AlbumType, store: MealImageFileStore?, referenced: inout Set<String>) -> String? {
-        guard let store else { return nil }
-        let slotName = imageSlotName(for: record, kind: kind)
-
-        guard let data else {
-            // 읽지 못했던 사진이면 참조를 그대로 두고 다음 실행에 다시 읽는다
-            guard let unreadable = unreadableImageFiles["\(album.rawValue)/\(slotName)"] else { return nil }
-            referenced.insert(unreadable)
-            return unreadable
-        }
-
-        // 같은 날 같은 끼니 기록이 둘이면 서로 덮어쓰지 않게 기록 id 를 붙인다
-        var name = slotName
-        if referenced.contains(name) {
-            name = MealImageFileStore.fileName(day: Self.imageFileDayFormatter.string(from: record.date),
-                                               slot: "\(record.mealType)-\(record.id.uuidString)",
-                                               kind: kind)
-        }
-
-        do {
-            try store.write(data, named: name)
-            referenced.insert(name)
-            return name
-        } catch {
-            print("⚠️ [MealRecordStore] 사진 파일 저장 실패, 기록 안에 그대로 둠: \(error)")
-            return nil
-        }
+    /// 밀린 디스크 쓰기가 끝날 때까지 기다린다 (백그라운드로 가거나 종료될 때)
+    func finishPendingWrites() {
+        recordWriter.waitUntilIdle()
     }
 
     /// 저장된 기록을 읽고 사진을 다시 붙인다. 사진 바이트가 기록 안에 들어 있던 예전 형식이면 hasInlinePhotos 가 true.
@@ -1330,7 +806,7 @@ class MealRecordStore: ObservableObject {
         guard let data = userDefaults.data(forKey: key) else { return nil }
         guard let entries = try? JSONDecoder().decode([StoredMealRecord].self, from: data) else {
             // 못 읽은 원본을 옆에 남긴다 — 빈 목록으로 시작해 다음 저장이 덮어써도 되찾을 수 있게
-            userDefaults.set(data, forKey: key + ".unreadable")
+            Self.keepUnreadable(data, forKey: key)
             return nil
         }
 
@@ -1353,7 +829,7 @@ class MealRecordStore: ObservableObject {
     private func loadImage(named name: String?, kind: String, of record: MealRecord, album: AlbumType, store: MealImageFileStore?) -> Data? {
         guard let name else { return nil }
         if let data = store?.load(named: name) { return data }
-        print("⚠️ [MealRecordStore] 사진 파일을 읽지 못함: \(name)")
+        Log.store.warning("사진 파일을 읽지 못함: \(name)")
         unreadableImageFiles["\(album.rawValue)/\(imageSlotName(for: record, kind: kind))"] = name
         return nil
     }
@@ -1363,11 +839,8 @@ class MealRecordStore: ObservableObject {
     /// 바이트를 그대로 옮기므로 화질 손실은 없다.
     private func movePhotosOutOfDefaultsIfNeeded() {
         for album in albumsWithInlinePhotos {
-            let records = album == .diet ? dietRecords : exerciseRecords
-            let key = album == .diet ? dietRecordsKey : exerciseRecordsKey
-            if persistRecords(records, forKey: key, album: album) {
-                print("📦 [MealRecordStore] \(album.rawValue) 기록 \(records.count)개의 사진을 파일로 옮김")
-            }
+            Log.store.notice("\(album.rawValue, privacy: .public) 기록의 사진을 파일로 옮김")
+            persist(album)
         }
         albumsWithInlinePhotos.removeAll()
     }
@@ -1384,21 +857,38 @@ class MealRecordStore: ObservableObject {
         for (album, key) in [(AlbumType.diet, dietRecordsKey), (AlbumType.exercise, exerciseRecordsKey)]
         where loadedAlbums.contains(album) && standard.object(forKey: key) != nil {
             standard.removeObject(forKey: key)
-            print("🧹 [AppGroup] 표준 저장소에 남은 옛 \(album.rawValue) 기록 사본 삭제")
+            Log.store.info("표준 저장소에 남은 옛 \(album.rawValue) 기록 사본 삭제")
         }
     }
 
     /// 저장값은 있는데 읽지 못한 앨범. 이 상태의 빈 배열은 "다 지움"이 아니다.
     private var albumsFailedToLoad: Set<AlbumType> = []
 
+    /// 못 읽은 기록 원본을 파일로 둔다. 공유 저장소(UserDefaults)에 두지 않는다 — 예전 형식이면 사진이 든 채
+    /// 수백 MB 라, 위젯이 공유 저장소의 키 하나만 읽어도 통째로 메모리에 올라와 위젯 한도를 넘는다.
+    private static func keepUnreadable(_ data: Data, forKey key: String) {
+        let folder = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: AppGroup.identifier)
+            ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try? data.write(to: folder.appendingPathComponent(key + ".unreadable.json"), options: .atomic)
+    }
+
     // 기록 불러오기 (식단과 운동 모두 로드)
     private func loadRecords() {
+        // 예전 버전이 공유 저장소에 남긴 못 읽은 사본은 파일로 옮긴다
+        for key in [dietRecordsKey, exerciseRecordsKey] {
+            if let old = userDefaults.data(forKey: key + ".unreadable") {
+                Self.keepUnreadable(old, forKey: key)
+                userDefaults.removeObject(forKey: key + ".unreadable")
+            }
+        }
+
         // 식단 기록 로드
         if let loaded = loadStoredRecords(forKey: dietRecordsKey, album: .diet) {
             dietRecords = loaded.records
             loadedAlbums.insert(.diet)
             if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.diet) }
-            print("📂 [MealRecordStore] 식단 기록 로드: \(dietRecords.count)개")
+            Log.store.info("식단 기록 로드: \(self.dietRecords.count)개")
         } else if userDefaults.data(forKey: dietRecordsKey) != nil {
             albumsFailedToLoad.insert(.diet)
         }
@@ -1408,7 +898,7 @@ class MealRecordStore: ObservableObject {
             exerciseRecords = loaded.records
             loadedAlbums.insert(.exercise)
             if loaded.hasInlinePhotos { albumsWithInlinePhotos.insert(.exercise) }
-            print("📂 [MealRecordStore] 운동 기록 로드: \(exerciseRecords.count)개")
+            Log.store.info("운동 기록 로드: \(self.exerciseRecords.count)개")
         } else if userDefaults.data(forKey: exerciseRecordsKey) != nil {
             albumsFailedToLoad.insert(.exercise)
         }
@@ -1417,111 +907,28 @@ class MealRecordStore: ObservableObject {
         publishWidgetSnapshot()
     }
 
-    // MARK: - Streak 계산
+    // MARK: - Streak 계산 (규칙은 RoutineCameraCore 의 MealStats 한 곳에 — 테스트가 그것을 고정한다)
 
-    // 특정 날짜가 "완전히 기록된 날"인지 (주요 3끼 모두 — '완벽한 날' 개념)
-    func isDayComplete(_ date: Date) -> Bool {
-        let meals = getMeals(for: date)
-        if SettingsManager.shared.albumType == .exercise {
-            // 운동은 시각에 맞는 슬롯에 저장되므로 특정 슬롯이 아니라 "그날 기록이 있는가"로 본다
-            return meals.values.contains { $0.isComplete }
-        } else {
-            // 간식 제외 주요 3끼 모두 완료
-            let mainMeals = meals.filter { !$0.key.isSnack }
-            return mainMeals.count == 3 && mainMeals.values.allSatisfy { $0.isComplete }
-        }
-    }
-
-    // 하루가 "연속 기록에 포함되는 날"인지 (완벽주의/올오어낫씽 완화)
-    // 3끼를 다 채워야 인정하던 기준을 "최소 한 끼라도 남기면 이어진 것"으로 바꾼다.
-    // → 두 끼만 찍은 날에도 연속이 끊기지 않아 '완벽하지 못하면 안 하느니만' 심리를 줄인다.
+    // 하루가 "연속 기록에 포함되는 날"인지. 간식을 포함해 한 끼라도 남기면 인정한다
+    // (3끼를 다 채워야 하던 기준을 풀어, 완벽하지 못한 날에도 연속이 끊기지 않게).
     func isDayRecorded(_ date: Date) -> Bool {
-        let meals = getMeals(for: date)
-        if SettingsManager.shared.albumType == .exercise {
-            return meals.values.contains { $0.isComplete }
-        }
-        // 간식 포함 어떤 끼니든 하나라도 완료되면 기록된 날로 인정
-        return meals.values.contains { $0.isComplete }
+        getMeals(for: date).values.contains { $0.isComplete }
     }
 
-    func getCurrentStreak() -> Int {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+    func getCurrentStreak() -> Int { MealStats.currentStreak(records: records) }
 
-        // 완화된 기준(isDayRecorded)으로 연속을 계산 — 한 끼라도 남기면 이어진다
-        let todayRecorded = isDayRecorded(today)
-
-        var streak = 0
-        var currentDate = today
-
-        // 오늘부터 과거로 거슬러 올라가며 연속 기록 확인
-        while true {
-            if isDayRecorded(currentDate) {
-                streak += 1
-                guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
-                    break
-                }
-                currentDate = previousDay
-            } else {
-                // 오늘이 아직 미기록이면 '진행 중'이므로 끊긴 게 아님 — 어제부터 확인
-                if calendar.isDate(currentDate, inSameDayAs: today) && !todayRecorded {
-                    guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
-                        break
-                    }
-                    currentDate = previousDay
-                    continue
-                }
-                break
-            }
-        }
-
-        return streak
-    }
-
-    // 최고 연속 기록 일수 (완화된 기준 — 업적 판정 등에 사용)
-    func getMaxStreak() -> Int {
-        let calendar = Calendar.current
-        var maxStreak = 0
-        var currentStreak = 0
-
-        // 모든 날짜별로 정렬
-        let sortedDates = Set(records.map { calendar.startOfDay(for: $0.date) }).sorted()
-
-        guard !sortedDates.isEmpty else { return 0 }
-
-        for (index, date) in sortedDates.enumerated() {
-            if isDayRecorded(date) {
-                // 이전 날짜와 연속인지 확인
-                if index > 0,
-                   let previousDate = sortedDates[safe: index - 1],
-                   let nextDay = calendar.date(byAdding: .day, value: 1, to: previousDate),
-                   calendar.isDate(nextDay, inSameDayAs: date) {
-                    currentStreak += 1
-                } else {
-                    currentStreak = 1
-                }
-
-                maxStreak = max(maxStreak, currentStreak)
-            } else {
-                currentStreak = 0
-            }
-        }
-
-        return maxStreak
-    }
+    // 최고 연속 기록 일수 (업적 판정 등에 사용)
+    func getMaxStreak() -> Int { MealStats.maxStreak(records: records) }
 
     // 지금까지 기록한 날 수 (한 번 올라가면 절대 줄지 않는 누적 카운터)
     // 연속이 끊겨도 사라지지 않아 '나쁜 날'에 대한 자책을 만들지 않는다.
-    func getTotalRecordedDays() -> Int {
-        let calendar = Calendar.current
-        let days = Set(records.filter { $0.isComplete }.map { calendar.startOfDay(for: $0.date) })
-        return days.count
-    }
+    func getTotalRecordedDays() -> Int { MealStats.totalRecordedDays(records: records) }
 
+    #if DEBUG
     // MARK: - 개발용 샘플 데이터 생성
 
     func generateSampleData() {
-        print("🎨 [MealRecordStore] 샘플 데이터 생성 시작 - \(SettingsManager.shared.albumType.rawValue) 모드")
+        Log.store.info("샘플 데이터 생성 시작 - \(SettingsManager.shared.albumType.rawValue) 모드")
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
@@ -1558,7 +965,7 @@ class MealRecordStore: ObservableObject {
         }
 
         records = currentRecords
-        print("🎨 [MealRecordStore] 샘플 데이터 생성 완료: \(records.count)개 기록 추가")
+        Log.store.info("샘플 데이터 생성 완료: \(self.records.count)개 기록 추가")
     }
 
     #if DEBUG
@@ -1606,6 +1013,9 @@ class MealRecordStore: ObservableObject {
         let memos = memosByLanguage[languageCode == "zh" ? scriptKey : languageCode] ?? memosByLanguage["en"]!
         var result: [MealRecord] = []
         var index = 0
+        // 식사 지도 스크린샷용 찍은 곳 (서울 몇 군데 — 이름은 기기가 주소로 바꾼 것처럼 비워 둔다)
+        let places = [MealPlace(latitude: 37.5665, longitude: 126.9780), MealPlace(latitude: 37.5512, longitude: 126.9882),
+                      MealPlace(latitude: 37.5796, longitude: 126.9770), MealPlace(latitude: 37.5443, longitude: 127.0557)]
 
         for dayOffset in (0...20).reversed() {
             guard let day = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
@@ -1614,10 +1024,14 @@ class MealRecordStore: ObservableObject {
                 index += 1
                 let capturedAt = calendar.date(bySettingHour: slot.1, minute: slot.2, second: 0, of: day)
                 let memo = (dayOffset + slotIndex) % 5 == 0 ? memos[(dayOffset + slotIndex) % memos.count] : nil
-                result.append(MealRecord(date: day, mealType: slot.0, beforeImageData: photo, memo: memo, capturedAt: capturedAt, ateAll: true))
+                // 먹은 양: 절반이 점점 늘어나는 모습 (스크린샷용)
+                let portion: MealPortion? = (dayOffset + slotIndex) % 3 == 0 ? .half : ((dayOffset + slotIndex) % 7 == 0 ? .little : .all)
+                result.append(MealRecord(date: day, mealType: slot.0, beforeImageData: photo, memo: memo, capturedAt: capturedAt, ateAll: true,
+                                         place: places[(dayOffset + slotIndex) % places.count], portion: portion))
             }
         }
         records = result
+        HabitStore.shared.seedForScreenshots(days: 21)
     }
     #endif
 
@@ -1669,10 +1083,11 @@ class MealRecordStore: ObservableObject {
 
         return image.jpegData(compressionQuality: 0.8)
     }
+    #endif
 
     // 모든 데이터 삭제 (개발용 - 현재 앨범 타입의 데이터만)
     func clearAllData() {
-        print("🗑️ [MealRecordStore] \(SettingsManager.shared.albumType.rawValue) 모드 데이터 삭제")
+        Log.store.info("\(SettingsManager.shared.albumType.rawValue) 모드 데이터 삭제")
         records = []
     }
 
@@ -1702,8 +1117,3 @@ class MealRecordStore: ObservableObject {
 }
 
 // Array extension for safe subscript
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}

@@ -56,4 +56,9 @@ public enum MealType: String, CaseIterable, Codable, Identifiable, Sendable {
         default:      return .snack1
         }
     }
+
+    /// 기록 화면이 미리 채우는 "먹은 시각" — 오늘 지금 끼니면 지금, 아니면 그 날 끼니 대표 시각
+    public func suggestedCapturedAt(on date: Date, now: Date = Date()) -> Date {
+        MealTimeSuggestion.capturedAt(day: date, mealType: self, now: now)
+    }
 }

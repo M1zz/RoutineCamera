@@ -65,6 +65,7 @@ struct Achievement: Identifiable, Codable {
 }
 
 import Combine
+import RoutineCameraCore
 
 class AchievementManager: ObservableObject {
     static let shared = AchievementManager()
@@ -182,11 +183,13 @@ class AchievementManager: ObservableObject {
     }
 
     // 업적 저장
+    /// 기록을 저장할 때마다 불린다 — 바뀐 것이 없으면 쓰지 않는다
     private func saveAchievements() {
-        if let encoded = try? JSONEncoder().encode(achievements) {
-            UserDefaults.standard.set(encoded, forKey: achievementsKey)
-        }
+        guard let encoded = try? JSONEncoder().encode(achievements), encoded != lastSavedAchievements else { return }
+        UserDefaults.standard.set(encoded, forKey: achievementsKey)
+        lastSavedAchievements = encoded
     }
+    private var lastSavedAchievements: Data?
 
     // 업적 체크 및 잠금 해제
     func checkAndUnlockAchievements(mealStore: MealRecordStore) {

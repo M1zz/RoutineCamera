@@ -9,20 +9,22 @@ import SwiftUI
 import AVFoundation
 import Photos
 import LeeoKit
+import RoutineCameraCore
 
 struct ContentView: View {
     @StateObject private var mealStore = MealRecordStore.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var goalManager = GoalManager.shared
     @StateObject private var settingsManager = SettingsManager.shared
-    @StateObject private var friendManager = FriendManager.shared
     @Environment(\.foldLayout) private var fold
     @AppStorage("showsMealRhythm") private var showsRhythm = false // 끼니 피드 위 7일 리듬 카드
     @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
     @State private var showingStatistics = false
-    @State private var showingGoalAchieved = false
+    @State private var showingHabitCalendar = false
+    /// 시트로 연 프로 기능 화면 (주간 리포트 알림 등)
+    @State private var openedProTool: ProFeature?
     @State private var showingCaredMealsPrompt = false // 첫 실행: 챙길 식사 물어보기
     @State private var autoOpenMealType: MealType? = nil // 자동으로 열 식사 타입
     @State private var openedMealRecord: MealRecord? = nil // Siri · Spotlight 에서 누른 식사 기록
@@ -65,7 +67,6 @@ struct ContentView: View {
     }
 
     private func initializeDateList() {
-        print("📅 [ContentView] 날짜 리스트 초기화 시작")
         let calendar = Calendar.current
         todayDate = calendar.startOfDay(for: Date())
 
@@ -74,20 +75,14 @@ struct ContentView: View {
         dateList = ((-loadedPastDays)...0).compactMap { offset in
             calendar.date(byAdding: .day, value: offset, to: todayDate)
         }.reversed() // 최신순 정렬 (오늘 -> 과거)
-        print("📅 [ContentView] 날짜 리스트 초기화 완료: \(dateList.count)개 날짜 로드 (최신순)")
     }
 
     private func loadMorePastDates() {
-        guard !isLoadingPast else {
-            print("⬆️ [ContentView] 이미 과거 날짜 로딩 중 - 스킵")
-            return
-        }
+        guard !isLoadingPast else { return }
 
         isLoadingPast = true
-        print("⬆️ [ContentView] 과거 날짜 추가 로드 시작")
 
         let calendar = Calendar.current
-        let oldCount = dateList.count
         // 30일씩 추가로 로드
         let newPastDays = loadedPastDays + 30
         let additionalDates = ((-newPastDays)...(-loadedPastDays-1)).compactMap { offset in
@@ -95,7 +90,6 @@ struct ContentView: View {
         }.reversed() // 최신순 정렬
         dateList = dateList + additionalDates // 배열 끝에 추가 (과거 방향)
         loadedPastDays = newPastDays
-        print("⬆️ [ContentView] 과거 날짜 추가 완료: \(oldCount)개 → \(dateList.count)개")
 
         // 로딩 완료 후 플래그 해제
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -171,20 +165,15 @@ struct ContentView: View {
                 .accessibilityLabel(Text("최근 7일 식사 리듬"))
                 .accessibilityAddTraits(showsRhythm ? .isSelected : [])
             }
-            // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
-            Button { showingFriends = true } label: {
-                Image(systemName: "person.2")
-                    .overlay(alignment: .topTrailing) {
-                        if !friendManager.incomingRequests.isEmpty {
-                            Circle().fill(Color.red).frame(width: 8, height: 8).offset(x: 3, y: -2)
-                        }
-                    }
+            // 스탬프 · 물 · 카페인 · 먹은 양을 달력으로 돌아본다 (식단만)
+            if settingsManager.albumType == .diet {
+                Button { showingHabitCalendar = true } label: {
+                    Image(systemName: "calendar")
+                }
+                .accessibilityLabel(Text("달력", comment: "Title: habit calendar"))
             }
-            .accessibilityLabel(friendManager.incomingRequests.isEmpty
-                                ? String(localized: "친구", comment: "Toolbar button: friends")
-                                : String(localized: "친구, 받은 요청 \(friendManager.incomingRequests.count)건",
-                                         comment: "Toolbar friends button with pending request count (VoiceOver)"))
-            .accessibilityInputLabels([Text("친구")])
+            // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
+            FriendsToolbarButton { showingFriends = true }
             Menu {
                 // 아이폰 듀오를 펴면 통계는 결과 쪽 판에 늘 서 있다
                 if !fold.isUnfolded {
@@ -329,6 +318,11 @@ struct ContentView: View {
                     case "stats": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingStatistics = true }
                     case "settings": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingSettings = true }
                     case "friends": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingFriends = true }
+                    case "calendar": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingHabitCalendar = true }
+                    // 프로 기능 화면: OPEN_SCREEN_FOR_TEST=mealMap|weeklyReport|pdfExport|bulkSave
+                    case let raw?: if let tool = ProFeature(rawValue: raw) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { openedProTool = tool }
+                    }
                     default: break
                     }
                     if ProcessInfo.processInfo.environment["OPEN_CAMERA_SHEET_FOR_TEST"] == "1" {
@@ -342,9 +336,12 @@ struct ContentView: View {
                     if dateList.isEmpty {
                         initializeDateList()
 
-                        // 즉시 오늘 날짜로 스크롤 (딜레이 없이)
-                        DispatchQueue.main.async {
-                            proxy.scrollTo(todayDate, anchor: .top)
+                        // 즉시 오늘 날짜로 스크롤 (딜레이 없이) — 격자 모드만.
+                        // 피드는 맨 위가 오늘이고, 오늘 위에 '오늘 챙긴 것' 카드가 있어 건너뛰면 가려진다
+                        if !settingsManager.useMomentsFeed {
+                            DispatchQueue.main.async {
+                                proxy.scrollTo(todayDate, anchor: .top)
+                            }
                         }
 
                     }
@@ -382,6 +379,13 @@ struct ContentView: View {
                     guard settingsManager.albumType == .diet else { return }
                     autoOpenPhotoType = .before
                     autoOpenMealType = meal
+                }
+                .onReceive(notificationManager.$requestedWeeklyReport) { requested in
+                    // 주간 리포트 알림을 눌러 들어오면 리포트를 연다
+                    guard requested else { return }
+                    notificationManager.requestedWeeklyReport = false
+                    // 그 사이 구독이 끝났으면 열지 않는다
+                    if SubscriptionManager.shared.allows(.weeklyReport) { openedProTool = .weeklyReport }
                 }
                 .onReceive(notificationManager.$requestedFriendsScreen) { requested in
                     // 친구 기록 알림을 눌러 들어오면 친구 화면을 연다
@@ -460,11 +464,6 @@ struct ContentView: View {
                     }
                 }
             }
-            .onChange(of: settingsManager.albumType) { oldType, newType in
-                print("🔄 [AlbumType] 변경됨: \(oldType.rawValue) → \(newType.rawValue)")
-                // UI 업데이트만 트리거 (날짜 리스트는 유지)
-                // mealStore.records가 자동으로 변경되므로 별도 처리 불필요
-            }
             .onChange(of: dateList.count) { oldCount, newCount in
                 // dateList가 초기화된 직후 스크롤
                 if oldCount == 0 && newCount > 0 {
@@ -473,29 +472,45 @@ struct ContentView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingHabitCalendar) {
+                NavigationStack {
+                    HabitCalendarView(mealStore: mealStore)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("완료", systemImage: "checkmark") { showingHabitCalendar = false }
+                            }
+                        }
+                }
+            }
             .sheet(isPresented: $showingStatistics) {
                 StatisticsView(mealStore: mealStore)
             }
-            .proPaywall(isPresented: $showingPaywallForTest)
+            .sheet(item: $openedProTool) { feature in
+                NavigationStack {
+                    ProToolScreen(feature: feature, mealStore: mealStore)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("완료", systemImage: "checkmark") { openedProTool = nil }
+                            }
+                        }
+                }
+            }
+            // OPEN_PAYWALL_LEAD_FOR_TEST=insights 처럼 기능을 주면 그 기능의 등급(플러스)을 먼저 보여 준다
+            .proPaywall(isPresented: $showingPaywallForTest,
+                        lead: ProcessInfo.processInfo.environment["OPEN_PAYWALL_LEAD_FOR_TEST"].flatMap(ProFeature.init(rawValue:)))
             .sheet(isPresented: $showingCaredMealsPrompt) {
                 CaredMealsPromptView()
             }
             .sheet(item: $openedMealRecord) { record in
                 PhotoDetailView(date: record.date, mealType: record.mealType, mealRecord: record, mealStore: mealStore)
             }
-            .sheet(item: $autoOpenMealType, onDismiss: {
-                // sheet가 닫힐 때 상태 리셋
-                print("📸 [AutoCamera] Sheet 닫힘 - 상태 리셋")
-            }) { mealType in
+            .sheet(item: $autoOpenMealType) { mealType in
                 CameraPickerView(
                     date: todayDate,
                     mealType: mealType,
                     mealStore: mealStore,
                     selectedPhotoType: $autoOpenPhotoType
                 )
-                .onAppear {
-                    print("📸 [AutoCamera] CameraPickerView 표시됨 - mealType: \(mealType.rawValue)")
-                }
             }
         }
         }
@@ -554,16 +569,6 @@ struct RecordNowBanner: View {
     }
 }
 
-// 홈 상단 헤더: 날짜 · 오늘 뱃지 · (옵션) 모드 전환 · 통계/친구/설정
-// 목표가 켜져 있으면 아래에 얇은 진행률 바 한 줄
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    typealias Value = CGFloat
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
 struct DatePositionPreferenceKey: PreferenceKey {
     typealias Value = [Date: CGFloat]
 
@@ -575,3 +580,26 @@ struct DatePositionPreferenceKey: PreferenceKey {
 }
 
 // 날짜별 섹션 뷰 (한 줄 형태)
+
+/// 위쪽 바의 친구 버튼. 친구 정보(받은 요청 등)는 이 버튼만 지켜본다 —
+/// 메인 화면 전체가 친구 쪽 변경(목록 · 불러오는 중 표시 등)마다 다시 그려지지 않게.
+private struct FriendsToolbarButton: View {
+    @ObservedObject private var friendManager = FriendManager.shared
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "person.2")
+                .overlay(alignment: .topTrailing) {
+                    if !friendManager.incomingRequests.isEmpty {
+                        Circle().fill(Color.red).frame(width: 8, height: 8).offset(x: 3, y: -2)
+                    }
+                }
+        }
+        .accessibilityLabel(friendManager.incomingRequests.isEmpty
+                            ? String(localized: "친구", comment: "Toolbar button: friends")
+                            : String(localized: "친구, 받은 요청 \(friendManager.incomingRequests.count)건",
+                                     comment: "Toolbar friends button with pending request count (VoiceOver)"))
+        .accessibilityInputLabels([Text("친구")])
+    }
+}

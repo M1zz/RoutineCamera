@@ -21,57 +21,48 @@ public enum MealStats {
         self.records(on: date, in: records, calendar: calendar).contains { $0.isComplete }
     }
 
-    /// 현재 연속 기록 일수. 오늘이 아직 미기록이면 '진행 중'으로 보고 끊지 않는다.
-    public static func currentStreak(records: [MealRecord], today: Date = Date(), exerciseMode: Bool = false, calendar: Calendar = .current) -> Int {
-        let start = calendar.startOfDay(for: today)
-        let todayRecorded = isDayRecorded(start, in: records, exerciseMode: exerciseMode, calendar: calendar)
+    /// 완료된 기록이 하나라도 있는 날들 (그날 0시)
+    public static func recordedDays(in records: [MealRecord], calendar: Calendar = .current) -> Set<Date> {
+        Set(records.lazy.filter(\.isComplete).map { calendar.startOfDay(for: $0.date) })
+    }
 
+    /// 현재 연속 기록 일수. 오늘이 아직 미기록이면 '진행 중'으로 보고 끊지 않는다.
+    /// 기록을 한 번만 훑는다 (예전에는 거슬러 올라가는 날마다 전체 기록을 다시 훑었다).
+    public static func currentStreak(records: [MealRecord], today: Date = Date(), exerciseMode: Bool = false, calendar: Calendar = .current) -> Int {
+        let days = recordedDays(in: records, calendar: calendar)
+        var current = calendar.startOfDay(for: today)
+        if !days.contains(current), let yesterday = calendar.date(byAdding: .day, value: -1, to: current) {
+            current = yesterday
+        }
         var streak = 0
-        var current = start
-        while true {
-            if isDayRecorded(current, in: records, exerciseMode: exerciseMode, calendar: calendar) {
-                streak += 1
-                guard let prev = calendar.date(byAdding: .day, value: -1, to: current) else { break }
-                current = prev
-            } else {
-                if calendar.isDate(current, inSameDayAs: start) && !todayRecorded {
-                    guard let prev = calendar.date(byAdding: .day, value: -1, to: current) else { break }
-                    current = prev
-                    continue
-                }
-                break
-            }
+        while days.contains(current) {
+            streak += 1
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: current) else { break }
+            current = previous
         }
         return streak
     }
 
     /// 최고 연속 기록 일수
     public static func maxStreak(records: [MealRecord], exerciseMode: Bool = false, calendar: Calendar = .current) -> Int {
-        var maxS = 0, cur = 0
-        let sorted = Set(records.map { calendar.startOfDay(for: $0.date) }).sorted()
-        guard !sorted.isEmpty else { return 0 }
-
-        for (i, date) in sorted.enumerated() {
-            if isDayRecorded(date, in: records, exerciseMode: exerciseMode, calendar: calendar) {
-                if i > 0,
-                   let prev = sorted[safe: i - 1],
-                   let next = calendar.date(byAdding: .day, value: 1, to: prev),
-                   calendar.isDate(next, inSameDayAs: date) {
-                    cur += 1
-                } else {
-                    cur = 1
-                }
-                maxS = max(maxS, cur)
+        var best = 0, run = 0
+        var previous: Date?
+        for day in recordedDays(in: records, calendar: calendar).sorted() {
+            if let previous, let next = calendar.date(byAdding: .day, value: 1, to: previous),
+               calendar.isDate(next, inSameDayAs: day) {
+                run += 1
             } else {
-                cur = 0
+                run = 1
             }
+            best = max(best, run)
+            previous = day
         }
-        return maxS
+        return best
     }
 
     /// 지금까지 기록한 날 수 (절대 줄지 않는 누적)
     public static func totalRecordedDays(records: [MealRecord], calendar: Calendar = .current) -> Int {
-        Set(records.filter { $0.isComplete }.map { calendar.startOfDay(for: $0.date) }).count
+        recordedDays(in: records, calendar: calendar).count
     }
 
     /// 순간 피드 정렬용 시각. 촬영 시각 없으면 끼니 대표 시각으로 합성 → 같은 날 시간 흐름대로.
@@ -79,11 +70,5 @@ public enum MealStats {
         if let c = record.capturedAt { return c }
         let base = calendar.startOfDay(for: record.date)
         return calendar.date(byAdding: .hour, value: record.mealType.typicalHour, to: base) ?? base
-    }
-}
-
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
     }
 }

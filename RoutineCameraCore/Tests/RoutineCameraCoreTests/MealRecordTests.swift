@@ -77,4 +77,51 @@ final class MealRecordTests: XCTestCase {
         let decoded = try JSONDecoder().decode([PendingAteAll].self, from: data)
         XCTAssertEqual(decoded, items)
     }
+
+    // MARK: - 앱에서 옮겨 온 것 (찍은 곳 · 사진 교체 · 피드 자리 · 예전 데이터)
+
+    func testPlace_roundTrips() throws {
+        let record = MealRecord(date: Date(), mealType: .dinner, beforeImageData: Data([1]),
+                                place: MealPlace(latitude: 37.5, longitude: 127.0, name: "서울"))
+        let decoded = try JSONDecoder().decode(MealRecord.self, from: JSONEncoder().encode(record))
+        XCTAssertEqual(decoded.place, record.place)
+        XCTAssertEqual(decoded.id, record.id)
+    }
+
+    func testReplacingImages_keepsIdentityAndFields() {
+        let record = MealRecord(date: Date(), mealType: .lunch, beforeImageData: Data([1]), memo: "메모",
+                                capturedAt: Date(), ateAll: true, place: MealPlace(latitude: 1, longitude: 2))
+        let copy = record.replacingImages(before: nil, after: Data([9]))
+        XCTAssertEqual(copy.id, record.id)
+        XCTAssertNil(copy.beforeImageData)
+        XCTAssertEqual(copy.afterImageData, Data([9]))
+        XCTAssertEqual(copy.memo, "메모")
+        XCTAssertEqual(copy.capturedAt, record.capturedAt)
+        XCTAssertTrue(copy.ateAll)
+        XCTAssertEqual(copy.place, record.place)
+    }
+
+    func testFeedDate_usesCapturedAtElseTypicalHour() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        let day = cal.date(from: DateComponents(year: 2026, month: 11, day: 7))!
+        let noTime = MealRecord(date: day, mealType: .dinner)
+        XCTAssertEqual(cal.component(.hour, from: noTime.feedDate(calendar: cal)), 18)
+        let shot = day.addingTimeInterval(13 * 3600 + 120)
+        XCTAssertEqual(MealRecord(date: day, mealType: .dinner, capturedAt: shot).feedDate(calendar: cal), shot)
+    }
+
+    /// 예전 버전이 남긴 기록(OpenAI 표시 · 찍은 곳 없음)도 그대로 읽힌다
+    func testDecodesLegacyJSON() throws {
+        let json = """
+        {"id":"8F6A3C1E-0000-4000-8000-000000000001","date":0,"mealType":"점심",
+         "visionAnalysis":{"foodItems":["밥"],"extractedText":[],"confidence":0.5,"analyzedDate":0,
+                           "isOpenAI":true,"description":"예전 설명"}}
+        """
+        let record = try JSONDecoder().decode(MealRecord.self, from: Data(json.utf8))
+        XCTAssertEqual(record.mealType, .lunch)
+        XCTAssertNil(record.place)
+        XCTAssertFalse(record.ateAll)
+        XCTAssertEqual(record.visionAnalysis?.description, "예전 설명")
+    }
 }

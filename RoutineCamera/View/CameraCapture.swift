@@ -95,6 +95,21 @@ nonisolated enum MealAlbumSaver {
     /// completion 은 메인에서 불린다 (권한 없음·실패는 false)
     /// location 이 있으면 사진앱에서도 찍은 곳이 보이게 사진에 붙인다
     static func save(_ image: UIImage, toAlbum albumName: String, location: CLLocation? = nil, completion: (@MainActor @Sendable (Bool) -> Void)? = nil) {
+        save(.image(image), toAlbum: albumName, location: location, completion: completion)
+    }
+
+    /// 이미 JPEG 로 가진 사진은 풀지 않고 그대로 넣는다 (여러 장을 한꺼번에 저장할 때 — 메모리 · 화질)
+    static func save(_ data: Data, toAlbum albumName: String, location: CLLocation? = nil, completion: (@MainActor @Sendable (Bool) -> Void)? = nil) {
+        save(.data(data), toAlbum: albumName, location: location, completion: completion)
+    }
+
+    /// 사진앱에 넣을 것: 화면에서 막 찍은 그림, 또는 저장해 둔 JPEG
+    private enum Photo: @unchecked Sendable {
+        case image(UIImage)
+        case data(Data)
+    }
+
+    private static func save(_ image: Photo, toAlbum albumName: String, location: CLLocation?, completion: (@MainActor @Sendable (Bool) -> Void)?) {
         let finish: @Sendable (Bool) -> Void = { success in
             DispatchQueue.main.async { completion?(success) }
         }
@@ -106,11 +121,11 @@ nonisolated enum MealAlbumSaver {
         }
     }
 
-    private static func requestAuthorizationAndSave(_ image: UIImage, toAlbum albumName: String, location: CLLocation?,
+    private static func requestAuthorizationAndSave(_ image: Photo, toAlbum albumName: String, location: CLLocation?,
                                                     finish: @escaping @Sendable (Bool) -> Void) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
-                print("사진 라이브러리 접근 권한이 없습니다.")
+                Log.camera.info("사진 라이브러리 접근 권한이 없습니다.")
                 finish(false)
                 return
             }
@@ -132,7 +147,7 @@ nonisolated enum MealAlbumSaver {
             }) { success, error in
                 guard success, let albumIdentifier,
                       let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumIdentifier], options: nil).firstObject else {
-                    print("앨범 생성 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+                    Log.camera.error("앨범 생성 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
                     finish(false)
                     return
                 }
@@ -141,17 +156,25 @@ nonisolated enum MealAlbumSaver {
         }
     }
 
-    private static func add(_ image: UIImage, to album: PHAssetCollection, location: CLLocation?, finish: @escaping @Sendable (Bool) -> Void) {
+    private static func add(_ image: Photo, to album: PHAssetCollection, location: CLLocation?, finish: @escaping @Sendable (Bool) -> Void) {
         PHPhotoLibrary.shared().performChanges({
-            let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+            let assetRequest: PHAssetChangeRequest
+            switch image {
+            case .image(let image):
+                assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
+            case .data(let data):
+                let creation = PHAssetCreationRequest.forAsset()
+                creation.addResource(with: .photo, data: data, options: nil)
+                assetRequest = creation
+            }
             assetRequest.location = location
             guard let placeholder = assetRequest.placeholderForCreatedAsset else { return }
             PHAssetCollectionChangeRequest(for: album)?.addAssets([placeholder] as NSArray)
         }) { success, error in
             if success {
-                print("이미지가 \(album.localizedTitle ?? "") 앨범에 저장되었습니다.")
+                Log.camera.info("이미지가 \(album.localizedTitle ?? "") 앨범에 저장되었습니다.")
             } else {
-                print("이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+                Log.camera.error("이미지 저장 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
             }
             finish(success)
         }
@@ -279,25 +302,25 @@ struct CustomCameraView: View {
             .onChange(of: isActive) { oldValue, newValue in
                 if newValue {
                     // 카메라 탭으로 돌아올 때 세션 시작
-                    print("📸 [CustomCameraView] 카메라 활성화 - 세션 시작")
+                    Log.camera.debug("카메라 활성화 - 세션 시작")
                     cameraManager.startSession()
                     MealLocationProvider.shared.startForCapture()
                 } else {
                     // 다른 탭으로 이동할 때 세션 중지
-                    print("📸 [CustomCameraView] 카메라 비활성화 - 세션 중지")
+                    Log.camera.debug("카메라 비활성화 - 세션 중지")
                     cameraManager.stopSession()
                     MealLocationProvider.shared.stopForCapture()
                 }
             }
             .onAppear {
                 if isActive {
-                    print("📸 [CustomCameraView] 초기 로드 - 세션 시작")
+                    Log.camera.debug("초기 로드 - 세션 시작")
                     cameraManager.startSession()
                     MealLocationProvider.shared.startForCapture()
                 }
             }
             .onDisappear {
-                print("📸 [CustomCameraView] 뷰 사라짐 - 세션 중지")
+                Log.camera.debug("뷰 사라짐 - 세션 중지")
                 cameraManager.stopSession()
                 MealLocationProvider.shared.stopForCapture()
             }
@@ -511,6 +534,7 @@ struct PreviewView: View {
     }
 }
 import Combine
+import os
 
 // 카메라 매니저
 // 세션 설정·시작·중지·촬영은 전용 직렬 큐에서만 한다.
@@ -539,17 +563,17 @@ class CameraManager: NSObject, ObservableObject {
 
         switch status {
         case .authorized:
-            print("📸 [CameraManager] 세션 시작 요청")
+            Log.camera.debug("세션 시작 요청")
             sessionQueue.async { [weak self] in
                 guard let self = self else { return }
                 self.configureIfNeeded()
                 if self.isConfigured && !self.captureSession.isRunning {
                     self.captureSession.startRunning()
-                    print("📸 [CameraManager] 세션 시작 완료")
+                    Log.camera.debug("세션 시작 완료")
                 }
             }
         case .notDetermined:
-            print("📸 [CameraManager] 카메라 권한 요청")
+            Log.camera.debug("카메라 권한 요청")
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
@@ -560,7 +584,7 @@ class CameraManager: NSObject, ObservableObject {
                 }
             }
         default:
-            print("⚠️ [CameraManager] 카메라 권한 없음 - 세션을 시작하지 않음")
+            Log.camera.warning("카메라 권한 없음 - 세션을 시작하지 않음")
         }
     }
 
@@ -569,7 +593,7 @@ class CameraManager: NSObject, ObservableObject {
         sessionQueue.async { [weak self] in
             guard let self = self, self.captureSession.isRunning else { return }
             self.captureSession.stopRunning()
-            print("📸 [CameraManager] 세션 중지 완료")
+            Log.camera.debug("세션 중지 완료")
         }
     }
 
@@ -584,7 +608,7 @@ class CameraManager: NSObject, ObservableObject {
             guard self.captureSession.isRunning,
                   let connection = self.photoOutput.connection(with: .video),
                   connection.isEnabled, connection.isActive else {
-                print("⚠️ [CameraManager] 카메라 연결이 없어 촬영하지 않음")
+                Log.camera.warning("카메라 연결이 없어 촬영하지 않음")
                 DispatchQueue.main.async {
                     self.isCapturing = false
                     completion(nil)
@@ -605,7 +629,7 @@ class CameraManager: NSObject, ObservableObject {
         guard !isConfigured else { return }
 
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
-            print("카메라를 찾을 수 없습니다.")
+            Log.camera.info("카메라를 찾을 수 없습니다.")
             return
         }
 
@@ -622,7 +646,7 @@ class CameraManager: NSObject, ObservableObject {
             captureSession.commitConfiguration()
 
             guard canAttach else {
-                print("카메라 설정 오류: 입력/출력을 연결할 수 없습니다.")
+                Log.camera.error("카메라 설정 오류: 입력/출력을 연결할 수 없습니다.")
                 return
             }
 
@@ -645,7 +669,7 @@ class CameraManager: NSObject, ObservableObject {
             }
             isConfigured = true
         } catch {
-            print("카메라 설정 오류: \(error)")
+            Log.camera.error("카메라 설정 오류: \(error.localizedDescription)")
         }
     }
 
@@ -662,7 +686,7 @@ nonisolated extension CameraManager: AVCapturePhotoCaptureDelegate {
         // 원본 크기로 풀지 않고, 1:1 로 자른 저장용 크기로 바로 만든다
         let image = photo.fileDataRepresentation().flatMap { MealImageResizer.storedSquareImage(from: $0) }
         if image == nil {
-            print("❌ [CameraManager] 촬영 실패: \(error?.localizedDescription ?? "이미지 데이터 없음")")
+            Log.camera.error("촬영 실패: \(error?.localizedDescription ?? "이미지 데이터 없음")")
         }
 
         let completion = captureCompletion

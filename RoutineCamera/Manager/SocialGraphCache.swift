@@ -14,6 +14,8 @@
 
 import Foundation
 import Combine
+import RoutineCameraCore
+import os
 
 struct SocialGraphSnapshot: Codable {
     var friends: [Friend]
@@ -81,7 +83,7 @@ extension FriendManager {
         applySocialSnapshot(snapshot)
         hasCachedSocialGraph = true
         isSignedIn = true
-        print("💾 [캐시] 친구 \(friends.count)명 · 요청 \(incomingRequests.count)건 · 그룹 \(groups.count)개 먼저 표시")
+        Log.friends.debug("친구 \(self.friends.count)명 · 요청 \(self.incomingRequests.count)건 · 그룹 \(self.groups.count)개 먼저 표시")
     }
 
     /// 캐시 내용으로 목록을 바꾼다. nil 이면 비운다 (다른 계정으로 바뀌었는데 캐시가 없을 때).
@@ -110,7 +112,7 @@ extension FriendManager {
 
     /// 화면에 먼저 보여 줄 친구 기록. 만료된 캐시도 돌려준다 — 새로 받아 오는 동안 빈칸 대신 보여 주는 용도.
     func cachedMealsForDisplay(friendId: String, date: Date, album: AlbumType = .diet) -> [MealType: MealRecord]? {
-        let cacheDateKey = dateFormatter.string(from: date) + album.recordSuffix
+        let cacheDateKey = DayKey.string(from: date) + album.recordSuffix
         if let cached = memoryCache.object(forKey: "\(friendId)_\(cacheDateKey)" as NSString) {
             return cached.meals
         }

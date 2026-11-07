@@ -9,6 +9,7 @@ import LeeoKit
 import RoutineCameraCore
 import AVFoundation
 import Photos
+import os
 
 struct PhotoDetailView: View {
     let date: Date
@@ -52,10 +53,9 @@ struct PhotoDetailView: View {
                     Group {
                     if SettingsManager.shared.albumType == .exercise {
                         // 운동 모드: 사진 1장만 표시
-                        if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
-                            Image(uiImage: beforeImage)
-                                .resizable()
-                                .scaledToFit()
+                        if let beforeData = record.beforeImageData {
+                            // 메인 밖에서 풀고 기억해 둔다 (상태가 바뀔 때마다 큰 사진을 다시 풀지 않게)
+                            MealThumbnail(id: "\(record.id)-before", data: beforeData, maxPixel: Self.displayMaxPixel, contentMode: .fit) { Color(.systemGray6) }
                                 .accessibilityLabel("\(mealType.displayName) 기록 사진")
                         } else {
                             VStack(spacing: 12) {
@@ -79,10 +79,9 @@ struct PhotoDetailView: View {
                         }
                     } else if !SettingsManager.shared.useAfterPhoto {
                         // 식후 사진을 쓰지 않는 설정: 식전 한 장만 보여준다
-                        if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
-                            Image(uiImage: beforeImage)
-                                .resizable()
-                                .scaledToFit()
+                        if let beforeData = record.beforeImageData {
+                            // 메인 밖에서 풀고 기억해 둔다 (상태가 바뀔 때마다 큰 사진을 다시 풀지 않게)
+                            MealThumbnail(id: "\(record.id)-before", data: beforeData, maxPixel: Self.displayMaxPixel, contentMode: .fit) { Color(.systemGray6) }
                                 .accessibilityLabel("\(mealType.displayName) 기록 사진")
                         } else {
                             VStack(spacing: 12) {
@@ -108,10 +107,9 @@ struct PhotoDetailView: View {
                         // 식단 모드: 식전/식후 TabView
                         TabView(selection: $currentPage) {
                             // 식전 사진
-                            if let beforeData = record.beforeImageData, let beforeImage = MealImageResizer.downsampledImage(from: beforeData, maxPixel: Self.displayMaxPixel) {
-                                Image(uiImage: beforeImage)
-                                    .resizable()
-                                    .scaledToFit()
+                            if let beforeData = record.beforeImageData {
+                                // 메인 밖에서 풀고 기억해 둔다 (상태가 바뀔 때마다 큰 사진을 다시 풀지 않게)
+                                MealThumbnail(id: "\(record.id)-before", data: beforeData, maxPixel: Self.displayMaxPixel, contentMode: .fit) { Color(.systemGray6) }
                                     .tag(0)
                                     .accessibilityLabel("식전 사진")
                             } else {
@@ -137,10 +135,9 @@ struct PhotoDetailView: View {
                             }
 
                             // 식후 사진
-                            if let afterData = record.afterImageData, let afterImage = MealImageResizer.downsampledImage(from: afterData, maxPixel: Self.displayMaxPixel) {
-                                Image(uiImage: afterImage)
-                                    .resizable()
-                                    .scaledToFit()
+                            if let afterData = record.afterImageData {
+                                // 메인 밖에서 풀고 기억해 둔다 (상태가 바뀔 때마다 큰 사진을 다시 풀지 않게)
+                                MealThumbnail(id: "\(record.id)-after", data: afterData, maxPixel: Self.displayMaxPixel, contentMode: .fit) { Color(.systemGray6) }
                                     .tag(1)
                                     .accessibilityLabel("식후 사진")
                             } else if record.ateAll {
@@ -247,6 +244,19 @@ struct PhotoDetailView: View {
 
                         if let place = record.place {
                                 placeRow(place)
+                        }
+
+                        // 얼마나 먹었나요 — 열량 대신 양으로 스스로 조절한다 (식단만)
+                        if SettingsManager.shared.albumType == .diet {
+                            HStack {
+                                Text("얼마나 먹었나요", comment: "Label: how much of this meal was eaten")
+                                    .scaledFont(size: 14, weight: .semibold)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                PortionPicker(portion: record.portion) { portion in
+                                    mealStore.updatePortion(date: date, mealType: mealType, portion: portion)
+                                }
+                            }
                         }
 
                         if let memo = record.memo, !memo.isEmpty {
@@ -519,7 +529,7 @@ struct PhotoDetailView: View {
 
         // 식단 모드일 때 식후 사진은 분석 불가
         if SettingsManager.shared.albumType == .diet && currentPage == 1 {
-            print("⚠️ [FoodAnalysis] 식후 사진은 분석할 수 없습니다")
+            Log.analysis.warning("식후 사진은 분석할 수 없습니다")
             return
         }
 
@@ -554,7 +564,6 @@ struct PhotoDetailView: View {
                         extractedText: analysis.extractedText,
                         confidence: analysis.confidence,
                         analyzedDate: Date(),
-                        isOpenAI: false,
                         description: nil
                     )
 
@@ -566,7 +575,7 @@ struct PhotoDetailView: View {
                     self.showingAnalysisResult = true
 
                 case .failure(let error):
-                    print("❌ 식단 분석 실패: \(error)")
+                    Log.analysis.error("식단 분석 실패: \(error.localizedDescription)")
                     // 에러 발생 시에도 빈 결과 표시
                     self.analysisResult = FoodAnalysisResult(foodItems: [], extractedText: [], confidence: 0.0)
                     self.showingAnalysisResult = true
@@ -593,7 +602,7 @@ struct PhotoDetailView: View {
             await MainActor.run {
                 self.feedbacks = loaded
                 self.isLoadingFeedbacks = false
-                print("✅ [PhotoDetailView] 피드백 로드 완료: \(loaded.count)개")
+                Log.friends.info("피드백 로드 완료: \(loaded.count)개")
 
                 // 자동으로 읽음 처리
                 markAllFeedbacksAsRead()
@@ -607,7 +616,7 @@ struct PhotoDetailView: View {
             do {
                 try await FriendManager.shared.markAllFeedbacksAsRead(
                     date: date, mealType: mealType, album: SettingsManager.shared.albumType)
-                print("✅ [PhotoDetailView] 피드백 읽음 처리 완료")
+                Log.friends.info("피드백 읽음 처리 완료")
 
                 // 읽음 상태 업데이트
                 await MainActor.run {
@@ -616,7 +625,7 @@ struct PhotoDetailView: View {
                     }
                 }
             } catch {
-                print("❌ [PhotoDetailView] 피드백 읽음 처리 실패: \(error)")
+                Log.friends.error("피드백 읽음 처리 실패: \(error.localizedDescription)")
             }
         }
     }

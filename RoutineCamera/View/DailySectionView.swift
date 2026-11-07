@@ -7,6 +7,7 @@ import SwiftUI
 import LeeoKit
 import AVFoundation
 import Photos
+import RoutineCameraCore
 
 struct DailySectionView: View {
     let date: Date
@@ -22,12 +23,6 @@ struct DailySectionView: View {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("MMMdE")
         return formatter.string(from: date)
-    }
-
-    private var completionRate: Double {
-        let meals = mealStore.getMeals(for: date)
-        let recordedCount = meals.values.filter { $0.isComplete }.count
-        return Double(recordedCount) / 3.0
     }
 
     var body: some View {
@@ -60,44 +55,6 @@ struct DailySectionView: View {
                 )
             }
         )
-    }
-
-    // 간식이 입력되어 있는지 확인
-    private func hasSnacks(meals: [MealType: MealRecord]) -> Bool {
-        return (meals[.snack1]?.isComplete ?? false) ||
-               (meals[.snack2]?.isComplete ?? false) ||
-               (meals[.snack3]?.isComplete ?? false)
-    }
-
-    // 현재 시간대에 맞는 식사 타입 3개 반환 (오늘 날짜용)
-    // 순서: 아침 - 간식1 - 점심 - 저녁 - 간식2
-    private func getMealsForCurrentTimeSlot() -> [MealType] {
-        let now = Date()
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: now)
-        let minute = calendar.component(.minute, from: now)
-        let currentMinutes = hour * 60 + minute
-
-        let notificationManager = NotificationManager.shared
-        let lunchHour = calendar.component(.hour, from: notificationManager.lunchTime)
-        let lunchMinute = calendar.component(.minute, from: notificationManager.lunchTime)
-        let dinnerHour = calendar.component(.hour, from: notificationManager.dinnerTime)
-        let dinnerMinute = calendar.component(.minute, from: notificationManager.dinnerTime)
-
-        let lunchMinutes = lunchHour * 60 + lunchMinute
-        let dinnerMinutes = dinnerHour * 60 + dinnerMinute
-
-        // 현재 시간이 어느 시간대인지 판별
-        if currentMinutes < lunchMinutes {
-            // 아침 시간대: [아침, 간식1, 점심]
-            return [.breakfast, .snack1, .lunch]
-        } else if currentMinutes < dinnerMinutes {
-            // 점심 시간대: [간식1, 점심, 간식2]
-            return [.snack1, .lunch, .snack2]
-        } else {
-            // 저녁 시간대: [간식2, 저녁, 간식3]
-            return [.snack2, .dinner, .snack3]
-        }
     }
 
     // 동적 간식 칸 계산: "간식 보이기"가 꺼져 있으면 기록된 간식까지 모두 숨기고(오늘 행과 동일),

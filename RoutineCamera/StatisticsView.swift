@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 struct StatisticsView: View {
     @ObservedObject var mealStore: MealRecordStore
@@ -15,6 +16,7 @@ struct StatisticsView: View {
     @ObservedObject private var subscription = SubscriptionManager.shared
     @State private var showingBeforeAfterComparison = false
     @State private var showingPaywall = false
+    @State private var paywallLead: ProFeature = .insights
 
     // 자세한 통계(전후 비교·자주 먹은 음식)는 세끼 프로
     private var insightsUnlocked: Bool { subscription.allows(.insights) }
@@ -41,6 +43,7 @@ struct StatisticsView: View {
                             if insightsUnlocked {
                                 showingBeforeAfterComparison = true
                             } else {
+                                paywallLead = .insights
                                 showingPaywall = true
                             }
                         }
@@ -64,9 +67,16 @@ struct StatisticsView: View {
                         } else {
                             ProLockedStatsCard(title: "자주 먹은 음식",
                                                detail: "이번 주, 이번 달에 많이 먹은 음식을 모아 봐요.") {
+                                paywallLead = .insights
                                 showingPaywall = true
                             }
                         }
+                    }
+
+                    // 기록 꺼내 보기 — 지도 · 주간 리포트 · PDF · 사진 한꺼번에 저장 (세끼 프로)
+                    ProToolsCard(mealStore: mealStore) { feature in
+                        paywallLead = feature
+                        showingPaywall = true
                     }
                 }
                 .padding(.horizontal, 12)
@@ -87,7 +97,78 @@ struct StatisticsView: View {
             .sheet(isPresented: $showingBeforeAfterComparison) {
                 BeforeAfterComparisonView(mealStore: mealStore)
             }
-            .proPaywall(isPresented: $showingPaywall, lead: .insights)
+            .proPaywall(isPresented: $showingPaywall, lead: paywallLead)
+        }
+    }
+}
+
+/// 세끼 프로 기능 네 가지로 들어가는 카드. 잠겨 있으면 누를 때 그 기능을 앞세운 결제 안내를 연다.
+struct ProToolsCard: View {
+    @ObservedObject var mealStore: MealRecordStore
+    @ObservedObject private var subscription = SubscriptionManager.shared
+    let onLocked: (ProFeature) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("기록 꺼내 보기")
+                .font(.headline)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 4)
+            ForEach(ProFeature.proFeatures, id: \.self) { feature in
+                if feature != ProFeature.proFeatures.first { Divider().padding(.leading, 52) }
+                row(feature)
+            }
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
+    }
+
+    @ViewBuilder
+    private func row(_ feature: ProFeature) -> some View {
+        if subscription.allows(feature) {
+            NavigationLink { ProToolScreen(feature: feature, mealStore: mealStore) } label: { label(feature, locked: false) }
+                .buttonStyle(.plain)
+        } else {
+            Button { onLocked(feature) } label: { label(feature, locked: true) }
+                .buttonStyle(.plain)
+        }
+    }
+
+    private func label(_ feature: ProFeature, locked: Bool) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: feature.leeoIcon)
+                .font(.title3)
+                .foregroundStyle(.orange)
+                .frame(width: 28)
+            Text(feature.leeoTitle)
+                .foregroundColor(.primary)
+            Spacer()
+            if locked { ProBadge(feature: feature) }
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundColor(.secondary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
+    }
+
+}
+
+/// 프로 기능 화면 하나 (통계 카드 · 주간 리포트 알림이 함께 쓴다)
+struct ProToolScreen: View {
+    let feature: ProFeature
+    @ObservedObject var mealStore: MealRecordStore
+
+    var body: some View {
+        switch feature {
+        case .mealMap:      MealMapView(mealStore: mealStore)
+        case .weeklyReport: WeeklyReportView(mealStore: mealStore)
+        case .pdfExport:    MealExportView(kind: .pdf, mealStore: mealStore)
+        case .bulkSave:     MealExportView(kind: .photos, mealStore: mealStore)
+        default:            EmptyView()
         }
     }
 }
@@ -583,7 +664,7 @@ struct BeforeAfterComparisonButton: View {
                     .font(.headline)
                 Spacer()
                 if isLocked {
-                    ProBadge()
+                    ProBadge(feature: .insights)
                 }
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
@@ -864,9 +945,6 @@ struct FoodConsumptionStatsView: View {
         // 각 음식이 어떤 식사들에서 나왔는지 추적
         var foodToMeals: [String: Set<String>] = [:] // "음식명": Set(["2025-11-19-breakfast", "2025-11-19-lunch", ...])
 
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-
         for record in mealStore.records {
             // 기간 내의 기록만 처리
             guard record.date >= startDate, record.date <= today else { continue }
@@ -874,7 +952,7 @@ struct FoodConsumptionStatsView: View {
             // Vision 분석이 있고 음식 항목이 있는 경우만 처리
             if let analysis = record.visionAnalysis, !analysis.foodItems.isEmpty {
                 // 고유 식사 ID 생성 (날짜-식사타입)
-                let mealId = "\(dateFormatter.string(from: record.date))-\(record.mealType.rawValue)"
+                let mealId = "\(DayKey.string(from: record.date))-\(record.mealType.rawValue)"
 
                 // 이 식사의 모든 음식 태그에 대해
                 for food in analysis.foodItems {
@@ -1017,14 +1095,16 @@ struct FoodConsumptionStatsView: View {
 
 /// 작은 "프로" 표시
 struct ProBadge: View {
+    let feature: ProFeature
+
     var body: some View {
-        Label("프로", systemImage: "crown.fill")
+        Label(feature.tierName, systemImage: "crown.fill")
             .font(.caption.weight(.semibold))
             .foregroundColor(.orange)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(Capsule().fill(Color.orange.opacity(0.15)))
-            .accessibilityLabel("세끼 프로 기능")
+            .accessibilityLabel(Text("세끼 \(feature.tierName) 기능", comment: "VoiceOver: badge for a paid tier feature (tier name)"))
     }
 }
 
@@ -1032,6 +1112,7 @@ struct ProBadge: View {
 struct ProLockedStatsCard: View {
     let title: LocalizedStringKey
     let detail: LocalizedStringKey
+    var feature: ProFeature = .insights
     let action: () -> Void
 
     var body: some View {
@@ -1041,7 +1122,7 @@ struct ProLockedStatsCard: View {
                     Text(title)
                         .font(.headline)
                     Spacer()
-                    ProBadge()
+                    ProBadge(feature: feature)
                 }
                 Text(detail)
                     .font(.subheadline)
@@ -1056,6 +1137,6 @@ struct ProLockedStatsCard: View {
             .shadow(color: .black.opacity(0.05), radius: 5, y: 2)
         }
         .buttonStyle(.plain)
-        .accessibilityHint("두 번 탭하면 세끼 프로 안내를 엽니다")
+        .accessibilityHint(Text("두 번 탭하면 세끼 \(feature.tierName) 안내를 엽니다", comment: "VoiceOver hint: opens the paywall for a tier (tier name)"))
     }
 }

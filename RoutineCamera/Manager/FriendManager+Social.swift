@@ -20,6 +20,8 @@ import Foundation
 import CloudKit
 import LeeoKit
 import Combine
+import RoutineCameraCore
+import os
 
 // MARK: - 모델
 
@@ -188,7 +190,7 @@ extension FriendManager {
             }
             _Concurrency.Task { await self.refreshSocialGraph() }
 
-            print("✅ 친구 요청 \(alreadyRequestedByThem ? "수락(맞요청)" : "전송"): \(nickname) (\(code))")
+            Log.friends.info("친구 요청 \(alreadyRequestedByThem ? "수락(맞요청)" : "전송"): \(nickname) (\(code))")
         } catch {
             errorMessage = error.localizedDescription
             throw error
@@ -221,7 +223,7 @@ extension FriendManager {
             let chunk = Array(changed[start..<min(start + 100, changed.count)])
             _ = try? await database.modifyRecords(saving: chunk, deleting: [], savePolicy: .changedKeys, atomically: false)
         }
-        print("✅ [CloudKit] 새 이름을 친구·그룹 \(changed.count)곳에 반영")
+        Log.friends.info("새 이름을 친구·그룹 \(changed.count)곳에 반영")
     }
 
     // MARK: - 차단 · 신고 (다른 사람이 올린 글·사진을 보는 앱이라 꼭 있어야 한다)
@@ -248,7 +250,7 @@ extension FriendManager {
         UserDefaults.standard.set(Array(blocked), forKey: Self.blockedUsersKey)
         objectWillChange.send()
         await refreshSocialGraph()
-        print("🚫 차단: \(name)")
+        Log.friends.info("차단: \(name)")
     }
 
     func unblock(_ userId: String) {
@@ -279,7 +281,7 @@ extension FriendManager {
         try await saveMyLink(otherId: request.id, otherCode: request.code,
                              otherNickname: request.name, state: .accepted)
         await refreshSocialGraph()
-        print("✅ 친구 요청 수락: \(request.name)")
+        Log.friends.info("친구 요청 수락: \(request.name)")
     }
 
     /// 받은 요청 거절 (거절 링크를 남겨 같은 요청이 다시 뜨지 않게 한다)
@@ -290,7 +292,7 @@ extension FriendManager {
         try await saveMyLink(otherId: request.id, otherCode: request.code,
                              otherNickname: request.name, state: .rejected)
         await refreshSocialGraph()
-        print("✅ 친구 요청 거절: \(request.name)")
+        Log.friends.info("친구 요청 거절: \(request.name)")
     }
 
     /// 내가 보낸 요청 취소 / 거절당한 요청 정리
@@ -300,7 +302,7 @@ extension FriendManager {
 
         try await deleteMyLink(otherId: pending.id)
         await refreshSocialGraph()
-        print("✅ 보낸 요청 취소: \(pending.name)")
+        Log.friends.info("보낸 요청 취소: \(pending.name)")
     }
 
     /// 내 쪽 링크 저장 (내가 만든 레코드이므로 덮어쓰기 가능 — 거절 후 재요청도 같은 레코드를 갱신)
@@ -395,12 +397,12 @@ extension FriendManager {
             incomingRequests = requests.sorted { $0.createdAt > $1.createdAt }
 
             socialError = nil
-            print("✅ [CloudKit] 친구 \(friends.count)명 / 받은 요청 \(incomingRequests.count)건 / 보낸 요청 \(pendingFriends.count)건")
+            Log.friends.info("친구 \(self.friends.count)명 / 받은 요청 \(self.incomingRequests.count)건 / 보낸 요청 \(self.pendingFriends.count)건")
             // 친구가 늘거나 줄면 친구 기록 알림 구독도 따라간다
             syncFriendMealSubscriptions()
         } catch {
             socialError = Self.readableMessage(for: error)
-            print("❌ [CloudKit] 친구 관계 조회 실패(기존 목록 유지): \(error.localizedDescription)")
+            Log.friends.error("친구 관계 조회 실패(기존 목록 유지): \(error.localizedDescription)")
         }
     }
 
@@ -446,13 +448,13 @@ extension FriendManager {
                                      otherNickname: friend.name, state: .accepted, isLegacy: true)
             } catch {
                 // 다음 실행에서 재시도 (플래그를 세우지 않음)
-                print("❌ [CloudKit] 친구 이관 실패(\(friend.code)): \(error.localizedDescription)")
+                Log.friends.error("친구 이관 실패(\(friend.code)): \(error.localizedDescription)")
                 return
             }
         }
 
         UserDefaults.standard.set(true, forKey: key)
-        print("✅ [CloudKit] 기존 친구 \(friends.count)명 → FriendLink 이관 완료")
+        Log.friends.info("기존 친구 \(self.friends.count)명 → FriendLink 이관 완료")
     }
 
     /// 나에게 온 친구 요청·수락 푸시 구독
@@ -478,15 +480,15 @@ extension FriendManager {
 
                 _ = try await database.save(subscription)
                 UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
-                print("📡 [CloudKit] 친구 요청 푸시 구독 등록 완료")
+                Log.friends.info("친구 요청 푸시 구독 등록 완료")
             } catch {
                 // 거절됐다고 "이미 있음" 으로 단정하지 않는다 — 서버에 정말 있는지 확인한 뒤에만 도장을 찍는다.
                 // (스키마 인덱스가 없을 때도 같은 오류가 와서, 예전엔 친구 요청 알림이 영영 안 왔다)
                 if (try? await database.subscription(for: "friendlink-sub-\(userId)")) != nil {
                     UserDefaults.standard.set(userId, forKey: Self.friendLinkSubscriptionKey)
-                    print("📡 [CloudKit] 친구 요청 구독이 이미 서버에 있음")
+                    Log.friends.info("친구 요청 구독이 이미 서버에 있음")
                 } else {
-                    print("❌ [CloudKit] 친구 요청 구독 등록 실패 (다음 실행에 다시 시도): \(error.localizedDescription)")
+                    Log.friends.error("친구 요청 구독 등록 실패 (다음 실행에 다시 시도): \(error.localizedDescription)")
                 }
             }
         }
@@ -553,10 +555,10 @@ extension FriendManager {
             }
 
             friendMealPushState = enabled ? .ready : .unknown
-            print("📡 [CloudKit] 친구 기록 알림 구독 맞춤: 등록 \(toSave.count) / 삭제 \(toDelete.count) / 대상 \(targets.count)명")
+            Log.friends.info("친구 기록 알림 구독 맞춤: 등록 \(toSave.count) / 삭제 \(toDelete.count) / 대상 \(targets.count)명")
         } catch {
             friendMealPushState = enabled ? .failed(Self.readableMessage(for: error)) : .unknown
-            print("❌ [CloudKit] 친구 기록 알림 구독 실패: \(error.localizedDescription)")
+            Log.friends.error("친구 기록 알림 구독 실패: \(error.localizedDescription)")
         }
     }
 
@@ -619,10 +621,10 @@ extension FriendManager {
             guard userId == myUserId else { return }  // 기다리는 사이 계정이 바뀌었다
             groups = loaded.sorted { $0.createdAt > $1.createdAt }
             groupsError = nil
-            print("✅ [CloudKit] 내 그룹 \(groups.count)개")
+            Log.friends.info("내 그룹 \(self.groups.count)개")
         } catch {
             groupsError = Self.readableMessage(for: error)
-            print("❌ [CloudKit] 그룹 조회 실패: \(error.localizedDescription)")
+            Log.friends.error("그룹 조회 실패: \(error.localizedDescription)")
         }
     }
 
@@ -673,13 +675,13 @@ extension FriendManager {
                 }
                 _ = try await database.save(makeRecord(includeVisibility: false))
                 savedVisibility = .full
-                print("⚠️ visibility 필드가 운영 스키마에 없어 전체 공개로 저장")
+                Log.friends.warning("visibility 필드가 운영 스키마에 없어 전체 공개로 저장")
             }
 
             try await saveMyMembership(groupId: groupId)
             await loadMyGroups()
 
-            print("✅ 그룹 생성: \(trimmed) (\(inviteCode), \(savedVisibility.rawValue))")
+            Log.friends.info("그룹 생성: \(trimmed) (\(inviteCode), \(savedVisibility.rawValue))")
             return FriendGroup(id: groupId, name: trimmed, ownerId: myUserId,
                                inviteCode: inviteCode, createdAt: now,
                                visibility: savedVisibility, memberCount: 1)
@@ -723,7 +725,7 @@ extension FriendManager {
             try await saveMyMembership(groupId: group.id)
             await loadMyGroups()
 
-            print("✅ 그룹 참여: \(group.name)")
+            Log.friends.info("그룹 참여: \(group.name)")
             return group
         } catch {
             errorMessage = error.localizedDescription
@@ -745,7 +747,7 @@ extension FriendManager {
 
         if group.ownerId == myUserId {
             _ = try? await database.deleteRecord(withID: CKRecord.ID(recordName: group.id))
-            print("🗑️ 방장이 나가 그룹 삭제: \(group.name)")
+            Log.friends.info("방장이 나가 그룹 삭제: \(group.name)")
         }
 
         await loadMyGroups()
@@ -775,7 +777,7 @@ extension FriendManager {
             }
 
             await loadMyGroups()
-            print("✅ 그룹 공개 범위 변경: \(group.name) → \(visibility.rawValue)")
+            Log.friends.info("그룹 공개 범위 변경: \(group.name) → \(visibility.rawValue)")
 
             var updated = group
             updated.visibility = visibility
@@ -794,7 +796,7 @@ extension FriendManager {
     func loadGroupMealStatus(userIds: [String], date: Date) async throws -> [String: Set<MealType>] {
         guard !userIds.isEmpty else { return [:] }
 
-        let dateString = dateFormatter.string(from: date)
+        let dateString = DayKey.string(from: date)
         var owners: [CKRecord.ID: (userId: String, mealType: MealType)] = [:]
 
         // 음식과 운동 둘 다 센다. 운동만 하는 멤버가 "미기록"으로 보이면 안 된다 —
@@ -821,7 +823,7 @@ extension FriendManager {
             }
         }
 
-        print("🌐 [CloudKit] 그룹 기록 여부 조회: \(dateString) — \(userIds.count)명 (사진 미포함)")
+        Log.friends.debug("그룹 기록 여부 조회: \(dateString) — \(userIds.count)명 (사진 미포함)")
         return result
     }
 
@@ -845,7 +847,7 @@ extension FriendManager {
     /// 그룹 멤버 전원의 특정 날짜 식단을 한 번에 조회.
     /// (사람 × 끼니) 레코드 ID를 묶어서 요청하므로 쿼리 인덱스가 필요 없고, 사람 수만큼 왕복하지도 않는다.
     func loadGroupMeals(userIds: [String], date: Date) async throws -> [String: [MealType: MealRecord]] {
-        let dateString = dateFormatter.string(from: date)
+        let dateString = DayKey.string(from: date)
         // 음식·운동을 섞은 결과라 친구 화면(음식만)과 캐시 키를 나눈다.
         // 같은 키를 쓰면 그룹을 본 뒤 친구의 음식 타임라인에 운동 기록이 섞여 보였다.
         let cacheDateKey = dateString + "_group"
@@ -896,7 +898,7 @@ extension FriendManager {
             cacheMeals(meals, friendId: userId, dateString: cacheDateKey)
         }
 
-        print("🌐 [CloudKit] 그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")
+        Log.friends.debug("그룹 식단 조회: \(dateString) — 캐시 \(userIds.count - missing.count)명 / 신규 \(missing.count)명")
         return out
     }
 
@@ -909,7 +911,7 @@ extension FriendManager {
 
         for date in dates {
             // 캐시 키에 앨범을 섞는다 — 음식 탭이 받아 둔 것을 운동 탭이 쓰면 안 된다
-            let cacheDateKey = dateFormatter.string(from: date) + album.recordSuffix
+            let cacheDateKey = DayKey.string(from: date) + album.recordSuffix
             let cacheKey = "\(friendId)_\(cacheDateKey)" as NSString
             if let cached = memoryCache.object(forKey: cacheKey) {
                 out[date] = cached.meals
@@ -924,7 +926,7 @@ extension FriendManager {
 
         var recordIDs: [CKRecord.ID] = []
         for date in missing {
-            let dateString = dateFormatter.string(from: date)
+            let dateString = DayKey.string(from: date)
             for mealType in MealType.allCases {
                 recordIDs.append(CKRecord.ID(recordName: Self.mealRecordName(
                     userId: friendId, dateString: dateString, mealType: mealType, album: album)))
@@ -934,7 +936,7 @@ extension FriendManager {
         let fetched = try await fetchRecordsInChunks(recordIDs)
 
         for date in missing {
-            let dateString = dateFormatter.string(from: date)
+            let dateString = DayKey.string(from: date)
             var meals: [MealType: MealRecord] = [:]
             for mealType in MealType.allCases {
                 let id = CKRecord.ID(recordName: Self.mealRecordName(
@@ -946,7 +948,7 @@ extension FriendManager {
             cacheMeals(meals, friendId: friendId, dateString: dateString + album.recordSuffix)
         }
 
-        print("🌐 [CloudKit] 친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")
+        Log.friends.debug("친구 식단 배치 조회: 캐시 \(dates.count - missing.count)일 / 신규 \(missing.count)일")
         return out
     }
 
@@ -1063,7 +1065,7 @@ extension FriendManager {
     static func readableMessage(for error: Error) -> String {
         if isProductionSchemaError(error) {
             // 사용자가 할 수 있는 일이 없다 — 원문 대신 상황만 알리고 로그에 원인을 남긴다
-            print("❌ [CloudKit] 운영 스키마 미배포: \(error.localizedDescription)")
+            Log.friends.error("운영 스키마 미배포: \(error.localizedDescription)")
             return String(localized: "iCloud 저장소 준비가 아직 끝나지 않았어요. 잠시 후 다시 시도해주세요.", comment: "Error: iCloud schema not ready")
         }
         if let ckError = error as? CKError {

@@ -9,6 +9,7 @@ import Foundation
 import UserNotifications
 import Combine
 import RoutineCameraCore
+import os
 
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
@@ -60,6 +61,37 @@ class NotificationManager: ObservableObject {
     @Published var requestedCameraMeal: MealType?
     /// 친구 기록 알림을 눌러 들어왔을 때 친구 화면을 열어야 하는지
     @Published var requestedFriendsScreen = false
+    /// 주간 리포트 알림을 눌러 들어왔을 때 리포트를 열어야 하는지
+    @Published var requestedWeeklyReport = false
+
+    // MARK: - 주간 리포트 (세끼 프로)
+
+    /// 주간 리포트 알림의 userInfo["kind"]
+    nonisolated static let weeklyReportKind = "weeklyReport"
+    /// 리포트 화면의 "월요일 아침에 알려 주기" (기본 켬)
+    static let weeklyReportEnabledKey = "weeklyReportNotification"
+    private static let weeklyReportID = "weekly-report"
+
+    /// 월요일 아침 9시마다 지난 주 리포트를 알린다. 프로이고 리포트 화면에서 끄지 않았을 때만.
+    /// 앱이 앞으로 올 때마다 다시 맞춘다 (구독이 끝나면 알림도 멈춘다).
+    func scheduleWeeklyReport() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [Self.weeklyReportID])
+        let wanted = UserDefaults.standard.object(forKey: Self.weeklyReportEnabledKey) as? Bool ?? true
+        guard wanted, SubscriptionManager.shared.allows(.weeklyReport) else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "지난 주 리포트가 준비됐어요")
+        content.body = String(localized: "언제 무엇을 먹었는지 한 장으로 확인해 보세요.")
+        content.sound = .default
+        content.userInfo = ["kind": Self.weeklyReportKind]
+
+        var monday = DateComponents()
+        monday.weekday = 2
+        monday.hour = 9
+        let trigger = UNCalendarNotificationTrigger(dateMatching: monday, repeats: true)
+        center.add(UNNotificationRequest(identifier: Self.weeklyReportID, content: content, trigger: trigger))
+    }
 
     // "다 먹음" 알림 카테고리/액션 식별자 (알림에서 앱 안 열고 바로 처리)
     static let ateAllCategoryID = "ATE_ALL_REMINDER"
@@ -121,7 +153,7 @@ class NotificationManager: ObservableObject {
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("다먹음 리마인더 오류: \(error)")
+                Log.notification.error("다먹음 리마인더 오류: \(error.localizedDescription)")
             }
         }
     }
@@ -140,7 +172,7 @@ class NotificationManager: ObservableObject {
             let ids = requests.map(\.identifier).filter { $0.hasPrefix("ateall-") }
             guard !ids.isEmpty else { return }
             center.removePendingNotificationRequests(withIdentifiers: ids)
-            print("🔕 [알림] 다먹음 리마인더 \(ids.count)건 취소")
+            Log.notification.info("다먹음 리마인더 \(ids.count)건 취소")
         }
     }
 
@@ -185,7 +217,7 @@ class NotificationManager: ObservableObject {
             }
 
             if let error = error {
-                print("알림 권한 요청 오류: \(error)")
+                Log.notification.error("알림 권한 요청 오류: \(error.localizedDescription)")
             }
         }
     }
@@ -245,10 +277,10 @@ class NotificationManager: ObservableObject {
                 do {
                     try await center.add(request)
                 } catch {
-                    print("❌ [알림] 식사 전 알림 예약 실패 (\(reminder.identifier)): \(error)")
+                    Log.notification.error("식사 전 알림 예약 실패 (\(reminder.identifier)): \(error.localizedDescription)")
                 }
             }
-            print("⏰ [알림] 식사 전 알림 \(planned.count)건 예약 (이전 \(stale.count)건 교체)")
+            Log.notification.debug("식사 전 알림 \(planned.count)건 예약 (이전 \(stale.count)건 교체)")
         }
     }
 

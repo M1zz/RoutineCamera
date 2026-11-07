@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import RoutineCameraCore
+import os
 
 // 앨범 타입 정의
 enum AlbumType: String, CaseIterable, Codable {
@@ -61,69 +63,31 @@ enum AlbumType: String, CaseIterable, Codable {
 class SettingsManager: ObservableObject {
     static let shared = SettingsManager()
 
-    @Published var albumType: AlbumType {
-        didSet {
-            UserDefaults.standard.set(albumType.rawValue, forKey: "albumType")
-        }
-    }
+    // 저장되는 설정은 한 줄씩 — 기본값 · 저장 · 화면 갱신은 @Stored 가 맡는다
 
-    @Published var autoSaveToPhotoLibrary: Bool {
-        didSet {
-            UserDefaults.standard.set(autoSaveToPhotoLibrary, forKey: "autoSaveToPhotoLibrary")
-        }
+    // 기록 저장소가 바뀜을 구독하므로 이것만 @Published 로 둔다
+    @Published var albumType: AlbumType = Stored.load("albumType", default: .diet) {
+        didSet { UserDefaults.standard.set(albumType.rawValue, forKey: "albumType") }
     }
-    
+    @Stored("autoSaveToPhotoLibrary") var autoSaveToPhotoLibrary = true
     /// 찍은 곳 함께 남기기 (기본 끔 — 켤 때 위치 권한을 묻는다)
-    @Published var recordPlace: Bool {
-        didSet {
-            UserDefaults.standard.set(recordPlace, forKey: "recordPlace")
-        }
-    }
-
-    @Published var writeSnack: Bool {
-        didSet {
-            print("writeSnack", writeSnack)
-            UserDefaults.standard.set(writeSnack, forKey: "writeSnack")
-        }
-    }
-    
+    @Stored("recordPlace") var recordPlace = false
+    @Stored("writeSnack") var writeSnack = true
 
     // 식후 사진을 남길지. 끄면 식전 한 장으로 기록이 끝나고,
     // 식후 촬영 안내·"다 드셨어요?" 알림·남은 사진 뱃지가 모두 사라진다.
-    @Published var useAfterPhoto: Bool {
+    @Stored("useAfterPhoto") var useAfterPhoto = true {
         didSet {
-            UserDefaults.standard.set(useAfterPhoto, forKey: "useAfterPhoto")
-            if !useAfterPhoto {
-                // 이미 예약된 "다 드셨어요?" 알림도 정리한다
-                NotificationManager.shared.cancelAllAteAllReminders()
-            }
+            // 이미 예약된 "다 드셨어요?" 알림도 정리한다
+            if !useAfterPhoto { NotificationManager.shared.cancelAllAteAllReminders() }
         }
     }
 
-    @Published var showRemainingPhotoCount: Bool {
-        didSet {
-            UserDefaults.standard.set(showRemainingPhotoCount, forKey: "showRemainingPhotoCount")
-        }
-    }
-
-    @Published var showMemoIcon: Bool {
-        didSet {
-            UserDefaults.standard.set(showMemoIcon, forKey: "showMemoIcon")
-        }
-    }
-
-    @Published var showAlbumSwitcher: Bool {
-        didSet {
-            UserDefaults.standard.set(showAlbumSwitcher, forKey: "showAlbumSwitcher")
-        }
-    }
-
-    // 순간 피드(슬롯 없는 시간순 사진 일기) 사용 여부. false면 기존 격자 화면.
-    @Published var useMomentsFeed: Bool {
-        didSet {
-            UserDefaults.standard.set(useMomentsFeed, forKey: "useMomentsFeed")
-        }
-    }
+    @Stored("showRemainingPhotoCount") var showRemainingPhotoCount = true
+    @Stored("showMemoIcon") var showMemoIcon = true
+    @Stored("showAlbumSwitcher") var showAlbumSwitcher = true
+    // 순간 피드(슬롯 없는 시간순 사진 일기) 사용 여부. false면 격자 화면.
+    @Stored("useMomentsFeed") var useMomentsFeed = true
 
     // 사용자가 "챙기고 싶은" 식사 — 이 식사만 리마인드 알림을 받는다.
     // 삼시세끼 전부 알림으로 인한 스트레스를 줄이기 위함.
@@ -138,37 +102,13 @@ class SettingsManager: ObservableObject {
     }
 
     // "챙길 식사"를 한 번이라도 골랐는지 (첫 실행 프롬프트 노출 판단)
-    @Published var hasConfiguredCaredMeals: Bool {
-        didSet {
-            UserDefaults.standard.set(hasConfiguredCaredMeals, forKey: "hasConfiguredCaredMeals")
-        }
-    }
-
-    @Published var shareMealsToCloud: Bool {
-        didSet {
-            UserDefaults.standard.set(shareMealsToCloud, forKey: "shareMealsToFirebase") // 기존 설정값 유지를 위해 키 이름은 그대로 둠
-        }
-    }
-
-    @Published var autoOpenCamera: Bool {
-        didSet {
-            UserDefaults.standard.set(autoOpenCamera, forKey: "autoOpenCamera")
-        }
-    }
-
-    @Published var autoFoodAnalysis: Bool {
-        didSet {
-            UserDefaults.standard.set(autoFoodAnalysis, forKey: "autoFoodAnalysis")
-        }
-    }
-
+    @Stored("hasConfiguredCaredMeals") var hasConfiguredCaredMeals = false
+    // 키 이름은 예전 그대로 둔다 — 바꾸면 이미 끈 사람의 설정이 사라진다
+    @Stored("shareMealsToFirebase") var shareMealsToCloud = true
+    @Stored("autoOpenCamera") var autoOpenCamera = true
+    @Stored("autoFoodAnalysis") var autoFoodAnalysis = false
     // 앱 잠금 (세끼 프로) — 앱을 열 때 Face ID·Touch ID·기기 암호를 묻는다
-    @Published var appLockEnabled: Bool {
-        didSet {
-            UserDefaults.standard.set(appLockEnabled, forKey: "appLockEnabled")
-        }
-    }
-
+    @Stored("appLockEnabled") var appLockEnabled = false
 
     // 친구·그룹 화면에서 상대에게 보이는 이름
     @Published var nickname: String = "사용자" {
@@ -211,56 +151,15 @@ class SettingsManager: ObservableObject {
             UserDefaults.standard.set(today, forKey: "appStartDate")
         }
 
-        // 앨범 타입 로드 (기본값: 식단)
-        if let albumTypeString = UserDefaults.standard.string(forKey: "albumType"),
-           let albumType = AlbumType(rawValue: albumTypeString) {
-            self.albumType = albumType
-        } else {
-            self.albumType = .diet
-        }
-
-        // 기본값은 true (기존 동작 유지)
-        self.autoSaveToPhotoLibrary = UserDefaults.standard.object(forKey: "autoSaveToPhotoLibrary") as? Bool ?? true
-        self.writeSnack = UserDefaults.standard.object(forKey: "writeSnack") as? Bool ?? true
-        self.recordPlace = UserDefaults.standard.bool(forKey: "recordPlace")
-        // 기본값 true (기존 식전·식후 흐름 유지)
-        self.useAfterPhoto = UserDefaults.standard.object(forKey: "useAfterPhoto") as? Bool ?? true
-        self.showRemainingPhotoCount = UserDefaults.standard.object(forKey: "showRemainingPhotoCount") as? Bool ?? true
-        self.showMemoIcon = UserDefaults.standard.object(forKey: "showMemoIcon") as? Bool ?? true
-        self.showAlbumSwitcher = UserDefaults.standard.object(forKey: "showAlbumSwitcher") as? Bool ?? true
-        // 순간 피드 기본 ON (새 경험). 기존 격자를 원하면 설정에서 끄기.
-        self.useMomentsFeed = UserDefaults.standard.object(forKey: "useMomentsFeed") as? Bool ?? true
-
-        // 식단 공유 기본값은 true (자동 싱크 활성화)
-        self.shareMealsToCloud = UserDefaults.standard.object(forKey: "shareMealsToFirebase") as? Bool ?? true
-
-        // 자동 카메라 열기 기본값은 true (기존 동작 유지)
-        self.autoOpenCamera = UserDefaults.standard.object(forKey: "autoOpenCamera") as? Bool ?? true
-
-        // 자동 음식 분석 기본값은 false (API 비용 절약)
-        self.autoFoodAnalysis = UserDefaults.standard.object(forKey: "autoFoodAnalysis") as? Bool ?? false
-        self.appLockEnabled = UserDefaults.standard.bool(forKey: "appLockEnabled")
-        // 예전 "고급 인식(OpenAI)" 에서 받던 개인 API 키 — 기능을 없앴으므로 기기에 남기지 않는다
-        UserDefaults.standard.removeObject(forKey: "OpenAI_API_Key")
-
-        // 무료 식단 분석 횟수 로드 (기본값: 5회)
-
         // 챙길 식사 로드 (기본값: 삼시세끼 — 기존 동작 유지, 프롬프트로 조정 유도)
         if let raw = UserDefaults.standard.array(forKey: "caredMeals") as? [String] {
             self.caredMeals = Set(raw.compactMap { MealType(rawValue: $0) })
         } else {
             self.caredMeals = [.breakfast, .lunch, .dinner]
         }
-        self.hasConfiguredCaredMeals = UserDefaults.standard.bool(forKey: "hasConfiguredCaredMeals")
 
         // 닉네임 로드 (기본값: "사용자")
         self.nickname = UserDefaults.standard.string(forKey: "userNickname") ?? "사용자"
-
-        print("⚙️ [SettingsManager] 초기화 완료")
-        print("   - 식단 공유: \(self.shareMealsToCloud)")
-        print("   - 자동 카메라: \(self.autoOpenCamera)")
-        print("   - 자동 음식 분석: \(self.autoFoodAnalysis)")
-        print("   - 닉네임: \(self.nickname)")
     }
 
     // 타이핑 중에는 CloudKit 왕복을 하지 않는다 — 마지막 입력에서 1초 쉬면 그때 한 번만 올린다
@@ -280,10 +179,75 @@ class SettingsManager: ObservableObject {
         Task { @MainActor in
             do {
                 try await FriendManager.shared.saveMyNickname(nickname)
-                print("✅ [SettingsManager] 닉네임 CloudKit 저장 완료: \(nickname)")
+                Log.friends.info("닉네임 CloudKit 저장 완료: \(self.nickname)")
             } catch {
-                print("❌ [SettingsManager] 닉네임 CloudKit 저장 실패: \(error)")
+                Log.friends.error("닉네임 CloudKit 저장 실패: \(error.localizedDescription)")
             }
         }
     }
 }
+
+// MARK: - 저장되는 설정 한 칸
+
+/// UserDefaults 에 저장되는 설정 한 칸. 읽을 때 저장된 값(없으면 기본값), 쓸 때 저장하고 화면에 알린다.
+/// `@Published` + `didSet { UserDefaults.set }` 을 칸마다 되풀이하던 것을 한 곳으로 모았다.
+/// 저장할 수 있는 값: Bool · String · Int · Double, 또는 그런 원시값을 가진 enum.
+@propertyWrapper
+struct Stored<Value: StoredValue> {
+    let key: String
+    private var value: Value
+
+    init(wrappedValue defaultValue: Value, _ key: String) {
+        self.key = key
+        self.value = Self.load(key, default: defaultValue)
+    }
+
+    static func load(_ key: String, default defaultValue: Value) -> Value {
+        UserDefaults.standard.object(forKey: key).flatMap(Value.init(storedObject:)) ?? defaultValue
+    }
+
+    @available(*, unavailable, message: "@Stored 는 ObservableObject 클래스 안에서만 쓴다")
+    var wrappedValue: Value {
+        get { fatalError() }
+        set { fatalError() }
+    }
+
+    static subscript<Owner: ObservableObject>(
+        _enclosingInstance owner: Owner,
+        wrapped wrappedKeyPath: ReferenceWritableKeyPath<Owner, Value>,
+        storage storageKeyPath: ReferenceWritableKeyPath<Owner, Stored<Value>>
+    ) -> Value where Owner.ObjectWillChangePublisher == ObservableObjectPublisher {
+        get { owner[keyPath: storageKeyPath].value }
+        set {
+            owner.objectWillChange.send()
+            owner[keyPath: storageKeyPath].value = newValue
+            UserDefaults.standard.set(newValue.storedObject, forKey: owner[keyPath: storageKeyPath].key)
+        }
+    }
+}
+
+/// UserDefaults 에 그대로 넣고 꺼낼 수 있는 값
+protocol StoredValue {
+    init?(storedObject: Any)
+    var storedObject: Any { get }
+}
+
+extension Bool: StoredValue {
+    init?(storedObject: Any) { guard let v = storedObject as? Bool else { return nil }; self = v }
+    var storedObject: Any { self }
+}
+
+extension String: StoredValue {
+    init?(storedObject: Any) { guard let v = storedObject as? String else { return nil }; self = v }
+    var storedObject: Any { self }
+}
+
+extension StoredValue where Self: RawRepresentable, RawValue == String {
+    init?(storedObject: Any) {
+        guard let raw = storedObject as? String else { return nil }
+        self.init(rawValue: raw)
+    }
+    var storedObject: Any { rawValue }
+}
+
+extension AlbumType: StoredValue {}

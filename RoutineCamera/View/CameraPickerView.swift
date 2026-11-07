@@ -8,6 +8,7 @@ import AVFoundation
 import Photos
 import CoreLocation
 import RoutineCameraCore
+import os
 
 struct CameraPickerView: View {
     // 새 기록이면 사용자가 날짜·끼니를 바꿀 수 있다 (처음 값은 누른 칸 또는 지금 시간대 끼니)
@@ -39,19 +40,15 @@ struct CameraPickerView: View {
         // 운동 모드이거나 식후 사진을 쓰지 않을 때는 항상 before로 (1장만 저장)
         if SettingsManager.shared.albumType == .exercise {
             self._localPhotoType = State(initialValue: .before)
-            print("📸 [CameraPickerView] 운동 모드 - 사진 1장만 저장")
         } else if !SettingsManager.shared.useAfterPhoto {
             self._localPhotoType = State(initialValue: .before)
-            print("📸 [CameraPickerView] 식후 사진 사용 안 함 - 사진 1장만 저장")
         } else {
             // 식단 모드: 식전 사진이 이미 있으면 자동으로 식후 선택
             let meals = mealStore.getMeals(for: date)
             if let mealRecord = meals[mealType], mealRecord.beforeImageData != nil {
                 self._localPhotoType = State(initialValue: .after)
-                print("📸 [CameraPickerView] 식전 사진 존재 - 자동으로 식후 선택")
             } else {
                 self._localPhotoType = State(initialValue: selectedPhotoType.wrappedValue)
-                print("📸 [CameraPickerView] 식전 사진 없음 - 기본값(\(selectedPhotoType.wrappedValue)) 사용")
             }
         }
     }
@@ -424,10 +421,7 @@ struct CameraPickerView: View {
     }
 
     private func autoAnalyzeFood(image: UIImage, date: Date, mealType: MealType) {
-        guard SettingsManager.shared.autoFoodAnalysis else {
-            print("ℹ️ [AutoAnalysis] 자동 분석 설정 꺼짐 - 건너뜀")
-            return
-        }
+        guard SettingsManager.shared.autoFoodAnalysis else { return }
         autoAnalyzeWithVisionFramework(image: image, date: date, mealType: mealType)
     }
 
@@ -442,13 +436,12 @@ struct CameraPickerView: View {
                         extractedText: analysis.extractedText,
                         confidence: analysis.confidence,
                         analyzedDate: Date(),
-                        isOpenAI: false,
                         description: nil
                     )
                     self.mealStore.updateVisionAnalysis(date: date, mealType: mealType, analysis: visionData)
-                    print("✅ Vision 자동 분석 완료: \(mealType.rawValue)")
+                    Log.analysis.info("Vision 자동 분석 완료: \(mealType.rawValue)")
                 case .failure(let error):
-                    print("❌ 자동 분석 실패: \(error)")
+                    Log.analysis.error("자동 분석 실패: \(error.localizedDescription)")
                 }
             }
         }

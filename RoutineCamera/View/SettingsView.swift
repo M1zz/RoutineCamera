@@ -9,6 +9,7 @@
 import SwiftUI
 import LeeoKit
 import StoreKit
+import RoutineCameraCore
 
 struct SettingsView: View {
     @ObservedObject var notificationManager: NotificationManager
@@ -22,6 +23,8 @@ struct SettingsView: View {
     @State private var showingPaywall = false
     @State private var paywallLead: ProFeature?
     @State private var showingManageSubscription = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     @State private var showingSampleDataAlert = false
     @State private var showingClearDataAlert = false
@@ -38,13 +41,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
+                // 프로 → 개발자 응원하기 → 선물하기 순서
                 proSection
-                if let gift = subscription.gift {
-                    GiftRows(gift: gift, isPro: subscription.isPro)
-                }
                 // 개발자 응원하기 — 팁 상품이 App Store 에서 와야 줄이 선다.
                 if let tipJar = subscription.tipJar {
                     Section { LeeoTipJarLink<RoutineCameraSpec>(tipJar: tipJar) }
+                }
+                if let gift = subscription.gift {
+                    GiftRows(gift: gift, isPro: subscription.isPro)
                 }
                 screenSection
                 displaySection
@@ -348,21 +352,30 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - 세끼 프로
+    // MARK: - 세끼 플러스 · 프로
 
     @ViewBuilder private var proSection: some View {
         Section {
-            if subscription.isPro {
+            if let tier = subscription.tier {
                 Label {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("세끼 프로 사용 중")
+                        Text("세끼 \(tier.name) 사용 중", comment: "Settings: current paid tier (tier name)")
                             .font(.headline)
-                        Text("모든 프로 기능을 쓸 수 있어요.")
+                        Text(subscription.isTopTier
+                             ? String(localized: "모든 기능을 쓸 수 있어요.")
+                             : String(localized: "프로로 올리면 식사 지도, 주간 리포트, 내보내기까지 써요."))
                             .font(.caption)
                             .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 } icon: {
                     Image(systemName: "crown.fill").foregroundColor(.orange)
+                }
+                if !subscription.isTopTier {
+                    Button("프로로 올리기") {
+                        paywallLead = nil
+                        showingPaywall = true
+                    }
                 }
                 Button("구독 관리") { showingManageSubscription = true }
             } else {
@@ -372,10 +385,10 @@ struct SettingsView: View {
                 } label: {
                     Label {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("세끼 프로")
+                            Text("세끼 플러스 · 프로")
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                            Text("그룹 여러 개, 자세한 통계, Face ID 잠금")
+                            Text("그룹 여러 개, 자세한 통계, Face ID 잠금, 식사 지도, 내보내기")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -384,6 +397,30 @@ struct SettingsView: View {
                         Image(systemName: "crown.fill").foregroundColor(.orange)
                     }
                 }
+            }
+
+            // 구매 복원 — 다른 기기에서 샀거나 다시 설치했을 때 (심사 필수)
+            Button {
+                Task {
+                    isRestoring = true
+                    let restored = await subscription.restore()
+                    isRestoring = false
+                    restoreMessage = restored
+                        ? String(localized: "구매를 되찾았어요.", comment: "Settings: restore purchases succeeded")
+                        : String(localized: "되찾을 구매가 없어요. 산 Apple 계정으로 로그인했는지 확인해 주세요.", comment: "Settings: restore purchases found nothing")
+                }
+            } label: {
+                HStack {
+                    Label("구매 복원", systemImage: "arrow.clockwise")
+                    if isRestoring {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isRestoring)
+            if let restoreMessage {
+                caption(Text(restoreMessage))
             }
 
             // 앱 잠금 — 프로가 아니면 켜려 할 때 페이월
@@ -495,18 +532,25 @@ private struct GiftRows: View {
     let isPro: Bool
     @State private var showSupport = false
 
+    /// 보내기 — 선물 판매가 열렸거나(`sellsGifts`) 보낸 · 보내는 중인 선물이 있을 때
+    private var showsSend: Bool { gift.isAvailable || gift.pendingCount > 0 || !gift.sentGifts.isEmpty }
+    /// 받은 선물 — 받는 사람은 보낸 링크를 누르면 끝이라 따로 받는 칸이 없다.
+    /// 예전 방식(선물 코드)으로 이미 받은 사람에게만 그 기록을 보여 준다.
+    private var showsRedeem: Bool { gift.redeemed != nil }
+
     var body: some View {
-        if gift.isAvailable || gift.pendingCount > 0 || !gift.sentGifts.isEmpty || gift.redeemed != nil {
+        if showsSend || showsRedeem {
             Section {
-                NavigationLink {
-                    // 선물이 안 되면 결제 번호·코드를 붙여 문의하게 한다 — 막힌 사람을 놓치지 않게.
-                    LeeoGiftView<RoutineCameraSpec>(gift: gift, showsRedeemLink: false,
-                                                    onContactSupport: { showSupport = true })
-                } label: {
-                    Label(LeeoGiftText.sendEntry, systemImage: "gift.fill")
+                if showsSend {
+                    NavigationLink {
+                        // 선물이 안 되면 결제 번호·코드를 붙여 문의하게 한다 — 막힌 사람을 놓치지 않게.
+                        LeeoGiftView<RoutineCameraSpec>(gift: gift, showsRedeemLink: false,
+                                                        onContactSupport: { showSupport = true })
+                    } label: {
+                        Label(LeeoGiftText.sendEntry, systemImage: "gift.fill")
+                    }
                 }
-                // 이미 프로인 사람은 받을 것이 없다 — 받은 적이 있으면 그 기록을 볼 수 있게만 남긴다.
-                if !isPro || gift.redeemed != nil {
+                if showsRedeem {
                     NavigationLink {
                         LeeoGiftRedeemView<RoutineCameraSpec>(gift: gift,
                                                               onContactSupport: { showSupport = true })

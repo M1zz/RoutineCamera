@@ -15,6 +15,7 @@ import Combine
 import CryptoKit
 import Foundation
 import RoutineCameraCore
+import os
 
 /// 끼니 칸 하나의 주소. 날짜는 기기 시간대의 달력 날짜 문자열이라 시간대를 옮겨도 같은 칸이다.
 struct MealSyncSlot: Hashable {
@@ -22,17 +23,9 @@ struct MealSyncSlot: Hashable {
     let day: String
     let mealType: MealType
 
-    private static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
-
     init(album: AlbumType, record: MealRecord) {
         self.album = album
-        self.day = Self.dayFormatter.string(from: record.date)
+        self.day = DayKey.string(from: record.date)
         self.mealType = record.mealType
     }
 
@@ -42,7 +35,7 @@ struct MealSyncSlot: Hashable {
         guard parts.count == 4, parts[0] == "meal",
               let album = AlbumType.allCases.first(where: { "\($0)" == parts[1] }),
               let mealType = MealType.allCases.first(where: { "\($0)" == parts[3] }),
-              Self.dayFormatter.date(from: parts[2]) != nil else { return nil }
+              DayKey.date(from: parts[2]) != nil else { return nil }
         self.album = album
         self.day = parts[2]
         self.mealType = mealType
@@ -51,7 +44,7 @@ struct MealSyncSlot: Hashable {
     var recordName: String { "meal_\(album)_\(day)_\(mealType)" }
 
     var date: Date? {
-        Self.dayFormatter.date(from: day).map { Calendar.current.startOfDay(for: $0) }
+        DayKey.date(from: day).map { Calendar.current.startOfDay(for: $0) }
     }
 }
 
@@ -80,6 +73,8 @@ final class MealCloudSync: ObservableObject {
     private static let enabledKey = "iCloudMealBackupEnabled"
     private static let containerID = "iCloud.com.ysoup.RoutineCamera"
     private static let recordType = "SekkiMeal"
+    /// 하루 기록 · 스탬프 목록 (JSON 한 덩어리)
+    private static let habitRecordType = "SekkiHabit"
     private static let zoneID = CKRecordZone.ID(zoneName: "SekkiMeals", ownerName: CKCurrentUserDefaultName)
 
     private struct SlotState: Codable {
@@ -118,7 +113,7 @@ final class MealCloudSync: ObservableObject {
         guard ProcessInfo.processInfo.environment["SEED_SCREENSHOT_DIR"] == nil else { return }
         // 저장된 기록을 읽지 못했으면 "다 지워진 것"으로 보여 iCloud 까지 지울 수 있다. 동기화를 멈춘다.
         guard store.canTrustLoadedRecordsForSync else {
-            print("⚠️ [iCloud] 저장된 기록을 읽지 못해 동기화를 시작하지 않음")
+            Log.sync.warning("저장된 기록을 읽지 못해 동기화를 시작하지 않음")
             return
         }
         hasStarted = true
@@ -201,9 +196,26 @@ final class MealCloudSync: ObservableObject {
         if let place = record.place {
             parts.append("\(place.latitude),\(place.longitude),\(place.name ?? "")")
         }
-        let source = parts.joined(separator: "|")
-        return SHA256.hash(data: Data(source.utf8)).map { String(format: "%02x", $0) }.joined()
+        // 먹은 양도 남긴 기록만 더한다 (같은 이유)
+        if let portion = record.portion {
+            parts.append("portion:\(portion.rawValue)")
+        }
+        return Self.hexDigest(Data(parts.joined(separator: "|").utf8))
     }
+
+    /// 소문자 16진수 SHA256 — 예전 String(format: "%02x") 와 같은 글자다 (저장된 지문과 그대로 비교된다).
+    /// 기록마다 32번씩 포맷하던 것이 저장할 때마다 수만 번이라 표로 바꾼다.
+    private static func hexDigest(_ source: Data) -> String {
+        var hex: [UInt8] = []
+        hex.reserveCapacity(64)
+        for byte in SHA256.hash(data: source) {
+            hex.append(Self.hexDigits[Int(byte >> 4)])
+            hex.append(Self.hexDigits[Int(byte & 0x0F)])
+        }
+        return String(decoding: hex, as: UTF8.self)
+    }
+
+    private static let hexDigits = Array("0123456789abcdef".utf8)
 
     private func reconcile() {
         var seen = Set<String>()
@@ -227,6 +239,21 @@ final class MealCloudSync: ObservableObject {
                 state.slots[name] = SlotState(fingerprint: current, modifiedAt: record.sortDate,
                                               isDirty: true, isDeleted: false, systemFields: nil)
             }
+            enqueueSave(name)
+            changed = true
+        }
+
+        // 하루 기록(스탬프 · 수분 · 카페인)과 스탬프 목록. 고친 시각은 지금 — 나중에 고친 쪽이 이긴다
+        for (name, data) in HabitStore.shared.syncDocuments {
+            seen.insert(name)
+            let current = Self.hexDigest(data)
+            if let existing = state.slots[name], existing.fingerprint == current, !existing.isDeleted { continue }
+            var slot = state.slots[name] ?? SlotState(modifiedAt: Date(), isDirty: true, isDeleted: false)
+            slot.fingerprint = current
+            slot.modifiedAt = HabitStore.shared.syncModifiedAt(of: name) ?? Date()
+            slot.isDirty = true
+            slot.isDeleted = false
+            state.slots[name] = slot
             enqueueSave(name)
             changed = true
         }
@@ -280,6 +307,7 @@ final class MealCloudSync: ObservableObject {
     }
 
     private func buildRecord(for id: CKRecord.ID) -> CKRecord? {
+        if HabitSyncName.isHabit(id.recordName) { return buildHabitRecord(for: id) }
         guard let slot = MealSyncSlot(recordName: id.recordName),
               let date = slot.date,
               let meal = (slot.album == .diet ? store.dietMeals(for: date) : store.exerciseMeals(for: date))[slot.mealType],
@@ -297,6 +325,7 @@ final class MealCloudSync: ObservableObject {
         record["recordedWithoutPhoto"] = meal.recordedWithoutPhoto
         record["hidePhotoCountBadge"] = meal.hidePhotoCountBadge
         record["ateAll"] = meal.ateAll
+        record["portion"] = meal.portion?.rawValue
         record["capturedAt"] = meal.capturedAt
         // 찍은 곳 — 내 개인 iCloud 에만. 친구 공개 기록에는 넣지 않는다
         record["placeLatitude"] = meal.place?.latitude
@@ -315,6 +344,20 @@ final class MealCloudSync: ObservableObject {
             guard let url = Self.writeTemporaryAsset(data, name: "\(id.recordName)_\(kind).jpg") else { return nil }
             record.setObject(CKAsset(fileURL: url), forKey: field)
         }
+        return record
+    }
+
+    private func buildHabitRecord(for id: CKRecord.ID) -> CKRecord? {
+        guard let data = HabitStore.shared.syncDocument(named: id.recordName),
+              let current = state.slots[id.recordName], !current.isDeleted else {
+            engine?.state.remove(pendingRecordZoneChanges: [.saveRecord(id)])
+            return nil
+        }
+        let record = Self.record(fromSystemFields: current.systemFields)
+            ?? CKRecord(recordType: Self.habitRecordType, recordID: id)
+        record["payload"] = data
+        record["modifiedAt"] = current.modifiedAt
+        record["fingerprint"] = current.fingerprint
         return record
     }
 
@@ -375,7 +418,7 @@ final class MealCloudSync: ObservableObject {
             default:
                 // 무한 반복을 막기 위해 바로 다시 넣지 않는다. 다음에 앱을 열 때 flushDirtySlots 가 다시 넣는다.
                 hadSendFailure = true
-                print("❌ [iCloud] 저장 실패 \(name): \(failure.error)")
+                Log.sync.error("저장 실패 \(name): \(failure.error.localizedDescription)")
             }
         }
         if !conflicts.isEmpty { applyRemote(saves: conflicts, deletions: []) }
@@ -389,7 +432,13 @@ final class MealCloudSync: ObservableObject {
                     deletions: changes.deletions.map(\.recordID))
     }
 
-    private func applyRemote(saves: [CKRecord], deletions: [CKRecord.ID]) {
+    private func applyRemote(saves allSaves: [CKRecord], deletions allDeletions: [CKRecord.ID]) {
+        let isHabit = { (name: String) in HabitSyncName.isHabit(name) }
+        applyRemoteHabits(saves: allSaves.filter { isHabit($0.recordID.recordName) },
+                          deletions: allDeletions.filter { isHabit($0.recordName) })
+        let saves = allSaves.filter { !isHabit($0.recordID.recordName) }
+        let deletions = allDeletions.filter { !isHabit($0.recordName) }
+
         var applied: [(slot: MealSyncSlot, record: MealRecord)] = []
         var deletedSlots: [MealSyncSlot] = []
         var afterApply: [(MealSyncSlot, Date, Bool)] = []
@@ -486,6 +535,60 @@ final class MealCloudSync: ObservableObject {
         saveState()
     }
 
+    /// 하루 기록 · 스탬프 목록 받기. 둘 다 고쳤으면 나중에 고친 쪽이 이긴다.
+    private func applyRemoteHabits(saves: [CKRecord], deletions: [CKRecord.ID]) {
+        guard !saves.isEmpty || !deletions.isEmpty else { return }
+        var applied: [String: Data] = [:]
+        var deleted: [String] = []
+        var stampsDate: Date?
+
+        for server in saves {
+            let name = server.recordID.recordName
+            let meta = state.slots[name]
+            let remoteModifiedAt = server["modifiedAt"] as? Date ?? .distantPast
+            state.slots[name, default: SlotState(modifiedAt: remoteModifiedAt, isDirty: false, isDeleted: false)]
+                .systemFields = Self.systemFields(of: server)
+            if meta?.fingerprint == server["fingerprint"] as? String, meta?.isDeleted != true {
+                state.slots[name]?.isDirty = false
+                engine?.state.remove(pendingRecordZoneChanges: [.saveRecord(server.recordID)])
+                continue
+            }
+            if let meta, meta.isDirty, meta.modifiedAt > remoteModifiedAt {
+                enqueueSave(name) // 이 기기에서 더 나중에 고쳤다 — 내 것을 다시 올린다
+                continue
+            }
+            guard let data = server["payload"] as? Data else { continue }
+            applied[name] = data
+            if name == HabitSyncName.stamps { stampsDate = remoteModifiedAt }
+            state.slots[name]?.modifiedAt = remoteModifiedAt
+        }
+
+        for id in deletions {
+            let name = id.recordName
+            if MealSyncResolver.shouldApplyRemoteDelete(localHasPendingChange: state.slots[name]?.isDirty ?? false) {
+                deleted.append(name)
+                state.slots.removeValue(forKey: name)
+            } else if state.slots[name]?.isDeleted == true {
+                state.slots.removeValue(forKey: name)
+                engine?.state.remove(pendingRecordZoneChanges: [.deleteRecord(id)])
+            } else {
+                state.slots[name]?.systemFields = nil
+                enqueueSave(name)
+            }
+        }
+
+        guard !applied.isEmpty || !deleted.isEmpty else { saveState(); return }
+        HabitStore.shared.applySyncDocuments(saves: applied, deletes: deleted, stampsModifiedAt: stampsDate)
+        // 반영된 내용으로 지문을 맞춰 다시 올라가지 않게 한다
+        for name in applied.keys {
+            state.slots[name]?.fingerprint = HabitStore.shared.syncDocument(named: name).map(Self.hexDigest)
+            state.slots[name]?.isDirty = false
+            state.slots[name]?.isDeleted = false
+            engine?.state.remove(pendingRecordZoneChanges: [.saveRecord(recordID(name))])
+        }
+        saveState()
+    }
+
     private func handleDatabaseChanges(_ changes: CKSyncEngine.Event.FetchedDatabaseChanges) {
         for deletion in changes.deletions where deletion.zoneID == Self.zoneID {
             switch deletion.reason {
@@ -542,7 +645,8 @@ final class MealCloudSync: ObservableObject {
                    visionAnalysis: (server["visionAnalysis"] as? Data).flatMap { try? JSONDecoder().decode(VisionAnalysisData.self, from: $0) },
                    capturedAt: server["capturedAt"] as? Date,
                    ateAll: server["ateAll"] as? Bool ?? false,
-                   place: place(from: server))
+                   place: place(from: server),
+                   portion: (server["portion"] as? String).flatMap(MealPortion.init(rawValue:)))
     }
 
     private static func place(from server: CKRecord) -> MealPlace? {
@@ -551,9 +655,24 @@ final class MealCloudSync: ObservableObject {
         return MealPlace(latitude: latitude, longitude: longitude, name: server["placeName"] as? String)
     }
 
+    /// 받은 사진. 통째로 메모리에 올리지 않는다 — 새 기기에서 몇 년 치를 받으면 수백 MB 가 되어 앱이 종료된다.
+    /// CloudKit 의 파일은 CloudKit 이 언제 지우거나 바꿀지 모르므로 우리 폴더로 복제(APFS 라 바로 끝난다)한 뒤 매핑한다.
+    /// 복제본은 매핑이 살아 있는 동안 지우지 않는다 — 다음 실행 때 removeTemporaryAssets() 가 정리한다.
     private static func assetData(_ value: CKRecordValue?) -> Data? {
-        guard let url = (value as? CKAsset)?.fileURL else { return nil }
-        return try? Data(contentsOf: url)
+        guard let source = (value as? CKAsset)?.fileURL else { return nil }
+        let copy = receivedAssetDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: receivedAssetDirectory, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: source, to: copy)
+            return try Data(contentsOf: copy, options: .alwaysMapped)
+        } catch {
+            return try? Data(contentsOf: source)
+        }
+    }
+
+    /// 받은 사진의 복제본 (임시 사진 폴더 안이라 다음 실행 때 함께 지워진다)
+    private static var receivedAssetDirectory: URL {
+        assetDirectory.appendingPathComponent("received", isDirectory: true)
     }
 
     /// base 에 없는 사진만 other 에서 채운다. 식전은 A 기기, 식후는 B 기기에서 찍어도 둘 다 남는다.
@@ -607,7 +726,7 @@ final class MealCloudSync: ObservableObject {
             try data.write(to: url, options: .atomic)
             return url
         } catch {
-            print("⚠️ [iCloud] 임시 사진 파일을 쓰지 못함: \(error)")
+            Log.sync.warning("임시 사진 파일을 쓰지 못함: \(error.localizedDescription)")
             return nil
         }
     }

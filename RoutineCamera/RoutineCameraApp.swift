@@ -9,6 +9,8 @@ import SwiftUI
 import UserNotifications
 import CloudKit
 import LeeoKit
+import RoutineCameraCore
+import os
 
 @main
 struct RoutineCameraApp: App {
@@ -38,7 +40,10 @@ struct RoutineCameraApp: App {
                 Task { await MealRecordEntity.reindex() }
             }
             if phase == .active {
-                Task { await SubscriptionManager.shared.refresh() }
+                Task {
+                    await SubscriptionManager.shared.refresh()
+                    NotificationManager.shared.scheduleWeeklyReport()
+                }
                 // 받은 친구 요청 점이 앱을 다시 열 때마다 맞도록
                 Task { await FriendManager.shared.refreshSocialGraph() }
                 MealCloudSync.shared.appBecameActive()
@@ -68,20 +73,21 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     #endif
 
-    // 내 기록 iCloud 백업 · 기기 간 동기화 (위의 시드 데이터 생성이 끝난 뒤 시작)
-    MealCloudSync.shared.start()
+    // 내 기록 iCloud 백업 · 기기 간 동기화 (위의 시드 데이터 생성이 끝난 뒤 시작).
+    // 시작할 때 모든 기록을 한 번 비교하므로 첫 화면이 뜬 뒤로 미룬다. 그 사이 바뀐 기록도 시작하면서 함께 잡힌다.
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { MealCloudSync.shared.start() }
 
     return true
   }
 
   func application(_ application: UIApplication,
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    print("📡 [Push] 원격 알림 등록 완료")
+    Log.notification.info("원격 알림 등록 완료")
   }
 
   func application(_ application: UIApplication,
                    didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    print("❌ [Push] 원격 알림 등록 실패: \(error.localizedDescription)")
+    Log.notification.error("원격 알림 등록 실패: \(error.localizedDescription)")
   }
 }
 
@@ -101,6 +107,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
       if let notification = CKNotification(fromRemoteNotificationDictionary: info),
          notification.subscriptionID?.hasPrefix(FriendManager.friendMealSubscriptionPrefix) == true {
         await MainActor.run { NotificationManager.shared.requestedFriendsScreen = true }
+        return
+      }
+
+      // 주간 리포트 알림을 누르면 리포트를 연다
+      if info["kind"] as? String == NotificationManager.weeklyReportKind {
+        await MainActor.run { NotificationManager.shared.requestedWeeklyReport = true }
         return
       }
 

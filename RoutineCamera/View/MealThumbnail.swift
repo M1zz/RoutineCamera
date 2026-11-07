@@ -15,13 +15,15 @@ struct MealThumbnail<Placeholder: View>: View {
     private let maxPixel: CGFloat
     private let key: NSString
     private let placeholder: Placeholder
+    private let contentMode: ContentMode
     @State private var image: UIImage?
 
     /// - Parameter id: 사진의 주인(기록 id 등). 같은 id·같은 크기의 사진이면 이미 푼 그림을 다시 쓴다.
-    init(id: some CustomStringConvertible, data: Data, maxPixel: CGFloat,
+    init(id: some CustomStringConvertible, data: Data, maxPixel: CGFloat, contentMode: ContentMode = .fill,
          @ViewBuilder placeholder: () -> Placeholder) {
         self.data = data
         self.maxPixel = maxPixel
+        self.contentMode = contentMode
         self.key = "\(id)-\(data.count)-\(Int(maxPixel))" as NSString
         self.placeholder = placeholder()
         // 이미 푼 적이 있으면 첫 화면부터 바로 보인다 (스크롤해 돌아올 때 깜빡이지 않게)
@@ -33,7 +35,7 @@ struct MealThumbnail<Placeholder: View>: View {
             if let image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFill()
+                    .aspectRatio(contentMode: contentMode)
             } else {
                 placeholder
             }

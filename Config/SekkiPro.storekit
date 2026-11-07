@@ -33,6 +33,26 @@
       "type": "NonConsumable"
     },
     {
+      "displayPrice": "19.99",
+      "familyShareable": true,
+      "internalID": "31000006",
+      "localizations": [
+        {
+          "description": "한 번 결제로 계속 써요",
+          "displayName": "세끼 플러스 평생",
+          "locale": "ko"
+        },
+        {
+          "description": "Pay once, keep it",
+          "displayName": "Sekki Plus Lifetime",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysoup.routinecamera.plus.lifetime",
+      "referenceName": "Sekki Plus Lifetime",
+      "type": "NonConsumable"
+    },
+    {
       "displayPrice": "39.99",
       "familyShareable": false,
       "internalID": "31000002",
@@ -187,6 +207,60 @@
           "productID": "com.ysoup.routinecamera.pro.monthly",
           "recurringSubscriptionPeriod": "P1M",
           "referenceName": "Sekki Pro Monthly",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "7.99",
+          "familyShareable": true,
+          "groupNumber": 2,
+          "internalID": "12419253",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "가장 알뜰해요 · 33% 할인",
+              "displayName": "세끼 플러스 연간",
+              "locale": "ko"
+            },
+            {
+              "description": "Best value · Save 33%",
+              "displayName": "Sekki Plus Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.ysoup.routinecamera.plus.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Sekki Plus Yearly",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "0.99",
+          "familyShareable": true,
+          "groupNumber": 2,
+          "internalID": "47228445",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "언제든 해지할 수 있어요",
+              "displayName": "세끼 플러스 월간",
+              "locale": "ko"
+            },
+            {
+              "description": "Cancel anytime",
+              "displayName": "Sekki Plus Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.ysoup.routinecamera.plus.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Sekki Plus Monthly",
           "subscriptionGroupID": "21000001",
           "type": "RecurringSubscription",
           "winbackOffers": []

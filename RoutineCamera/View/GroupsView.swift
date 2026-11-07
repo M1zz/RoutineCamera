@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RoutineCameraCore
 
 struct GroupsView: View {
     @ObservedObject var friendManager = FriendManager.shared

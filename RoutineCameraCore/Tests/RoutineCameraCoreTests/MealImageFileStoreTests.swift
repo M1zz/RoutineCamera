@@ -78,4 +78,37 @@ final class MealImageFileStoreTests: XCTestCase {
     func testRemoveFiles_missingDirectory_isNoOp() {
         XCTAssertEqual(store.removeFiles(keeping: []), 0)
     }
+
+    /// 이미 읽은 파일과 같은 내용을 다시 쓰라고 하면 디스크를 건드리지 않는다
+    func testWrite_afterLoad_sameContent_skipsDisk() throws {
+        let store = MealImageFileStore(directory: directory)
+        let data = Data((0..<20_000).map { UInt8($0 % 251) })
+        try store.write(data, named: "a.jpg")
+        let fresh = MealImageFileStore(directory: directory)
+        let loaded = try XCTUnwrap(fresh.load(named: "a.jpg"))
+        try FileManager.default.removeItem(at: directory.appendingPathComponent("a.jpg"))
+        // 파일이 없어도 표시가 같으니 쓰지 않는다 — 디스크를 열지 않았다는 뜻
+        XCTAssertFalse(try fresh.write(loaded, named: "a.jpg"))
+        // 내용이 바뀌면 쓴다
+        var changed = loaded
+        changed[0] ^= 0xFF
+        XCTAssertTrue(try fresh.write(changed, named: "a.jpg"))
+    }
+
+    /// 기록 저장은 메인 밖에서 하고 불러오기는 메인에서 한다 — 여러 스레드가 동시에 써도 깨지지 않아야 한다
+    func testConcurrentWritesAndLoads_areSafe() throws {
+        let store = MealImageFileStore(directory: directory)
+        let photos = (0..<8).map { bytes(count: 10_000, seed: UInt8($0)) }
+        DispatchQueue.concurrentPerform(iterations: 400) { i in
+            let name = "p\(i % 8).jpg"
+            if i % 3 == 0 {
+                _ = store.load(named: name)
+            } else {
+                _ = try? store.write(photos[i % 8], named: name)
+            }
+        }
+        for (i, photo) in photos.enumerated() {
+            XCTAssertEqual(store.load(named: "p\(i).jpg"), photo)
+        }
+    }
 }

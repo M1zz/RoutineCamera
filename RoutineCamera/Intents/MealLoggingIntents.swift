@@ -11,6 +11,7 @@
 import AppIntents
 import CoreSpotlight
 import Foundation
+import RoutineCameraCore
 
 /// "다 먹음" 기록 — 가장 최근 '먹는 중'(식전만 찍은) 기록에 다먹음 신호를 붙이고,
 /// 없으면 현재 시각으로 추론한 끼니에 사진 없이 다먹음 기록을 남긴다.
@@ -70,6 +71,8 @@ struct MealRecordEntity: AppEntity {
             .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: "\n")
     }
 
+    @MainActor private static var indexedRevision: Int?
+
     /// 식단 앨범의 기록 — 최근 것부터.
     @MainActor
     static func all() -> [MealRecordEntity] {
@@ -79,9 +82,12 @@ struct MealRecordEntity: AppEntity {
     }
 
     /// Spotlight 에 싣는 기록을 지금 것에 맞춘다. 앱을 열 때와 뒤로 보낼 때 부른다.
+    /// 지난번에 싣은 뒤로 식단 기록이 그대로면 건너뛴다 — 앞뒤로 오갈 때마다 전부 다시 싣지 않게.
     @MainActor
     static func reindex() async {
-        guard #available(iOS 18.0, *) else { return }
+        let revision = MealRecordStore.shared.dietRevision
+        guard revision != indexedRevision else { return }
+        indexedRevision = revision
         let entities = all()
         let index = CSSearchableIndex.default()
         try? await index.deleteAppEntities(ofType: MealRecordEntity.self)
@@ -89,7 +95,6 @@ struct MealRecordEntity: AppEntity {
     }
 }
 
-@available(iOS 18.0, *)
 extension MealRecordEntity: IndexedEntity {
     var attributeSet: CSSearchableItemAttributeSet {
         let set = defaultAttributeSet
