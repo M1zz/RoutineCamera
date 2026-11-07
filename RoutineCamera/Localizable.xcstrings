@@ -134980,6 +134980,150 @@
           }
         }
       }
+    },
+    "홈 맨 위에서 스탬프와 물 · 카페인을 바로 찍어요." : {
+      "comment" : "Settings caption: the today check-in card shows at the top of Home",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razítka, vodu a kofein zapisujte hned nahoře na domovské obrazovce."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sæt stempler og tæl vand og koffein øverst på forsiden."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stempel setzen und Wasser und Koffein zählen – direkt oben auf der Startseite."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Βάλτε σφραγίδες και μετρήστε νερό και καφεΐνη στην κορυφή της αρχικής."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap stamps and count water and caffeine right at the top of Home."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap stamps and count water and caffeine right at the top of Home."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marca sellos y cuenta agua y cafeína arriba del todo en Inicio."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merkitse leimat ja laske vesi ja kofeiini heti etusivun yläreunassa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamponnez et comptez eau et caféine tout en haut de l’accueil."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cap stempel dan hitung air serta kafein langsung di atas Beranda."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti i timbri e conta acqua e caffeina in cima alla Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームのいちばん上で、スタンプと水・カフェインをすぐ記録できます。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sett stempler og tell vann og koffein øverst på startsiden."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet stempels en tel water en cafeïne bovenaan je startscherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stawiaj pieczątki i licz wodę oraz kofeinę na samej górze ekranu głównego."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marque carimbos e conte água e cafeína logo no topo do Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ставьте штампы и считайте воду и кофеин прямо вверху главного экрана."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sätt stämplar och räkna vatten och koffein högst upp på hemskärmen."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ประทับตราและนับน้ำกับคาเฟอีนได้ทันทีที่ด้านบนสุดของหน้าหลัก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana sayfanın en üstünde damga basın, su ve kafeini sayın."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đóng dấu và đếm nước, caffeine ngay trên cùng màn hình chính."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在首页最上方直接盖章，记录喝水和咖啡因。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在首頁最上方直接蓋章，記錄喝水和咖啡因。"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

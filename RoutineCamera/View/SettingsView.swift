@@ -17,6 +17,7 @@ struct SettingsView: View {
     @ObservedObject var mealStore: MealRecordStore
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject private var friendManager = FriendManager.shared
+    @AppStorage("showsDayCheckIn") private var showsDayCheckIn = true // 홈 맨 위 '오늘 챙긴 것' 카드 (MomentsView 와 같은 값)
     @ObservedObject private var subscription = SubscriptionManager.shared
     @ObservedObject private var locationProvider = MealLocationProvider.shared
     @Environment(\.dismiss) var dismiss
@@ -145,6 +146,11 @@ struct SettingsView: View {
         Section(header: Text("표시")) {
             if settingsManager.albumType == .diet {
                 Toggle("간식 보이기", isOn: $settingsManager.writeSnack)
+                // 오늘 챙긴 것 카드는 순간 피드에만 있다
+                if settingsManager.useMomentsFeed {
+                    Toggle("오늘 챙긴 것", isOn: $showsDayCheckIn)
+                    caption("홈 맨 위에서 스탬프와 물 · 카페인을 바로 찍어요.")
+                }
                 if settingsManager.useAfterPhoto {
                     Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)
                 }
@@ -542,12 +548,12 @@ private struct GiftRow: View {
     }
 }
 
-/// 설정 ▸ 선물하기. 프로 선물 보내기와 받은 선물을 한 화면에 모은다.
+/// 설정 ▸ 선물하기. 누르면 바로 프로를 선물하는 화면이다 (클립키보드와 같은 한 번 들어가기).
 /// 받는 사람은 평생 프로를 산 것과 같아진다(`RoutineCameraSpec.monetization` 의 `gift`).
 ///
-/// ⚠️ 상품이 App Store 에서 와야 보내기 줄이 선다(`isAvailable`). 단, 이미 결제했거나 주고받은 선물이 있는 사람에게는
+/// ⚠️ 상품이 App Store 에서 와야 보내기가 선다(`isAvailable`). 단, 이미 결제했거나 주고받은 선물이 있는 사람에게는
 ///    늘 보인다(코드를 다시 보거나 문의까지 갈 길이 있어야 한다).
-/// ⚠️ 줄 문구는 LeeoKit 카탈로그(`LeeoGiftText`)에 24개 언어로 이미 있다.
+/// ⚠️ 화면 문구는 LeeoKit 카탈로그(`LeeoGiftText`)에 24개 언어로 이미 있다.
 private struct SettingsGiftView: View {
     @ObservedObject var gift: LeeoGiftStore
     @State private var showSupport = false
@@ -564,31 +570,15 @@ private struct SettingsGiftView: View {
     static func hasContent(_ gift: LeeoGiftStore) -> Bool { showsSend(gift) || showsRedeem(gift) }
 
     var body: some View {
-        List {
+        Group {
+            // 선물이 안 되면 결제 번호·코드를 붙여 문의하게 한다 — 막힌 사람을 놓치지 않게.
             if Self.showsSend(gift) {
-                Section {
-                    NavigationLink {
-                        // 선물이 안 되면 결제 번호·코드를 붙여 문의하게 한다 — 막힌 사람을 놓치지 않게.
-                        LeeoGiftView<RoutineCameraSpec>(gift: gift, showsRedeemLink: false,
-                                                        onContactSupport: { showSupport = true })
-                    } label: {
-                        Label(LeeoGiftText.sendEntry, systemImage: "gift.fill")
-                    }
-                }
-            }
-            if Self.showsRedeem(gift) {
-                Section {
-                    NavigationLink {
-                        LeeoGiftRedeemView<RoutineCameraSpec>(gift: gift,
-                                                              onContactSupport: { showSupport = true })
-                    } label: {
-                        Label(LeeoGiftText.redeemEntry, systemImage: "giftcard")
-                    }
-                }
+                LeeoGiftView<RoutineCameraSpec>(gift: gift, showsRedeemLink: Self.showsRedeem(gift),
+                                                onContactSupport: { showSupport = true })
+            } else {
+                LeeoGiftRedeemView<RoutineCameraSpec>(gift: gift, onContactSupport: { showSupport = true })
             }
         }
-        .navigationTitle(Text("선물하기", comment: "Settings: gift entry opening the gift page"))
-        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showSupport) {
             NavigationStack {
                 LeeoFeedbackView<RoutineCameraSpec>(initialType: .bug, extraInfo: gift.supportLines,

@@ -28,6 +28,8 @@ struct MomentsView: View {
     #endif
     // 7일 리듬 카드는 기본으로 숨기고, 위쪽 바의 버튼으로 꺼내 본다 (ContentView 와 같은 값)
     @AppStorage("showsMealRhythm") private var showsRhythm = false
+    // 오늘 챙긴 것 카드는 설정에서 끌 수 있다 (SettingsView 와 같은 값)
+    @AppStorage("showsDayCheckIn") private var showsCheckIn = true
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -108,7 +110,7 @@ struct MomentsView: View {
             let ghost = ghost
             if mealStore.feedDays.isEmpty && ghost == nil {
                 VStack(spacing: 0) {
-                    if !isExercise {
+                    if !isExercise && showsCheckIn {
                         DayCheckInCard(date: now)
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
@@ -127,7 +129,7 @@ struct MomentsView: View {
                     }
                     List {
                         // 오늘 챙긴 것 (스탬프 · 물 · 카페인) — 피드와 함께 스크롤된다
-                        if !isExercise {
+                        if !isExercise && showsCheckIn {
                             Section {
                                 DayCheckInCard(date: now)
                                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
