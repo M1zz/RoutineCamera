@@ -330,6 +330,10 @@ struct ContentView: View {
                             autoOpenMealType = .lunch
                         }
                     }
+                    // 시뮬레이터 검증용: 기록이 비어 있으면 샘플 30일치를 만든다 (날짜 도장 · 원본 띠 포함)
+                    if ProcessInfo.processInfo.environment["GENERATE_SAMPLE_DATA_FOR_TEST"] == "1", mealStore.records.isEmpty {
+                        mealStore.generateSampleData()
+                    }
                     #endif
 
                     // 날짜 리스트 초기화

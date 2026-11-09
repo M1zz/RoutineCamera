@@ -50,6 +50,7 @@ struct SettingsView: View {
                 notificationSection
                 goalSection
                 photoSaveSection
+                photoStampSection
                 ICloudBackupSection()
                 accountSection
                 advancedSection
@@ -335,6 +336,34 @@ struct SettingsView: View {
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+        }
+    }
+
+    // MARK: - 사진 날짜 도장
+
+    // 사진 왼쪽 아래에 새기는 날짜 · 시간. 기본값(켬 · 기본 글꼴 · 시간 포함)은 예전과 같은 모양이라
+    // 아무것도 안 건드린 사용자의 사진은 그대로다. 바꾼 설정은 새로 찍는 사진부터 적용된다.
+    @ViewBuilder private var photoStampSection: some View {
+        Section(header: Text("사진 날짜 도장")) {
+            Toggle("사진에 날짜 새기기", isOn: $settingsManager.photoStampEnabled)
+            if settingsManager.photoStampEnabled {
+                Toggle("시간도 함께 새기기", isOn: $settingsManager.photoStampShowsTime)
+                Picker("글꼴", selection: $settingsManager.photoStampFont) {
+                    ForEach(MealStampFont.allCases) { font in
+                        Text(font.displayName).font(font.font(size: 17)).tag(font)
+                    }
+                }
+                MealStampPreview(style: MealStampStyle(isEnabled: settingsManager.photoStampEnabled,
+                                                       font: settingsManager.photoStampFont,
+                                                       showsTime: settingsManager.photoStampShowsTime))
+                    .frame(height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            }
+            Text("새로 찍는 사진부터 적용돼요. 이미 찍은 사진은 상세 화면의 '날짜·시간 바꾸기'에서 다시 새길 수 있어요.")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

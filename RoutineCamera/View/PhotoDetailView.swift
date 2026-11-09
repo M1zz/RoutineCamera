@@ -23,6 +23,7 @@ struct PhotoDetailView: View {
 
     @State private var currentPage = 0 // 0: 식전, 1: 식후
     @State private var showingMemoEditor = false
+    @State private var showingDateTimeEditor = false
     @State private var showingDeleteAlert = false
     @State private var showingAddPhotoSheet = false
     @State private var selectedPhotoType: MealPhotoView.PhotoType = .before
@@ -438,6 +439,12 @@ struct PhotoDetailView: View {
                             Label("메모 작성", systemImage: "note.text")
                         }
 
+                        Button(action: {
+                            showingDateTimeEditor = true
+                        }) {
+                            Label("날짜·시간 바꾸기", systemImage: "calendar.badge.clock")
+                        }
+
                         Button(role: .destructive, action: {
                             showingDeleteAlert = true
                         }) {
@@ -448,7 +455,7 @@ struct PhotoDetailView: View {
                             .scaledFont(size: 20)
                     }
                     .accessibilityLabel("더 보기")
-                    .accessibilityHint("분석, 저장, 사진 추가, 메모, 삭제 메뉴를 엽니다")
+                    .accessibilityHint("분석, 저장, 사진 추가, 메모, 날짜 변경, 삭제 메뉴를 엽니다")
                 }
             }
     }
@@ -476,6 +483,16 @@ struct PhotoDetailView: View {
                 mealType: mealType,
                 initialMemo: mealRecord?.memo ?? ""
             )
+        }
+        .sheet(isPresented: $showingDateTimeEditor) {
+            if let record = currentRecord {
+                MealDateTimeEditorView(mealStore: mealStore, record: record) { movedToOtherDay in
+                    // 이 화면은 날짜 · 끼니로 기록을 찾는다 — 다른 날로 옮겼으면 더 보여 줄 기록이 없으니 닫는다
+                    if movedToOtherDay {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { dismiss() }
+                    }
+                }
+            }
         }
         .alert("사진 삭제", isPresented: $showingDeleteAlert) {
             Button("취소", role: .cancel) { }
@@ -514,6 +531,12 @@ struct PhotoDetailView: View {
         .onAppear {
             // 피드백 로드
             loadFeedbacks()
+            #if DEBUG
+            // 시뮬레이터 검증용: OPEN_DATE_EDITOR_FOR_TEST=1 이면 날짜·시간 바꾸기 시트를 바로 연다
+            if ProcessInfo.processInfo.environment["OPEN_DATE_EDITOR_FOR_TEST"] == "1" {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { showingDateTimeEditor = true }
+            }
+            #endif
         }
     }
 

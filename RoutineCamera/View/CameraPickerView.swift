@@ -21,6 +21,7 @@ struct CameraPickerView: View {
     @State private var selectedTab = 0 // 0: 카메라, 1: 사진앨범
     @State private var selectedImage: UIImage?
     @State private var capturedLocation: CLLocation?  // 카메라로 찍었을 때만 (사진앨범에서 고른 사진은 nil)
+    @State private var capturedStampBacking: Data?    // 카메라로 찍어 날짜 도장을 새겼을 때만 — 도장 아래 원본 띠
     @State private var localPhotoType: MealPhotoView.PhotoType
 
     // "언제 먹었는지" — 제안값으로 채워 두고, 사용자가 고칠 수 있다 (점심을 깜빡하고 저녁에 남기는 경우)
@@ -111,7 +112,9 @@ struct CameraPickerView: View {
             // 사진 촬영/선택 모드
             TabView(selection: $selectedTab) {
                 // 카메라 탭
-                CustomCameraView(selectedImage: $selectedImage, capturedLocation: $capturedLocation, isActive: selectedTab == 0)
+                CustomCameraView(selectedImage: $selectedImage, capturedLocation: $capturedLocation,
+                                 capturedStampBacking: $capturedStampBacking, isActive: selectedTab == 0,
+                                 stampDate: stampDate)
                     .tag(0)
 
                 // 사진앨범 탭
@@ -172,7 +175,8 @@ struct CameraPickerView: View {
                 let location = capturedLocation
                 mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData,
                                           isBefore: localPhotoType == .before, capturedAt: capturedAt,
-                                          place: location.map { MealPlace(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) })
+                                          place: location.map { MealPlace(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) },
+                                          stampBacking: capturedStampBacking)
                 if let location {
                     nameCapturedPlace(location, date: date, mealType: mealType)
                 }
@@ -219,6 +223,13 @@ struct CameraPickerView: View {
     // 저장할 "먹은 시각" — 고른 날짜에 고른 시·분 (미래면 지금)
     private var capturedAt: Date {
         MealTimeSuggestion.combine(day: date, time: mealTime, now: Date())
+    }
+
+    // 사진에 새길 시각. 날짜나 먹은 시각을 직접 고쳤을 때만 그 값 — 아니면 nil 로 두어 예전처럼 찍는 순간의 시각이 새겨진다
+    // (어제 점심을 오늘 남기면 사진에도 어제 날짜가 찍힌다)
+    private var stampDate: Date? {
+        guard canEditTarget, mealTimeEdited || !Calendar.current.isDateInToday(date) else { return nil }
+        return capturedAt
     }
 
     private func refreshSuggestedTime() {

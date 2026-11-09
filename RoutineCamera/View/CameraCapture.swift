@@ -185,8 +185,14 @@ struct CustomCameraView: View {
     @Binding var selectedImage: UIImage?
     /// "사용하기" 를 누른 순간의 위치 (찍은 곳 남기기를 켰을 때만)
     @Binding var capturedLocation: CLLocation?
+    /// 날짜 도장 아래 가려진 원본 띠 — 나중에 날짜 · 글꼴을 바꿔 다시 새길 때 쓴다 (도장을 껐으면 nil)
+    @Binding var capturedStampBacking: Data?
     let isActive: Bool
+    /// 사진에 새길 시각. nil 이면 예전처럼 흐르는 "지금" (초까지). 사용자가 날짜 · 먹은 시각을 고쳤을 때만 그 값이 온다
+    var stampDate: Date? = nil
     @State private var capturedImage: UIImage?
+    @State private var stampBacking: Data?
+    @ObservedObject private var settings = SettingsManager.shared
     @StateObject private var cameraManager = CameraManager()
     @State private var currentDateTime = Date()
     @State private var shutterFlash = false  // 셔터를 누른 순간 프리뷰를 잠깐 가린다 — 처리 중에도 찍혔다는 걸 바로 알게
@@ -204,9 +210,10 @@ struct CustomCameraView: View {
                 onConfirm: {
                     // 이미 날짜/시간이 추가된 이미지 사용.
                     // 시트는 CameraPickerView 가 selectedImage 변화를 받아 한 번만 닫는다.
-                    // 위치는 selectedImage 보다 먼저 넣어 둔다 (그 변화를 받을 때 함께 저장)
+                    // 위치 · 원본 띠는 selectedImage 보다 먼저 넣어 둔다 (그 변화를 받을 때 함께 저장)
                     let location = MealLocationProvider.shared.captureLocation()
                     capturedLocation = location
+                    capturedStampBacking = stampBacking
                     selectedImage = image
 
                     // 설정에 따라 사진을 "세끼" 앨범에 저장
@@ -226,33 +233,39 @@ struct CustomCameraView: View {
                         } else {
                             CameraPreview(cameraManager: cameraManager)
 
-                            // 날짜/시간 오버레이
-                            VStack {
-                                Spacer()
-
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(dateString)
-                                            .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
-                                            .foregroundColor(.white)
-                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.5)
-
-                                        Text(timeString)
-                                            .font(.system(size: min(geometry.size.width * 0.06, 24), weight: .bold))
-                                            .foregroundColor(.white)
-                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.5)
-                                    }
-                                    .padding(.leading, min(geometry.size.width * 0.08, 30))
-                                    .padding(.bottom, min(geometry.size.width * 0.08, 30))
-
+                            // 날짜/시간 오버레이 — 사진에 새겨질 것과 같은 글귀 · 글꼴 (도장을 껐으면 없다)
+                            if stampStyle.isEnabled {
+                                let lines = stampLines
+                                VStack {
                                     Spacer()
+
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            Text(lines.date)
+                                                .font(stampStyle.font.font(size: min(geometry.size.width * 0.06, 24)))
+                                                .foregroundColor(.white)
+                                                .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                                .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.5)
+
+                                            if let time = lines.time {
+                                                Text(time)
+                                                    .font(stampStyle.font.font(size: min(geometry.size.width * 0.06, 24)))
+                                                    .foregroundColor(.white)
+                                                    .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                                    .shadow(color: .black, radius: 3, x: 0, y: 0)
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.5)
+                                            }
+                                        }
+                                        .padding(.leading, min(geometry.size.width * 0.08, 30))
+                                        .padding(.bottom, min(geometry.size.width * 0.08, 30))
+
+                                        Spacer()
+                                    }
                                 }
+                                .accessibilityElement(children: .combine)
                             }
 
                             Color.black
@@ -336,16 +349,14 @@ struct CustomCameraView: View {
         min(geometry.size.width * 0.2, 78)
     }
 
-    var dateString: String {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEE")
-        return formatter.string(from: currentDateTime)
+    /// 지금 설정의 도장 모양 (설정이 바뀌면 미리보기도 따라온다)
+    private var stampStyle: MealStampStyle {
+        MealStampStyle(isEnabled: settings.photoStampEnabled, font: settings.photoStampFont, showsTime: settings.photoStampShowsTime)
     }
 
-    var timeString: String {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("jmmss")
-        return formatter.string(from: currentDateTime)
+    /// 미리보기에 띄우는 두 줄 — 고른 시각이 있으면 그 값(초 없이), 아니면 흐르는 지금(초까지)
+    private var stampLines: (date: String, time: String?) {
+        MealPhotoStamp.lines(for: stampDate ?? currentDateTime, style: stampStyle, includeSeconds: stampDate == nil)
     }
 
     private func capturePhoto() {
@@ -355,10 +366,15 @@ struct CustomCameraView: View {
             withAnimation(.easeOut(duration: 0.25)) { shutterFlash = false }
         }
         // 카메라에서 사진 캡처
+        let style = stampStyle
+        let stampDate = stampDate
         cameraManager.capturePhoto { image in
             // 캡처 즉시 날짜/시간 추가 (촬영에 실패하면 카메라 화면에 그대로 머문다)
             guard let image = image else { return }
-            self.capturedImage = self.addDateTimeToImage(image)
+            // 도장을 새기기 전 원본의 아래쪽 띠를 남겨, 나중에 날짜 · 글꼴을 바꿔 다시 새길 수 있게 한다
+            self.stampBacking = style.isEnabled ? MealPhotoStamp.backing(of: image) : nil
+            self.capturedImage = MealPhotoStamp.apply(to: image, date: stampDate ?? Date(), style: style,
+                                                      includeSeconds: stampDate == nil)
         }
     }
 
@@ -376,69 +392,6 @@ struct CustomCameraView: View {
         MealAlbumSaver.save(image, toAlbum: albumName, location: location)
     }
 
-    // 이미지에 날짜와 시간을 추가하는 함수
-    private func addDateTimeToImage(_ image: UIImage) -> UIImage {
-        let now = Date()
-        let dateFormatter = DateFormatter()
-
-        // 날짜 포맷 (년 월 일 요일) — 지역 맞춤 표기
-        dateFormatter.setLocalizedDateFormatFromTemplate("yMMMMdEEEE")
-        let dateString = dateFormatter.string(from: now)
-
-        // 시간 포맷
-        dateFormatter.setLocalizedDateFormatFromTemplate("jmmss")
-        let timeString = dateFormatter.string(from: now)
-
-        // 텍스트 속성 설정 (프리뷰와 동일하게)
-        let fontSize = min(image.size.width, image.size.height) * 0.06
-        let font = UIFont.boldSystemFont(ofSize: fontSize)
-
-        let textAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.white,
-            .font: font
-        ]
-
-        // 텍스트 크기 계산
-        let dateSize = dateString.size(withAttributes: textAttributes)
-        let timeSize = timeString.size(withAttributes: textAttributes)
-
-        // 텍스트 위치 계산 (왼쪽 아래) - 이미지 크기에 비례하도록 margin 계산
-        let margin = min(image.size.width, image.size.height) * 0.08
-        let lineSpacing: CGFloat = 6
-        let dateRect = CGRect(
-            x: margin,
-            y: image.size.height - dateSize.height - timeSize.height - lineSpacing - margin,
-            width: dateSize.width,
-            height: dateSize.height
-        )
-
-        let timeRect = CGRect(
-            x: margin,
-            y: image.size.height - timeSize.height - margin,
-            width: timeSize.width,
-            height: timeSize.height
-        )
-
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = image.scale
-        format.opaque = true
-        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
-
-        return renderer.image { rendererContext in
-            // 원본 이미지 그리기
-            image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
-
-            // 그림자 효과 적용 (프리뷰의 두 번 shadow와 동일)
-            let context = rendererContext.cgContext
-            context.setShadow(offset: CGSize(width: 0, height: 0), blur: 3, color: UIColor.black.cgColor)
-            context.setAllowsAntialiasing(true)
-            context.setShouldAntialias(true)
-
-            // 흰색 텍스트 그리기
-            dateString.draw(in: dateRect, withAttributes: textAttributes)
-            timeString.draw(in: timeRect, withAttributes: textAttributes)
-        }
-    }
 }
 
 // 카메라 권한이 꺼져 있을 때 — 까만 화면 대신 이유와 해결 방법을 보여준다

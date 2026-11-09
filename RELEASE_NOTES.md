@@ -1,5 +1,223 @@
 # 릴리스 노트
 
+## 1.2.4
+
+### 앱스토어 (한국어, ko)
+
+사진에 새겨진 날짜와 시간을 나중에 바꿀 수 있어요
+날짜 도장 글꼴을 고를 수 있어요
+어제 먹은 걸 오늘 남겨도 사진에는 어제 날짜가 찍혀요
+채소, 생선 같은 스탬프와 물, 카페인, 먹은 양을 남기고 달력으로 돌아봐요
+새 앱 아이콘
+사진이 많아도 스크롤이 부드러워요
+
+### App Store (English, en)
+
+Change the date and time stamped on a photo after the fact
+Pick a font for the date stamp
+Log yesterday's meal today and the photo shows yesterday's date
+Track stamps like veggies or fish, water, caffeine and portion size, then look back on a calendar
+New app icon
+Smoother scrolling with lots of photos
+
+### App Store (en-GB)
+
+Change the date and time stamped on a photo after the fact
+Pick a font for the date stamp
+Log yesterday's meal today and the photo shows yesterday's date
+Track stamps like veggies or fish, water, caffeine and portion size, then look back on a calendar
+New app icon
+Smoother scrolling with lots of photos
+
+### App Store (중국어 간체, zh-Hans)
+
+可以事后更改照片上标记的日期和时间
+可以选择日期水印的字体
+今天补记昨天的餐食，照片上也会显示昨天的日期
+记录蔬菜、鱼类等印章以及水、咖啡因和进食量，并在日历中回顾
+全新应用图标
+照片很多时滚动也更流畅
+
+### App Store (중국어 번체, zh-Hant)
+
+可以事後更改照片上標記的日期和時間
+可以選擇日期戳記的字型
+今天補記昨天的餐點，照片上也會顯示昨天的日期
+記錄蔬菜、魚類等印章以及水、咖啡因和進食量，並在日曆中回顧
+全新 App 圖示
+照片很多時捲動也更流暢
+
+### App Store (일본어, ja)
+
+写真に入れた日付と時刻をあとから変えられます
+日付スタンプのフォントを選べます
+昨日の食事を今日記録しても、写真には昨日の日付が入ります
+野菜や魚などのスタンプ、水、カフェイン、食べた量を記録してカレンダーで振り返れます
+新しいアプリアイコン
+写真が多くてもスクロールがなめらかに
+
+### App Store (러시아어, ru)
+
+Дату и время на фото теперь можно изменить позже
+Можно выбрать шрифт штампа даты
+Запишите вчерашний приём пищи сегодня, и на фото будет вчерашняя дата
+Отмечайте штампы вроде овощей или рыбы, воду, кофеин и размер порции и смотрите их в календаре
+Новая иконка приложения
+Плавная прокрутка даже при большом числе фото
+
+### App Store (스페인어, es)
+
+Cambia la fecha y la hora grabadas en una foto cuando quieras
+Elige el tipo de letra del sello de fecha
+Registra hoy la comida de ayer y la foto mostrará la fecha de ayer
+Anota sellos como verduras o pescado, agua, cafeína y cuánto comiste, y repásalo en un calendario
+Nuevo icono de la app
+Desplazamiento más fluido con muchas fotos
+
+### App Store (독일어, de)
+
+Datum und Uhrzeit auf einem Foto lassen sich nachträglich ändern
+Schrift für den Datumsstempel wählbar
+Trage das Essen von gestern heute ein und das Foto zeigt das Datum von gestern
+Halte Stempel wie Gemüse oder Fisch, Wasser, Koffein und Portionsgröße fest und blicke im Kalender zurück
+Neues App-Symbol
+Flüssigeres Scrollen bei vielen Fotos
+
+### App Store (프랑스어, fr)
+
+Modifiez après coup la date et l'heure inscrites sur une photo
+Choisissez la police de l'horodatage
+Notez aujourd'hui le repas d'hier et la photo affiche la date d'hier
+Suivez des tampons comme légumes ou poisson, l'eau, la caféine et la quantité mangée, puis revoyez-les dans un calendrier
+Nouvelle icône de l'app
+Défilement plus fluide avec beaucoup de photos
+
+### App Store (이탈리아어, it)
+
+Cambia in seguito data e ora impresse su una foto
+Scegli il carattere del timbro data
+Registra oggi il pasto di ieri e la foto mostrerà la data di ieri
+Segna timbri come verdure o pesce, acqua, caffeina e quanto hai mangiato, poi rivedili nel calendario
+Nuova icona dell'app
+Scorrimento più fluido con molte foto
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+Altere depois a data e a hora gravadas em uma foto
+Escolha a fonte do carimbo de data
+Registre hoje a refeição de ontem e a foto mostra a data de ontem
+Marque carimbos como vegetais ou peixe, água, cafeína e quanto comeu, e reveja no calendário
+Novo ícone do app
+Rolagem mais suave com muitas fotos
+
+### App Store (태국어, th)
+
+เปลี่ยนวันที่และเวลาที่ประทับบนรูปได้ในภายหลัง
+เลือกแบบอักษรของตราประทับวันที่ได้
+บันทึกมื้อเมื่อวานในวันนี้ รูปก็จะแสดงวันที่ของเมื่อวาน
+บันทึกตราประทับอย่างผัก ปลา น้ำ คาเฟอีน และปริมาณที่กิน แล้วย้อนดูในปฏิทิน
+ไอคอนแอปใหม่
+เลื่อนดูลื่นขึ้นแม้มีรูปจำนวนมาก
+
+### App Store (베트남어, vi)
+
+Đổi ngày và giờ in trên ảnh bất cứ lúc nào
+Chọn phông chữ cho dấu ngày
+Ghi bữa hôm qua vào hôm nay, ảnh vẫn hiện ngày hôm qua
+Ghi các dấu như rau, cá, nước, caffeine và lượng ăn, rồi xem lại trên lịch
+Biểu tượng ứng dụng mới
+Cuộn mượt hơn dù có nhiều ảnh
+
+### App Store (체코어, cs)
+
+Datum a čas na fotce můžete dodatečně změnit
+Vyberte si písmo datumového razítka
+Zapište dnes včerejší jídlo a fotka ukáže včerejší datum
+Zaznamenávejte razítka jako zelenina či ryba, vodu, kofein a velikost porce a prohlížejte je v kalendáři
+Nová ikona aplikace
+Plynulejší posouvání i s mnoha fotkami
+
+### App Store (덴마크어, da)
+
+Ret dato og klokkeslæt på et billede bagefter
+Vælg skrifttype til datostemplet
+Noter gårsdagens måltid i dag, og billedet viser gårsdagens dato
+Registrer stempler som grønt eller fisk, vand, koffein og portionsstørrelse, og se tilbage i en kalender
+Nyt appikon
+Blødere scrolling med mange billeder
+
+### App Store (그리스어, el)
+
+Αλλάξτε εκ των υστέρων την ημερομηνία και την ώρα στη φωτογραφία
+Επιλέξτε γραμματοσειρά για τη σφραγίδα ημερομηνίας
+Καταγράψτε σήμερα το χθεσινό γεύμα και η φωτογραφία θα δείχνει τη χθεσινή ημερομηνία
+Σημειώστε σφραγίδες όπως λαχανικά ή ψάρι, νερό, καφεΐνη και ποσότητα και δείτε τα στο ημερολόγιο
+Νέο εικονίδιο εφαρμογής
+Πιο ομαλή κύλιση με πολλές φωτογραφίες
+
+### App Store (핀란드어, fi)
+
+Muuta kuvaan leimattua päivämäärää ja aikaa jälkikäteen
+Valitse päivämääräleiman fontti
+Kirjaa eilinen ateria tänään, ja kuvassa näkyy eilinen päivämäärä
+Merkitse leimoja kuten kasvikset tai kala, vesi, kofeiini ja annoskoko ja katso niitä kalenterista
+Uusi sovelluskuvake
+Sujuvampi vieritys, kun kuvia on paljon
+
+### App Store (인도네시아어, id)
+
+Ubah tanggal dan waktu di foto kapan saja
+Pilih font untuk cap tanggal
+Catat makanan kemarin hari ini, dan foto menampilkan tanggal kemarin
+Catat cap seperti sayur atau ikan, air, kafein, dan porsi makan, lalu lihat kembali di kalender
+Ikon aplikasi baru
+Menggulir lebih lancar meski foto banyak
+
+### App Store (Norsk bokmål, nb)
+
+Endre dato og klokkeslett på et bilde i etterkant
+Velg skrifttype for datostempelet
+Loggfør gårsdagens måltid i dag, og bildet viser gårsdagens dato
+Registrer stempler som grønnsaker eller fisk, vann, koffein og porsjonsstørrelse, og se tilbake i en kalender
+Nytt appikon
+Jevnere rulling med mange bilder
+
+### App Store (네덜란드어, nl)
+
+Wijzig achteraf de datum en tijd op een foto
+Kies een lettertype voor de datumstempel
+Leg de maaltijd van gisteren vandaag vast en de foto toont de datum van gisteren
+Houd stempels zoals groente of vis, water, cafeïne en portiegrootte bij en kijk terug in een kalender
+Nieuw app-icoon
+Soepeler scrollen met veel foto's
+
+### App Store (폴란드어, pl)
+
+Zmień później datę i godzinę naniesioną na zdjęcie
+Wybierz czcionkę znacznika daty
+Zapisz dziś wczorajszy posiłek, a zdjęcie pokaże wczorajszą datę
+Zaznaczaj znaczki jak warzywa czy ryba, wodę, kofeinę i wielkość porcji i przeglądaj je w kalendarzu
+Nowa ikona aplikacji
+Płynniejsze przewijanie przy wielu zdjęciach
+
+### App Store (스웨덴어, sv)
+
+Ändra datum och tid på en bild i efterhand
+Välj typsnitt för datumstämpeln
+Logga gårdagens måltid i dag så visar bilden gårdagens datum
+Registrera stämplar som grönsaker eller fisk, vatten, koffein och portionsstorlek och se tillbaka i en kalender
+Ny appikon
+Mjukare rullning med många bilder
+
+### App Store (튀르키예어, tr)
+
+Fotoğraftaki tarih ve saati sonradan değiştirin
+Tarih damgası için yazı tipi seçin
+Dünkü öğünü bugün kaydedin, fotoğrafta dünün tarihi görünsün
+Sebze veya balık gibi damgaları, su, kafein ve porsiyon miktarını kaydedip takvimde geriye bakın
+Yeni uygulama simgesi
+Çok fotoğrafta bile daha akıcı kaydırma
+
 ## 1.2.3
 
 ### 앱스토어 (한국어, ko)

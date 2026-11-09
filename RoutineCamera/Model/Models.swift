@@ -174,6 +174,8 @@ class MealRecordStore: ObservableObject {
     init() {
         migrateToAppGroupIfNeeded()
         loadRecords()
+        // 어느 기록도 가리키지 않는 도장 원본 띠 정리 (메인 밖)
+        MealStampBackingStore.shared.prune(keeping: Set((dietRecords + exerciseRecords).map(\.id)))
         movePhotosOutOfDefaultsIfNeeded()
         removeStaleStandardCopiesIfNeeded()
         establishFingerprintBaselineIfNeeded()
@@ -301,7 +303,10 @@ class MealRecordStore: ObservableObject {
 
     // 식사 기록 추가 또는 업데이트 (식전/식후 지정)
     // capturedAt: 새 기록일 때 "먹은 시각" (기록 화면에서 고른 값). 기존 기록에 사진을 더할 때는 원래 시각을 유지한다.
-    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(), place: MealPlace? = nil) {
+    // stampBacking: 카메라로 찍어 날짜 도장을 새긴 사진이면 도장 아래 원본 띠 (나중에 날짜 · 글꼴을 바꿔 다시 새길 때 쓴다).
+    //   앨범에서 고른 사진처럼 띠가 없으면 nil — 이때 옛 띠가 남아 있으면 지운다 (다른 사진의 띠를 붙이면 안 되므로).
+    func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(),
+                         place: MealPlace? = nil, stampBacking: Data? = nil) {
         let updated = mutateMeal(date: date, mealType: mealType) { record in
             if isBefore { record.beforeImageData = imageData } else { record.afterImageData = imageData }
             record.recordedWithoutPhoto = false
@@ -314,7 +319,86 @@ class MealRecordStore: ObservableObject {
                                       afterImageData: isBefore ? nil : imageData,
                                       capturedAt: capturedAt, place: place))
         }
+        if let saved = meal(on: date, mealType) {
+            MealStampBackingStore.shared.save(stampBacking, for: saved.id, kind: isBefore ? "before" : "after")
+        }
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
+    }
+
+    // MARK: - 날짜 · 시각 바꾸기
+
+    enum RescheduleResult: Equatable {
+        /// 옮겼다. 끼니가 바뀌었을 수 있다 (간식이 그날 빈 간식 칸으로)
+        case moved(day: Date, mealType: MealType)
+        /// 그날 같은 끼니 기록이 이미 있어 옮기지 않았다
+        case slotTaken
+        case notFound
+    }
+
+    /// 이 사진을 새 날짜로 다시 새길 수 있는지 — 카메라로 찍어 도장 아래 원본 띠가 남아 있을 때만
+    func canRestampPhoto(_ record: MealRecord, isBefore: Bool) -> Bool {
+        let data = isBefore ? record.beforeImageData : record.afterImageData
+        return data != nil && MealStampBackingStore.shared.exists(for: record.id, kind: isBefore ? "before" : "after")
+    }
+
+    /// 기록의 날짜와 "먹은 시각" 을 바꾼다 (사용자 피드백: 기록 날짜 · 시간 편집, 2026-11-09).
+    /// 다른 날로 옮길 때 그날 같은 끼니가 이미 있으면 옮기지 않는다 (간식은 빈 간식 칸으로 옮긴다).
+    /// restampStyle 을 주면 다시 새길 수 있는 사진의 날짜 도장을 새 시각 · 그 모양으로 다시 새긴다 (nil 이면 사진은 그대로).
+    /// 사진 두 장을 다시 그리는 동안 화면이 멈추지 않도록 그리기는 메인 밖에서 한다.
+    func rescheduleMeal(date: Date, mealType: MealType, to newCapturedAt: Date, restampStyle: MealStampStyle?) async -> RescheduleResult {
+        let calendar = Calendar.current
+        guard let original = meal(on: date, mealType) else { return .notFound }
+        let newDay = calendar.startOfDay(for: newCapturedAt)
+        let dayChanged = !calendar.isDate(original.date, inSameDayAs: newDay)
+
+        var targetType = mealType
+        if dayChanged {
+            let taken = Set(records.filter { calendar.isDate($0.date, inSameDayAs: newDay) && $0.isComplete && $0.id != original.id }
+                .map(\.mealType))
+            if taken.contains(mealType) {
+                guard mealType.isSnack,
+                      let free = [MealType.snack1, .snack2, .snack3].first(where: { !taken.contains($0) }) else { return .slotTaken }
+                targetType = free
+            }
+        }
+
+        // 다시 새기기 (메인 밖) — 띠가 없는 사진(예전 버전 · 앨범 사진)은 그대로 둔다
+        var before = original.beforeImageData
+        var after = original.afterImageData
+        if let style = restampStyle {
+            let id = original.id
+            let backingBefore = MealStampBackingStore.shared.load(for: id, kind: "before")
+            let backingAfter = MealStampBackingStore.shared.load(for: id, kind: "after")
+            let (b, a) = (before, after)
+            let restamped = await Task.detached(priority: .userInitiated) { () -> (Data?, Data?) in
+                func redo(_ photo: Data?, _ backing: Data?) -> Data? {
+                    guard let photo, let backing else { return nil }
+                    return MealPhotoStamp.restamp(stamped: photo, backing: backing, date: newCapturedAt, style: style)
+                }
+                return (redo(b, backingBefore), redo(a, backingAfter))
+            }.value
+            before = restamped.0 ?? before
+            after = restamped.1 ?? after
+        }
+
+        // 기다리는 사이 기록이 바뀌었을 수 있다 — 다시 찾아서 그 위에 쓴다
+        var current = records
+        guard let index = current.firstIndex(where: { $0.id == original.id }) else { return .notFound }
+        let latest = current[index]
+        let moved = MealRecord(id: latest.id, date: newDay, mealType: targetType,
+                               beforeImageData: before, afterImageData: after,
+                               memo: latest.memo, recordedWithoutPhoto: latest.recordedWithoutPhoto,
+                               hidePhotoCountBadge: latest.hidePhotoCountBadge, visionAnalysis: latest.visionAnalysis,
+                               capturedAt: newCapturedAt, ateAll: latest.ateAll, place: latest.place, portion: latest.portion)
+        current[index] = moved
+        if dayChanged {
+            // 옮겨 간 자리에 비어 있는(완료되지 않은) 기록이 있으면 둘이 겹치지 않게 치운다
+            current.removeAll { $0.id != moved.id && $0.mealType == targetType && calendar.isDate($0.date, inSameDayAs: newDay) && !$0.isComplete }
+            NotificationManager.shared.cancelAteAllReminder(date: original.date, mealType: mealType)
+        }
+        records = current
+        Log.store.info("기록 날짜 · 시각 변경: \(mealType.rawValue, privacy: .public) → \(DayKey.string(from: newDay), privacy: .public) \(targetType.rawValue, privacy: .public)")
+        return .moved(day: newDay, mealType: targetType)
     }
 
     // 사진 없이 기록 (이미 기록이 있으면 그대로 둔다)
@@ -376,10 +460,14 @@ class MealRecordStore: ObservableObject {
 
         var currentRecords = records
         let beforeCount = currentRecords.count
+        var removedIDs: [UUID] = []
         currentRecords.removeAll { record in
-            record.mealType == mealType && Calendar.current.isDate(record.date, inSameDayAs: targetDate)
+            let remove = record.mealType == mealType && Calendar.current.isDate(record.date, inSameDayAs: targetDate)
+            if remove { removedIDs.append(record.id) }
+            return remove
         }
         let afterCount = currentRecords.count
+        for id in removedIDs { MealStampBackingStore.shared.remove(for: id) }
 
         Log.store.info("기록 삭제: \(mealType.rawValue, privacy: .public) \(beforeCount)개 → \(afterCount)개")
 
@@ -457,6 +545,17 @@ class MealRecordStore: ObservableObject {
 
         var diet = dietRecords.filter { !replaced.contains(MealSyncSlot(album: .diet, record: $0)) }
         var exercise = exerciseRecords.filter { !replaced.contains(MealSyncSlot(album: .exercise, record: $0)) }
+        // 다른 기기에서 사진이 바뀐 기록은 여기 남은 도장 원본 띠가 그 사진의 것이 아니다 — 지운다 (지워진 기록도)
+        let incoming = Dictionary(saves.map { ($0.record.id, $0.record) }, uniquingKeysWith: { _, new in new })
+        func dropStaleBackings(_ olds: [MealRecord], album: AlbumType) {
+            for old in olds where replaced.contains(MealSyncSlot(album: album, record: old)) {
+                guard let new = incoming[old.id] else { MealStampBackingStore.shared.remove(for: old.id); continue }
+                if new.beforeImageData?.count != old.beforeImageData?.count { MealStampBackingStore.shared.save(nil, for: old.id, kind: "before") }
+                if new.afterImageData?.count != old.afterImageData?.count { MealStampBackingStore.shared.save(nil, for: old.id, kind: "after") }
+            }
+        }
+        dropStaleBackings(dietRecords, album: .diet)
+        dropStaleBackings(exerciseRecords, album: .exercise)
         for save in saves {
             if save.slot.album == .diet { diet.append(save.record) } else { exercise.append(save.record) }
         }
@@ -951,12 +1050,17 @@ class MealRecordStore: ObservableObject {
                         let hasMemo = Double.random(in: 0...1) < 0.3 // 30% 확률로 메모
                         let memo = hasMemo ? "샘플 메모 - \(mealType.rawValue)" : nil
 
+                        // 실제 촬영처럼 날짜 도장을 새기고 원본 띠를 남긴다 — 시뮬레이터(카메라 없음)에서도 "날짜·시간 바꾸기" 를 시험할 수 있게
+                        let capturedAt = calendar.date(bySettingHour: mealType.typicalHour, minute: Int.random(in: 0..<60), second: 0, of: date) ?? date
+                        let id = UUID()
                         let record = MealRecord(
+                            id: id,
                             date: date,
                             mealType: mealType,
-                            beforeImageData: beforeImage,
-                            afterImageData: afterImage,
-                            memo: memo
+                            beforeImageData: stampedSample(beforeImage, date: capturedAt, recordID: id, kind: "before"),
+                            afterImageData: stampedSample(afterImage, date: capturedAt, recordID: id, kind: "after"),
+                            memo: memo,
+                            capturedAt: capturedAt
                         )
                         currentRecords.append(record)
                     }
@@ -966,6 +1070,14 @@ class MealRecordStore: ObservableObject {
 
         records = currentRecords
         Log.store.info("샘플 데이터 생성 완료: \(self.records.count)개 기록 추가")
+    }
+
+    /// 샘플 사진에 지금 설정의 날짜 도장을 새기고 도장 아래 원본 띠를 보관한다 (개발용)
+    private func stampedSample(_ data: Data?, date: Date, recordID: UUID, kind: String) -> Data? {
+        guard let data, let image = UIImage(data: data) else { return data }
+        let style = MealStampStyle.current
+        MealStampBackingStore.shared.save(style.isEnabled ? MealPhotoStamp.backing(of: image) : nil, for: recordID, kind: kind)
+        return MealPhotoStamp.apply(to: image, date: date, style: style).jpegData(compressionQuality: MealPhotoStamp.jpegQuality) ?? data
     }
 
     #if DEBUG
@@ -1088,6 +1200,7 @@ class MealRecordStore: ObservableObject {
     // 모든 데이터 삭제 (개발용 - 현재 앨범 타입의 데이터만)
     func clearAllData() {
         Log.store.info("\(SettingsManager.shared.albumType.rawValue) 모드 데이터 삭제")
+        for record in records { MealStampBackingStore.shared.remove(for: record.id) }
         records = []
     }
 

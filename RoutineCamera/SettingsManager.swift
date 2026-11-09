@@ -74,6 +74,11 @@ class SettingsManager: ObservableObject {
     @Stored("recordPlace") var recordPlace = false
     @Stored("writeSnack") var writeSnack = true
 
+    // 사진 왼쪽 아래에 새기는 날짜 도장 (MealPhotoStamp). 기본값은 예전과 같은 모양 — 켬 · 기본 글꼴 · 시간 포함
+    @Stored("photoStampEnabled") var photoStampEnabled = true
+    @Stored("photoStampFont") var photoStampFont = MealStampFont.system
+    @Stored("photoStampShowsTime") var photoStampShowsTime = true
+
     // 식후 사진을 남길지. 끄면 식전 한 장으로 기록이 끝나고,
     // 식후 촬영 안내·"다 드셨어요?" 알림·남은 사진 뱃지가 모두 사라진다.
     @Stored("useAfterPhoto") var useAfterPhoto = true {
