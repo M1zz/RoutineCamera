@@ -1,0 +1,130 @@
+{
+  "fill-specializations": [
+    {
+      "value": {
+        "linear-gradient": [
+          "display-p3:0.99608,0.59608,0.32549,1.00000",
+          "display-p3:0.94118,0.38039,0.18039,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          }
+        }
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "linear-gradient": [
+          "display-p3:0.20000,0.12941,0.09804,1.00000",
+          "display-p3:0.11765,0.07843,0.06275,1.00000"
+        ],
+        "orientation": {
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          }
+        }
+      }
+    }
+  ],
+  "groups": [
+    {
+      "layers": [
+        {
+          "glass": true,
+          "name": "bowl",
+          "image-name-specializations": [
+            {
+              "value": "bowl.png"
+            },
+            {
+              "appearance": "dark",
+              "value": "bowl-dark.png"
+            }
+          ]
+        }
+      ],
+      "lighting": "individual",
+      "name": "먹은 한 끼",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": true,
+        "value": 0.2
+      }
+    },
+    {
+      "layers": [
+        {
+          "glass": true,
+          "name": "rice",
+          "image-name-specializations": [
+            {
+              "value": "rice.png"
+            },
+            {
+              "appearance": "dark",
+              "value": "rice-dark.png"
+            }
+          ]
+        }
+      ],
+      "lighting": "individual",
+      "name": "밥",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": true,
+        "value": 0.1
+      }
+    },
+    {
+      "layers": [
+        {
+          "glass": true,
+          "name": "empty",
+          "image-name-specializations": [
+            {
+              "value": "empty.png"
+            },
+            {
+              "appearance": "dark",
+              "value": "empty-dark.png"
+            }
+          ]
+        }
+      ],
+      "lighting": "individual",
+      "name": "빈 두 끼",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "specular": true,
+      "translucency": {
+        "enabled": true,
+        "value": 0.55
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}
