@@ -49,6 +49,11 @@ struct StatisticsView: View {
                         }
                     }
 
+                    // 식사 속도 — 천천히 먹는 습관 (식단 모드에서만)
+                    if SettingsManager.shared.albumType == .diet {
+                        MealPaceCard(mealStore: mealStore)
+                    }
+
                     // 주간 통계
                     WeeklyStatsView(mealStore: mealStore)
 

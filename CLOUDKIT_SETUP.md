@@ -245,7 +245,7 @@ CloudKit 공개 DB는 앱의 무료 할당량이 활성 사용자 수에 비례�
 
 - 영역(zone): `SekkiMeals`
 - 레코드 타입: `SekkiMeal`, 이름 `meal_<diet|exercise>_<yyyy-MM-dd>_<끼니 케이스>`
-- 필드: `album`, `day`, `mealType`, `fingerprint`(String) · `memo`(String) · `recordedWithoutPhoto`, `hidePhotoCountBadge`, `ateAll`(Int) · `capturedAt`, `modifiedAt`(Date) · `visionAnalysis`(Bytes) · `beforeImage`, `afterImage`(Asset)
+- 필드: `album`, `day`, `mealType`, `fingerprint`(String) · `memo`(String) · `recordedWithoutPhoto`, `hidePhotoCountBadge`, `ateAll`(Int) · `capturedAt`, `modifiedAt`, `startedAt`, `finishedAt`(Date) · `visionAnalysis`(Bytes) · `beforeImage`, `afterImage`(Asset)
 
 ### 출시 전 필수: Production 스키마 배포
 

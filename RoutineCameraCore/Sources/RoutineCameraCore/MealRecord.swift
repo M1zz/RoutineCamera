@@ -77,8 +77,13 @@ public struct MealRecord: Identifiable, Codable, Sendable {
     public var place: MealPlace?
     /// 얼마나 먹었는지 (다 / 절반 / 조금). 남기지 않았으면 nil
     public var portion: MealPortion?
+    /// 먹기 시작한 실제 시각 — 식전 사진을 그 자리에서 남겼을 때만. 나중에 채운 기록이면 nil
+    /// (capturedAt 은 사용자가 고칠 수 있는 "먹은 시각" 이라 식사 시간을 재는 데 쓰지 않는다)
+    public var startedAt: Date?
+    /// 다 먹은 실제 시각 — 먹는 중이던 식사를 식후 사진이나 "다 먹음" 으로 마쳤을 때만
+    public var finishedAt: Date?
 
-    public init(id: UUID = UUID(), date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false, place: MealPlace? = nil, portion: MealPortion? = nil) {
+    public init(id: UUID = UUID(), date: Date, mealType: MealType, beforeImageData: Data? = nil, afterImageData: Data? = nil, memo: String? = nil, recordedWithoutPhoto: Bool = false, hidePhotoCountBadge: Bool = false, visionAnalysis: VisionAnalysisData? = nil, capturedAt: Date? = nil, ateAll: Bool = false, place: MealPlace? = nil, portion: MealPortion? = nil, startedAt: Date? = nil, finishedAt: Date? = nil) {
         self.id = id
         self.date = date
         self.mealType = mealType
@@ -92,13 +97,16 @@ public struct MealRecord: Identifiable, Codable, Sendable {
         self.ateAll = ateAll
         self.place = place
         self.portion = portion
+        self.startedAt = startedAt
+        self.finishedAt = finishedAt
     }
 
     /// 같은 기록(id 유지)에 사진만 바꿔 끼운 사본 — 사진을 파일로 빼서 저장하고 다시 붙일 때 쓴다
     public func replacingImages(before: Data?, after: Data?) -> MealRecord {
         MealRecord(id: id, date: date, mealType: mealType, beforeImageData: before, afterImageData: after, memo: memo,
                    recordedWithoutPhoto: recordedWithoutPhoto, hidePhotoCountBadge: hidePhotoCountBadge,
-                   visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll, place: place, portion: portion)
+                   visionAnalysis: visionAnalysis, capturedAt: capturedAt, ateAll: ateAll, place: place, portion: portion,
+                   startedAt: startedAt, finishedAt: finishedAt)
     }
 
     public init(from decoder: Decoder) throws {
@@ -117,7 +125,12 @@ public struct MealRecord: Identifiable, Codable, Sendable {
         place = try c.decodeIfPresent(MealPlace.self, forKey: .place)
         // 모르는 값(새 버전이 더한 양)이면 버리지 않고 비워 둔다 — 기록 전체를 못 읽게 되지 않게
         portion = (try? c.decodeIfPresent(MealPortion.self, forKey: .portion)) ?? nil
+        startedAt = try c.decodeIfPresent(Date.self, forKey: .startedAt)
+        finishedAt = try c.decodeIfPresent(Date.self, forKey: .finishedAt)
     }
+
+    /// 밥 먹는 데 걸린 시간(분). 시작 · 끝을 둘 다 그 자리에서 남긴 식사만, 믿을 만한 길이일 때만
+    public var eatingMinutes: Int? { MealPace.minutes(from: startedAt, to: finishedAt) }
 
     /// 썸네일용 (식후 우선, 없으면 식전)
     public var thumbnailImageData: Data? { afterImageData ?? beforeImageData }

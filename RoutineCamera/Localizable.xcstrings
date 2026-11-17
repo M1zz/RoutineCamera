@@ -138418,6 +138418,1794 @@
           }
         }
       }
+    },
+    "식사 시간" : {
+      "comment" : "Label: how long this meal took",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doba jídla"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spisetid"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essensdauer"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διάρκεια γεύματος"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meal time"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meal time"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración de la comida"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ateria-aika"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée du repas"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lama makan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata del pasto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食事時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "식사 시간"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spisetid"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eettijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas jedzenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo da refeição"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время еды"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mattid"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เวลากินอาหาร"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yemek süresi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời gian ăn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用餐时间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用餐時間"
+          }
+        }
+      }
+    },
+    "%lld분" : {
+      "comment" : "Duration in minutes",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Min."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld λεπ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld mnt"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld分"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld분"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld мин"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld นาที"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld dk"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld phút"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld分钟"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld分鐘"
+          }
+        }
+      }
+    },
+    "천천히 먹었어요" : {
+      "comment" : "Meal pace: this meal was eaten slowly enough",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hezky pomalu"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dejligt langsomt"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schön langsam"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ωραία, χωρίς βιασύνη"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicely unhurried"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicely unhurried"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con calma"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mukavan rauhallisesti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans se presser"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Makan dengan santai"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con calma"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゆっくり食べました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "천천히 먹었어요"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fint og rolig"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekker rustig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bez pośpiechu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sem pressa"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без спешки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lugnt och fint"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กินช้ากำลังดี"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acele etmeden"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ăn thong thả"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吃得很从容"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吃得很從容"
+          }
+        }
+      }
+    },
+    "권장 %lld분 이상" : {
+      "comment" : "Meal pace: recommended meal length in minutes",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doporučeno aspoň %lld min"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigt efter mindst %lld min"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfohlen: mindestens %lld Min."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Στόχος: τουλάχιστον %lld λεπ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aim for %lld min or more"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aim for %lld min or more"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intenta %lld min o más"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tavoite vähintään %lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visez %lld min ou plus"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usahakan %lld mnt atau lebih"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punta a %lld min o più"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目安は%lld分以上"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "권장 %lld분 이상"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikt på minst %lld min"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streef naar %lld min of meer"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Celuj w co najmniej %lld min"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tente %lld min ou mais"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекомендуем от %lld мин"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sikta på minst %lld min"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แนะนำ %lld นาทีขึ้นไป"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En az %lld dk hedefle"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nên từ %lld phút trở lên"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建议%lld分钟以上"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建議%lld分鐘以上"
+          }
+        }
+      }
+    },
+    "먹는 중" : {
+      "comment" : "Label: this meal is still being eaten",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Právě jíš"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiser nu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isst gerade"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τρώω τώρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eating now"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eating now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comiendo ahora"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syön nyt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En train de manger"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sedang makan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sto mangiando"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食事中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "먹는 중"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiser nå"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aan het eten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W trakcie jedzenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comendo agora"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Идёт приём пищи"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Äter nu"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กำลังกิน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şu an yiyor"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang ăn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在用餐"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在用餐"
+          }
+        }
+      }
+    },
+    "식사 속도" : {
+      "comment" : "Stats card title: how fast the user eats",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo jídla"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spisetempo"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esstempo"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ρυθμός φαγητού"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eating Pace"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eating Pace"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo al comer"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syömistahti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rythme des repas"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kecepatan Makan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo dei pasti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食べる速さ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "식사 속도"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spisetempo"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eettempo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo jedzenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo ao comer"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Темп еды"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ättempo"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ความเร็วในการกิน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeme Hızı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tốc độ ăn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用餐速度"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用餐速度"
+          }
+        }
+      }
+    },
+    "식전 사진을 찍고, 다 먹은 뒤 식후 사진을 찍거나 다 먹음을 누르면 식사 시간이 재져요." : {
+      "comment" : "Meal pace card: how meal time gets measured (shown when nothing is measured yet)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyfoť jídlo před, a až dojíš, vyfoť ho po nebo klepni na Snězeno. Tak se změří doba jídla."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag et foto før, og tag et foto efter eller tryk Færdig, når du er færdig. Så bliver din spisetid målt."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mach ein Vorher-Foto und danach ein Nachher-Foto oder tippe auf „Fertig gegessen“. So wird deine Essensdauer gemessen."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Βγάλε μια φωτογραφία πριν και, όταν τελειώσεις, μια φωτογραφία μετά ή πάτησε «Τελείωσα». Έτσι μετριέται η διάρκεια του γεύματος."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a before photo, then take an after photo or tap Finished when you're done. That's how your meal gets timed."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a before photo, then take an after photo or tap Finished when you're done. That's how your meal gets timed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz una foto de antes y, al acabar, una foto de después o toca Terminé. Así se mide cuánto dura tu comida."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ota kuva ennen ja ota syötyäsi kuva jälkeen tai napauta Syöty. Näin ateria-aikasi mitataan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prenez une photo avant, puis une photo après ou touchez Terminé à la fin. C'est ainsi que la durée du repas est mesurée."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ambil foto sebelum makan, lalu ambil foto sesudah atau ketuk Selesai makan saat selesai. Begitulah lama makanmu diukur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scatta una foto prima e, quando hai finito, una foto dopo oppure tocca Finito. Così viene misurata la durata del pasto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食前の写真を撮り、食べ終わったら食後の写真を撮るか「完食」を押すと、食事時間が計られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "식전 사진을 찍고, 다 먹은 뒤 식후 사진을 찍거나 다 먹음을 누르면 식사 시간이 재져요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta et bilde før, og ta et bilde etter eller trykk Ferdig når du er ferdig. Slik måles spisetiden din."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak een foto voor het eten en maak daarna een foto na het eten of tik op Opgegeten. Zo wordt je eettijd gemeten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób zdjęcie przed, a po jedzeniu zrób zdjęcie po albo stuknij Zjedzone. Tak mierzony jest czas posiłku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tire uma foto de antes e, ao terminar, tire uma foto de depois ou toque em Terminei. É assim que o tempo da refeição é medido."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделайте фото до еды, а закончив — фото после еды или нажмите «Съедено». Так измеряется время приёма пищи."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta en bild före och ta en bild efter eller tryck på Uppäten när du är klar. Så mäts din mattid."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ถ่ายรูปก่อนกิน แล้วเมื่อกินเสร็จให้ถ่ายรูปหลังกินหรือแตะ กินหมดแล้ว ระบบจะจับเวลากินอาหารให้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önce fotoğrafı çek, bitirince sonra fotoğrafı çek veya Bitti'ye dokun. Yemek süren böyle ölçülür."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chụp ảnh trước khi ăn, rồi khi ăn xong hãy chụp ảnh sau hoặc chạm Đã ăn xong. Thời gian ăn sẽ được đo như vậy."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先拍餐前照片，吃完后拍餐后照片或点“吃完了”，就会记下用餐时间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先拍飯前照片，吃完後拍飯後照片或點「吃完了」，就會記下用餐時間。"
+          }
+        }
+      }
+    },
+    "천천히 먹으면 적게 먹어도 배가 불러요. 배부르다는 신호가 닿기까지 %lld분쯤 걸려요." : {
+      "comment" : "Meal pace card: why eating slowly matters; argument is minutes (20)",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Když jíš pomalu, zasytí tě i menší porce. Trvá asi %lld minut, než tělo ohlásí, že má dost."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiser du langsomt, bliver du mæt af mindre. Det tager omkring %lld minutter, før kroppen melder, at den er mæt."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wer langsam isst, wird auch von weniger satt. Es dauert etwa %lld Minuten, bis der Körper Sättigung meldet."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όταν τρως αργά, χορταίνεις και με λιγότερο. Χρειάζονται περίπου %lld λεπτά μέχρι το σώμα να δώσει σήμα ότι χόρτασε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eat slowly and a smaller meal still fills you up. It takes about %lld minutes for your body to signal that it's full."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eat slowly and a smaller meal still fills you up. It takes about %lld minutes for your body to signal that it's full."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si comes despacio, te llenas aunque comas menos. El cuerpo tarda unos %lld minutos en avisar de que está lleno."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kun syöt hitaasti, vähempikin täyttää. Kestää noin %lld minuuttia, ennen kuin keho viestii kylläisyydestä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En mangeant lentement, on est rassasié même avec moins. Il faut environ %lld minutes au corps pour signaler la satiété."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Makan pelan-pelan membuat kenyang walau porsinya sedikit. Tubuh butuh sekitar %lld menit untuk memberi sinyal kenyang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mangiando lentamente ti sazi anche con meno. Al corpo servono circa %lld minuti per segnalare la sazietà."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゆっくり食べると、少ない量でも満腹を感じられます。満腹のサインが届くまで%lld分ほどかかります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "천천히 먹으면 적게 먹어도 배가 불러요. 배부르다는 신호가 닿기까지 %lld분쯤 걸려요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiser du sakte, blir du mett av mindre. Det tar omtrent %lld minutter før kroppen sier fra at den er mett."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je langzaam eet, zit je ook met minder vol. Het duurt ongeveer %lld minuten voordat je lichaam aangeeft dat het vol zit."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedząc powoli, najesz się nawet mniejszą porcją. Organizm potrzebuje około %lld minut, żeby dać sygnał sytości."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comendo devagar, você se sacia mesmo comendo menos. O corpo leva cerca de %lld minutos para avisar que está satisfeito."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если есть медленно, насыщаешься даже небольшой порцией. Сигнал о сытости доходит примерно за %lld минут."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Äter du långsamt blir du mätt på mindre. Det tar ungefär %lld minuter innan kroppen signalerar mättnad."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กินช้า ๆ แล้วจะอิ่มแม้กินน้อยลง ร่างกายใช้เวลาประมาณ %lld นาทีกว่าจะส่งสัญญาณว่าอิ่ม"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yavaş yersen az yesen de doyarsın. Vücudun doyduğunu bildirmesi yaklaşık %lld dakika sürer."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ăn chậm thì ăn ít vẫn thấy no. Cơ thể cần khoảng %lld phút để báo hiệu đã no."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "慢慢吃，吃得少也会有饱腹感。饱腹信号大约需要%lld分钟才能传到。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "慢慢吃，吃得少也會有飽足感。飽足訊號大約需要%lld分鐘才會傳到。"
+          }
+        }
+      }
+    },
+    "좋아요, 충분히 천천히 먹고 있어요." : {
+      "comment" : "Meal pace card: usual meal time meets the recommendation",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skvělé, jíš dostatečně pomalu."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flot. Du tager dig god tid."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gut so, du nimmst dir genug Zeit."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ωραία, τρως με την ησυχία σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nice. You're taking your time."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nice. You're taking your time."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muy bien, comes con calma."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hienoa, syöt rauhassa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bravo, vous prenez votre temps."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bagus, kamu makan dengan santai."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bene, mangi con calma."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いいですね。十分ゆっくり食べています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "좋아요, 충분히 천천히 먹고 있어요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bra. Du tar deg god tid."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mooi, je neemt rustig de tijd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Świetnie, jesz bez pośpiechu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muito bem, você come sem pressa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отлично, вы едите не спеша."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bra. Du tar god tid på dig."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ดีมาก คุณกินช้าพอแล้ว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güzel, yeterince yavaş yiyorsun."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tốt lắm, bạn đang ăn đủ chậm."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "很好，你吃得足够慢。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "很好，你吃得夠慢。"
+          }
+        }
+      }
+    },
+    "지금보다 %lld분 더 천천히 먹어 보세요." : {
+      "comment" : "Meal pace card: how many more minutes to take per meal",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zkus každému jídlu věnovat o %lld min víc."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prøv at bruge %lld minutter mere pr. måltid."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimm dir pro Mahlzeit %lld Minuten mehr Zeit."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δοκίμασε να αφιερώνεις %lld λεπτά ακόμη σε κάθε γεύμα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try taking %lld more minutes per meal."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try taking %lld more minutes per meal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba a dedicar %lld minutos más a cada comida."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kokeile käyttää ateriaan %lld minuuttia enemmän."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essayez de prendre %lld minutes de plus par repas."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coba luangkan %lld menit lebih lama tiap makan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova a dedicare %lld minuti in più a ogni pasto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あと%lld分、ゆっくり食べてみましょう。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금보다 %lld분 더 천천히 먹어 보세요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prøv å bruke %lld minutter mer per måltid."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probeer %lld minuten langer over elke maaltijd te doen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spróbuj poświęcić każdemu posiłkowi o %lld min więcej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tente dedicar %lld minutos a mais a cada refeição."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попробуйте уделять каждому приёму пищи на %lld мин больше."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Försök lägga %lld minuter till på varje måltid."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลองใช้เวลากินเพิ่มอีก %lld นาทีต่อมื้อ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her öğüne %lld dakika daha ayırmayı dene."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hãy thử dành thêm %lld phút cho mỗi bữa."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试着每餐再多用%lld分钟。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試著每餐再多用%lld分鐘。"
+          }
+        }
+      }
+    },
+    "최근 %lld일 · %lld끼 기준" : {
+      "comment" : "Meal pace card: period (days) and number of timed meals the numbers are based on",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posledních %1$lld dní · změřeno jídel: %2$lld"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seneste %1$lld dage · %2$lld måltider målt"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte %1$lld Tage · %2$lld Mahlzeiten gemessen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τελευταίες %1$lld ημέρες · %2$lld γεύματα με μέτρηση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last %1$lld days · %2$lld meals timed"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last %1$lld days · %2$lld meals timed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos %1$lld días · %2$lld comidas medidas"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viimeiset %1$lld päivää · %2$lld ateriaa mitattu"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld derniers jours · %2$lld repas mesurés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld hari terakhir · %2$lld kali makan terukur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi %1$lld giorni · %2$lld pasti misurati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直近%1$lld日 · %2$lld食が対象"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 %1$lld일 · %2$lld끼 기준"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siste %1$lld dager · %2$lld måltider målt"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen %1$lld dagen · %2$lld maaltijden gemeten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie %1$lld dni · zmierzone posiłki: %2$lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos %1$lld dias · %2$lld refeições medidas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние %1$lld дн. · измерено приёмов пищи: %2$lld"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste %1$lld dagarna · %2$lld måltider mätta"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld วันล่าสุด · จับเวลา %2$lld มื้อ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son %1$lld gün · %2$lld öğün ölçüldü"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld ngày gần đây · đo %2$lld bữa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近%1$lld天 · 共计时%2$lld餐"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近%1$lld天 · 共計時%2$lld餐"
+          }
+        }
+      }
+    },
+    "보통 %lld분" : {
+      "comment" : "Meal pace card: the user's usual (median) meal length in minutes",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obvykle %lld min"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalt %lld min"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meist %lld Min."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνήθως %lld λεπ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usually %lld min"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usually %lld min"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalmente %lld min"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yleensä %lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En général %lld min"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biasanya %lld mnt"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di solito %lld min"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ふだん%lld分"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보통 %lld분"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vanligvis %lld min"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meestal %lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwykle %lld min"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normalmente %lld min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обычно %lld мин"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oftast %lld min"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ปกติ %lld นาที"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genelde %lld dk"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thường %lld phút"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通常%lld分钟"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通常%lld分鐘"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

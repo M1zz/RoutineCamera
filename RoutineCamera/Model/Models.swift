@@ -307,17 +307,29 @@ class MealRecordStore: ObservableObject {
     //   앨범에서 고른 사진처럼 띠가 없으면 nil — 이때 옛 띠가 남아 있으면 지운다 (다른 사진의 띠를 붙이면 안 되므로).
     func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(),
                          place: MealPlace? = nil, stampBacking: Data? = nil) {
+        let now = Date()
         let updated = mutateMeal(date: date, mealType: mealType) { record in
+            // 먹는 중이던 식사에 식후 사진이 붙는 순간이 식사가 끝난 시각이다 (식사 시간을 재는 데 쓴다)
+            if !isBefore, record.isEatingInProgress(asOf: now), record.startedAt != nil {
+                record.finishedAt = record.finishedAt ?? now
+            }
+            // 메모만 있던 빈 기록에 식전 사진을 지금 남기면 그때가 시작이다
+            if isBefore, !record.isComplete, abs(capturedAt.timeIntervalSince(now)) < 10 * 60 {
+                record.startedAt = record.startedAt ?? now
+            }
             if isBefore { record.beforeImageData = imageData } else { record.afterImageData = imageData }
             record.recordedWithoutPhoto = false
             record.capturedAt = record.capturedAt ?? Date()
             record.place = record.place ?? place
         }
         if !updated {
+            // 식전 사진을 지금 먹는 자리에서 남겼을 때만 시작 시각으로 삼는다 — 지난 끼니를 뒤늦게 채운 기록은 재지 않는다
+            let startsNow = isBefore && abs(capturedAt.timeIntervalSince(now)) < 10 * 60
             records.append(MealRecord(date: Calendar.current.startOfDay(for: date), mealType: mealType,
                                       beforeImageData: isBefore ? imageData : nil,
                                       afterImageData: isBefore ? nil : imageData,
-                                      capturedAt: capturedAt, place: place))
+                                      capturedAt: capturedAt, place: place,
+                                      startedAt: startsNow ? now : nil))
         }
         if let saved = meal(on: date, mealType) {
             MealStampBackingStore.shared.save(stampBacking, for: saved.id, kind: isBefore ? "before" : "after")
@@ -389,7 +401,9 @@ class MealRecordStore: ObservableObject {
                                beforeImageData: before, afterImageData: after,
                                memo: latest.memo, recordedWithoutPhoto: latest.recordedWithoutPhoto,
                                hidePhotoCountBadge: latest.hidePhotoCountBadge, visionAnalysis: latest.visionAnalysis,
-                               capturedAt: newCapturedAt, ateAll: latest.ateAll, place: latest.place, portion: latest.portion)
+                               capturedAt: newCapturedAt, ateAll: latest.ateAll, place: latest.place, portion: latest.portion,
+                               // 잰 식사 시간은 "먹은 시각" 을 고쳐도 그대로다
+                               startedAt: latest.startedAt, finishedAt: latest.finishedAt)
         current[index] = moved
         if dayChanged {
             // 옮겨 간 자리에 비어 있는(완료되지 않은) 기록이 있으면 둘이 겹치지 않게 치운다
@@ -411,8 +425,12 @@ class MealRecordStore: ObservableObject {
 
     // "다 먹음" 기록 — 식전만 찍은 기록에 다먹음 신호를 붙이거나, 없으면 사진 없이 다먹음 기록 생성.
     // 위젯/액션버튼/알림에서 앱 안 열고 호출되는 진입점.
-    func recordAteAll(date: Date, mealType: MealType) {
+    // finishedAt: 다 먹은 실제 시각. 한참 뒤 "다 드셨어요?" 알림에서 누른 것처럼 끝난 때를 모르면 nil (식사 시간을 재지 않는다).
+    func recordAteAll(date: Date, mealType: MealType, finishedAt: Date? = Date()) {
         let updated = mutateMeal(date: date, mealType: mealType) { record in
+            if let finishedAt, record.isEatingInProgress(asOf: finishedAt), record.startedAt != nil {
+                record.finishedAt = record.finishedAt ?? finishedAt
+            }
             record.capturedAt = record.capturedAt ?? Date()
             record.ateAll = true
         }
@@ -439,7 +457,9 @@ class MealRecordStore: ObservableObject {
         inDietAlbum {
             for item in items {
                 guard let mealType = MealType(rawValue: item.mealType) else { continue }
-                recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType)
+                // 식사가 끝난 시각은 앱이 반영하는 지금이 아니라 위젯 버튼을 누른 때다
+                recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType,
+                             finishedAt: item.tappedAt.map(Date.init(timeIntervalSince1970:)))
             }
         }
         userDefaults.removeObject(forKey: AppGroup.pendingAteAllKey)
@@ -1060,7 +1080,10 @@ class MealRecordStore: ObservableObject {
                             beforeImageData: stampedSample(beforeImage, date: capturedAt, recordID: id, kind: "before"),
                             afterImageData: stampedSample(afterImage, date: capturedAt, recordID: id, kind: "after"),
                             memo: memo,
-                            capturedAt: capturedAt
+                            capturedAt: capturedAt,
+                            // 식전 · 식후가 다 있는 샘플은 식사 시간도 잰 것처럼 (식사 속도 카드 시험용)
+                            startedAt: hasBefore && hasAfter ? capturedAt : nil,
+                            finishedAt: hasBefore && hasAfter ? capturedAt.addingTimeInterval(Double(Int.random(in: 6...28)) * 60) : nil
                         )
                         currentRecords.append(record)
                     }
@@ -1139,7 +1162,9 @@ class MealRecordStore: ObservableObject {
                 // 먹은 양: 절반이 점점 늘어나는 모습 (스크린샷용)
                 let portion: MealPortion? = (dayOffset + slotIndex) % 3 == 0 ? .half : ((dayOffset + slotIndex) % 7 == 0 ? .little : .all)
                 result.append(MealRecord(date: day, mealType: slot.0, beforeImageData: photo, memo: memo, capturedAt: capturedAt, ateAll: true,
-                                         place: places[(dayOffset + slotIndex) % places.count], portion: portion))
+                                         place: places[(dayOffset + slotIndex) % places.count], portion: portion,
+                                         startedAt: capturedAt,
+                                         finishedAt: capturedAt?.addingTimeInterval(Double(11 + (dayOffset * 3 + slotIndex * 5) % 14) * 60)))
             }
         }
         records = result

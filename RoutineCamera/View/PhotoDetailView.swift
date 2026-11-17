@@ -247,6 +247,11 @@ struct PhotoDetailView: View {
                                 placeRow(place)
                         }
 
+                        // 밥 먹는 데 걸린 시간 — 천천히 먹는 습관을 위해 (식단만)
+                        if SettingsManager.shared.albumType == .diet {
+                            MealPaceRow(record: record)
+                        }
+
                         // 얼마나 먹었나요 — 열량 대신 양으로 스스로 조절한다 (식단만)
                         if SettingsManager.shared.albumType == .diet {
                             HStack {

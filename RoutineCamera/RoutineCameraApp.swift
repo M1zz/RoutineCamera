@@ -132,7 +132,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     let date = (info["date"] as? TimeInterval).map { Date(timeIntervalSince1970: $0) } ?? Date()
     await MainActor.run {
       let store = MealRecordStore.shared
-      store.inDietAlbum { store.recordAteAll(date: date, mealType: mealType) }
+      // 한참 뒤에 온 "다 드셨어요?" 알림에서 누른 것이라 식사가 끝난 시각은 모른다 — 식사 시간을 재지 않는다
+      store.inDietAlbum { store.recordAteAll(date: date, mealType: mealType, finishedAt: nil) }
     }
   }
 }

@@ -200,6 +200,10 @@ final class MealCloudSync: ObservableObject {
         if let portion = record.portion {
             parts.append("portion:\(portion.rawValue)")
         }
+        // 식사 시간도 잰 기록만 더한다 (같은 이유)
+        if record.startedAt != nil || record.finishedAt != nil {
+            parts.append("pace:\(record.startedAt?.timeIntervalSince1970 ?? 0)-\(record.finishedAt?.timeIntervalSince1970 ?? 0)")
+        }
         return Self.hexDigest(Data(parts.joined(separator: "|").utf8))
     }
 
@@ -327,6 +331,9 @@ final class MealCloudSync: ObservableObject {
         record["ateAll"] = meal.ateAll
         record["portion"] = meal.portion?.rawValue
         record["capturedAt"] = meal.capturedAt
+        // 식사 시간을 잰 기록만 쓴다 — 재지 않은 기록은 서버에 이 필드가 없어도 올라간다
+        if meal.startedAt != nil || record["startedAt"] != nil { record["startedAt"] = meal.startedAt }
+        if meal.finishedAt != nil || record["finishedAt"] != nil { record["finishedAt"] = meal.finishedAt }
         // 찍은 곳 — 내 개인 iCloud 에만. 친구 공개 기록에는 넣지 않는다
         record["placeLatitude"] = meal.place?.latitude
         record["placeLongitude"] = meal.place?.longitude
@@ -646,7 +653,9 @@ final class MealCloudSync: ObservableObject {
                    capturedAt: server["capturedAt"] as? Date,
                    ateAll: server["ateAll"] as? Bool ?? false,
                    place: place(from: server),
-                   portion: (server["portion"] as? String).flatMap(MealPortion.init(rawValue:)))
+                   portion: (server["portion"] as? String).flatMap(MealPortion.init(rawValue:)),
+                   startedAt: server["startedAt"] as? Date,
+                   finishedAt: server["finishedAt"] as? Date)
     }
 
     private static func place(from server: CKRecord) -> MealPlace? {

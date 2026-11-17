@@ -130,9 +130,9 @@ public enum WidgetStateResolver {
                                    calendar: Calendar = .current) -> PendingAteAll {
         if let meal = snapshot?.inProgressMealType {
             let since = snapshot?.inProgressSince ?? now
-            return PendingAteAll(mealType: meal, date: since.timeIntervalSince1970)
+            return PendingAteAll(mealType: meal, date: since.timeIntervalSince1970, tappedAt: now.timeIntervalSince1970)
         }
         return PendingAteAll(mealType: MealType.inferred(at: now, calendar: calendar).rawValue,
-                             date: now.timeIntervalSince1970)
+                             date: now.timeIntervalSince1970, tappedAt: now.timeIntervalSince1970)
     }
 }
