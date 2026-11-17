@@ -7,8 +7,10 @@
 - [x] 사진 상세: 식사 시간 한 줄, 먹는 중이면 지금까지 지난 시간
 - [x] iCloud 백업에 startedAt · finishedAt 필드 (친구 공개 기록에는 안 올림)
 - [x] 문구 12개 × 24개 언어, 코어 테스트 6개
-- [ ] 실기기: 식전 찍기 → 몇 분 뒤 식후 찍기 / 다 먹음 / 위젯 다 먹음 → 상세 · 통계에 시간이 맞게 뜨는지
-- [ ] 사용자: CloudKit Console 에서 SekkiMeal 에 startedAt · finishedAt 포함해 Production 배포 (이미 배포했다면 이 두 필드를 더해 다시 배포 — 없으면 식사 시간을 잰 기록의 백업이 실패한다)
+- [x] 시뮬레이터에서 실제 저장 코드로 흐름 확인 (2026-11-17): 식전 → 25분 뒤 식후 사진 = 25분, 다 먹음 = 15분, 위젯 대기열 다 먹음 = 누른 시각 기준 18분, 알림 다 먹음 · 뒤늦게 채운 기록 = 재지 않음
+- [ ] 실기기: 카메라로 찍기 · 위젯 버튼을 직접 눌렀을 때도 같은지 (시뮬레이터에는 카메라가 없다)
+- [x] CloudKit Development 스키마에 SekkiMeal 의 startedAt · finishedAt · placeLatitude · placeLongitude · placeName 추가 (cktool, 2026-11-17)
+- [ ] 사용자: CloudKit Console > Deploy Schema Changes 로 Production 배포. 2026-11-17 기준 Production 에는 SekkiMeal · Feedback 타입과 Meal.memo 가 아예 없다 — 배포 전에는 출시 빌드의 iCloud 백업 · 피드백이 실패한다
 - [ ] 다음: 먹는 중 홈 칸 · 위젯에 지난 시간 보여 주기, 순간 피드에 식사 시간 표시, 20분 채우면 알려 주기
 
 ## 완료: 기록 날짜·시간·글꼴 편집 (사용자 피드백 "기록날짜, 시간 편집(글꼴포함) 가능했으면", 2026-11-09, 빌드 성공 · 시뮬레이터에서 시각 변경 → 사진 다시 새겨짐 확인)
