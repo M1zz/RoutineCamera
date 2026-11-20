@@ -63,7 +63,7 @@ extension RoutineCameraSpec {
         .init(id: "whatsnew", status: .planned,
               title: NSLocalizedString("업데이트 소식", comment: "Roadmap item: what's new after an update"),
               detail: NSLocalizedString("업데이트 뒤 처음 열 때 무엇이 새로 생겼는지 알려 줘요.", comment: "Roadmap item detail: what's new after an update")),
-        .init(id: "tips", status: .building,
+        .init(id: "tips", status: .shipped("1.2.5"),
               title: NSLocalizedString("쓰는 요령 알려 주기", comment: "Roadmap item: in-app tips"),
               detail: NSLocalizedString("알아 두면 편한 기능을 알맞은 때에 살짝 알려 줘요.", comment: "Roadmap item detail: in-app tips")),
         .init(id: "haptics", status: .planned,

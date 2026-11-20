@@ -1,5 +1,199 @@
 # 릴리스 노트
 
+## 1.2.5
+
+### 앱스토어 (한국어, ko)
+
+달력에서 먹은 날이 사진으로 보여요
+홈에서 최근 7일을 사진으로 한눈에 봐요
+식사 사진을 격자로 모아 볼 수 있어요
+지난 달 달력도 무료로 넘겨 볼 수 있어요
+기록이 더 안전하게 저장돼요
+
+### App Store (English, en)
+
+The calendar now shows a photo on days you ate
+See your last 7 days in photos on the home screen
+Browse your meal photos in a grid
+Flip back to past months for free
+Your entries are saved more safely
+
+### App Store (en-GB)
+
+The calendar now shows a photo on days you ate
+See your last 7 days in photos on the home screen
+Browse your meal photos in a grid
+Flip back to past months for free
+Your entries are saved more safely
+
+### App Store (중국어 간체, zh-Hans)
+
+日历上吃过饭的日子会显示照片
+在首页用照片一眼看到最近 7 天
+可以用网格浏览用餐照片
+以往月份的日历也能免费翻看
+记录保存得更安全
+
+### App Store (중국어 번체, zh-Hant)
+
+月曆上吃過飯的日子會顯示照片
+在首頁用照片一眼看到最近 7 天
+可以用格狀瀏覽用餐照片
+以往月份的月曆也能免費翻看
+記錄保存得更安全
+
+### App Store (일본어, ja)
+
+カレンダーで食べた日が写真でわかります
+ホームで直近7日間を写真でひと目で確認
+食事の写真をグリッドでまとめて見られます
+過去の月のカレンダーも無料で見られます
+記録がより安全に保存されます
+
+### App Store (러시아어, ru)
+
+В календаре дни с едой отмечены фото
+Последние 7 дней в фото на главном экране
+Фото еды можно смотреть сеткой
+Прошлые месяцы в календаре теперь бесплатны
+Записи сохраняются надёжнее
+
+### App Store (스페인어, es)
+
+El calendario muestra una foto los días que comiste
+Tus últimos 7 días en fotos en la pantalla de inicio
+Mira las fotos de tus comidas en cuadrícula
+Consulta gratis los meses anteriores
+Tus registros se guardan de forma más segura
+
+### App Store (독일어, de)
+
+Der Kalender zeigt Fotos an Tagen mit Mahlzeiten
+Die letzten 7 Tage als Fotos auf dem Startbildschirm
+Sieh dir deine Essensfotos als Raster an
+Frühere Monate kostenlos durchblättern
+Deine Einträge werden sicherer gespeichert
+
+### App Store (프랑스어, fr)
+
+Le calendrier affiche une photo les jours de repas
+Vos 7 derniers jours en photos sur l’accueil
+Parcourez vos photos de repas en grille
+Feuilletez gratuitement les mois passés
+Vos entrées sont enregistrées plus sûrement
+
+### App Store (이탈리아어, it)
+
+Il calendario mostra una foto nei giorni con pasti
+Gli ultimi 7 giorni in foto nella schermata iniziale
+Sfoglia le foto dei pasti in una griglia
+Rivedi gratis i mesi passati
+Le tue voci vengono salvate in modo più sicuro
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+O calendário mostra uma foto nos dias em que você comeu
+Seus últimos 7 dias em fotos na tela inicial
+Veja as fotos das refeições em grade
+Consulte os meses anteriores de graça
+Seus registros são salvos com mais segurança
+
+### App Store (태국어, th)
+
+ปฏิทินแสดงรูปในวันที่คุณกิน
+ดู 7 วันล่าสุดเป็นรูปได้ที่หน้าแรก
+ดูรูปมื้ออาหารแบบตารางได้
+ย้อนดูปฏิทินเดือนก่อน ๆ ได้ฟรี
+บันทึกถูกเก็บอย่างปลอดภัยยิ่งขึ้น
+
+### App Store (베트남어, vi)
+
+Lịch hiện ảnh vào những ngày bạn đã ăn
+Xem 7 ngày gần nhất bằng ảnh ngay trên màn hình chính
+Xem ảnh bữa ăn dạng lưới
+Xem lại lịch các tháng trước miễn phí
+Bản ghi được lưu an toàn hơn
+
+### App Store (체코어, cs)
+
+Kalendář ukazuje fotku ve dnech, kdy jsi jedl
+Posledních 7 dní ve fotkách na hlavní obrazovce
+Prohlížej fotky jídel v mřížce
+Minulé měsíce si prolistuješ zdarma
+Záznamy se ukládají bezpečněji
+
+### App Store (덴마크어, da)
+
+Kalenderen viser et foto på dage, hvor du har spist
+Se de seneste 7 dage i fotos på startskærmen
+Se dine måltidsfotos i et gitter
+Blad gratis tilbage i tidligere måneder
+Dine registreringer gemmes mere sikkert
+
+### App Store (그리스어, el)
+
+Το ημερολόγιο δείχνει φωτογραφία τις μέρες που έφαγες
+Οι τελευταίες 7 μέρες σε φωτογραφίες στην αρχική
+Δες τις φωτογραφίες των γευμάτων σε πλέγμα
+Δες δωρεάν τους προηγούμενους μήνες
+Οι καταγραφές αποθηκεύονται πιο ασφαλώς
+
+### App Store (핀란드어, fi)
+
+Kalenteri näyttää kuvan päivinä, jolloin söit
+Viimeiset 7 päivää kuvina aloitusnäkymässä
+Selaa ateriakuvia ruudukkona
+Selaa aiempia kuukausia ilmaiseksi
+Merkinnät tallentuvat entistä turvallisemmin
+
+### App Store (인도네시아어, id)
+
+Kalender menampilkan foto di hari kamu makan
+Lihat 7 hari terakhir dalam foto di layar utama
+Lihat foto makananmu dalam kisi
+Buka kalender bulan-bulan lalu secara gratis
+Catatanmu tersimpan lebih aman
+
+### App Store (Norsk bokmål, nb)
+
+Kalenderen viser et bilde på dager du har spist
+Se de siste 7 dagene i bilder på startskjermen
+Se måltidsbildene dine i et rutenett
+Bla gratis tilbake i tidligere måneder
+Oppføringene dine lagres tryggere
+
+### App Store (네덜란드어, nl)
+
+De kalender toont een foto op dagen dat je at
+Je laatste 7 dagen in foto’s op het startscherm
+Bekijk je maaltijdfoto’s in een raster
+Blader gratis terug naar eerdere maanden
+Je notities worden veiliger bewaard
+
+### App Store (폴란드어, pl)
+
+Kalendarz pokazuje zdjęcie w dni z posiłkami
+Ostatnie 7 dni na zdjęciach na ekranie głównym
+Przeglądaj zdjęcia posiłków w siatce
+Przeglądaj minione miesiące za darmo
+Wpisy są zapisywane bezpieczniej
+
+### App Store (스웨덴어, sv)
+
+Kalendern visar en bild de dagar du har ätit
+Se de senaste 7 dagarna i bilder på startskärmen
+Bläddra bland dina måltidsbilder i ett rutnät
+Bläddra gratis bland tidigare månader
+Dina anteckningar sparas säkrare
+
+### App Store (튀르키예어, tr)
+
+Takvim, yemek yediğin günlerde fotoğraf gösterir
+Son 7 günü ana ekranda fotoğraflarla gör
+Yemek fotoğraflarına ızgara görünümünde göz at
+Geçmiş aylara ücretsiz göz at
+Kayıtların daha güvenli saklanır
+
 ## 1.2.4
 
 ### 앱스토어 (한국어, ko)
