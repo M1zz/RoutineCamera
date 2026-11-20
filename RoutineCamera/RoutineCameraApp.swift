@@ -33,6 +33,8 @@ struct RoutineCameraApp: App {
                 .leeoSatisfactionCheck(RoutineCameraSpec.self)
                 // 개발자가 보낸 의견에 답장하면, 앱이 앞으로 올 때 답장을 시트로 보여 준다 (LeeoKit).
                 .leeoFeedbackReplyNotice(RoutineCameraSpec.self)
+                // 유료가 되면 축하, 모든 사용자가 한 번은 감사를 받는다 (LeeoKit).
+                .leeoCelebrations(appName: RoutineCameraSpec.appName)
                 .appLockOverlay()
                 // 창 크기로 접힘을 재서 아래로 흘린다. 시트 · 알림창도 접힌 선을 비킨다 (LeeoKit Fold).
                 .foldAware()

@@ -2,7 +2,7 @@
 //  HabitCalendarView.swift
 //  RoutineCamera
 //
-//  달력으로 돌아보기: 날마다 찍은 스탬프 · 물 · 카페인을 한 달 단위로 본다.
+//  달력으로 돌아보기: 먹은 날은 그날 사진으로 채워지고, 날마다 찍은 스탬프 · 물 · 카페인을 한 달 단위로 본다.
 //  스탬프 하나를 고르면 그 스탬프를 찍은 날만 크게 보이고, 몇 번 · 며칠째인지 알려 준다.
 //  이번 달은 무료, 지난 달과 이어 온 날 수는 플러스(habitHistory).
 //
@@ -162,6 +162,8 @@ struct HabitCalendarView: View {
         let isFuture = day > Date()
         let ateSomething = mealStore.dietMeals(for: day).values.contains { $0.isComplete }
         let shown = log.stamps.compactMap(habits.stamp(id:)).sorted { order($0) < order($1) }
+        // 먹은 날은 그날 사진이 칸을 채운다 (스탬프 하나를 골라 볼 때는 그 스탬프만 보이게 사진을 뺀다)
+        let cover = filter == nil ? mealStore.coverMeal(on: day) : nil
 
         return Button {
             selectedDay = SelectedDay(date: day)
@@ -169,9 +171,10 @@ struct HabitCalendarView: View {
             VStack(spacing: 2) {
                 Text("\(calendar.component(.day, from: day))")
                     .font(.footnote.weight(isToday ? .bold : .regular).monospacedDigit())
-                    .foregroundStyle(isToday ? Color.white : (isFuture ? Color.secondary : Color.primary))
+                    .foregroundStyle(isToday || cover != nil ? Color.white : (isFuture ? Color.secondary : Color.primary))
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(isToday ? Color.accentColor : Color.clear))
+                    .shadow(color: .black.opacity(cover != nil && !isToday ? 0.6 : 0), radius: 2)
 
                 if let filter {
                     let stamped = log.stamps.contains(filter)
@@ -187,7 +190,7 @@ struct HabitCalendarView: View {
                     HStack(spacing: 2) {
                         if log.water > 0 { Image(systemName: "drop.fill").foregroundStyle(.cyan) }
                         if log.caffeine > 0 { Image(systemName: "cup.and.saucer.fill").foregroundStyle(.brown) }
-                        if ateSomething { Circle().fill(Color.secondary.opacity(0.5)).frame(width: 4, height: 4) }
+                        if ateSomething && cover == nil { Circle().fill(Color.secondary.opacity(0.5)).frame(width: 4, height: 4) }
                     }
                     .font(.system(size: 7))
                     .frame(height: 8)
@@ -195,12 +198,19 @@ struct HabitCalendarView: View {
             }
             .frame(maxWidth: .infinity, minHeight: 64, alignment: .top)
             .padding(.top, 4)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(filter.map { log.stamps.contains($0) } == true
-                          ? (habits.stamp(id: filter!)?.kind.color ?? .green).opacity(0.15)
-                          : Color.clear)
-            )
+            .background {
+                if let cover, let data = cover.thumbnailImageData {
+                    // 위아래를 살짝 어둡게 해 날짜와 스탬프가 사진 위에서도 읽히게 한다
+                    MealThumbnail(id: cover.id, data: data, maxPixel: 200) { Color(.tertiarySystemFill) }
+                        .overlay(LinearGradient(colors: [.black.opacity(0.35), .clear, .black.opacity(0.3)],
+                                                startPoint: .top, endPoint: .bottom))
+                } else {
+                    (filter.map { log.stamps.contains($0) } == true
+                     ? (habits.stamp(id: filter!)?.kind.color ?? .green).opacity(0.15)
+                     : Color.clear)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -275,12 +285,16 @@ struct HabitCalendarView: View {
         let caffeineDays = monthLogs.filter { $0.caffeine > 0 }
         let monthMeals = mealsInMonth
         let portions = HabitStats.portionCounts(of: monthMeals)
+        let recordedDays = Set(monthMeals.filter(\.isComplete).map { calendar.startOfDay(for: $0.date) }).count
 
         return VStack(alignment: .leading, spacing: 12) {
             Text("이번 달", comment: "Summary card title: the shown month")
                 .font(.headline)
 
-            if stampCounts.isEmpty && waterDays.isEmpty && caffeineDays.isEmpty && portions.isEmpty {
+            if recordedDays > 0 {
+                statRow(String(localized: "기록한 날"), value: String(localized: "\(recordedDays)일", comment: "Number of days"))
+            }
+            if recordedDays == 0 && stampCounts.isEmpty && waterDays.isEmpty && caffeineDays.isEmpty && portions.isEmpty {
                 Text("스탬프를 찍거나 물을 마실 때마다 여기에 모여요.", comment: "Calendar summary empty state")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -360,12 +374,21 @@ struct HabitDayView: View {
                             .font(.subheadline.weight(.semibold))
                         ForEach(meals) { meal in
                             HStack(spacing: 10) {
-                                if let data = meal.thumbnailImageData {
-                                    MealThumbnail(id: meal.id, data: data, maxPixel: 120) { Color(.tertiarySystemBackground) }
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                // 사진과 이름을 누르면 그 끼니를 크게 본다
+                                NavigationLink {
+                                    PhotoDetailView(date: meal.date, mealType: meal.mealType, mealRecord: meal,
+                                                    mealStore: mealStore, embedInNavigation: false)
+                                } label: {
+                                    HStack(spacing: 10) {
+                                        if let data = meal.thumbnailImageData {
+                                            MealThumbnail(id: meal.id, data: data, maxPixel: 180) { Color(.tertiarySystemBackground) }
+                                                .frame(width: 56, height: 56)
+                                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        }
+                                        Text(meal.mealType.displayName)
+                                    }
                                 }
-                                Text(meal.mealType.displayName)
+                                .buttonStyle(.plain)
                                 Spacer()
                                 PortionPicker(portion: meal.portion) { portion in
                                     mealStore.updatePortion(date: meal.date, mealType: meal.mealType, portion: portion)

@@ -18,6 +18,7 @@ struct ContentView: View {
     @StateObject private var settingsManager = SettingsManager.shared
     @Environment(\.foldLayout) private var fold
     @AppStorage("showsMealRhythm") private var showsRhythm = false // 끼니 피드 위 7일 리듬 카드
+    @AppStorage("feedShowsPhotoGrid") private var showsPhotoGrid = false // 끼니 피드를 사진 격자로 보기
     @State private var showingPaywallForTest = false   // DEBUG 훅 전용
     @State private var showingSettings = false
     @State private var showingFriends = false
@@ -155,15 +156,16 @@ struct ContentView: View {
                     Label(settingsManager.albumType.displayName, systemImage: settingsManager.albumType.symbolName)
                 }
             }
-            // 끼니 피드의 7일 리듬 카드 — 기본은 숨김, 누르면 꺼낸다
+            // 끼니 피드를 목록 ↔ 사진 격자로 바꿔 본다
             if showsMomentsFeed {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.25)) { showsRhythm.toggle() }
+                    withAnimation(.easeInOut(duration: 0.2)) { showsPhotoGrid.toggle() }
                 } label: {
-                    Image(systemName: showsRhythm ? "circle.grid.3x3.fill" : "circle.grid.3x3")
+                    Image(systemName: showsPhotoGrid ? "list.bullet" : "square.grid.2x2")
                 }
-                .accessibilityLabel(Text("최근 7일 식사 리듬"))
-                .accessibilityAddTraits(showsRhythm ? .isSelected : [])
+                .accessibilityLabel(showsPhotoGrid
+                                    ? Text("목록으로 보기", comment: "Toolbar button: show the meal feed as a list")
+                                    : Text("사진 격자로 보기", comment: "Toolbar button: show the meal feed as a photo grid"))
             }
             // 스탬프 · 물 · 카페인 · 먹은 양을 달력으로 돌아본다 (식단만)
             if settingsManager.albumType == .diet {
@@ -175,6 +177,12 @@ struct ContentView: View {
             // 친구는 메뉴에 숨기지 않는다 — 받은 요청이 있으면 점으로 알린다
             FriendsToolbarButton { showingFriends = true }
             Menu {
+                // 끼니 피드의 7일 리듬 카드 — 기본은 숨김, 고르면 꺼낸다
+                if showsMomentsFeed {
+                    Toggle(isOn: $showsRhythm.animation(.easeInOut(duration: 0.25))) {
+                        Label("최근 7일 식사 리듬", systemImage: "circle.grid.3x3")
+                    }
+                }
                 // 아이폰 듀오를 펴면 통계는 결과 쪽 판에 늘 서 있다
                 if !fold.isUnfolded {
                     Button { showingStatistics = true } label: { Label("통계", systemImage: "chart.bar.fill") }
@@ -253,7 +261,7 @@ struct ContentView: View {
                         ExerciseGridView(mealStore: mealStore)
                     } else if settingsManager.useMomentsFeed {
                         // 순간 컬렉션 피드 (슬롯 없는 사진 일기)
-                        MomentsView(mealStore: mealStore)
+                        MomentsView(mealStore: mealStore, openCalendar: { showingHabitCalendar = true })
                     } else {
                     ScrollView {
                         LazyVStack(spacing: 0, pinnedViews: []) {
@@ -318,6 +326,7 @@ struct ContentView: View {
                     case "stats": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingStatistics = true }
                     case "settings": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingSettings = true }
                     case "friends": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingFriends = true }
+                    case "grid": showsPhotoGrid = true
                     case "calendar": DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { showingHabitCalendar = true }
                     // 프로 기능 화면: OPEN_SCREEN_FOR_TEST=mealMap|weeklyReport|pdfExport|bulkSave
                     case let raw?: if let tool = ProFeature(rawValue: raw) {

@@ -13,6 +13,8 @@ import RoutineCameraCore
 
 struct MomentsView: View {
     @ObservedObject var mealStore: MealRecordStore
+    /// 7일 사진 띠를 누르면 달력을 연다
+    var openCalendar: () -> Void = {}
     @ObservedObject private var settingsManager = SettingsManager.shared
     @ObservedObject private var notificationManager = NotificationManager.shared
 
@@ -30,6 +32,8 @@ struct MomentsView: View {
     @AppStorage("showsMealRhythm") private var showsRhythm = false
     // 오늘 챙긴 것 카드는 설정에서 끌 수 있다 (SettingsView 와 같은 값)
     @AppStorage("showsDayCheckIn") private var showsCheckIn = true
+    // 목록 대신 사진 격자로 보기 — 위쪽 바의 버튼으로 바꾼다 (ContentView 와 같은 값)
+    @AppStorage("feedShowsPhotoGrid") private var showsGrid = false
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -127,50 +131,72 @@ struct MomentsView: View {
                             .padding(.vertical, 8)
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                    List {
-                        // 오늘 챙긴 것 (스탬프 · 물 · 카페인) — 피드와 함께 스크롤된다
-                        if !isExercise && showsCheckIn {
-                            Section {
-                                DayCheckInCard(date: now)
-                                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                    .listRowSeparator(.hidden)
-                            }
-                        }
-                        ForEach(dayGroups(ghost: ghost), id: \.day) { group in
-                            Section {
-                                ForEach(group.rows) { row in
-                                    switch row {
-                                    case .record(let record):
-                                        NavigationLink {
-                                            PhotoDetailView(
-                                                date: record.date,
-                                                mealType: record.mealType,
-                                                mealRecord: record,
-                                                mealStore: mealStore,
-                                                embedInNavigation: false
-                                            )
-                                        } label: {
-                                            momentRow(record)
-                                        }
-                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                        .swipeActions(edge: .trailing) {
-                                            Button(role: .destructive) {
-                                                mealStore.deleteMeal(date: record.date, mealType: record.mealType)
-                                            } label: {
-                                                Label("삭제", systemImage: "trash")
-                                            }
-                                        }
-                                    case .ghost(let meal, let at):
-                                        ghostRow(meal, at: at)
-                                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                    }
+                    if showsGrid && MealPhotoGrid<EmptyView>.hasRecords(in: mealStore) {
+                        // 사진 격자: 같은 띠와 카드를 위에 두고 함께 스크롤한다
+                        MealPhotoGrid(mealStore: mealStore) {
+                            VStack(spacing: 12) {
+                                if !isExercise {
+                                    WeekPhotoStrip(mealStore: mealStore, now: now, action: openCalendar)
+                                    if showsCheckIn { DayCheckInCard(date: now) }
                                 }
-                            } header: {
-                                dayHeader(group.day, count: group.recordCount)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                        }
+                    } else {
+                        List {
+                            // 최근 7일 사진 띠 — 어제 사진 옆에 오늘 자리가 보인다. 누르면 달력
+                            if !isExercise {
+                                Section {
+                                    WeekPhotoStrip(mealStore: mealStore, now: now, action: openCalendar)
+                                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 16))
+                                        .listRowSeparator(.hidden)
+                                }
+                            }
+                            // 오늘 챙긴 것 (스탬프 · 물 · 카페인) — 피드와 함께 스크롤된다
+                            if !isExercise && showsCheckIn {
+                                Section {
+                                    DayCheckInCard(date: now)
+                                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                        .listRowSeparator(.hidden)
+                                }
+                            }
+                            ForEach(dayGroups(ghost: ghost), id: \.day) { group in
+                                Section {
+                                    ForEach(group.rows) { row in
+                                        switch row {
+                                        case .record(let record):
+                                            NavigationLink {
+                                                PhotoDetailView(
+                                                    date: record.date,
+                                                    mealType: record.mealType,
+                                                    mealRecord: record,
+                                                    mealStore: mealStore,
+                                                    embedInNavigation: false
+                                                )
+                                            } label: {
+                                                momentRow(record)
+                                            }
+                                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                            .swipeActions(edge: .trailing) {
+                                                Button(role: .destructive) {
+                                                    mealStore.deleteMeal(date: record.date, mealType: record.mealType)
+                                                } label: {
+                                                    Label("삭제", systemImage: "trash")
+                                                }
+                                            }
+                                        case .ghost(let meal, let at):
+                                            ghostRow(meal, at: at)
+                                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                        }
+                                    }
+                                } header: {
+                                    dayHeader(group.day, count: group.recordCount)
+                                }
                             }
                         }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
                 }
             }
         }
