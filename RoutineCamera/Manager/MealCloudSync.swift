@@ -31,17 +31,14 @@ struct MealSyncSlot: Hashable {
 
     /// 레코드 이름: meal_<앨범>_<yyyy-MM-dd>_<끼니>. 표시용 rawValue(한글) 대신 케이스 이름을 쓴다.
     init?(recordName: String) {
-        let parts = recordName.split(separator: "_").map(String.init)
-        guard parts.count == 4, parts[0] == "meal",
-              let album = AlbumType.allCases.first(where: { "\($0)" == parts[1] }),
-              let mealType = MealType.allCases.first(where: { "\($0)" == parts[3] }),
-              DayKey.date(from: parts[2]) != nil else { return nil }
+        guard let parsed = MealSyncPlanner.parseSlotName(recordName),
+              let album = AlbumType.allCases.first(where: { "\($0)" == parsed.album }) else { return nil }
         self.album = album
-        self.day = parts[2]
-        self.mealType = mealType
+        self.day = parsed.day
+        self.mealType = parsed.mealType
     }
 
-    var recordName: String { "meal_\(album)_\(day)_\(mealType)" }
+    var recordName: String { MealSyncPlanner.slotName(album: "\(album)", day: day, mealType: mealType) }
 
     var date: Date? {
         DayKey.date(from: day).map { Calendar.current.startOfDay(for: $0) }
@@ -77,13 +74,8 @@ final class MealCloudSync: ObservableObject {
     private static let habitRecordType = "SekkiHabit"
     private static let zoneID = CKRecordZone.ID(zoneName: "SekkiMeals", ownerName: CKCurrentUserDefaultName)
 
-    private struct SlotState: Codable {
-        var fingerprint: String?
-        var modifiedAt: Date
-        var isDirty: Bool
-        var isDeleted: Bool
-        var systemFields: Data?
-    }
+    /// 칸마다의 동기화 상태 — 모양과 "무엇이 바뀌었나" 판정은 RoutineCameraCore 의 MealSyncPlanner
+    private typealias SlotState = MealSyncSlotState
 
     private struct PersistedState: Codable {
         var engineState: CKSyncEngine.State.Serialization?
@@ -112,7 +104,7 @@ final class MealCloudSync: ObservableObject {
         // 스크린샷용 가짜 데이터가 내 iCloud 로 올라가거나 지우지 않도록
         guard ProcessInfo.processInfo.environment["SEED_SCREENSHOT_DIR"] == nil else { return }
         // 저장된 기록을 읽지 못했으면 "다 지워진 것"으로 보여 iCloud 까지 지울 수 있다. 동기화를 멈춘다.
-        guard store.canTrustLoadedRecordsForSync else {
+        guard store.canTrustLoadedRecordsForSync, !HabitStore.shared.failedToLoad else {
             Log.sync.warning("저장된 기록을 읽지 못해 동기화를 시작하지 않음")
             return
         }
@@ -183,97 +175,29 @@ final class MealCloudSync: ObservableObject {
     // MARK: - 이 기기 변경 찾기
 
     private func fingerprint(of record: MealRecord) -> String {
-        var parts = [record.id.uuidString,
-                      record.memo ?? "",
-                      "\(record.beforeImageData?.count ?? -1)",
-                      "\(record.afterImageData?.count ?? -1)",
-                      "\(record.recordedWithoutPhoto)",
-                      "\(record.hidePhotoCountBadge)",
-                      "\(record.ateAll)",
-                      "\(record.capturedAt?.timeIntervalSince1970 ?? 0)",
-                      "\(record.visionAnalysis?.analyzedDate.timeIntervalSince1970 ?? 0)"]
-        // 찍은 곳이 있는 기록만 더한다 — 예전 기록의 지문이 바뀌어 전부 다시 올라가지 않게
-        if let place = record.place {
-            parts.append("\(place.latitude),\(place.longitude),\(place.name ?? "")")
-        }
-        // 먹은 양도 남긴 기록만 더한다 (같은 이유)
-        if let portion = record.portion {
-            parts.append("portion:\(portion.rawValue)")
-        }
-        // 식사 시간도 잰 기록만 더한다 (같은 이유)
-        if record.startedAt != nil || record.finishedAt != nil {
-            parts.append("pace:\(record.startedAt?.timeIntervalSince1970 ?? 0)-\(record.finishedAt?.timeIntervalSince1970 ?? 0)")
-        }
-        return Self.hexDigest(Data(parts.joined(separator: "|").utf8))
+        MealSyncPlanner.fingerprint(of: record)
     }
 
-    /// 소문자 16진수 SHA256 — 예전 String(format: "%02x") 와 같은 글자다 (저장된 지문과 그대로 비교된다).
-    /// 기록마다 32번씩 포맷하던 것이 저장할 때마다 수만 번이라 표로 바꾼다.
     private static func hexDigest(_ source: Data) -> String {
-        var hex: [UInt8] = []
-        hex.reserveCapacity(64)
-        for byte in SHA256.hash(data: source) {
-            hex.append(Self.hexDigits[Int(byte >> 4)])
-            hex.append(Self.hexDigits[Int(byte & 0x0F)])
-        }
-        return String(decoding: hex, as: UTF8.self)
+        MealSyncPlanner.hexDigest(source)
     }
-
-    private static let hexDigits = Array("0123456789abcdef".utf8)
 
     private func reconcile() {
-        var seen = Set<String>()
-        var changed = false
-
-        for (album, record) in store.allRecordsForSync {
-            let slot = MealSyncSlot(album: album, record: record)
-            let name = slot.recordName
-            seen.insert(name)
-            let current = fingerprint(of: record)
-
-            if var existing = state.slots[name] {
-                guard existing.fingerprint != current || existing.isDeleted else { continue }
-                existing.fingerprint = current
-                existing.modifiedAt = Date()
-                existing.isDirty = true
-                existing.isDeleted = false
-                state.slots[name] = existing
-            } else {
-                // 처음 보는 기록. 실제로 고친 시각을 알 수 없어 기록 시각을 쓴다 (충돌 때 방금 고친 쪽이 이긴다)
-                state.slots[name] = SlotState(fingerprint: current, modifiedAt: record.sortDate,
-                                              isDirty: true, isDeleted: false, systemFields: nil)
-            }
-            enqueueSave(name)
-            changed = true
+        // 끼니 칸 + 하루 기록(스탬프 · 수분 · 카페인)과 스탬프 목록
+        let meals = store.allRecordsForSync.map { album, record in
+            MealSyncPlanner.Item.meal(name: MealSyncSlot(album: album, record: record).recordName,
+                                      fingerprint: fingerprint(of: record), recordedAt: record.sortDate)
         }
-
-        // 하루 기록(스탬프 · 수분 · 카페인)과 스탬프 목록. 고친 시각은 지금 — 나중에 고친 쪽이 이긴다
-        for (name, data) in HabitStore.shared.syncDocuments {
-            seen.insert(name)
-            let current = Self.hexDigest(data)
-            if let existing = state.slots[name], existing.fingerprint == current, !existing.isDeleted { continue }
-            var slot = state.slots[name] ?? SlotState(modifiedAt: Date(), isDirty: true, isDeleted: false)
-            slot.fingerprint = current
-            slot.modifiedAt = HabitStore.shared.syncModifiedAt(of: name) ?? Date()
-            slot.isDirty = true
-            slot.isDeleted = false
-            state.slots[name] = slot
-            enqueueSave(name)
-            changed = true
+        let habits = HabitStore.shared.syncDocuments.map { name, data in
+            MealSyncPlanner.Item.document(name: name, fingerprint: Self.hexDigest(data),
+                                          modifiedAt: HabitStore.shared.syncModifiedAt(of: name))
         }
-
-        for (name, slot) in state.slots where !seen.contains(name) && !slot.isDeleted {
-            state.slots[name]?.isDeleted = true
-            state.slots[name]?.isDirty = true
-            state.slots[name]?.modifiedAt = Date()
-            enqueueDelete(name)
-            changed = true
-        }
-
-        if changed {
-            saveState()
-            refreshStatus()
-        }
+        let plan = MealSyncPlanner.reconcile(slots: &state.slots, current: meals + habits, now: Date())
+        guard !plan.isEmpty else { return }
+        plan.saves.forEach(enqueueSave)
+        plan.deletes.forEach(enqueueDelete)
+        saveState()
+        refreshStatus()
     }
 
     private func flushDirtySlots() {
@@ -479,7 +403,12 @@ final class MealCloudSync: ObservableObject {
                 continue
             }
 
-            let remote = Self.mealRecord(from: server, date: date, mealType: slot.mealType)
+            var remote = Self.mealRecord(from: server, date: date, mealType: slot.mealType)
+            if Self.hasUnreadableAsset(server, in: remote) {
+                // 서버에는 사진이 있는데 파일을 못 읽었다. 없는 사진으로 받아들이면 이 기기 사진까지 지워진다
+                Log.sync.error("받은 사진을 읽지 못함 \(name, privacy: .public) — 이 기기 사진을 그대로 둔다")
+                remote = Self.fillingPhotos(of: remote, from: local)
+            }
             let result: MealRecord
             var stillDirty = false
             switch decision {
@@ -658,6 +587,12 @@ final class MealCloudSync: ObservableObject {
                    finishedAt: server["finishedAt"] as? Date)
     }
 
+    /// 서버 레코드에는 사진이 있는데 읽어 온 기록에는 없는 칸이 있는지
+    private static func hasUnreadableAsset(_ server: CKRecord, in record: MealRecord) -> Bool {
+        (server["beforeImage"] is CKAsset && record.beforeImageData == nil)
+            || (server["afterImage"] is CKAsset && record.afterImageData == nil)
+    }
+
     private static func place(from server: CKRecord) -> MealPlace? {
         guard let latitude = server["placeLatitude"] as? Double,
               let longitude = server["placeLongitude"] as? Double else { return nil }
@@ -684,10 +619,8 @@ final class MealCloudSync: ObservableObject {
         assetDirectory.appendingPathComponent("received", isDirectory: true)
     }
 
-    /// base 에 없는 사진만 other 에서 채운다. 식전은 A 기기, 식후는 B 기기에서 찍어도 둘 다 남는다.
     private static func fillingPhotos(of base: MealRecord, from other: MealRecord?) -> MealRecord {
-        base.replacingImages(before: base.beforeImageData ?? other?.beforeImageData,
-                             after: base.afterImageData ?? other?.afterImageData)
+        MealSyncPlanner.fillingPhotos(of: base, from: other)
     }
 
     private static func systemFields(of record: CKRecord) -> Data {
@@ -713,15 +646,26 @@ final class MealCloudSync: ObservableObject {
     }
 
     private static func loadState() -> PersistedState {
-        guard let url = stateURL, let data = try? Data(contentsOf: url),
-              let decoded = try? JSONDecoder().decode(PersistedState.self, from: data) else { return PersistedState() }
-        return decoded
+        guard let url = stateURL, FileManager.default.fileExists(atPath: url.path) else { return PersistedState() }
+        do {
+            return try JSONDecoder().decode(PersistedState.self, from: Data(contentsOf: url))
+        } catch {
+            // 처음부터 다시 맞춘다 (기록을 잃지는 않지만 전부 다시 비교해 올린다) — 왜 그랬는지 남긴다
+            Log.sync.fault("동기화 상태를 읽지 못해 처음부터 다시 맞춤: \(String(describing: error))")
+            return PersistedState()
+        }
     }
 
     private func saveState() {
-        guard let url = Self.stateURL, let data = try? JSONEncoder().encode(state) else { return }
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? data.write(to: url, options: .atomic)
+        guard let url = Self.stateURL else { return }
+        do {
+            let data = try JSONEncoder().encode(state)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: url, options: .atomic)
+        } catch {
+            // 못 쓰면 다음 실행이 옛 상태로 시작해 이미 올린 것을 다시 올린다
+            Log.sync.error("동기화 상태를 저장하지 못함: \(String(describing: error))")
+        }
     }
 
     private static var assetDirectory: URL {

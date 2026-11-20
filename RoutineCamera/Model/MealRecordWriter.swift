@@ -48,108 +48,28 @@ nonisolated final class MealRecordWriter: @unchecked Sendable {
         queue.sync {}
     }
 
-    /// 끼니 칸 하나의 기본 사진 파일 이름 (예: 2026-09-10_lunch_before.jpg)
-    static func slotName(for record: MealRecord, kind: String) -> String {
-        MealImageFileStore.fileName(day: DayKey.string(from: record.date), slot: "\(record.mealType)", kind: kind)
-    }
-
     // MARK: - 쓰기
 
-    /// 순서: 사진 파일 쓰기 → JSON 교체 → 더는 가리키지 않는 파일 정리.
+    /// 순서: 사진 파일 쓰기 → JSON 교체 → 더는 가리키지 않는 파일 정리 (형식과 규칙은 RoutineCameraCore 의 MealRecordArchive).
     /// 어느 단계에서 앱이 종료돼도 JSON 이 가리키는 사진은 디스크에 남아 있다.
     /// - Returns: 기록이 가리키는 사진 파일 이름들. JSON 을 만들지 못하면 nil (아무것도 바꾸지 않는다).
     private static func write(_ snapshot: Snapshot, to defaults: UserDefaults) -> Set<String>? {
-        var referenced = Set<String>()
-        var entries: [StoredMealRecord] = []
-        entries.reserveCapacity(snapshot.records.count)
-
-        for record in snapshot.records {
-            let beforeFile = storeImage(record.beforeImageData, kind: "before", of: record, in: snapshot, referenced: &referenced)
-            let afterFile = storeImage(record.afterImageData, kind: "after", of: record, in: snapshot, referenced: &referenced)
-            // 파일로 옮긴 사진만 JSON 에서 뺀다. 못 옮긴 사진은 바이트 그대로 남는다.
-            let slim = record.replacingImages(before: beforeFile == nil ? record.beforeImageData : nil,
-                                              after: afterFile == nil ? record.afterImageData : nil)
-            entries.append(StoredMealRecord(record: slim, beforeImageFile: beforeFile, afterImageFile: afterFile))
-        }
-
-        let encoded: Data
+        let encoded: MealRecordArchive.Encoded
         do {
-            encoded = try JSONEncoder().encode(entries)
+            encoded = try MealRecordArchive.encode(records: snapshot.records, store: snapshot.store, unreadable: snapshot.unreadable)
         } catch {
             Log.store.fault("기록을 JSON 으로 만들지 못해 저장하지 않음: \(String(describing: error))")
             return nil
         }
-        defaults.set(encoded, forKey: snapshot.key)
+        for (slot, reason) in encoded.keptInline {
+            Log.store.error("사진 파일 저장 실패, 기록 안에 그대로 둠 (\(slot, privacy: .public)): \(reason)")
+        }
+        defaults.set(encoded.data, forKey: snapshot.key)
 
         if let store = snapshot.store {
-            let removed = store.removeFiles(keeping: referenced)
+            let removed = store.removeFiles(keeping: encoded.referenced)
             if removed > 0 { Log.store.info("기록에서 빠진 사진 파일 \(removed)개 정리") }
         }
-        return referenced
-    }
-
-    /// 사진 한 장을 파일로 쓰고 JSON 에 담을 파일 이름을 돌려준다. 파일로 못 쓰면 nil (바이트로 남긴다).
-    private static func storeImage(_ data: Data?, kind: String, of record: MealRecord, in snapshot: Snapshot,
-                                   referenced: inout Set<String>) -> String? {
-        guard let store = snapshot.store else { return nil }
-        let slot = slotName(for: record, kind: kind)
-
-        guard let data else {
-            // 읽지 못했던 사진이면 참조를 그대로 두고 다음 실행에 다시 읽는다
-            guard let unreadable = snapshot.unreadable[slot] else { return nil }
-            referenced.insert(unreadable)
-            return unreadable
-        }
-
-        // 같은 날 같은 끼니 기록이 둘이면 서로 덮어쓰지 않게 기록 id 를 붙인다
-        var name = slot
-        if referenced.contains(name) {
-            name = MealImageFileStore.fileName(day: DayKey.string(from: record.date),
-                                               slot: "\(record.mealType)-\(record.id.uuidString)",
-                                               kind: kind)
-        }
-
-        do {
-            try store.write(data, named: name)
-            referenced.insert(name)
-            return name
-        } catch {
-            Log.store.error("사진 파일 저장 실패, 기록 안에 그대로 둠: \(String(describing: error))")
-            return nil
-        }
-    }
-}
-
-/// UserDefaults 에 저장하는 기록 한 건. 사진 바이트 대신 파일 이름을 담는다.
-/// 예전 형식(사진 바이트가 든 기록)도 그대로 읽히고, 파일로 못 옮긴 사진은 바이트로 남겨 잃지 않는다.
-/// 위젯은 같은 키에서 날짜·끼니·촬영 시각만 읽으므로 형식이 바뀌어도 영향이 없다.
-nonisolated struct StoredMealRecord: Codable, Sendable {
-    let record: MealRecord
-    let beforeImageFile: String?
-    let afterImageFile: String?
-
-    private enum FileKeys: String, CodingKey {
-        case beforeImageFile
-        case afterImageFile
-    }
-
-    init(record: MealRecord, beforeImageFile: String?, afterImageFile: String?) {
-        self.record = record
-        self.beforeImageFile = beforeImageFile
-        self.afterImageFile = afterImageFile
-    }
-
-    init(from decoder: Decoder) throws {
-        record = try MealRecord(from: decoder)
-        let container = try decoder.container(keyedBy: FileKeys.self)
-        beforeImageFile = try container.decodeIfPresent(String.self, forKey: .beforeImageFile)
-        afterImageFile = try container.decodeIfPresent(String.self, forKey: .afterImageFile)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try record.encode(to: encoder)
-        var container = encoder.container(keyedBy: FileKeys.self)
-        try container.encodeIfPresent(beforeImageFile, forKey: .beforeImageFile)
-        try container.encodeIfPresent(afterImageFile, forKey: .afterImageFile)
+        return encoded.referenced
     }
 }

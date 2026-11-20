@@ -30,10 +30,16 @@ final class HabitStore: ObservableObject {
 
     init(defaults: UserDefaults = AppGroup.defaults) {
         self.defaults = defaults
-        stamps = Self.decode([Stamp].self, defaults.data(forKey: Self.stampsKey)) ?? Stamp.defaults
-        logs = Self.decode([String: DayLog].self, defaults.data(forKey: Self.logsKey)) ?? [:]
+        var failed = false
+        stamps = Self.load([Stamp].self, key: Self.stampsKey, from: defaults, failed: &failed) ?? Stamp.defaults
+        logs = Self.load([String: DayLog].self, key: Self.logsKey, from: defaults, failed: &failed) ?? [:]
+        failedToLoad = failed
         stampsModifiedAt = defaults.object(forKey: Self.stampsModifiedKey) as? Date ?? .distantPast
     }
+
+    /// 저장값이 있는데 읽지 못했다. 이 상태의 빈 기록은 "다 지움" 이 아니다 —
+    /// 동기화가 이것을 믿으면 iCloud 의 하루 기록까지 지운다 (MealCloudSync 가 시작하지 않는다).
+    let failedToLoad: Bool
 
     // MARK: - 읽기
 
@@ -197,7 +203,26 @@ final class HabitStore: ObservableObject {
 
     private static func decode<T: Decodable>(_ type: T.Type, _ data: Data?) -> T? {
         guard let data else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
+        do {
+            return try JSONDecoder().decode(type, from: data)
+        } catch {
+            Log.store.error("받은 하루 기록을 읽지 못해 건너뜀: \(String(describing: error))")
+            return nil
+        }
+    }
+
+    /// 저장값을 읽는다. 값은 있는데 못 읽으면 원본을 옆 키에 남긴다 —
+    /// 빈 기록으로 시작해 다음 저장이 덮어써도 되찾을 수 있게 (사진이 없는 작은 JSON 이라 같은 저장소에 둔다).
+    private static func load<T: Decodable>(_ type: T.Type, key: String, from defaults: UserDefaults, failed: inout Bool) -> T? {
+        guard let data = defaults.data(forKey: key) else { return nil }
+        do {
+            return try JSONDecoder().decode(type, from: data)
+        } catch {
+            Log.store.fault("하루 기록(\(key, privacy: .public))을 읽지 못해 원본을 따로 남김: \(String(describing: error))")
+            if defaults.object(forKey: key + ".unreadable") == nil { defaults.set(data, forKey: key + ".unreadable") }
+            failed = true
+            return nil
+        }
     }
 }
 

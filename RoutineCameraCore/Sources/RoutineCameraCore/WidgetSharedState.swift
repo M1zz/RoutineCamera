@@ -136,3 +136,38 @@ public enum WidgetStateResolver {
                              date: now.timeIntervalSince1970, tappedAt: now.timeIntervalSince1970)
     }
 }
+
+// MARK: - 스냅샷 만들기 (앱이 기록을 저장할 때)
+
+public extension WidgetSnapshot {
+
+    /// 식단 기록에서 위젯용 요약을 만든다.
+    /// - "오늘 남긴 기록" 과 "먹는 중" 은 먹은 시각(sortDate) 기준, 아침 · 점심 · 저녁 체크는 기록한 날짜(date) 기준이다.
+    /// - Parameter caredMeals: 챙기기로 한 끼니. 아침 → 저녁 순으로, 주요 끼니만 담는다
+    static func make(dietRecords: [MealRecord], caredMeals: Set<MealType>, now: Date,
+                     calendar: Calendar = .current) -> WidgetSnapshot {
+        let todays = dietRecords.filter { $0.isComplete && calendar.isDate($0.sortDate, inSameDayAs: now) }
+        let inProgress = dietRecords
+            .filter { $0.isEatingInProgress(asOf: now, calendar: calendar) }
+            .max { $0.sortDate < $1.sortDate }
+        return WidgetSnapshot(
+            todayCount: todays.count,
+            inProgressMealType: inProgress?.mealType.rawValue,
+            inProgressSince: inProgress?.sortDate,
+            lastRecordedAt: todays.map(\.sortDate).max(),
+            needsRecordCount: dietRecords.filter { $0.needsRecordCompletion(asOf: now, calendar: calendar) }.count,
+            generatedAt: now,
+            recordedMealTypes: dietRecords
+                .filter { $0.isComplete && calendar.isDate($0.date, inSameDayAs: now) }
+                .map(\.mealType.rawValue),
+            caredMealTypes: [MealType.breakfast, .lunch, .dinner].filter(caredMeals.contains).map(\.rawValue))
+    }
+
+    /// 위젯이 보여 주는 내용만 담은 글. 같으면 위젯을 다시 그릴 필요가 없다.
+    /// 만든 시각은 넣지 않고 날짜만 넣는다 — 날이 바뀌면 오늘 수가 달라지므로 그때는 다시 그린다.
+    func contentSignature(calendar: Calendar = .current) -> String {
+        "\(todayCount)|\(inProgressMealType ?? "")|\(inProgressSince?.timeIntervalSince1970 ?? 0)|"
+            + "\(lastRecordedAt?.timeIntervalSince1970 ?? 0)|\(needsRecordCount)|"
+            + "\(recordedMealTypes ?? [])|\(caredMealTypes ?? [])|\(calendar.startOfDay(for: generatedAt).timeIntervalSince1970)"
+    }
+}
