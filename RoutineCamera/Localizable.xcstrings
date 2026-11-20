@@ -112865,290 +112865,6 @@
         }
       }
     },
-    "지난 달 달력을 넘겨 보고, 스탬프마다 몇 번 찍었는지와 며칠째 이어 가는지 봐요." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Listuj minulými měsíci a sleduj, kolikrát padlo které razítko a jak dlouhé máš série."
-          }
-        },
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bladr i tidligere måneder, og se hvor tit du har brugt hvert stempel, og hvor lange dine stimer er."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blättere durch frühere Monate und sieh, wie oft du jeden Stempel gesetzt hast und wie lang deine Serien sind."
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ξεφύλλισε παλιότερους μήνες και δες πόσες φορές έβαλες κάθε σφραγίδα και πόσο κρατάνε τα σερί σου."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flip through past months and see how often you used each stamp and how long your streaks run."
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flip through past months and see how often you used each stamp and how long your streaks run."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recorre meses anteriores y mira cuántas veces usaste cada sello y cuánto duran tus rachas."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selaa menneitä kuukausia ja katso, kuinka usein käytit kutakin leimaa ja kuinka pitkiä putkesi ovat."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parcourez les mois passés et voyez combien de fois vous avez utilisé chaque tampon et la durée de vos séries."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Telusuri bulan-bulan lalu dan lihat seberapa sering kamu memakai tiap stempel serta berapa hari runtutanmu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sfoglia i mesi passati e scopri quante volte hai usato ogni timbro e quanto durano le tue serie."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去の月をめくって、スタンプごとの回数と何日続いているかを確認できます。"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bla i tidligere måneder og se hvor ofte du har brukt hvert stempel, og hvor lange rekkene dine er."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blader door eerdere maanden en zie hoe vaak je elke stempel hebt gezet en hoe lang je reeksen zijn."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przeglądaj minione miesiące i sprawdzaj, ile razy użyto każdej pieczątki i jak długie są Twoje serie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Navegue pelos meses anteriores e veja quantas vezes usou cada carimbo e quanto duram suas sequências."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Листайте прошлые месяцы и смотрите, сколько раз ставили каждую отметку и сколько дней подряд держитесь."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bläddra bland tidigare månader och se hur ofta du använt varje stämpel och hur långa dina sviter är."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ย้อนดูปฏิทินเดือนก่อน ๆ ดูว่าแต่ละแสตมป์ประทับไปกี่ครั้ง และทำต่อเนื่องมาแล้วกี่วัน"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geçmiş aylara göz at; her damgayı kaç kez vurduğunu ve kaç gündür sürdürdüğünü gör."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lật lại các tháng trước, xem mỗi dấu đã đóng bao nhiêu lần và bạn đã duy trì liên tục bao nhiêu ngày."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "翻看以往月份，查看每个印章盖了几次、已经连续坚持了几天。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "翻看以往月份，查看每個印章蓋了幾次、已經連續維持了幾天。"
-          }
-        }
-      }
-    },
-    "지난 달력과 스탬프 기록을 돌아봐요" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ohlédni se za minulými měsíci a razítky"
-          }
-        },
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se tilbage på tidligere måneder og stempler"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blick zurück auf frühere Monate und Stempel"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Δες ξανά παλιότερους μήνες και σφραγίδες"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Look back on past months and stamps"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Look back on past months and stamps"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repasa meses anteriores y tus sellos"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Katso menneitä kuukausia ja leimoja"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Revoyez les mois passés et vos tampons"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lihat lagi bulan-bulan lalu dan stempelmu"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rivedi i mesi passati e i tuoi timbri"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去のカレンダーとスタンプを振り返る"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se tilbake på tidligere måneder og stempler"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blik terug op eerdere maanden en stempels"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wróć do minionych miesięcy i pieczątek"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reveja meses anteriores e seus carimbos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Смотрите прошлые месяцы и отметки"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se tillbaka på tidigare månader och stämplar"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ย้อนดูเดือนก่อน ๆ และแสตมป์ของคุณ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geçmiş aylara ve damgalarına göz at"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xem lại các tháng trước và các dấu đã đóng"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "回顾以往的日历和印章"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "回顧以往的月曆和印章"
-          }
-        }
-      }
-    },
     "지난 주" : {
       "comment" : "Period: last week",
       "extractionState" : "manual",
@@ -140489,6 +140205,576 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "以照片格狀顯示"
+          }
+        }
+      }
+    },
+    "지난 달 스탬프 기록을 돌아봐요" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohlédni se za razítky z minulých měsíců"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se tilbage på stempler fra tidligere måneder"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blick zurück auf Stempel aus früheren Monaten"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δες ξανά τις σφραγίδες παλιότερων μηνών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look back on stamps from past months"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look back on stamps from past months"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repasa los sellos de meses anteriores"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katso menneiden kuukausien leimoja"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoyez vos tampons des mois passés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lihat lagi stempel dari bulan-bulan lalu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rivedi i timbri dei mesi passati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去の月のスタンプを振り返る"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se tilbake på stempler fra tidligere måneder"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blik terug op stempels van eerdere maanden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wróć do pieczątek z minionych miesięcy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reveja os carimbos de meses anteriores"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смотрите отметки за прошлые месяцы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se tillbaka på stämplar från tidigare månader"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ย้อนดูแสตมป์ของเดือนก่อน ๆ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçmiş ayların damgalarına göz at"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem lại các dấu đã đóng ở những tháng trước"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回顾以往月份的印章"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回顧以往月份的印章"
+          }
+        }
+      }
+    },
+    "지난 달에 찍은 스탬프를 달력으로 보고, 스탬프마다 몇 번 찍었는지와 며칠째 이어 가는지 봐요." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prohlédni si v kalendáři razítka z minulých měsíců a sleduj, kolikrát padlo které razítko a jak dlouhé máš série."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se stempler fra tidligere måneder i kalenderen, hvor tit du har brugt hvert stempel, og hvor lange dine stimer er."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sieh dir Stempel aus früheren Monaten im Kalender an – und wie oft du jeden gesetzt hast und wie lang deine Serien sind."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δες στο ημερολόγιο τις σφραγίδες παλιότερων μηνών, πόσες φορές έβαλες την καθεμία και πόσο κρατάνε τα σερί σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See stamps from past months on the calendar, how often you used each one and how long your streaks run."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See stamps from past months on the calendar, how often you used each one and how long your streaks run."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mira en el calendario los sellos de meses anteriores, cuántas veces usaste cada uno y cuánto duran tus rachas."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katso menneiden kuukausien leimat kalenterista, kuinka usein käytit kutakin leimaa ja kuinka pitkiä putkesi ovat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retrouvez dans le calendrier vos tampons des mois passés, combien de fois vous avez utilisé chacun et la durée de vos séries."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lihat stempel bulan-bulan lalu di kalender, seberapa sering kamu memakai tiap stempel, dan berapa hari runtutanmu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda nel calendario i timbri dei mesi passati, quante volte hai usato ciascuno e quanto durano le tue serie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去の月のスタンプをカレンダーで見て、スタンプごとの回数と何日続いているかを確認できます。"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se stempler fra tidligere måneder i kalenderen, hvor ofte du har brukt hvert stempel, og hvor lange rekkene dine er."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekijk stempels van eerdere maanden in de kalender, hoe vaak je elke stempel hebt gezet en hoe lang je reeksen zijn."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobacz w kalendarzu pieczątki z minionych miesięcy, ile razy użyto każdej z nich i jak długie są Twoje serie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veja no calendário os carimbos de meses anteriores, quantas vezes usou cada um e quanto duram suas sequências."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смотрите в календаре отметки за прошлые месяцы, сколько раз ставили каждую и сколько дней подряд держитесь."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se stämplar från tidigare månader i kalendern, hur ofta du använt varje stämpel och hur långa dina sviter är."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ดูแสตมป์ของเดือนก่อน ๆ บนปฏิทิน ดูว่าแต่ละแสตมป์ประทับไปกี่ครั้ง และทำต่อเนื่องมาแล้วกี่วัน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçmiş ayların damgalarını takvimde gör; her damgayı kaç kez vurduğunu ve kaç gündür sürdürdüğünü öğren."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem trên lịch các dấu đã đóng ở những tháng trước, mỗi dấu đã đóng bao nhiêu lần và bạn đã duy trì liên tục bao nhiêu ngày."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在日历上查看以往月份的印章，了解每个印章盖了几次、已经连续坚持了几天。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在月曆上查看以往月份的印章，了解每個印章蓋了幾次、已經連續維持了幾天。"
+          }
+        }
+      }
+    },
+    "어디서 먹었는지도 함께 남길 수 있어요" : {
+      "comment" : "Tip banner: meals can also record where they were eaten",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "K jídlu si můžeš uložit i místo"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan også gemme, hvor du spiste"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst auch festhalten, wo du gegessen hast"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μπορείς να κρατάς και το πού έφαγες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can also save where you ate"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can also save where you ate"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También puedes guardar dónde comiste"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voit tallentaa myös, missä söit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez aussi garder le lieu de vos repas"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamu juga bisa menyimpan tempat makanmu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi salvare anche dove hai mangiato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食べた場所も一緒に残せます"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan også lagre hvor du spiste"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt ook bewaren waar je hebt gegeten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Możesz też zapisać, gdzie jesz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você também pode guardar onde comeu"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можно сохранять и место, где вы ели"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan också spara var du åt"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บันทึกสถานที่ที่กินไว้ด้วยได้นะ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nerede yediğini de kaydedebilirsin"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bạn cũng có thể lưu lại nơi mình đã ăn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还可以一并记下在哪里吃的"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還可以一併記下在哪裡吃的"
+          }
+        }
+      }
+    },
+    "켜기" : {
+      "comment" : "Tip banner button: turn the feature on",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapnout"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slå til"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschalten"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ενεργοποίηση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn On"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn On"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ota käyttöön"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyalakan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにする"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slå på"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet aan"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slå på"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิด"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aç"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟"
           }
         }
       }

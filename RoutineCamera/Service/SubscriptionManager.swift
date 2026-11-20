@@ -22,7 +22,7 @@ enum ProFeature: String, LeeoProFeature, CaseIterable, Identifiable {
     case groupCreate   // 그룹 여러 개 만들기 (무료 1개)
     case insights      // 자세한 통계 — 전후 비교, 자주 먹은 음식
     case appLock       // Face ID 잠금
-    case habitHistory  // 지난 달 달력 · 스탬프별 이어 온 날과 횟수 (이번 달 달력과 기록은 무료)
+    case habitHistory  // 지난 달의 스탬프 · 물 · 카페인, 스탬프별 이어 온 날과 횟수 (달력을 넘겨 먹은 사진을 보는 것은 무료)
     case customStamps  // 나만의 스탬프 만들기 (기본 스탬프는 무료)
     // 프로
     case mealMap       // 찍은 곳을 지도에 모아 보기
@@ -45,7 +45,7 @@ enum ProFeature: String, LeeoProFeature, CaseIterable, Identifiable {
         case .groupCreate: return String(localized: "그룹을 여러 개 만들어요")
         case .insights:    return String(localized: "자세한 통계를 봐요")
         case .appLock:     return String(localized: "Face ID로 잠가요")
-        case .habitHistory: return String(localized: "지난 달력과 스탬프 기록을 돌아봐요")
+        case .habitHistory: return String(localized: "지난 달 스탬프 기록을 돌아봐요")
         case .customStamps: return String(localized: "나만의 스탬프를 만들어요")
         case .mealMap:      return String(localized: "어디서 먹었는지 지도로 봐요")
         case .weeklyReport: return String(localized: "지난 주를 한 장으로 받아 봐요")
@@ -59,7 +59,7 @@ enum ProFeature: String, LeeoProFeature, CaseIterable, Identifiable {
         case .groupCreate: return String(localized: "가족, 회사, 운동 모임처럼 함께 먹는 사람마다 그룹을 따로 둘 수 있어요.")
         case .insights:    return String(localized: "몇 주 전과 지금의 식사를 나란히 보고, 자주 먹은 음식을 모아 봐요.")
         case .appLock:     return String(localized: "앱을 열 때 Face ID나 Touch ID로 내 식단 기록을 지켜요.")
-        case .habitHistory: return String(localized: "지난 달 달력을 넘겨 보고, 스탬프마다 몇 번 찍었는지와 며칠째 이어 가는지 봐요.")
+        case .habitHistory: return String(localized: "지난 달에 찍은 스탬프를 달력으로 보고, 스탬프마다 몇 번 찍었는지와 며칠째 이어 가는지 봐요.")
         case .customStamps: return String(localized: "기본 스탬프에 없는 음식이나 습관을 이모지와 이름으로 만들어 찍어요.")
         case .mealMap:      return String(localized: "찍은 곳을 남긴 기록을 지도 위에 모아 봐요.")
         case .weeklyReport: return String(localized: "월요일 아침마다 지난 주에 언제 무엇을 먹었는지 정리해 알려 드려요.")

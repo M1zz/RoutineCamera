@@ -255,6 +255,8 @@ struct ContentView: View {
                     }
                     // 고마운 순간의 응원 부탁 — 프로 사용자에게만, 기록이 쌓인 숫자를 보여 줄 때 드물게
                     TipAskBanner(mealStore: mealStore)
+                    // 쓰는 요령: 찍은 곳 함께 남기기를 어쩌다 한 번 알려 준다
+                    PlaceTipBanner(mealStore: mealStore)
 
                     if showsExerciseGrid {
                         // 운동: 인스타그램 피드처럼 날짜+사진 3열 격자

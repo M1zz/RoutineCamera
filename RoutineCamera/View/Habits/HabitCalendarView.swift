@@ -4,7 +4,7 @@
 //
 //  달력으로 돌아보기: 먹은 날은 그날 사진으로 채워지고, 날마다 찍은 스탬프 · 물 · 카페인을 한 달 단위로 본다.
 //  스탬프 하나를 고르면 그 스탬프를 찍은 날만 크게 보이고, 몇 번 · 며칠째인지 알려 준다.
-//  이번 달은 무료, 지난 달과 이어 온 날 수는 플러스(habitHistory).
+//  달력을 넘겨 먹은 사진을 보는 것은 모두 무료. 지난 달의 스탬프 · 물 · 카페인과 이어 온 날 수는 플러스(habitHistory).
 //
 
 import SwiftUI
@@ -28,6 +28,8 @@ struct HabitCalendarView: View {
     private var calendar: Calendar { .current }
     private var thisMonth: Date { calendar.dateInterval(of: .month, for: Date())?.start ?? Date() }
     private var historyUnlocked: Bool { subscription.allows(.habitHistory) }
+    /// 이 달의 스탬프 · 물 · 카페인을 보여 줄지 — 이번 달은 누구나, 지난 달은 플러스
+    private var showsHabits: Bool { historyUnlocked || month == thisMonth }
     private var monthEnd: Date { calendar.date(byAdding: DateComponents(month: 1, day: -1), to: month) ?? month }
 
     var body: some View {
@@ -44,19 +46,25 @@ struct HabitCalendarView: View {
         .navigationTitle(Text("달력", comment: "Title: habit calendar"))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $selectedDay) { day in
-            NavigationStack { HabitDayView(date: day.date, mealStore: mealStore) }
+            NavigationStack { HabitDayView(date: day.date, mealStore: mealStore, showsCheckIn: showsHabits) }
                 .presentationDetents([.medium, .large])
         }
         .proPaywall(isPresented: $showingPaywall, lead: .habitHistory)
+        #if DEBUG
+        // 시뮬레이터 검증용: CALENDAR_MONTH_OFFSET_FOR_TEST=-1 이면 지난 달을 연다
+        .onAppear {
+            if let offset = ProcessInfo.processInfo.environment["CALENDAR_MONTH_OFFSET_FOR_TEST"].flatMap(Int.init) {
+                shiftMonth(offset)
+            }
+        }
+        #endif
     }
 
     // MARK: - 달 넘기기
 
     private var monthHeader: some View {
         HStack {
-            Button {
-                if historyUnlocked { shiftMonth(-1) } else { showingPaywall = true }
-            } label: {
+            Button { shiftMonth(-1) } label: {
                 Image(systemName: "chevron.left")
                     .frame(width: 44, height: 44)
             }
@@ -66,7 +74,7 @@ struct HabitCalendarView: View {
             VStack(spacing: 2) {
                 Text(month.formatted(.dateTime.year().month(.wide)))
                     .font(.headline)
-                if !historyUnlocked && month == thisMonth {
+                if !showsHabits {
                     ProBadge(feature: .habitHistory)
                         .onTapGesture { showingPaywall = true }
                 }
@@ -84,6 +92,8 @@ struct HabitCalendarView: View {
 
     private func shiftMonth(_ delta: Int) {
         guard let next = calendar.date(byAdding: .month, value: delta, to: month), next <= thisMonth else { return }
+        // 지난 달 스탬프가 잠겨 있으면 스탬프 하나만 보기는 풀고 넘어간다
+        if !historyUnlocked && next != thisMonth { filter = nil }
         withAnimation(.easeInOut(duration: 0.2)) { month = next }
     }
 
@@ -104,6 +114,7 @@ struct HabitCalendarView: View {
     private func filterChip(_ id: String?, label: String) -> some View {
         let selected = filter == id
         return Button {
+            if id != nil && !showsHabits { showingPaywall = true; return }
             withAnimation(.snappy(duration: 0.2)) { filter = id }
         } label: {
             Text(label)
@@ -157,7 +168,7 @@ struct HabitCalendarView: View {
     }
 
     private func dayCell(_ day: Date) -> some View {
-        let log = habits.log(on: day)
+        let log = showsHabits ? habits.log(on: day) : DayLog()
         let isToday = calendar.isDateInToday(day)
         let isFuture = day > Date()
         let ateSomething = mealStore.dietMeals(for: day).values.contains { $0.isComplete }
@@ -214,7 +225,8 @@ struct HabitCalendarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(isFuture)
+        // 스탬프가 잠긴 지난 달에서는 먹은 날만 열린다 (열어도 볼 것이 없는 날은 누르지 못하게)
+        .disabled(isFuture || (!showsHabits && !ateSomething))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(day.formatted(.dateTime.month().day().weekday(.wide)))
         .accessibilityValue(accessibilityValue(log, ateSomething: ateSomething))
@@ -274,10 +286,10 @@ struct HabitCalendarView: View {
 
     private var monthSummary: some View {
         let monthLogs = habits.logs.filter { key, _ in
-            guard let date = DayKey.date(from: key) else { return false }
+            guard showsHabits, let date = DayKey.date(from: key) else { return false }
             return date >= month && date <= monthEnd.addingTimeInterval(86_399)
         }.map(\.value)
-        let stampCounts = habits.stamps
+        let stampCounts = (showsHabits ? habits.stamps : [])
             .map { ($0, HabitStats.count(of: $0.id, in: habits.logs, from: month, to: monthEnd)) }
             .filter { $0.1 > 0 }
             .sorted { $0.1 > $1.1 }
@@ -294,7 +306,19 @@ struct HabitCalendarView: View {
             if recordedDays > 0 {
                 statRow(String(localized: "기록한 날"), value: String(localized: "\(recordedDays)일", comment: "Number of days"))
             }
-            if recordedDays == 0 && stampCounts.isEmpty && waterDays.isEmpty && caffeineDays.isEmpty && portions.isEmpty {
+            if !showsHabits {
+                // 지난 달의 스탬프 · 물 · 카페인은 플러스
+                Button { showingPaywall = true } label: {
+                    HStack {
+                        Text(ProFeature.habitHistory.leeoTitle)
+                            .multilineTextAlignment(.leading)
+                        Spacer()
+                        ProBadge(feature: .habitHistory)
+                    }
+                    .font(.subheadline)
+                }
+                .buttonStyle(.plain)
+            } else if recordedDays == 0 && stampCounts.isEmpty && waterDays.isEmpty && caffeineDays.isEmpty && portions.isEmpty {
                 Text("스탬프를 찍거나 물을 마실 때마다 여기에 모여요.", comment: "Calendar summary empty state")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -357,6 +381,8 @@ struct HabitCalendarView: View {
 struct HabitDayView: View {
     let date: Date
     @ObservedObject var mealStore: MealRecordStore
+    /// 스탬프 · 물 · 카페인 카드를 보일지 (플러스가 아니면 지난 달에서는 끼니만 보인다)
+    var showsCheckIn = true
     @Environment(\.dismiss) private var dismiss
 
     private var meals: [MealRecord] {
@@ -366,7 +392,7 @@ struct HabitDayView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                DayCheckInCard(date: date, wrapsStamps: true)
+                if showsCheckIn { DayCheckInCard(date: date, wrapsStamps: true) }
 
                 if !meals.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
