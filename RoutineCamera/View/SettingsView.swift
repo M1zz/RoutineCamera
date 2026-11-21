@@ -349,7 +349,7 @@ struct SettingsView: View {
             if settingsManager.photoStampEnabled {
                 Toggle("시간도 함께 새기기", isOn: $settingsManager.photoStampShowsTime)
                 Picker("글꼴", selection: $settingsManager.photoStampFont) {
-                    ForEach(MealStampFont.allCases) { font in
+                    ForEach(MealStampFont.choices) { font in
                         Text(font.displayName).font(font.font(size: 17)).tag(font)
                     }
                 }

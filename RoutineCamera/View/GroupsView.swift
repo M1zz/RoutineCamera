@@ -627,7 +627,8 @@ struct JoinGroupSheet: View {
             .padding(.top, 40)
 
             TextField("예: ABC123", text: $code)
-                .scaledFont(size: 20, weight: .bold, design: .monospaced)
+                // 고정폭에는 아랍 글자가 없어 안내 글이 깨진다
+                .scaledFont(size: 20, weight: .bold, design: AppTextDirection.isRightToLeft ? .default : .monospaced)
                 .multilineTextAlignment(.center)
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)
@@ -861,7 +862,7 @@ struct GroupFeedView: View {
                 Button {
                     move(days: -1)
                 } label: {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "chevron.backward")
                         .scaledFont(size: 16, weight: .semibold)
                 }
                 .accessibilityLabel("이전 날")
@@ -881,7 +882,7 @@ struct GroupFeedView: View {
                 Button {
                     move(days: 1)
                 } label: {
-                    Image(systemName: "chevron.right")
+                    Image(systemName: "chevron.forward")
                         .scaledFont(size: 16, weight: .semibold)
                 }
                 .disabled(isToday)

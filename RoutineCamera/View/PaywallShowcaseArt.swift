@@ -275,7 +275,7 @@ private struct BulkSaveArt: View {
                         .shadow(color: .black.opacity(0.1), radius: 3, y: 2)
                 }
             }
-            Image(systemName: "arrow.right").font(.title2.weight(.bold)).foregroundStyle(.secondary)
+            Image(systemName: "arrow.forward").font(.title2.weight(.bold)).foregroundStyle(.secondary)
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Color(uiColor: .systemBackground))
                 .frame(width: 76, height: 76)

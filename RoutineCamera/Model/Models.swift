@@ -1006,6 +1006,7 @@ class MealRecordStore: ObservableObject {
             "pl": ["Bibimbap ze znajomym", "Dziś coś lekkiego", "Tteokbokki po pracy", "Weekendowy brunch"],
             "sv": ["Bibimbap med en vän", "Något lätt i dag", "Tteokbokki efter jobbet", "Helgbrunch"],
             "tr": ["Arkadaşla bibimbap", "Bugün hafif bir şeyler", "İş çıkışı tteokbokki", "Hafta sonu brunch’ı"],
+            "ar": ["بيبيمباب مع صديق", "شيء خفيف اليوم", "توكبوكي بعد الدوام", "برنش نهاية الأسبوع"],
         ]
         let language = Locale.current.language
         let languageCode = language.languageCode?.identifier ?? "en"

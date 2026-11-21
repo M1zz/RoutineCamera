@@ -174,6 +174,14 @@ nonisolated enum MealPDFRenderer {
     private static let margin: CGFloat = 40
     private static let photoSide: CGFloat = 96
     private static let rowHeight: CGFloat = photoSide + 16
+    /// 오른쪽에서 왼쪽으로 쓰는 언어(아랍어)면 사진은 오른쪽부터, 글은 오른쪽 정렬로 놓는다
+    private static let rtl = AppTextDirection.isRightToLeft
+    private static let paragraph: NSParagraphStyle = {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .natural
+        style.baseWritingDirection = rtl ? .rightToLeft : .leftToRight
+        return style
+    }()
 
     static func render(header: MealPDFHeader, entries: [MealPDFEntry], to url: URL) throws {
         let dayFormatter = DateFormatter()
@@ -210,7 +218,7 @@ nonisolated enum MealPDFRenderer {
 
     @discardableResult
     private static func draw(_ text: String, font: UIFont, color: UIColor = .black, at y: CGFloat) -> CGFloat {
-        let attributed = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: color])
+        let attributed = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: color, .paragraphStyle: paragraph])
         let width = page.width - margin * 2
         let height = ceil(attributed.boundingRect(with: CGSize(width: width, height: .greatestFiniteMagnitude),
                                                   options: [.usesLineFragmentOrigin], context: nil).height)
@@ -221,7 +229,7 @@ nonisolated enum MealPDFRenderer {
     private static func drawRow(_ entry: MealPDFEntry, time: String, at y: CGFloat, in cg: CGContext) {
         var x = margin
         for data in entry.photos.prefix(2) {
-            let rect = CGRect(x: x, y: y, width: photoSide, height: photoSide)
+            let rect = CGRect(x: rtl ? page.width - x - photoSide : x, y: y, width: photoSide, height: photoSide)
             if let image = MealImageResizer.downsampledImage(from: data, maxPixel: photoSide * 3) {
                 cg.saveGState()
                 UIBezierPath(roundedRect: rect, cornerRadius: 8).addClip()
@@ -238,13 +246,15 @@ nonisolated enum MealPDFRenderer {
 
         let textWidth = page.width - margin - x
         let text = NSMutableAttributedString(string: "\(entry.title)  \(time)\n",
-                                             attributes: [.font: UIFont.boldSystemFont(ofSize: 13), .foregroundColor: UIColor.black])
+                                             attributes: [.font: UIFont.boldSystemFont(ofSize: 13), .foregroundColor: UIColor.black,
+                                                          .paragraphStyle: paragraph])
         let detail: [String] = [entry.note, entry.place.map { "📍 \($0)" }, entry.memo].compactMap { $0 }
         if !detail.isEmpty {
             text.append(NSAttributedString(string: detail.joined(separator: "\n"),
-                                           attributes: [.font: UIFont.systemFont(ofSize: 11), .foregroundColor: UIColor.darkGray]))
+                                           attributes: [.font: UIFont.systemFont(ofSize: 11), .foregroundColor: UIColor.darkGray,
+                                                        .paragraphStyle: paragraph]))
         }
-        text.draw(with: CGRect(x: x, y: y, width: textWidth, height: photoSide),
+        text.draw(with: CGRect(x: rtl ? margin : x, y: y, width: textWidth, height: photoSide),
                   options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], context: nil)
 
         // 줄 사이 구분선

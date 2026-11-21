@@ -33,6 +33,24 @@ nonisolated enum MealStampFont: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// 고를 수 있는 글꼴. 고정폭 · 손글씨 · 분필 글꼴에는 아랍 글자가 없어 글자가 떨어져 보이므로,
+    /// 오른쪽에서 왼쪽으로 쓰는 언어에서는 기본 · 둥근 · 명조만 보여 준다.
+    static var choices: [MealStampFont] {
+        AppTextDirection.isRightToLeft ? allCases.filter(\.hasRightToLeftGlyphs) : allCases
+    }
+
+    private var hasRightToLeftGlyphs: Bool {
+        switch self {
+        case .system, .rounded, .serif: return true
+        case .monospaced, .handwriting, .chalk: return false
+        }
+    }
+
+    /// 실제로 그릴 글꼴 — 다른 언어에서 고른 값이 남아 있어도 글자가 깨지지 않게 기본 글꼴로 바꾼다
+    private var resolved: MealStampFont {
+        AppTextDirection.isRightToLeft && !hasRightToLeftGlyphs ? .system : self
+    }
+
     var displayName: String {
         switch self {
         case .system: return String(localized: "기본", comment: "Photo date stamp font: the default bold system font")
@@ -47,7 +65,7 @@ nonisolated enum MealStampFont: String, CaseIterable, Identifiable {
     /// 사진에 새길 때 쓰는 UIKit 글꼴. 기기에 없는 글꼴이면 기본 굵은 글꼴로 대신한다.
     func uiFont(size: CGFloat) -> UIFont {
         let bold = UIFont.boldSystemFont(ofSize: size)
-        switch self {
+        switch resolved {
         case .system:
             return bold
         case .rounded, .serif, .monospaced:
@@ -63,7 +81,7 @@ nonisolated enum MealStampFont: String, CaseIterable, Identifiable {
 
     /// 카메라 미리보기 · 설정 미리보기에서 같은 모양으로 보여 주기 위한 SwiftUI 글꼴
     func font(size: CGFloat) -> Font {
-        switch self {
+        switch resolved {
         case .system: return .system(size: size, weight: .bold)
         case .rounded: return .system(size: size, weight: .bold, design: .rounded)
         case .serif: return .system(size: size, weight: .bold, design: .serif)
@@ -171,7 +189,7 @@ nonisolated enum MealPhotoStamp {
         return CGRect(x: 0, y: top, width: size.width, height: size.height - top)
     }
 
-    /// 왼쪽 아래에 흰 글자 + 검은 그림자. 자리 · 크기 · 그림자는 예전 코드와 같아 기존 사진과 모양이 같다
+    /// 왼쪽 아래(오른쪽에서 왼쪽으로 쓰는 언어는 오른쪽 아래)에 흰 글자 + 검은 그림자. 자리 · 크기 · 그림자는 예전 코드와 같아 기존 사진과 모양이 같다
     private static func draw(on context: CGContext, size: CGSize, date: Date, style: MealStampStyle, includeSeconds: Bool) {
         let text = lines(for: date, style: style, includeSeconds: includeSeconds)
         let fontSize = min(size.width, size.height) * 0.06
@@ -186,15 +204,18 @@ nonisolated enum MealPhotoStamp {
         context.setAllowsAntialiasing(true)
         context.setShouldAntialias(true)
 
+        func x(for width: CGFloat) -> CGFloat {
+            AppTextDirection.isRightToLeft ? size.width - margin - width : margin
+        }
         var bottom = size.height - margin
         if let time = text.time {
             let timeSize = time.size(withAttributes: attributes)
-            time.draw(in: CGRect(x: margin, y: bottom - timeSize.height, width: timeSize.width, height: timeSize.height),
+            time.draw(in: CGRect(x: x(for: timeSize.width), y: bottom - timeSize.height, width: timeSize.width, height: timeSize.height),
                       withAttributes: attributes)
             bottom -= timeSize.height + lineSpacing
         }
         let dateSize = text.date.size(withAttributes: attributes)
-        text.date.draw(in: CGRect(x: margin, y: bottom - dateSize.height, width: dateSize.width, height: dateSize.height),
+        text.date.draw(in: CGRect(x: x(for: dateSize.width), y: bottom - dateSize.height, width: dateSize.width, height: dateSize.height),
                        withAttributes: attributes)
     }
 }

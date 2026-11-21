@@ -148,6 +148,12 @@
             "state" : "translated",
             "value" : "Sekki"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
         }
       }
     },
@@ -294,6 +300,12 @@
           }
         },
         "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki"
@@ -448,6 +460,12 @@
             "state" : "translated",
             "value" : "Sekki, her öğünün fotoğrafını çekebilmen için kamerayı kullanır."
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يستخدم Sekki الكاميرا لتلتقط صورة لكل وجبة."
+          }
         }
       }
     },
@@ -597,6 +615,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uygulama Kilidi açıkken Face ID, öğün kayıtlarını gizli tutar."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عند تفعيل قفل التطبيق، تحمي بصمة الوجه يومياتك الغذائية."
           }
         }
       }
@@ -748,6 +772,12 @@
             "state" : "translated",
             "value" : "開啟「記錄拍攝地點」後，App 會記錄你拍攝餐點照片的地點。"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عند تفعيل «احفظ مكان الأكل»، يسجّل التطبيق المكان الذي التقطت فيه صورة وجبتك."
+          }
         }
       }
     },
@@ -898,6 +928,12 @@
             "state" : "translated",
             "value" : "Sekki, öğün fotoğraflarını fotoğraf kitaplığındaki bir Sekki albümüne kaydeder."
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحفظ Sekki صور وجباتك في ألبوم Sekki في مكتبة الصور."
+          }
         }
       }
     },
@@ -1047,6 +1083,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki, daha önce çektiğin öğün fotoğraflarını ekleyebilmen için fotoğraf kitaplığını açar."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يفتح Sekki مكتبة الصور لتضيف صور وجبات التقطتها من قبل."
           }
         }
       }

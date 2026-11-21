@@ -148,6 +148,12 @@
             "state" : "translated",
             "value" : "Sekki"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
         }
       }
     },
@@ -294,6 +300,12 @@
           }
         },
         "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki"

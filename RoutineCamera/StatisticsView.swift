@@ -151,7 +151,7 @@ struct ProToolsCard: View {
                 .foregroundColor(.primary)
             Spacer()
             if locked { ProBadge(feature: feature) }
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.footnote.weight(.semibold))
                 .foregroundColor(.secondary)
         }
@@ -671,7 +671,7 @@ struct BeforeAfterComparisonButton: View {
                 if isLocked {
                     ProBadge(feature: .insights)
                 }
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .foregroundColor(.secondary)
             }
             .padding(16)
@@ -868,7 +868,7 @@ struct ComparisonStatsView: View {
                 }
                 .frame(maxWidth: .infinity)
 
-                Image(systemName: "arrow.right")
+                Image(systemName: "arrow.forward")
                     .foregroundColor(.blue)
                     .font(.title2)
 

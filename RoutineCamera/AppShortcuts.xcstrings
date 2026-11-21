@@ -147,6 +147,12 @@
             "state" : "translated",
             "value" : "${applicationName}，我吃完了"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أنهيت وجبتي في ${applicationName}"
+          }
         }
       }
     },
@@ -294,6 +300,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 ${applicationName} 記錄吃完了"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سجّل وجبة منتهية في ${applicationName}"
           }
         }
       }

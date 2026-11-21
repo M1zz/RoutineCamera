@@ -65,7 +65,7 @@ struct HabitCalendarView: View {
     private var monthHeader: some View {
         HStack {
             Button { shiftMonth(-1) } label: {
-                Image(systemName: "chevron.left")
+                Image(systemName: "chevron.backward")
                     .frame(width: 44, height: 44)
             }
             .accessibilityLabel(Text("지난 달", comment: "VoiceOver: previous month"))
@@ -82,7 +82,7 @@ struct HabitCalendarView: View {
             Spacer()
 
             Button { shiftMonth(1) } label: {
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .frame(width: 44, height: 44)
             }
             .disabled(month >= thisMonth)

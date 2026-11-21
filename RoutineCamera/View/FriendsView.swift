@@ -67,7 +67,7 @@ struct FriendsView: View {
                 Text("변경")
                     .scaledFont(size: 14, weight: .medium)
                     .foregroundColor(.blue)
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .scaledFont(size: 12, weight: .semibold)
                     .foregroundColor(.secondary)
             }
@@ -455,7 +455,7 @@ struct FriendsView: View {
 
                 Spacer()
 
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .scaledFont(size: 14)
                     .foregroundColor(.secondary)
                     .accessibilityHidden(true)
@@ -1032,7 +1032,8 @@ struct AddFriendSheet: View {
             .padding(.top, 40)
 
             TextField("예: ABC123, DEF456", text: $friendCode, axis: .vertical)
-                .scaledFont(size: 20, weight: .bold, design: .monospaced)
+                // 고정폭에는 아랍 글자가 없어 안내 글이 깨진다
+                .scaledFont(size: 20, weight: .bold, design: AppTextDirection.isRightToLeft ? .default : .monospaced)
                 .multilineTextAlignment(.center)
                 .textCase(.uppercase)
                 .autocapitalization(.allCharacters)

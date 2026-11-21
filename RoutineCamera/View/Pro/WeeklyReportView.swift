@@ -61,14 +61,14 @@ struct WeeklyReportView: View {
 
     private var weekSwitcher: some View {
         HStack {
-            Button { weekOffset -= 1 } label: { Image(systemName: "chevron.left") }
+            Button { weekOffset -= 1 } label: { Image(systemName: "chevron.backward") }
                 .accessibilityLabel("이전 주")
             Spacer()
             Text(week.start.formatted(.dateTime.month().day()) + " – "
                  + (calendar.date(byAdding: .day, value: 6, to: week.start) ?? week.end).formatted(.dateTime.month().day()))
                 .font(.headline)
             Spacer()
-            Button { weekOffset += 1 } label: { Image(systemName: "chevron.right") }
+            Button { weekOffset += 1 } label: { Image(systemName: "chevron.forward") }
                 .disabled(weekOffset >= 0)
                 .accessibilityLabel("다음 주")
         }

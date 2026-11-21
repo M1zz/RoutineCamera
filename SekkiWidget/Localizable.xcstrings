@@ -147,6 +147,12 @@
             "state" : "translated",
             "value" : "Kaydedilmeyen: %@"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم تُسجَّل: %@"
+          }
         }
       }
     },
@@ -295,6 +301,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yemekte: %@"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تتناول %@ الآن"
           }
         }
       }
@@ -445,6 +457,12 @@
             "state" : "translated",
             "value" : "Kaydedilen: %@"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سُجّلت: %@"
+          }
         }
       }
     },
@@ -589,6 +607,12 @@
           }
         },
         "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld/%2$lld"
@@ -742,6 +766,12 @@
             "state" : "translated",
             "value" : "Atıştırmalık"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "وجبة خفيفة"
+          }
         }
       }
     },
@@ -889,6 +919,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atıştırmalık %lld"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "وجبة خفيفة %lld"
           }
         }
       }
@@ -1333,6 +1369,48 @@
               }
             }
           }
+        },
+        "ar" : {
+          "variations" : {
+            "plural" : {
+              "zero" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "وجبات خفيفة: %lld"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "وجبة خفيفة واحدة"
+                }
+              },
+              "two" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "وجبتان خفيفتان"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld وجبات خفيفة"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld وجبة خفيفة"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld وجبة خفيفة"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1482,6 +1560,12 @@
             "state" : "translated",
             "value" : "Kalan: %@"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المتبقي: %@"
+          }
         }
       }
     },
@@ -1629,6 +1713,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bitti"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "انتهيت"
           }
         }
       }
@@ -1778,6 +1868,12 @@
             "state" : "translated",
             "value" : "Bitti Olarak Kaydet"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تسجيل كمنتهية"
+          }
         }
       }
     },
@@ -1926,6 +2022,12 @@
             "state" : "translated",
             "value" : "Az önce yediğin öğünü “bitti” olarak işaretler."
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يسجّل الوجبة التي أكلتها للتو كمنتهية."
+          }
         }
       }
     },
@@ -2070,6 +2172,12 @@
           }
         },
         "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekki"
+          }
+        },
+        "ar" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekki"
@@ -2223,6 +2331,12 @@
             "state" : "translated",
             "value" : "Kahvaltı"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الفطور"
+          }
         }
       }
     },
@@ -2371,6 +2485,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tüm öğünler kaydedildi"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سُجّلت كل الوجبات"
           }
         }
       }
@@ -2521,6 +2641,12 @@
             "state" : "translated",
             "value" : "Bugünün Öğünleri"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "وجبات اليوم"
+          }
         }
       }
     },
@@ -2670,6 +2796,12 @@
             "state" : "translated",
             "value" : "Bugün kaydedilen öğün yok"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا وجبات مسجّلة اليوم"
+          }
         }
       }
     },
@@ -2817,6 +2949,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bugünün öğünlerini gör ve dokunarak birini bitti olarak işaretle."
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شاهد وجبات اليوم وسجّل إحداها كمنتهية بضغطة."
           }
         }
       }
@@ -2967,6 +3105,12 @@
             "state" : "translated",
             "value" : "Akşam Yemeği"
           }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "العشاء"
+          }
         }
       }
     },
@@ -3115,6 +3259,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Öğle Yemeği"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الغداء"
           }
         }
       }

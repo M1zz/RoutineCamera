@@ -216,6 +216,7 @@
 				pl,
 				sv,
 				tr,
+				ar,
 			);
 			mainGroup = 5857FA052EC244BF00A539D8;
 			minimizedProjectReferenceProxies = 1;

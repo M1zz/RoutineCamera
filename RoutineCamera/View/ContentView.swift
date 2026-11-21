@@ -568,7 +568,7 @@ struct RecordNowBanner: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
                 Spacer()
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .scaledFont(size: 13, weight: .semibold)
                     .opacity(0.7)
             }

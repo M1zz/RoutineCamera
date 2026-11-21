@@ -209,7 +209,7 @@ struct MomentsView: View {
                                 mealStore: mealStore, embedInNavigation: false)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
-                            Button { testDetailRecord = nil } label: { Image(systemName: "chevron.left") }
+                            Button { testDetailRecord = nil } label: { Image(systemName: "chevron.backward") }
                         }
                     }
             }

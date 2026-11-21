@@ -86,7 +86,7 @@ struct MealDateTimeEditorView: View {
                             Toggle("사진에 날짜 새기기", isOn: $stampEnabled)
                             if stampEnabled {
                                 Picker("글꼴", selection: $stampFont) {
-                                    ForEach(MealStampFont.allCases) { font in
+                                    ForEach(MealStampFont.choices) { font in
                                         Text(font.displayName).font(font.font(size: 17)).tag(font)
                                     }
                                 }
