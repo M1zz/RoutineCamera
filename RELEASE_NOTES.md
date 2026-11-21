@@ -1,5 +1,157 @@
 # 릴리스 노트
 
+## 1.2.6
+
+### 앱스토어 (한국어, ko)
+
+이제 아랍어로도 쓸 수 있어요
+아랍어에서는 화면이 오른쪽에서 왼쪽으로 놓여요
+사진 날짜 도장과 PDF도 글 방향을 따라요
+
+### App Store (English, en)
+
+Now available in Arabic
+Arabic screens run right to left
+Date stamps and PDFs match the layout
+
+### App Store (en-GB)
+
+Now available in Arabic
+Arabic screens run right to left
+Date stamps and PDFs match the layout
+
+### App Store (중국어 간체, zh-Hans)
+
+现已支持阿拉伯语
+阿拉伯语界面从右向左排列
+照片日期和 PDF 也随文字方向排列
+
+### App Store (중국어 번체, zh-Hant)
+
+現已支援阿拉伯文
+阿拉伯文介面由右至左排列
+照片日期與 PDF 也跟著文字方向
+
+### App Store (일본어, ja)
+
+アラビア語で使えるようになりました
+アラビア語では画面が右から左に並びます
+写真の日付とPDFも文字の向きに合わせます
+
+### App Store (러시아어, ru)
+
+Теперь доступен арабский язык
+На арабском экран идёт справа налево
+Дата на фото и PDF тоже справа налево
+
+### App Store (스페인어, es)
+
+Ya disponible en árabe
+En árabe, todo va de derecha a izquierda
+La fecha en las fotos y el PDF, también
+
+### App Store (독일어, de)
+
+Jetzt auch auf Arabisch
+Arabisch läuft von rechts nach links
+Fotodatum und PDF ebenso
+
+### App Store (프랑스어, fr)
+
+Désormais disponible en arabe
+En arabe, affichage de droite à gauche
+Date sur les photos et PDF aussi
+
+### App Store (이탈리아어, it)
+
+Ora disponibile in arabo
+In arabo tutto va da destra a sinistra
+Anche la data sulle foto e il PDF
+
+### App Store (포르투갈어 브라질, pt-BR)
+
+Agora disponível em árabe
+Em árabe, tudo vai da direita à esquerda
+A data nas fotos e o PDF também
+
+### App Store (태국어, th)
+
+ใช้งานเป็นภาษาอาหรับได้แล้ว
+ภาษาอาหรับแสดงจากขวาไปซ้าย
+วันที่บนรูปและ PDF ก็เป็นแบบเดียวกัน
+
+### App Store (베트남어, vi)
+
+Đã hỗ trợ tiếng Ả Rập
+Tiếng Ả Rập hiển thị từ phải sang trái
+Ngày trên ảnh và PDF cũng theo hướng đó
+
+### App Store (체코어, cs)
+
+Nově i v arabštině
+Arabština se řadí zprava doleva
+Datum na fotkách a PDF také
+
+### App Store (덴마크어, da)
+
+Findes nu på arabisk
+Arabisk vises fra højre mod venstre
+Dato på fotos og PDF følger med
+
+### App Store (그리스어, el)
+
+Τώρα διαθέσιμο και στα αραβικά
+Στα αραβικά, από δεξιά προς αριστερά
+Το ίδιο η ημερομηνία στις φωτογραφίες
+
+### App Store (핀란드어, fi)
+
+Nyt saatavilla myös arabiaksi
+Arabia näkyy oikealta vasemmalle
+Myös kuvien päivämäärä ja PDF
+
+### App Store (인도네시아어, id)
+
+Kini tersedia dalam bahasa Arab
+Bahasa Arab tampil dari kanan ke kiri
+Tanggal di foto dan PDF juga begitu
+
+### App Store (Norsk bokmål, nb)
+
+Finnes nå på arabisk
+Arabisk vises fra høyre mot venstre
+Dato på bilder og PDF følger med
+
+### App Store (네덜란드어, nl)
+
+Nu ook beschikbaar in het Arabisch
+Arabisch loopt van rechts naar links
+Fotodatum en pdf doen mee
+
+### App Store (폴란드어, pl)
+
+Teraz także po arabsku
+Arabski układa się od prawej do lewej
+Data na zdjęciach i PDF również
+
+### App Store (스웨덴어, sv)
+
+Finns nu på arabiska
+Arabiska visas från höger till vänster
+Datum på foton och PDF följer med
+
+### App Store (튀르키예어, tr)
+
+Artık Arapça da var
+Arapçada ekran sağdan sola akar
+Fotoğraf tarihi ve PDF de öyle
+
+### 앱스토어 (아랍어)
+
+أصبح Sekki متاحًا بالعربية
+الواجهة بالعربية من اليمين إلى اليسار
+وتاريخ الصور وملفات PDF كذلك
+
 ## 1.2.5
 
 ### 앱스토어 (한국어, ko)
