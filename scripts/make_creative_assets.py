@@ -60,6 +60,7 @@ SEARCH = {
     "pl": ("Dziennik posiłków", "Zrób zdjęcie<br>podczas jedzenia", "Dziennik posiłków, który wypełnia się sam, zdjęcie po zdjęciu"),
     "sv": ("Matdagbok", "Ta ett foto<br>när du äter", "En måltidsdagbok som skriver sig själv, ett foto i taget"),
     "tr": ("Yemek günlüğü", "Yerken<br>bir fotoğraf yeter", "Her fotoğrafla kendiliğinden büyüyen yemek günlüğü"),
+    "ar": ("يوميات الطعام", "صوّر وجبتك<br>وأنت تأكل", "يوميات وجبات تكتمل وحدها، صورة بعد صورة"),
 }
 
 # 헤더는 한 가지 약속만: 사진 한 장이면 하루 세끼가 기록된다.
@@ -88,7 +89,15 @@ HEADER = {
     "pl": ("Sekki: dziennik posiłków", "Jedno zdjęcie,<br>każdy posiłek zapisany"),
     "sv": ("Sekki matdagbok", "Ett foto,<br>varje måltid loggad"),
     "tr": ("Sekki yemek günlüğü", "Tek fotoğraf,<br>her öğün kayıtta"),
+    "ar": ("يوميات الطعام Sekki", "صورة واحدة<br>وتُسجَّل وجبتك"),
 }
+
+# 오른쪽에서 왼쪽으로 쓰는 언어: 검색 결과의 글과 폰 자리를 바꾸고, 아랍 글자가 끊기지 않게 자간을 0 으로.
+RTL_LANGS = {"ar"}
+RTL_CSS = """
+body { font-family:-apple-system, "SF Arabic", "Geeza Pro", sans-serif; }
+.eyebrow, .headline, .sub { letter-spacing:0; }
+"""
 
 # ⚠️ 바탕 · 글자색은 마케팅 스크린샷(make_marketing_screenshots.py)과 같다: 밝은 회색 바탕, 검은 헤드라인,
 #    회색 보조문, 검은 기기. 눈썹글은 앱의 기록 버튼 파랑.
@@ -178,11 +187,15 @@ def search_html(lang):
     col = int(sw * 0.58)
     ph_w = 1000
     ph_left = l + col + int(sw * 0.03)
+    text_left = l
+    if lang in RTL_LANGS:   # 거울처럼: 폰은 왼쪽, 글은 오른쪽
+        ph_left = W - ph_left - ph_w - 80   # 테두리 · 여백(padding 40 x2) 만큼 더 민다
+        text_left = r - col
     return f"""
 <div class="glow" style="left:{ph_left - 250}px;top:700px;width:1600px;height:1600px;background:rgba(255,170,60,.22)"></div>
 <div class="glow" style="left:{l - 700}px;top:{t - 500}px;width:1400px;height:1000px;background:rgba(10,124,255,.07)"></div>
 {phone(shot(lang, "01-feed.png"), ph_left, t - 360, ph_w, 0)}
-<div class="text" style="left:{l}px;top:{t}px;width:{col}px;height:{sh}px">
+<div class="text" style="left:{text_left}px;top:{t}px;width:{col}px;height:{sh}px">
   <div class="eyebrow" style="font-size:92px">{eyebrow}</div>
   <div class="headline" data-max="220" data-min="120" style="margin-top:36px">{headline}</div>
   <div class="sub" style="font-size:80px;margin-top:52px">{sub}</div>
@@ -213,8 +226,11 @@ def header_html(lang):
 def render(lang, kind):
     W, H, _ = SPEC[kind]
     body = search_html(lang) if kind == "search" else header_html(lang)
-    page = (f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8"><style>'
-            f'{BASE_CSS % {"W": W, "H": H}}</style></head><body>{body}{FIT_JS}</body></html>')
+    rtl = lang in RTL_LANGS
+    direction = ' dir="rtl"' if rtl else ""
+    extra_css = RTL_CSS if rtl else ""
+    page = (f'<!doctype html><html lang="{lang}"{direction}><head><meta charset="utf-8"><style>'
+            f'{BASE_CSS % {"W": W, "H": H}}{extra_css}</style></head><body>{body}{FIT_JS}</body></html>')
     html_path = pathlib.Path(tempfile.gettempdir()) / f"sekki-creative-{lang}-{kind}.html"
     html_path.write_text(page, encoding="utf-8")
     dom = chrome(["--dump-dom", f"--window-size={W},{H}", "--force-device-scale-factor=1", "--disable-gpu",

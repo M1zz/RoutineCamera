@@ -162,6 +162,12 @@ SHOTS_BY_LANG = {
         ("03-stats.png", "text-bottom", "Tek öğün<br>bile yeter", "Bir gün kaçırsan da ilerlemen kalır"),
         ("04-settings.png", "dark", "Tam sana göre", "Neyi kaydedeceğini ve göreceğini seç"),
     ],
+    "ar": [
+        ("01-feed.png",     "hero-bleed",  "صوّر وجبتك<br>وأنت تأكل", "يوميات طعام تكتمل صورة بعد صورة"),
+        ("02-detail.png",   "left-text",   "كل وجبة<br>بوضوح", "مع الوقت وملاحظاتك"),
+        ("03-stats.png",    "text-bottom", "وجبة واحدة<br>تكفي لتستمر", "فاتك يوم؟ إنجازك باقٍ"),
+        ("04-settings.png", "dark",        "على طريقتك", "اختر ما تسجّله وما تراه"),
+    ],
 }
 
 BASE_CSS = f"""
@@ -215,11 +221,30 @@ body { background:#131316; }
 """,
 }
 
+# 오른쪽에서 왼쪽으로 쓰는 언어: 글은 오른쪽 정렬, 기운 폰은 거울처럼 반대로.
+# 아랍 글자는 이어 써야 해서 자간을 줄이면 글자가 끊긴다 — 자간은 0.
+RTL_LANGS = {"ar"}
+RTL_CSS = """
+body { font-family:-apple-system, "SF Arabic", "Geeza Pro", sans-serif; }
+.headline, .sub { letter-spacing:0; }
+"""
+RTL_LAYOUTS = {
+    "left-text": """
+.headline { text-align:right; margin:300px 110px 0 0; }
+.sub { text-align:right; margin:48px 114px 0 0; }
+.wrap { perspective-origin:70% 30%; left:auto; right:300px; }
+.phone { transform:rotateY(-16deg) rotateX(2deg); }
+""",
+    "text-bottom": """
+.phone { transform:rotateY(10deg) rotateX(2deg); }
+""",
+}
+
 # text-bottom 은 폰이 먼저 오는 DOM 순서
 BODY_TEXT_FIRST = '<div class="headline">{headline}</div><div class="sub">{sub}</div><div class="wrap"><div class="phone"><img src="{img}"></div></div>'
 BODY_PHONE_FIRST = '<div class="wrap"><div class="phone"><img src="{img}"></div></div><div class="headline">{headline}</div><div class="sub">{sub}</div>'
 
-HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
+HTML = """<!doctype html><html{dir}><head><meta charset="utf-8"><style>
 {base}{layout}
 </style></head><body>{body}</body></html>"""
 
@@ -233,7 +258,10 @@ def main(only=None, lang="ko"):
         body_tpl = BODY_PHONE_FIRST if layout == "text-bottom" else BODY_TEXT_FIRST
         body = body_tpl.format(headline=headline, sub=sub, img=(src / fname).as_uri())
         html_path = WORK / (fname.replace(".png", ".html") if lang == "ko" else f"{lang}-" + fname.replace(".png", ".html"))
-        html_path.write_text(HTML.format(base=BASE_CSS, layout=LAYOUTS[layout], body=body), encoding="utf-8")
+        rtl = lang in RTL_LANGS
+        layout_css = LAYOUTS[layout] + (RTL_CSS + RTL_LAYOUTS.get(layout, "") if rtl else "")
+        html_path.write_text(HTML.format(dir=f' lang="{lang}" dir="rtl"' if rtl else "", base=BASE_CSS,
+                                         layout=layout_css, body=body), encoding="utf-8")
         out_png = out / fname
         # 바쁜 기계에선 headless Chrome 이 가끔 실패한다 — 몇 번 더 시도한다
         for attempt in range(4):
