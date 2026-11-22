@@ -19,7 +19,7 @@ struct ContentView: View {
     @Environment(\.foldLayout) private var fold
     @AppStorage("showsMealRhythm") private var showsRhythm = false // 끼니 피드 위 7일 리듬 카드
     @AppStorage("feedShowsPhotoGrid") private var showsPhotoGrid = false // 끼니 피드를 사진 격자로 보기
-    @State private var showingPaywallForTest = false   // DEBUG 훅 전용
+    @State private var showingPaywallForTest = false   // DEBUG 훅 · App Store 세일 링크
     @State private var showingSettings = false
     @State private var showingFriends = false
     @State private var showingStatistics = false
@@ -513,6 +513,8 @@ struct ContentView: View {
             // OPEN_PAYWALL_LEAD_FOR_TEST=insights 처럼 기능을 주면 그 기능의 등급(플러스)을 먼저 보여 준다
             .proPaywall(isPresented: $showingPaywallForTest,
                         lead: ProcessInfo.processInfo.environment["OPEN_PAYWALL_LEAD_FOR_TEST"].flatMap(ProFeature.init(rawValue:)))
+            // App Store 이벤트의 링크(<번들 ID>://paywall)로 열리면 요금제를 띄운다 (LeeoKit).
+            .leeoPaywallLink(isPresented: $showingPaywallForTest)
             .sheet(isPresented: $showingCaredMealsPrompt) {
                 CaredMealsPromptView()
             }
