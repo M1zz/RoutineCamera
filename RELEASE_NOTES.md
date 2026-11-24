@@ -7,150 +7,175 @@
 할인 기간에는 앱을 열 때 소식을 알려 드려요
 처음 구독하면 할인된 값으로 시작할 수 있어요
 원하지 않으면 3일 동안 보지 않을 수 있어요
+찍은 곳을 Google 지도로도 열 수 있어요
 
 ### App Store (en, en)
 
 The app now tells you when a sale is on
 New subscribers start at a lower price
 You can hide the sale notice for 3 days
+Open a meal's place in Google Maps too
 
 ### App Store (en-GB, en-GB)
 
 The app now tells you when a sale is on
 New subscribers start at a lower price
 You can hide the sale notice for 3 days
+Open a meal's place in Google Maps too
 
 ### App Store (zh-Hans, zh-Hans)
 
 优惠期间打开应用时会通知你
 首次订阅可以优惠价开始
 也可以选择3天内不再显示
+用餐地点也能用 Google 地图打开
 
 ### App Store (zh-Hant, zh-Hant)
 
 優惠期間開啟 App 時會通知你
 首次訂閱可用優惠價開始
 也可以選擇3天內不再顯示
+用餐地點也能用 Google 地圖開啟
 
 ### App Store (ja, ja)
 
 セール期間中はアプリを開くとお知らせします
 初めての登録なら割引価格で始められます
 お知らせは3日間非表示にできます
+食べた場所をGoogleマップでも開けます
 
 ### App Store (ru, ru)
 
 Приложение сообщит о скидках при запуске
 Новая подписка по сниженной цене
 Уведомление можно скрыть на 3 дня
+Место еды можно открыть и в Google Картах
 
 ### App Store (es, es)
 
 La app te avisa cuando hay ofertas
 Tu primera suscripción tiene descuento
 Puedes ocultar el aviso durante 3 días
+Abre el lugar de tu comida también en Google Maps
 
 ### App Store (de, de)
 
 Die App zeigt dir laufende Angebote
 Neue Abos starten zum reduzierten Preis
 Du kannst den Hinweis 3 Tage ausblenden
+Orte deiner Mahlzeiten auch in Google Maps öffnen
 
 ### App Store (fr, fr)
 
 L’app vous prévient pendant les promos
 Premier abonnement à prix réduit
 Vous pouvez masquer l’annonce 3 jours
+Ouvrez le lieu du repas dans Google Maps aussi
 
 ### App Store (it, it)
 
 L’app ti avvisa quando c’è un’offerta
 Con il primo abbonamento parti scontato
 Puoi nascondere l’avviso per 3 giorni
+Apri il luogo del pasto anche in Google Maps
 
 ### App Store (pt-BR, pt-BR)
 
 O app avisa quando há promoção
 A primeira assinatura tem desconto
 Você pode ocultar o aviso por 3 dias
+Abra o local da refeição também no Google Maps
 
 ### App Store (th, th)
 
 ช่วงลดราคา เราจะแจ้งเมื่อคุณเปิดแอป
 สมัครครั้งแรกเริ่มได้ในราคาพิเศษ
 ซ่อนการแจ้งเตือนได้ 3 วัน
+เปิดสถานที่กินใน Google Maps ได้ด้วย
 
 ### App Store (vi, vi)
 
 Khi có ưu đãi, ứng dụng sẽ báo cho bạn
 Lần đăng ký đầu tiên có giá ưu đãi
 Bạn có thể ẩn thông báo trong 3 ngày
+Mở nơi đã ăn bằng Google Maps
 
 ### App Store (cs, cs)
 
 Během slev vám dáme vědět po otevření
 Noví předplatitelé začnou se slevou
 Oznámení můžete na 3 dny skrýt
+Místo jídla otevřete i v Mapách Google
 
 ### App Store (da, da)
 
 Appen fortæller dig, når der er udsalg
 Nye abonnenter starter til nedsat pris
 Du kan skjule beskeden i 3 dage
+Åbn måltidets sted i Google Maps
 
 ### App Store (el, el)
 
 Η εφαρμογή σας ενημερώνει για προσφορές
 Οι νέοι συνδρομητές ξεκινούν με έκπτωση
 Μπορείτε να την κρύψετε για 3 μέρες
+Ανοίξτε το μέρος του γεύματος και στους Χάρτες Google
 
 ### App Store (fi, fi)
 
 Alennuksista kerrotaan, kun avaat apin
 Uudet tilaajat aloittavat alennushintaan
 Ilmoituksen voi piilottaa 3 päiväksi
+Avaa aterian paikka myös Google Mapsissa
 
 ### App Store (id, id)
 
 App memberi tahu saat ada diskon
 Pelanggan baru mulai dengan harga diskon
 Pemberitahuan bisa disembunyikan 3 hari
+Buka tempat makan di Google Maps juga
 
 ### App Store (nb, nb)
 
 Appen sier fra når det er salg
 Nye abonnenter starter til redusert pris
 Du kan skjule meldingen i 3 dager
+Åpne stedet for måltidet i Google Maps også
 
 ### App Store (nl, nl)
 
 De app laat weten wanneer er korting is
 Nieuwe abonnees beginnen met korting
 Je kunt de melding 3 dagen verbergen
+Open de plek van je maaltijd ook in Google Maps
 
 ### App Store (pl, pl)
 
 Aplikacja powie Ci o promocjach
 Nowi subskrybenci zaczną w niższej cenie
 Powiadomienie możesz ukryć na 3 dni
+Otwórz miejsce posiłku także w Mapach Google
 
 ### App Store (sv, sv)
 
 Appen berättar nu när det är rea
 Nya prenumeranter börjar till lägre pris
 Du kan dölja meddelandet i 3 dagar
+Öppna måltidens plats i Google Maps också
 
 ### App Store (tr, tr)
 
 Uygulama indirimleri size haber verir
 Yeni aboneler indirimli başlayabilir
 Bildirimi 3 gün gizleyebilirsiniz
+Yemeğin yerini Google Haritalar'da da açın
 
 ### App Store (ar, ar)
 
 نخبرك بالعروض عند فتح التطبيق
 المشتركون الجدد يبدؤون بسعر مخفّض
 يمكنك إخفاء التنبيه لمدة 3 أيام
+افتح مكان الوجبة في خرائط Google أيضًا
 
 ## 1.2.6
 

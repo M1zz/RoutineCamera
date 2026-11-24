@@ -698,10 +698,25 @@ struct PhotoDetailView: View {
         return formatter
     }
 
-    /// 찍은 곳 — 누르면 지도 앱으로, 길게 누르면 지우기
+    /// 찍은 곳 — 누르면 어느 지도로 열지 고르고, 지우기도 여기서
     private func placeRow(_ place: MealPlace) -> some View {
-        Button {
-            MealLocationProvider.openInMaps(place)
+        Menu {
+            Button {
+                MealLocationProvider.openInMaps(place)
+            } label: {
+                Label(String(localized: "Apple 지도에서 열기", comment: "Menu item: open the meal's place in Apple Maps"), systemImage: "map")
+            }
+            Button {
+                MealLocationProvider.openInGoogleMaps(place)
+            } label: {
+                Label(String(localized: "Google 지도에서 열기", comment: "Menu item: open the meal's place in Google Maps"), systemImage: "globe")
+            }
+            Divider()
+            Button(role: .destructive) {
+                mealStore.updatePlace(date: date, mealType: mealType, place: nil)
+            } label: {
+                Label("찍은 곳 지우기", systemImage: "mappin.slash")
+            }
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "mappin.and.ellipse")
@@ -717,16 +732,6 @@ struct PhotoDetailView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(Text("찍은 곳: \(place.name ?? String(localized: "지도에서 보기"))"))
         .accessibilityHint(Text("지도 앱에서 엽니다"))
-        .contextMenu {
-            Button(role: .destructive) {
-                mealStore.updatePlace(date: date, mealType: mealType, place: nil)
-            } label: {
-                Label("찍은 곳 지우기", systemImage: "mappin.slash")
-            }
-        }
-        .accessibilityAction(named: Text("찍은 곳 지우기")) {
-            mealStore.updatePlace(date: date, mealType: mealType, place: nil)
-        }
     }
 
     private var albumName: String {

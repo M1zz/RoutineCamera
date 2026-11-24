@@ -99,6 +99,18 @@ final class MealLocationProvider: NSObject, ObservableObject {
         item.openInMaps()
     }
 
+    /// 기록에 남긴 곳을 Google 지도로 연다 — 앱이 있으면 앱으로, 없으면 브라우저로
+    static func openInGoogleMaps(_ place: MealPlace) {
+        var components = URLComponents(string: "https://www.google.com/maps/search/")!
+        components.queryItems = [
+            URLQueryItem(name: "api", value: "1"),
+            URLQueryItem(name: "query", value: "\(place.latitude),\(place.longitude)")
+        ]
+        if let url = components.url {
+            UIApplication.shared.open(url)
+        }
+    }
+
     static func openAppSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
