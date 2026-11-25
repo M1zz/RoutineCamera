@@ -18,6 +18,7 @@ struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject private var friendManager = FriendManager.shared
     @AppStorage("showsDayCheckIn") private var showsDayCheckIn = true // 홈 맨 위 '오늘 챙긴 것' 카드 (MomentsView 와 같은 값)
+    @AppStorage("showsSnackLabel") private var showsSnackLabel = true // 순간 피드의 간식 기록에 "간식" 이름표 (MomentsView 와 같은 값)
     @ObservedObject private var subscription = SubscriptionManager.shared
     @ObservedObject private var locationProvider = MealLocationProvider.shared
     @Environment(\.dismiss) var dismiss
@@ -151,6 +152,10 @@ struct SettingsView: View {
                 if settingsManager.useMomentsFeed {
                     Toggle("오늘 챙긴 것", isOn: $showsDayCheckIn)
                     caption("홈 맨 위에서 스탬프와 물 · 카페인을 바로 찍어요.")
+                    Toggle("간식 이름표", isOn: $showsSnackLabel)
+                    caption(showsSnackLabel
+                            ? Text("끼니 사이에 남긴 기록에 \"간식\"이라고 표시해요.")
+                            : Text("끼니 사이에 남긴 기록은 이름 없이 시각만 보여요."))
                 }
                 if settingsManager.useAfterPhoto {
                     Toggle("식후 사진 알림 표시", isOn: $settingsManager.showRemainingPhotoCount)

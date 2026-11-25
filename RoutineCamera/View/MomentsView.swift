@@ -34,6 +34,8 @@ struct MomentsView: View {
     @AppStorage("showsDayCheckIn") private var showsCheckIn = true
     // 목록 대신 사진 격자로 보기 — 위쪽 바의 버튼으로 바꾼다 (ContentView 와 같은 값)
     @AppStorage("feedShowsPhotoGrid") private var showsGrid = false
+    // 간식 기록에 "간식" 이름표를 붙일지 (SettingsView 와 같은 값). 끄면 시각만 보인다
+    @AppStorage("showsSnackLabel") private var showsSnackLabel = true
     private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     private var isExercise: Bool { settingsManager.albumType == .exercise }
@@ -72,11 +74,34 @@ struct MomentsView: View {
     // 지금 찍으면 들어갈 칸 — 이미 기록한 끼니는 덮어쓰지 않고 간식 칸으로 (now 의존으로 분 단위 갱신)
     private var nextMealType: MealType { mealStore.recordableMealType(at: now) }
 
-    // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 또는 현재 시각 기준 끼니)
+    // 식전 사진만 남기고 나갔다 오면, 다음에 남길 것은 새 끼니가 아니라 그 끼니의 식후다.
+    // 다음 끼니 때가 됐거나(아직 안 남긴 아침·점심·저녁) 식전을 남긴 지 오래됐으면 물러난다 —
+    // 식후를 건너뛰는 날에도 버튼이 하루 종일 식후에 묶이지 않게.
+    private let afterPromptWindow: TimeInterval = 4 * 60 * 60
+    private var pendingAfterMeal: MealType? {
+        guard !isExercise, settingsManager.useAfterPhoto,
+              let record = mealStore.latestEatingInProgress(),
+              record.isEatingInProgress(asOf: now),
+              now.timeIntervalSince(record.sortDate) < afterPromptWindow,
+              nextMealType.isSnack else { return nil }
+        return record.mealType
+    }
+
+    // 버튼에 "무엇으로 기록될지" 미리 표시 (운동, 식후를 기다리는 끼니, 또는 현재 시각 기준 끼니)
     private var recordButtonTitle: String {
-        isExercise
-            ? String(localized: "운동 기록하기", comment: "Button: log a workout")
-            : String(localized: "\(nextMealType.displayName) 기록하기", comment: "Button: log a meal; argument is the meal name (Breakfast, Lunch…)")
+        if isExercise { return String(localized: "운동 기록하기", comment: "Button: log a workout") }
+        if let meal = pendingAfterMeal {
+            // 간식 이름표를 끈 사람에게는 간식이라는 말을 붙이지 않는다
+            if meal.isSnack && !showsSnackLabel {
+                return String(localized: "식후 기록하기", comment: "Button: log the after-meal photo of the meal in progress")
+            }
+            return String(localized: "\(meal.displayName) 식후 기록하기",
+                          comment: "Button: log the after-meal photo of the meal in progress; argument is the meal name (Breakfast, Lunch…)")
+        }
+        if nextMealType.isSnack && !showsSnackLabel {
+            return String(localized: "지금 기록하기")
+        }
+        return String(localized: "\(nextMealType.displayName) 기록하기", comment: "Button: log a meal; argument is the meal name (Breakfast, Lunch…)")
     }
 
     /// 피드 한 줄 — 남긴 기록, 또는 곧 다가올 끼니의 자리를 미리 잡아두는 고스트
@@ -201,6 +226,8 @@ struct MomentsView: View {
             }
         }
         .onReceive(clock) { now = $0 }
+        // 나갔다 돌아오면 멈춰 있던 시계를 바로 맞춘다 (버튼 · 고스트가 옛 시각으로 남지 않게)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in now = Date() }
         #if DEBUG
         // 스크린샷용 상세: 이 화면 구조에선 프로그램으로 push 가 먹지 않아, 같은 모양(뒤로 버튼 + 상세)을 전체 화면으로 띄운다
         .fullScreenCover(item: $testDetailRecord) { record in
@@ -250,6 +277,12 @@ struct MomentsView: View {
 
     private var recordButton: some View {
         Button {
+            // 식전만 남긴 끼니가 기다리고 있으면 그 끼니의 식후로 연다
+            if let meal = pendingAfterMeal {
+                recordingPhotoType = .after
+                recordingMealType = meal
+                return
+            }
             recordingPhotoType = .before
             // 식단·운동 모두 "지금 시각"으로 슬롯을 정한다.
             // (운동을 늘 .breakfast에 넣던 탓에 저녁 운동도 아침 칸에 들어가고 하루 한 번만 기록됐다)
@@ -306,17 +339,21 @@ struct MomentsView: View {
             thumbnail(record)
 
             VStack(alignment: .leading, spacing: 6) {
+                // 간식 이름표를 끄면 간식 기록은 시각이 제목 자리에 선다 (시각이 없는 옛 기록은 이름표를 그대로 둔다)
+                let hidesSnackLabel = !isExercise && !showsSnackLabel && record.mealType.isSnack && record.capturedAt != nil
                 HStack(spacing: 6) {
-                    Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
-                        .scaledFont(size: 13)
-                        .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
-                    Text(isExercise ? AlbumType.exercise.displayName : record.mealType.displayName)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                    if !hidesSnackLabel {
+                        Image(systemName: isExercise ? "figure.run" : record.mealType.symbolName)
+                            .scaledFont(size: 13)
+                            .foregroundColor(isExercise ? .green : record.mealType.symbolColor)
+                        Text(isExercise ? AlbumType.exercise.displayName : record.mealType.displayName)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.primary)
+                    }
                     if let t = record.capturedAt {
                         Text(timeLabel(t))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(hidesSnackLabel ? .subheadline.weight(.semibold) : .caption)
+                            .foregroundColor(hidesSnackLabel ? .primary : .secondary)
                     }
                 }
 
