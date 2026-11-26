@@ -64,7 +64,7 @@ struct DailySectionView: View {
 
         var snacks: [MealType] = []
 
-        for snack in [MealType.snack1, .snack2, .snack3] {
+        for snack in MealType.snacks {
             if meals[snack]?.isComplete ?? false {
                 snacks.append(snack)
             } else {
@@ -101,7 +101,9 @@ struct DailySectionView: View {
         if isToday {
             // 오늘: 모든 식사 타입 표시 (스크롤 가능)
             if SettingsManager.shared.writeSnack {
-                return [.breakfast, .snack1, .lunch, .snack2, .dinner, .snack3]
+                // 세 번 넘게 먹은 간식도 칸이 보이게 뒤에 붙인다
+                let extraSnacks = MealType.snacks.dropFirst(3).filter { meals[$0]?.isComplete == true }
+                return [.breakfast, .snack1, .lunch, .snack2, .dinner, .snack3] + extraSnacks
             } else {
                 return [.breakfast, .lunch, .dinner]
             }

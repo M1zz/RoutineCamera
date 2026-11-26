@@ -370,7 +370,7 @@ struct MealTypeStatsView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
-            ForEach(MealType.allCases, id: \.self) { mealType in
+            ForEach(MealType.standardCases, id: \.self) { mealType in
                 let stats = getMealTypeStats(mealType: mealType)
 
                 VStack(spacing: 8) {
@@ -792,8 +792,10 @@ struct ComparisonDayView: View {
             }
 
             // 끼니 6칸을 3열로 — 한 줄에 100pt 고정 6칸을 늘어놓으면 화면 밖으로 잘렸다
+            // 세 번 넘게 먹은 간식은 남긴 것만 뒤에 붙인다
+            let extraSnacks = MealType.snacks.dropFirst(3).filter { meals[$0]?.isComplete == true }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 12) {
-                ForEach(MealType.allCases, id: \.self) { mealType in
+                ForEach(MealType.standardCases + extraSnacks, id: \.self) { mealType in
                     VStack(spacing: 6) {
                         Color(.systemGray6)
                             .aspectRatio(1, contentMode: .fit)

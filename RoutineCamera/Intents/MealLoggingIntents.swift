@@ -33,8 +33,9 @@ struct LogAteAllIntent: AppIntent {
             date = Date()
         }
         // 단축어·시리의 '다 먹음'도 식단 기록이다 — 운동 앨범을 보고 있어도 식단에 남긴다
-        store.inDietAlbum { store.recordAteAll(date: date, mealType: mealType) }
-        return .result(dialog: "\(mealType.displayName) 다 먹음으로 남겼어요.")
+        var saved = mealType
+        store.inDietAlbum { saved = store.recordAteAllAsNew(date: date, mealType: mealType) }
+        return .result(dialog: "\(saved.displayName) 다 먹음으로 남겼어요.")
     }
 }
 

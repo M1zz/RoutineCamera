@@ -301,7 +301,7 @@ struct CameraPickerView: View {
             get: { mealTime },
             set: { mealTime = $0; mealTimeEdited = true }
         )
-        let snackSlot = [mealType].filter(\.isSnack) + [MealType.snack1, .snack2, .snack3]
+        let snackSlot = [mealType].filter(\.isSnack) + MealType.snacks
         let freeSnack = snackSlot.first { !taken.contains($0) }
 
         return NavigationStack {

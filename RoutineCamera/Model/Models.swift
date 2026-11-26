@@ -370,6 +370,15 @@ class MealRecordStore: ObservableObject {
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
+    /// 어느 기록을 마치는지 모르고 누른 "다 먹음" (위젯 · 단축어). 그 칸이 이미 끝난 기록이면 새 칸에 남긴다.
+    /// - Returns: 실제로 남긴 칸
+    @discardableResult
+    func recordAteAllAsNew(date: Date, mealType: MealType, finishedAt: Date? = Date()) -> MealType {
+        let target = ledger.ateAllTarget(date: date, mealType: mealType, now: Date())
+        recordAteAll(date: date, mealType: target, finishedAt: finishedAt)
+        return target
+    }
+
     // 가장 최근의 "먹는 중"(오늘 식전만 있는) 기록을 찾아 반환 (다먹음 신호를 붙일 대상 추정용).
     // 날이 지난 미마감 기록은 "기록 필요" 상태이므로 원탭 다먹음의 대상이 아니다.
     func latestEatingInProgress() -> MealRecord? {
@@ -395,7 +404,7 @@ class MealRecordStore: ObservableObject {
             for item in items {
                 guard let mealType = MealType(rawValue: item.mealType) else { continue }
                 // 식사가 끝난 시각은 앱이 반영하는 지금이 아니라 위젯 버튼을 누른 때다
-                recordAteAll(date: Date(timeIntervalSince1970: item.date), mealType: mealType,
+                recordAteAllAsNew(date: Date(timeIntervalSince1970: item.date), mealType: mealType,
                              finishedAt: item.tappedAt.map(Date.init(timeIntervalSince1970:)))
             }
         }
@@ -1059,6 +1068,8 @@ class MealRecordStore: ObservableObject {
                 backgroundColor = isBefore ? UIColor.systemPink.withAlphaComponent(0.3) : UIColor.systemPink.withAlphaComponent(0.6)
             case .snack3:
                 backgroundColor = isBefore ? UIColor.purple.withAlphaComponent(0.3) : UIColor.purple.withAlphaComponent(0.6)
+            default:
+                backgroundColor = isBefore ? UIColor.systemTeal.withAlphaComponent(0.3) : UIColor.systemTeal.withAlphaComponent(0.6)
             }
 
             backgroundColor.setFill()

@@ -53,8 +53,45 @@ final class MealLedgerTests: XCTestCase {
         ledger.recordWithoutPhoto(date: at(20, 12), mealType: .snack1, capturedAt: at(20, 12))
         XCTAssertEqual(ledger.recordableMealType(at: at(20, 14)), .snack3)
         ledger.recordWithoutPhoto(date: at(20, 12), mealType: .snack3, capturedAt: at(20, 12))
+        // 세 칸이 차도 늘어난 간식 칸으로
+        XCTAssertEqual(ledger.recordableMealType(at: at(20, 14)), .snack4)
+        for snack in MealType.snacks.dropFirst(3) {
+            ledger.recordWithoutPhoto(date: at(20, 12), mealType: snack, capturedAt: at(20, 12))
+        }
         // 간식 칸이 다 찼으면 끼니가 아니라 시간대 간식 칸을 덮는다
         XCTAssertEqual(ledger.recordableMealType(at: at(20, 14)), .snack2)
+    }
+
+    /// 리뷰 "간식을 여러 번 먹으면 새로 올려도 기존 간식이 바뀐다": 간식 칸이 셋뿐이라 네 번째부터 앞 간식을 덮어썼다
+    func testRegression_manySnacksAfterFinishingWithoutAfterPhotoEachGetTheirOwnRecord() {
+        var ledger = ledger()
+        for meal in [MealType.breakfast, .lunch, .dinner] {
+            ledger.recordWithoutPhoto(date: at(20, 8), mealType: meal, capturedAt: at(20, 8))
+        }
+        for i in 0..<7 {
+            let now = at(20, 13 + i)
+            let slot = ledger.recordableMealType(at: now)
+            XCTAssertTrue(slot.isSnack)
+            ledger.addPhoto(date: now, mealType: slot, imageData: Data([UInt8(i)]), isBefore: true, capturedAt: now, now: now)
+            // 식후 사진 없이 마치기
+            ledger.recordAteAll(date: now, mealType: slot, finishedAt: now, now: now)
+        }
+        let snacks = ledger.records.filter(\.mealType.isSnack)
+        XCTAssertEqual(snacks.count, 7)
+        XCTAssertEqual(Set(snacks.compactMap(\.beforeImageData)).count, 7)
+    }
+
+    /// 위젯 · 단축어 "다 먹음" 을 먹는 중인 식사 없이 누르면, 이미 끝난 기록에 붙지 않고 새 칸에 남는다
+    func testAteAllTarget_startsNewRecordWhenSlotIsAlreadyFinished() {
+        var ledger = ledger()
+        ledger.addPhoto(date: at(20, 12), mealType: .lunch, imageData: photo, isBefore: true, capturedAt: at(20, 12), now: at(20, 12))
+        // 먹는 중이면 그 식사를 마친다
+        XCTAssertEqual(ledger.ateAllTarget(date: at(20, 12, 20), mealType: .lunch, now: at(20, 12, 20)), .lunch)
+        ledger.recordAteAll(date: at(20, 12), mealType: .lunch, finishedAt: at(20, 12, 20), now: at(20, 12, 20))
+        // 끝난 점심에 또 누르면 간식 칸으로
+        XCTAssertEqual(ledger.ateAllTarget(date: at(20, 14), mealType: .lunch, now: at(20, 14)), .snack2)
+        // 빈 칸이면 그대로
+        XCTAssertEqual(ledger.ateAllTarget(date: at(20, 19), mealType: .dinner, now: at(20, 19)), .dinner)
     }
 
     func testRecordableMealType_ignoresYesterdayAndIncompleteRecords() {
@@ -224,8 +261,9 @@ final class MealLedgerTests: XCTestCase {
         XCTAssertEqual(ledger.moveTarget(date: at(20, 0), mealType: .snack1, to: at(19, 16)),
                        .slot(day: at(19, 0), mealType: .snack2, dayChanged: true))
         // 간식 칸이 다 차 있으면 옮기지 않는다
-        ledger.recordWithoutPhoto(date: at(19, 15), mealType: .snack2, capturedAt: at(19, 15))
-        ledger.recordWithoutPhoto(date: at(19, 15), mealType: .snack3, capturedAt: at(19, 15))
+        for snack in MealType.snacks.dropFirst() {
+            ledger.recordWithoutPhoto(date: at(19, 15), mealType: snack, capturedAt: at(19, 15))
+        }
         XCTAssertEqual(ledger.moveTarget(date: at(20, 0), mealType: .snack1, to: at(19, 16)), .slotTaken)
     }
 

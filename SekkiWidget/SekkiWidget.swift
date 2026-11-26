@@ -27,8 +27,8 @@ struct SekkiEntry: TimelineEntry {
         case .breakfast: return String(localized: "아침", comment: "Meal name: breakfast")
         case .lunch:     return String(localized: "점심", comment: "Meal name: lunch")
         case .dinner:    return String(localized: "저녁", comment: "Meal name: dinner")
-        case .snack1, .snack2, .snack3: return String(localized: "간식", comment: "Meal name: snack")
         case nil:        return meal
+        default:         return String(localized: "간식", comment: "Meal name: snack")
         }
     }
     var caredDoneCount: Int { caredMeals.filter { recordedMeals.contains($0) }.count }

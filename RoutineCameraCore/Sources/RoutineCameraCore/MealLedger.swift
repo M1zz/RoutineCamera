@@ -42,9 +42,18 @@ public struct MealLedger: Sendable {
         // 시간대에 맞는 간식 칸을 먼저, 차 있으면 남은 간식 칸
         let hour = calendar.component(.hour, from: now)
         let preferred: MealType = hour < 11 ? .snack1 : (hour < 16 ? .snack2 : .snack3)
-        let candidates = [preferred] + [MealType.snack1, .snack2, .snack3].filter { $0 != preferred }
+        let candidates = [preferred] + MealType.snacks.filter { $0 != preferred }
         // 전부 차 있으면 끼니 사진 대신 간식 칸을 덮어쓴다
         return candidates.first { !taken.contains($0) } ?? preferred
+    }
+
+    /// 위젯 · 단축어처럼 어느 기록을 마치는지 모르고 누른 "다 먹음" 이 들어갈 칸.
+    /// 그 칸이 먹는 중이면 그 식사를 마치고, 이미 끝난 기록이 있으면 덮지 않고 새 칸으로 보낸다
+    /// (식후 사진 없이 마친 간식 뒤에 또 "다 먹음" 을 누르면 앞 간식에 붙어 새 기록이 안 생겼다).
+    public func ateAllTarget(date: Date, mealType: MealType, now: Date) -> MealType {
+        guard let existing = meal(on: date, mealType), existing.isComplete,
+              !existing.isEatingInProgress(asOf: now, calendar: calendar) else { return mealType }
+        return recordableMealType(at: date)
     }
 
     /// 가장 최근의 "먹는 중"(오늘 식전만 있는) 기록. 날이 지난 미마감 기록은 대상이 아니다.
@@ -171,7 +180,7 @@ public struct MealLedger: Sendable {
             .map(\.mealType))
         guard taken.contains(mealType) else { return .slot(day: newDay, mealType: mealType, dayChanged: true) }
         guard mealType.isSnack,
-              let free = [MealType.snack1, .snack2, .snack3].first(where: { !taken.contains($0) }) else { return .slotTaken }
+              let free = MealType.snacks.first(where: { !taken.contains($0) }) else { return .slotTaken }
         return .slot(day: newDay, mealType: free, dayChanged: true)
     }
 
