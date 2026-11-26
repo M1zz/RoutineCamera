@@ -288,10 +288,12 @@ class MealRecordStore: ObservableObject {
     //   앨범에서 고른 사진처럼 띠가 없으면 nil — 이때 옛 띠가 남아 있으면 지운다 (다른 사진의 띠를 붙이면 안 되므로).
     func addOrUpdateMeal(date: Date, mealType: MealType, imageData: Data, isBefore: Bool, capturedAt: Date = Date(),
                          place: MealPlace? = nil, stampBacking: Data? = nil) {
+        let wasTimed = meal(on: date, mealType)?.finishedAt != nil
         let saved = withLedger {
             $0.addPhoto(date: date, mealType: mealType, imageData: imageData, isBefore: isBefore,
                         capturedAt: capturedAt, now: Date(), place: place)
         }
+        askAboutLongPace(saved, wasTimed: wasTimed)
         MealStampBackingStore.shared.save(stampBacking, for: saved.id, kind: isBefore ? "before" : "after")
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
@@ -366,8 +368,36 @@ class MealRecordStore: ObservableObject {
     // 위젯/액션버튼/알림에서 앱 안 열고 호출되는 진입점.
     // finishedAt: 다 먹은 실제 시각. 한참 뒤 "다 드셨어요?" 알림에서 누른 것처럼 끝난 때를 모르면 nil (식사 시간을 재지 않는다).
     func recordAteAll(date: Date, mealType: MealType, finishedAt: Date? = Date()) {
+        let wasTimed = meal(on: date, mealType)?.finishedAt != nil
         withLedger { $0.recordAteAll(date: date, mealType: mealType, finishedAt: finishedAt, now: Date()) }
+        if let saved = meal(on: date, mealType) { askAboutLongPace(saved, wasTimed: wasTimed) }
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
+    }
+
+    // MARK: - 긴 식사 시간 확인
+
+    /// 방금 잰 식사 시간이 길어 그대로 남길지 물어야 하는 식사 (화면이 이것을 보고 묻는다)
+    struct PaceToConfirm: Identifiable, Equatable {
+        let date: Date
+        let mealType: MealType
+        let minutes: Int
+        var id: String { "\(date.timeIntervalSince1970)-\(mealType.rawValue)" }
+    }
+
+    @Published var paceToConfirm: PaceToConfirm?
+
+    /// 이번에 처음 잰 식사 시간이 한 시간을 넘으면 묻는다 — 다 먹고 한참 뒤에 마감을 눌렀을 수 있다 (식단만)
+    private func askAboutLongPace(_ record: MealRecord, wasTimed: Bool) {
+        guard !wasTimed, SettingsManager.shared.albumType == .diet,
+              let minutes = record.eatingMinutes, MealPace.needsConfirmation(minutes: minutes) else { return }
+        paceToConfirm = PaceToConfirm(date: record.date, mealType: record.mealType, minutes: minutes)
+    }
+
+    /// 물어본 식사 시간을 버린다 — 사진과 다 먹음은 그대로 남는다
+    func discardPace(_ pace: PaceToConfirm) {
+        inDietAlbum { withLedger { $0.discardPace(date: pace.date, mealType: pace.mealType) } }
+        paceToConfirm = nil
+        Log.store.info("긴 식사 시간 버림: \(pace.mealType.rawValue, privacy: .public) \(pace.minutes)분")
     }
 
     /// 어느 기록을 마치는지 모르고 누른 "다 먹음" (위젯 · 단축어). 그 칸이 이미 끝난 기록이면 새 칸에 남긴다.

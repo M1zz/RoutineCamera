@@ -63,4 +63,10 @@ final class MealPaceTests: XCTestCase {
         XCTAssertEqual(roundTrip.eatingMinutes, 18)
         XCTAssertEqual(roundTrip.replacingImages(before: nil, after: nil).eatingMinutes, 18)
     }
+
+    func testNeedsConfirmation_onlyAboveAnHour() {
+        XCTAssertFalse(MealPace.needsConfirmation(minutes: 25))
+        XCTAssertFalse(MealPace.needsConfirmation(minutes: 60))
+        XCTAssertTrue(MealPace.needsConfirmation(minutes: 61))
+    }
 }

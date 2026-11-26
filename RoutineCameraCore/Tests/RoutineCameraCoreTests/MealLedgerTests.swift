@@ -196,6 +196,20 @@ final class MealLedgerTests: XCTestCase {
         XCTAssertNil(ledger.meal(on: at(20, 0), .lunch)?.finishedAt)
     }
 
+    func testDiscardPace_keepsMealButDropsTiming() {
+        var ledger = ledger()
+        ledger.addPhoto(date: at(20, 12), mealType: .lunch, imageData: photo, isBefore: true, capturedAt: at(20, 12), now: at(20, 12))
+        ledger.recordAteAll(date: at(20, 12), mealType: .lunch, finishedAt: at(20, 13, 50), now: at(20, 13, 50))
+        XCTAssertEqual(ledger.meal(on: at(20, 0), .lunch)?.eatingMinutes, 110)
+
+        ledger.discardPace(date: at(20, 12), mealType: .lunch)
+        let meal = ledger.meal(on: at(20, 0), .lunch)
+        XCTAssertNil(meal?.eatingMinutes)
+        XCTAssertNil(meal?.startedAt)
+        XCTAssertEqual(meal?.ateAll, true)
+        XCTAssertEqual(meal?.beforeImageData, photo)
+    }
+
     func testPace_ateAllFromLateReminderIsNotMeasured() {
         var ledger = ledger()
         ledger.addPhoto(date: at(20, 12), mealType: .lunch, imageData: photo, isBefore: true, capturedAt: at(20, 12), now: at(20, 12))

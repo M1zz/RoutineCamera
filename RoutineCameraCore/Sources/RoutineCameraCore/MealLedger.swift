@@ -142,6 +142,14 @@ public struct MealLedger: Sendable {
         }
     }
 
+    /// 잰 식사 시간만 버린다 (사진 · 다 먹음 · 먹은 시각은 그대로). 끝을 늦게 눌러 믿을 수 없는 길이일 때 쓴다.
+    public mutating func discardPace(date: Date, mealType: MealType) {
+        update(date: date, mealType: mealType) { record in
+            record.startedAt = nil
+            record.finishedAt = nil
+        }
+    }
+
     /// 그날 그 끼니의 기록을 지운다 (겹친 기록이 있으면 모두).
     /// - Returns: 지운 기록의 id — 딸린 파일(도장 원본 띠)을 지우는 데 쓴다
     @discardableResult

@@ -529,6 +529,8 @@ struct ContentView: View {
                     selectedPhotoType: $autoOpenPhotoType
                 )
             }
+            // 위젯 · 단축어로 마친 식사가 길게 재졌으면 앱을 열 때 묻는다
+            .mealPaceConfirmation(mealStore)
         }
         }
     }

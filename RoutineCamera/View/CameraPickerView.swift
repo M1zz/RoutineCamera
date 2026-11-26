@@ -197,9 +197,11 @@ struct CameraPickerView: View {
                     }
                 }
 
-                dismiss()
+                // 식사 시간이 길게 재졌으면 묻고 나서 닫는다
+                if mealStore.paceToConfirm == nil { dismiss() }
             }
         }
+        .mealPaceConfirmation(mealStore) { dismiss() }
         .onChange(of: localPhotoType) { oldValue, newValue in
             selectedPhotoType = newValue
         }
@@ -393,7 +395,7 @@ struct CameraPickerView: View {
         Button {
             mealStore.recordAteAll(date: date, mealType: mealType)
             NotificationManager.shared.cancelAteAllReminder(date: date, mealType: mealType)
-            dismiss()
+            if mealStore.paceToConfirm == nil { dismiss() }
         } label: {
             headerActionLabel("식후 사진 없이 마치기", systemImage: "checkmark.circle")
         }

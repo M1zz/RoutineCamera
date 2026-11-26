@@ -533,6 +533,7 @@ struct PhotoDetailView: View {
                 Text("분석 결과가 없습니다.")
             }
         }
+        .mealPaceConfirmation(mealStore)
         .onAppear {
             // 피드백 로드
             loadFeedbacks()

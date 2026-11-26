@@ -17,6 +17,12 @@ public enum MealPace {
     /// 2분보다 짧으면 다 먹고 나서 사진 두 장을 이어 남긴 것이고, 2시간보다 길면 마감을 잊었다가 뒤늦게 누른 것이다.
     public static let trustedSeconds: ClosedRange<TimeInterval> = 120...7200
 
+    /// 이보다 길게 잰 식사는 다 먹고 한참 뒤에 마감을 누른 것일 수 있다 — 그대로 남길지 사용자에게 묻는다
+    public static let confirmAboveMinutes = 60
+
+    /// 방금 잰 식사 시간을 그대로 남기기 전에 물어야 하는지
+    public static func needsConfirmation(minutes: Int) -> Bool { minutes > confirmAboveMinutes }
+
     /// 시작 · 끝 시각으로 잰 식사 시간(분, 반올림). 믿을 수 없는 길이면 nil
     public static func minutes(from start: Date?, to end: Date?) -> Int? {
         guard let start, let end else { return nil }

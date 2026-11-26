@@ -207,3 +207,45 @@ struct MealPaceCard: View {
             .foregroundColor(.secondary)
     }
 }
+
+/// 방금 잰 식사 시간이 한 시간을 넘으면 그대로 남길지 묻는다.
+/// 다 먹고 한참 뒤에 마감을 누르면 그 사이가 모두 식사 시간으로 잡히기 때문이다.
+struct MealPaceConfirmation: ViewModifier {
+    @ObservedObject var mealStore: MealRecordStore
+    /// 답한 뒤 할 일 (기록 화면은 이때 닫힌다)
+    var onAnswer: () -> Void = {}
+
+    func body(content: Content) -> some View {
+        let pace = mealStore.paceToConfirm
+        content.alert(Text("식사 시간을 버릴까요?", comment: "Alert title: a measured meal time looks too long; ask whether to discard it"),
+                      isPresented: Binding(get: { pace != nil }, set: { if !$0 { mealStore.paceToConfirm = nil } }),
+                      presenting: pace) { pace in
+            Button(role: .destructive) {
+                mealStore.discardPace(pace)
+                onAnswer()
+            } label: {
+                Text("버리기", comment: "Alert button: discard the measured meal time")
+            }
+            Button(role: .cancel) {
+                mealStore.paceToConfirm = nil
+                onAnswer()
+            } label: {
+                Text("그대로 두기", comment: "Alert button: keep the measured meal time")
+            }
+        } message: { pace in
+            Text("\(Self.duration(pace.minutes)) 동안 먹은 것으로 기록돼요. 다 먹고 한참 뒤에 마쳤다면 버려 주세요. 사진과 기록은 그대로 남아요.",
+                 comment: "Alert message: argument is a duration like '1 hr, 50 min'; discarding keeps photos and the meal")
+        }
+    }
+
+    /// 1시간 50분처럼 그 언어로
+    private static func duration(_ minutes: Int) -> String {
+        Duration.seconds(minutes * 60).formatted(.units(allowed: [.hours, .minutes], width: .wide))
+    }
+}
+
+extension View {
+    func mealPaceConfirmation(_ mealStore: MealRecordStore, onAnswer: @escaping () -> Void = {}) -> some View {
+        modifier(MealPaceConfirmation(mealStore: mealStore, onAnswer: onAnswer))
+    }
+}
