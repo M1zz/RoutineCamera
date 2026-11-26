@@ -1,5 +1,157 @@
 # 릴리스 노트
 
+## 1.2.9
+
+### 앱스토어 (한국어)
+
+한 시간 넘게 잰 식사 시간은 남길지 물어봐요
+지워도 시간만 지우고 사진은 그대로 남아요
+자잘한 문제를 고쳤어요
+
+### App Store (English)
+
+Asks before keeping a meal timed over an hour
+Only the time is cleared, your photos stay
+Small fixes and improvements
+
+### App Store (en-GB)
+
+Asks before keeping a meal timed over an hour
+Only the time is cleared, your photos stay
+Small fixes and improvements
+
+### App Store (zh-Hans)
+
+用餐计时超过一小时，会先问你是否保留
+只清除时间，照片会保留
+修复了一些小问题
+
+### App Store (zh-Hant)
+
+用餐計時超過一小時，會先問你是否保留
+只清除時間，照片會保留
+修正了一些小問題
+
+### App Store (Japanese)
+
+1時間を超えた食事時間は残すか確認します
+消えるのは時間だけで、写真はそのまま残ります
+細かな不具合を修正しました
+
+### App Store (Russian)
+
+Если еда длилась больше часа, мы уточним
+Удаляется только время, фото остаются
+Исправлены мелкие ошибки
+
+### App Store (Spanish)
+
+Te preguntamos si guardar comidas de más de una hora
+Solo se borra el tiempo, tus fotos se quedan
+Correcciones y pequeñas mejoras
+
+### App Store (German)
+
+Bei Mahlzeiten über einer Stunde fragen wir nach
+Nur die Zeit wird gelöscht, Fotos bleiben
+Kleine Fehler behoben
+
+### App Store (French)
+
+Repas de plus d'une heure : on vous demande avant
+Seule la durée est effacée, vos photos restent
+Petites corrections et améliorations
+
+### App Store (Italian)
+
+Pasti oltre un'ora? Ti chiediamo se tenerli
+Si cancella solo il tempo, le foto restano
+Piccole correzioni e migliorie
+
+### App Store (pt-BR)
+
+Refeições com mais de uma hora pedem confirmação
+Só o tempo é apagado, as fotos continuam
+Pequenas correções e melhorias
+
+### App Store (Thai)
+
+ถามก่อนเมื่อจับเวลามื้ออาหารเกินหนึ่งชั่วโมง
+ลบแค่เวลา รูปภาพยังอยู่ครบ
+แก้ไขปัญหาเล็กน้อย
+
+### App Store (Vietnamese)
+
+Hỏi lại khi bữa ăn được tính giờ quá một tiếng
+Chỉ xóa thời gian, ảnh vẫn được giữ nguyên
+Sửa một số lỗi nhỏ
+
+### App Store (Czech)
+
+U jídla nad hodinu se zeptáme, zda čas ponechat
+Smaže se jen čas, fotky zůstanou
+Drobné opravy a vylepšení
+
+### App Store (Danish)
+
+Måltid over en time? Vi spørger først
+Kun tiden slettes, dine billeder bliver
+Små rettelser og forbedringer
+
+### App Store (Greek)
+
+Γεύμα πάνω από μία ώρα; Ρωτάμε πριν το κρατήσουμε
+Διαγράφεται μόνο ο χρόνος, οι φωτογραφίες μένουν
+Μικρές διορθώσεις και βελτιώσεις
+
+### App Store (Finnish)
+
+Yli tunnin ateria? Kysymme ensin
+Vain aika poistetaan, kuvat säilyvät
+Pieniä korjauksia ja parannuksia
+
+### App Store (Indonesian)
+
+Waktu makan lebih dari satu jam dikonfirmasi dulu
+Hanya waktunya yang dihapus, foto tetap ada
+Perbaikan kecil dan peningkatan
+
+### App Store (Norwegian)
+
+Måltid over en time? Vi spør først
+Bare tiden slettes, bildene blir værende
+Små rettelser og forbedringer
+
+### App Store (Dutch)
+
+Maaltijd langer dan een uur? We vragen het eerst
+Alleen de tijd wordt gewist, je foto's blijven
+Kleine verbeteringen en reparaties
+
+### App Store (Polish)
+
+Posiłek dłuższy niż godzina? Najpierw zapytamy
+Usuwany jest tylko czas, zdjęcia zostają
+Drobne poprawki i ulepszenia
+
+### App Store (Swedish)
+
+Måltid över en timme? Vi frågar först
+Bara tiden raderas, dina bilder finns kvar
+Små rättningar och förbättringar
+
+### App Store (Turkish)
+
+Bir saati aşan yemek süresi için onay istenir
+Yalnızca süre silinir, fotoğraflar kalır
+Küçük düzeltmeler ve iyileştirmeler
+
+### App Store (Arabic)
+
+نسألك قبل حفظ وجبة استغرقت أكثر من ساعة
+يُحذف الوقت فقط وتبقى صورك كما هي
+إصلاحات وتحسينات صغيرة
+
 ## 1.2.8
 
 ### 앱스토어 (한국어)
