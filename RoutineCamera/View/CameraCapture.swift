@@ -371,10 +371,18 @@ struct CustomCameraView: View {
         cameraManager.capturePhoto { image in
             // 캡처 즉시 날짜/시간 추가 (촬영에 실패하면 카메라 화면에 그대로 머문다)
             guard let image = image else { return }
-            // 도장을 새기기 전 원본의 아래쪽 띠를 남겨, 나중에 날짜 · 글꼴을 바꿔 다시 새길 수 있게 한다
-            self.stampBacking = style.isEnabled ? MealPhotoStamp.backing(of: image) : nil
-            self.capturedImage = MealPhotoStamp.apply(to: image, date: stampDate ?? Date(), style: style,
-                                                      includeSeconds: stampDate == nil)
+            let date = stampDate ?? Date()
+            // 도장 새기기 · 띠 만들기는 2048px 사진을 통째로 다시 그리고 JPEG 로 굽는 일이라 메인 밖에서 한다.
+            // 메인에서 하면 찍을 때마다 화면이 멈췄다(1.2.6 · 1.2.7 의 멈춤 시간).
+            Task {
+                let (stamped, backing) = await Task.detached(priority: .userInitiated) {
+                    // 도장을 새기기 전 원본의 아래쪽 띠를 남겨, 나중에 날짜 · 글꼴을 바꿔 다시 새길 수 있게 한다
+                    (MealPhotoStamp.apply(to: image, date: date, style: style, includeSeconds: stampDate == nil),
+                     style.isEnabled ? MealPhotoStamp.backing(of: image) : nil)
+                }.value
+                self.stampBacking = backing
+                self.capturedImage = stamped
+            }
         }
     }
 
@@ -712,9 +720,14 @@ struct ImagePicker: UIViewControllerRepresentable {
 
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let originalImage = info[.originalImage] as? UIImage {
-                // 정사각형으로 자르고 저장용 크기로 줄인다.
+                // 정사각형으로 자르고 저장용 크기로 줄인다 — 앨범 원본(48MP 까지)을 푸는 일이라 메인 밖에서.
                 // 시트는 CameraPickerView 가 selectedImage 변화를 받아 한 번만 닫는다.
-                parent.selectedImage = MealImageResizer.squareImage(originalImage)
+                let parent = parent
+                Task {
+                    parent.selectedImage = await Task.detached(priority: .userInitiated) {
+                        MealImageResizer.squareImage(originalImage)
+                    }.value
+                }
             }
         }
 

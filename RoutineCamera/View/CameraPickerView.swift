@@ -171,7 +171,11 @@ struct CameraPickerView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .onChange(of: selectedImage) { oldValue, newValue in
-            if let image = newValue, let imageData = image.jpegData(compressionQuality: 0.8) {
+            guard let image = newValue else { return }
+            // 2048px 사진을 JPEG 로 굽는 일은 메인 밖에서 한다. 메인에서 구우면 "사용하기" 를 누를 때마다 화면이 멈췄다.
+            Task {
+                let encoded = await Task.detached(priority: .userInitiated) { image.jpegData(compressionQuality: 0.8) }.value
+                guard let imageData = encoded else { return }
                 let location = capturedLocation
                 mealStore.addOrUpdateMeal(date: date, mealType: mealType, imageData: imageData,
                                           isBefore: localPhotoType == .before, capturedAt: capturedAt,
