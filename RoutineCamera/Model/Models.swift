@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 import WidgetKit
+import LeeoKit
 import RoutineCameraCore
 import os
 
@@ -295,6 +296,7 @@ class MealRecordStore: ObservableObject {
         }
         askAboutLongPace(saved, wasTimed: wasTimed)
         MealStampBackingStore.shared.save(stampBacking, for: saved.id, kind: isBefore ? "before" : "after")
+        LeeoAnalyticsCenter.track(.custom(name: "meal_photo_saved", parameters: [:]))
         AchievementManager.shared.checkAndUnlockAchievements(mealStore: self)
     }
 
